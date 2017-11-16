@@ -12,6 +12,10 @@ public:
     explicit DiagramScene(const QString &name, QObject *parent = 0);
     ~DiagramScene();
 
+signals:
+    void zoomIn();
+    void zoomOut();
+
 public slots:
 
 signals:
@@ -21,6 +25,7 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
+    void wheelEvent(QGraphicsSceneWheelEvent *wheelEvent);
 
 private:
     QString *sceneName;

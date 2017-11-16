@@ -87,3 +87,13 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         line = 0;
     }
 }
+
+void DiagramScene::wheelEvent(QGraphicsSceneWheelEvent *wheelEvent)
+{
+    if (wheelEvent->delta() > 0)
+        emit zoomIn();
+    else
+        emit zoomOut();
+
+    return;
+}

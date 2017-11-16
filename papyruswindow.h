@@ -21,6 +21,8 @@ private slots:
 
     void on_btnNewScene_clicked();
 
+    void zPlus();
+
 private:
     Ui::PapyrusWindow *ui;
     int nbPage;

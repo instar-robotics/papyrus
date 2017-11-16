@@ -46,6 +46,7 @@ void PapyrusWindow::on_btnNewScene_clicked()
     // We should probably store the views to prevent leaking
     QGraphicsView *page = new QGraphicsView;
     page->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    //page->setDragMode(QGraphicsView::RubberBandDrag);
 
     QString str("Script ");
     str += QString::number(nbPage);
@@ -53,7 +54,14 @@ void PapyrusWindow::on_btnNewScene_clicked()
 
     DiagramScene *scene = new DiagramScene(str, 0);
     page->setScene(scene);
+    connect(scene, SIGNAL(zoomIn()), this, SLOT(zPlus()));
 
     //ui->tabWidget->addTab(page, str);
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(page, QIcon(":/icons/script.svg"), str));
+}
+
+void PapyrusWindow::zPlus()
+{
+    std::cout << "Detected zoom plus!" << std::endl;
+    ui->tabWidget->currl
 }

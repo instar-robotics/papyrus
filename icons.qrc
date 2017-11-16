@@ -6,4 +6,7 @@
         <file>icons/save-file.svg</file>
         <file>icons/home.svg</file>
     </qresource>
+    <qresource prefix="/">
+        <file>icons/script.svg</file>
+    </qresource>
 </RCC>

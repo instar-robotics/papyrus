@@ -44,6 +44,9 @@
        </layout>
       </widget>
       <widget class="QTabWidget" name="tabWidget">
+       <property name="tabShape">
+        <enum>QTabWidget::Rounded</enum>
+       </property>
        <property name="currentIndex">
         <number>0</number>
        </property>
@@ -52,6 +55,9 @@
        </property>
        <property name="tabsClosable">
         <bool>false</bool>
+       </property>
+       <property name="movable">
+        <bool>true</bool>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="icon">
@@ -62,11 +68,6 @@
          <string>Home</string>
         </attribute>
        </widget>
-       <widget class="QWidget" name="tab_2">
-        <attribute name="title">
-         <string>Test</string>
-        </attribute>
-       </widget>
       </widget>
       <widget class="QGroupBox" name="groupBox_2">
        <property name="title">
@@ -74,9 +75,9 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="btnNewScene">
           <property name="text">
-           <string>DumbButton</string>
+           <string>New Script</string>
           </property>
          </widget>
         </item>

@@ -2,6 +2,7 @@
 #define PAPYRUSWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
 
 namespace Ui {
 class PapyrusWindow;
@@ -18,8 +19,11 @@ public:
 private slots:
     void on_actionExit_triggered();
 
+    void on_btnNewScene_clicked();
+
 private:
     Ui::PapyrusWindow *ui;
+    int nbPage;
 };
 
 #endif // PAPYRUSWINDOW_H

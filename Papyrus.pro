@@ -15,12 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         papyruswindow.cpp \
     diagramscene.cpp \
-    diagramview.cpp
+    diagramview.cpp \
+    diagrambox.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
     diagramscene.h \
-    diagramview.h
+    diagramview.h \
+    diagrambox.h
 
 FORMS    += papyruswindow.ui
 

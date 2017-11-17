@@ -3,9 +3,12 @@
 #include "constants.h"
 #include "diagramscene.h"
 #include "diagramview.h"
+#include "diagrambox.h"
+
 #include <iostream>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QGraphicsItem>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
@@ -59,6 +62,7 @@ void PapyrusWindow::on_btnNewScene_clicked()
     page->setScene(scene);
     connect(scene, SIGNAL(zoomIn()), this, SLOT(zPlus()));
     connect(scene, SIGNAL(zoomOut()), this, SLOT(zMinus()));
+    connect(scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 
     //ui->tabWidget->addTab(page, str);
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(page, QIcon(":/icons/script.svg"), str));
@@ -66,12 +70,27 @@ void PapyrusWindow::on_btnNewScene_clicked()
 
 void PapyrusWindow::zPlus()
 {
-    QGraphicsView *currView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    DiagramView *currView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
     currView->scale(1.1, 1.1);
 }
 
 void PapyrusWindow::zMinus()
 {
-    QGraphicsView *currView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    DiagramView *currView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
     currView->scale(1 / 1.1, 1 / 1.1);
+}
+
+void PapyrusWindow::selectionChanged()
+{
+    /*
+    DiagramView *currView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsScene *currScene = currView->scene();
+    //QList<QGraphicsItem *> selectedItems = currScene->selectedItems();
+    QList<QGraphicsItem *> currScene->items();
+
+    for (int i = 0; i < selectedItems.count(); i += 1) {
+        DiagramBox *item = qgraphicsitem_cast<DiagramBox *>(selectedItems.at(i));
+        item->setPen(QPen(Qt::black, 3));
+    }
+    */
 }

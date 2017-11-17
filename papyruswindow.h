@@ -25,6 +25,8 @@ private slots:
 
     void zMinus();
 
+    void selectionChanged();
+
 private:
     Ui::PapyrusWindow *ui;
     int nbPage;

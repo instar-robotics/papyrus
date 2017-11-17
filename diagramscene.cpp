@@ -2,6 +2,7 @@
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
+#include <diagrambox.h>
 #include <iostream>
 
 DiagramScene::DiagramScene(const QString &name, QObject *parent) : QGraphicsScene(parent)
@@ -29,7 +30,10 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     QGraphicsItem *maybeItem = itemAt(mouseEvent->scenePos(), QTransform());
     if (!maybeItem) {
         // Only insert mode for now
-        QGraphicsRectItem *item = new QGraphicsRectItem(0, 0, 150, 100);
+        //QGraphicsRectItem *item = new QGraphicsRectItem(0, 0, 150, 100);
+        DiagramBox *item = new DiagramBox;
+        item->setFlag(QGraphicsItem::ItemIsSelectable);
+
         addItem(item);
         QPointF p = item->boundingRect().bottomRight();
         item->setPos(mouseEvent->scenePos() - p / 2);
@@ -61,29 +65,36 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    if (mouseEvent->button() != Qt::LeftButton)
-        return;
+    if (mouseEvent->button() == Qt::LeftButton) {
+        leftBtnIsDown = false;
 
-    leftBtnIsDown = false;
+        if (line != 0) {
+            removeItem(line);
 
-    if (line != 0) {
-        removeItem(line);
+            // Check if we have released on something
+            QGraphicsItem *maybeItem = itemAt(mouseEvent->scenePos(), QTransform());
 
-        // Check if we have released on something
+            if (maybeItem) {
+                QPointF start = maybeItem->scenePos();
+                QRectF box = maybeItem->boundingRect();
+                qreal w = box.width();
+                qreal h = box.height();
+                QPointF end = QPointF(start.x() + w, start.y() + h);
+                QGraphicsLineItem *finalLine = new QGraphicsLineItem(QLineF(line->line().p1(), (start + end) / 2));
+                finalLine->setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap));
+                addItem(finalLine);
+            }
+
+            delete line;
+            line = 0;
+        }
+    } else if (mouseEvent->button() == Qt::RightButton) {
+        std::cout << "Nb items selected: " << selectedItems().count() << std::endl;
+    } else if (mouseEvent->button() == Qt::MiddleButton) {
         QGraphicsItem *maybeItem = itemAt(mouseEvent->scenePos(), QTransform());
 
         if (maybeItem) {
-            QPointF start = maybeItem->scenePos();
-            QRectF box = maybeItem->boundingRect();
-            qreal w = box.width();
-            qreal h = box.height();
-            QPointF end = QPointF(start.x() + w, start.y() + h);
-            QGraphicsLineItem *finalLine = new QGraphicsLineItem(QLineF(line->line().p1(), (start + end) / 2));
-            finalLine->setPen(QPen(Qt::blue, 2));
-            addItem(finalLine);
+            maybeItem->setSelected(!maybeItem->isSelected());
         }
-
-        delete line;
-        line = 0;
     }
 }

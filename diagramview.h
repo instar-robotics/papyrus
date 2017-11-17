@@ -14,6 +14,13 @@ signals:
 protected:
     void wheelEvent(QWheelEvent *wheelEvent);
 
+protected:
+    /*
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent* event);
+    */
+
 public slots:
 };
 

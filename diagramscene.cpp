@@ -59,8 +59,11 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
         line->setLine(newLine);
     } else {
         // No nothing for now
-        QGraphicsScene::mouseMoveEvent(mouseEvent);
+        //QGraphicsScene::mouseMoveEvent(mouseEvent);
     }
+
+    QGraphicsScene::mouseMoveEvent(mouseEvent);
+
 }
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)

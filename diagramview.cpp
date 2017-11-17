@@ -8,6 +8,7 @@ DiagramView::DiagramView(QWidget *parent) : QGraphicsView(parent)
 {
     // Make it so that transformations (essentially zooming) are centered on mouse
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    setMouseTracking(true);
 }
 
 void DiagramView::wheelEvent(QWheelEvent *wheelEvent)
@@ -26,3 +27,19 @@ void DiagramView::wheelEvent(QWheelEvent *wheelEvent)
     }
 }
 
+/*
+void DiagramView::mousePressEvent(QMouseEvent *event)
+{
+    QGraphicsView::mousePressEvent(event);
+}
+
+void DiagramView::mouseReleaseEvent(QMouseEvent *event)
+{
+    QGraphicsView::mouseReleaseEvent(event);
+}
+
+void DiagramView::mouseMoveEvent(QMouseEvent *event)
+{
+    QGraphicsView::mouseMoveEvent(event);
+}
+//*/

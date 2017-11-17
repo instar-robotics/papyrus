@@ -6,7 +6,8 @@ DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent)
 {
     setRect(QRectF(0, 0, 150, 100));
     setPen((QPen(Qt::black, 2)));
-    setFlag(QGraphicsItem::ItemIsSelectable);
+    //setFlag(QGraphicsItem::ItemIsSelectable);
+    setFlag(QGraphicsItem::ItemIsMovable);
 }
 
 void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

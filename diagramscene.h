@@ -29,6 +29,7 @@ protected:
 private:
     QString *sceneName;
     bool leftBtnIsDown;
+    bool middleBtnIsDown;
     QGraphicsLineItem *line;
 
 };

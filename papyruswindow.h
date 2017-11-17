@@ -23,6 +23,8 @@ private slots:
 
     void zPlus();
 
+    void zMinus();
+
 private:
     Ui::PapyrusWindow *ui;
     int nbPage;

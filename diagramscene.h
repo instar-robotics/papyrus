@@ -25,7 +25,6 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
-    void wheelEvent(QGraphicsSceneWheelEvent *wheelEvent);
 
 private:
     QString *sceneName;

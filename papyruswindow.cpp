@@ -2,6 +2,7 @@
 #include "ui_papyruswindow.h"
 #include "constants.h"
 #include "diagramscene.h"
+#include "diagramview.h"
 #include <iostream>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -44,7 +45,9 @@ void PapyrusWindow::on_actionExit_triggered()
 void PapyrusWindow::on_btnNewScene_clicked()
 {
     // We should probably store the views to prevent leaking
-    QGraphicsView *page = new QGraphicsView;
+    //QGraphicsView *page = new QGraphicsView;
+    DiagramView *page = new DiagramView;
+
     page->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     //page->setDragMode(QGraphicsView::RubberBandDrag);
 
@@ -55,6 +58,7 @@ void PapyrusWindow::on_btnNewScene_clicked()
     DiagramScene *scene = new DiagramScene(str, 0);
     page->setScene(scene);
     connect(scene, SIGNAL(zoomIn()), this, SLOT(zPlus()));
+    connect(scene, SIGNAL(zoomOut()), this, SLOT(zMinus()));
 
     //ui->tabWidget->addTab(page, str);
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(page, QIcon(":/icons/script.svg"), str));
@@ -62,6 +66,12 @@ void PapyrusWindow::on_btnNewScene_clicked()
 
 void PapyrusWindow::zPlus()
 {
-    std::cout << "Detected zoom plus!" << std::endl;
-    ui->tabWidget->currl
+    QGraphicsView *currView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    currView->scale(1.1, 1.1);
+}
+
+void PapyrusWindow::zMinus()
+{
+    QGraphicsView *currView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    currView->scale(1 / 1.1, 1 / 1.1);
 }

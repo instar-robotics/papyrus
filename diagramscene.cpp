@@ -47,6 +47,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
             QPointF center = maybeItem->boundingRect().center();
             line = new QGraphicsLineItem(QLineF(maybeItem->scenePos() + center,
                                          evt->scenePos()));
+            line->setPen(QPen(Qt::black, 1, Qt::DashLine));
             box = qgraphicsitem_cast<DiagramBox *>(maybeItem);
             addItem(line);
         }

@@ -47,6 +47,24 @@ void PapyrusWindow::on_actionExit_triggered()
 
 void PapyrusWindow::on_btnNewScene_clicked()
 {
+    //QGraphicsScene *newScene = new QGraphicsScene;
+    DiagramScene *newScene = new DiagramScene;
+    //newScene->addText("Hello, people!")->setFlag(QGraphicsItem::ItemIsMovable);
+    //newScene->addRect(QRectF(0, 0, 200, 150))->setFlag(QGraphicsItem::ItemIsMovable);
+    //QGraphicsRectItem *newRect = new QGraphicsRectItem(0, 0, 100, 50);
+    //newRect->setFlag(QGraphicsItem::ItemIsMovable);
+    //newScene->addItem(newRect);
+
+    DiagramBox *newBox = new DiagramBox;
+    newScene->addItem(newBox);
+
+    QGraphicsView *newView = new QGraphicsView(newScene);
+    QString str("Tab ");
+    str += QString::number(nbPage);
+    nbPage += 1;
+    ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView, QIcon(":/icons/script.svg"), str));
+
+    /*
     // We should probably store the views to prevent leaking
     //QGraphicsView *page = new QGraphicsView;
     DiagramView *page = new DiagramView;
@@ -66,6 +84,7 @@ void PapyrusWindow::on_btnNewScene_clicked()
 
     //ui->tabWidget->addTab(page, str);
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(page, QIcon(":/icons/script.svg"), str));
+    //*/
 }
 
 void PapyrusWindow::zPlus()

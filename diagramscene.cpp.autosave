@@ -25,6 +25,7 @@ DiagramScene::~DiagramScene()
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
+    sceneRect()
     QGraphicsScene::mousePressEvent(mouseEvent);
 }
 

@@ -2,6 +2,7 @@
 #define DIAGRAMSCENE_H
 
 #include <QGraphicsScene>
+#include <diagrambox.h>
 
 
 class DiagramScene : public QGraphicsScene
@@ -28,7 +29,8 @@ private:
     //QString *sceneName;
     //bool leftBtnIsDown;
     bool middleBtnIsDown;
-    QGraphicsLineItem *line;
+    QGraphicsLineItem *line; // The current line being drawn while clicking
+    DiagramBox *box;         // The current box from which the current line originates
 
 };
 

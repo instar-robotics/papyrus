@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
-    CONFIG += c++1
+    CONFIG += c++11
 } else {
     QMAKE_CXXFLAGS += -std=c++11
 }
@@ -22,13 +22,15 @@ SOURCES += main.cpp\
         papyruswindow.cpp \
     diagramscene.cpp \
     diagramview.cpp \
-    diagrambox.cpp
+    diagrambox.cpp \
+    arrow.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
     diagramscene.h \
     diagramview.h \
-    diagrambox.h
+    diagrambox.h \
+    arrow.h
 
 FORMS    += papyruswindow.ui
 

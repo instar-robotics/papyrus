@@ -78,3 +78,22 @@ void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
     currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
     std::cout << "Antialias set to " << antialiasing << std::endl;
 }
+
+void PapyrusWindow::on_actionZoom_In_triggered()
+{
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    currentView->scale(1.2 * SCALE_FACTOR, 1.2 * SCALE_FACTOR);
+}
+
+void PapyrusWindow::on_actionZoom_Out_triggered()
+{
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    currentView->scale(1 / (1.2 * SCALE_FACTOR), 1 / (1.2 * SCALE_FACTOR));
+}
+
+void PapyrusWindow::on_actionZoom_Fit_triggered()
+{
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QRectF wholeScene = currentView->scene()->itemsBoundingRect();
+    currentView->fitInView(wholeScene, Qt::KeepAspectRatio);
+}

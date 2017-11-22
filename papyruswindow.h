@@ -23,6 +23,12 @@ private slots:
 
     void on_actionAntialiasing_toggled(bool antialiasing);
 
+    void on_actionZoom_In_triggered();
+
+    void on_actionZoom_Out_triggered();
+
+    void on_actionZoom_Fit_triggered();
+
 private:
     Ui::PapyrusWindow *ui;
     int nbPage;

@@ -10,6 +10,7 @@ DiagramView::DiagramView(QWidget *parent) : QGraphicsView(parent)
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setMouseTracking(true);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 DiagramView::DiagramView(QGraphicsScene *scene, QWidget *parent) : DiagramView(parent)

@@ -4,29 +4,30 @@
 
 DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent)
 {
-    startLine = 0;
-    endLine = 0;
+    startLine_ = 0;
+    endLine_ = 0;
     setRect(QRectF(0, 0, 150, 100));
     setPen((QPen(Qt::black, 2)));
-    setFlag(QGraphicsItem::ItemIsMovable);
-    setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
+    setFlags(QGraphicsItem::ItemIsSelectable
+             | QGraphicsItem::ItemIsMovable |
+             QGraphicsItem::ItemSendsScenePositionChanges);
 }
 
 bool DiagramBox::setStartLine(Arrow *line)
 {
-    if (startLine)
+    if (startLine_)
         return false;
 
-    startLine = line;
+    startLine_ = line;
     return true;
 }
 
 bool DiagramBox::setEndLine(Arrow *line)
 {
-    if (endLine)
+    if (endLine_)
         return false;
 
-    endLine = line;
+    endLine_ = line;
     return true;
 }
 
@@ -37,14 +38,29 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         QPointF newCenter = boundingRect().center();
         QPointF newPoint = newPos + newCenter;
 
-        if (startLine)
-            startLine->updatePosition(newPoint, true);
+        if (startLine_)
+            startLine_->updatePosition(newPoint, true);
 
-        if (endLine)
-            endLine->updatePosition(newPoint, false);
+        if (endLine_)
+            endLine_->updatePosition(newPoint, false);
+    } else if (change == QGraphicsItem::ItemSceneHasChanged && !scene()) {
+        // When the box is removed from a scene
+        emit(deleted());
     }
 
     return QGraphicsItem::itemChange(change, value);
+}
+
+void DiagramBox::startLineDeleted()
+{
+    // ATTENTION: to prevent leak, we must make sure to delete the pointer to the Arrow
+    startLine_ = 0;
+}
+
+void DiagramBox::endLineDeleted()
+{
+    // ATTENTION: to prevent leak, we must make sure to delete the pointer to the Arrow
+    endLine_ = 0;
 }
 
 /*

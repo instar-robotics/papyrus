@@ -13,6 +13,8 @@ class DiagramBox : public QObject, public QGraphicsRectItem
 public:
     explicit DiagramBox(QGraphicsItem *parent = 0);
 
+    Arrow *startLine() const {return startLine_;}
+    Arrow *endLine() const {return endLine_;}
     bool setStartLine(Arrow *line);
     bool setEndLine(Arrow *line);
 
@@ -23,12 +25,15 @@ protected:
 
 signals:
     //void positionChanged(bool isStartPoint);
+    void deleted();
 
 private:
-    Arrow *startLine;
-    Arrow *endLine;
+    Arrow *startLine_;
+    Arrow *endLine_;
 
 public slots:
+    void startLineDeleted();
+    void endLineDeleted();
 };
 
 #endif // DIAGRAMBOX_H

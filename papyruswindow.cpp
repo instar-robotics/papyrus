@@ -52,8 +52,8 @@ void PapyrusWindow::on_btnNewScene_clicked()
 
     // Create a new scene to contain the items for the new script
     DiagramScene *newScene = new DiagramScene;
-    DiagramBox *newBox = new DiagramBox;
-    newScene->addItem(newBox);
+    //DiagramBox *newBox = new DiagramBox;
+    //newScene->addItem(newBox);
 
     // Create a new view to display the new scene
     DiagramView *newView = new DiagramView(newScene);

@@ -15,7 +15,11 @@ public:
 
     void updatePosition(QPointF newPoint, bool isStartPoint);
 
+signals:
+    void deleted();
+
 public slots:
+    void boxDeleted();
 };
 
 #endif // ARROW_H

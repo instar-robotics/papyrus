@@ -24,6 +24,9 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *evt);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
+    void keyPressEvent(QKeyEvent *evt);
+    void removeItem(QGraphicsItem *item);
+    void removeItem(DiagramBox *box);
 
 private:
     //QString *sceneName;

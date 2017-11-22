@@ -7,6 +7,8 @@
 #include <diagrambox.h>
 #include <arrow.h>
 #include <iostream>
+#include <QKeyEvent>
+#include <QList>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -89,6 +91,11 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                 box->setStartLine(finalLine);
                 maybeItem->setEndLine(finalLine);
 
+                connect(maybeItem, SIGNAL(deleted()), finalLine, SLOT(boxDeleted()));
+                connect(box, SIGNAL(deleted()), finalLine, SLOT(boxDeleted()));
+                connect(finalLine, SIGNAL(deleted()), maybeItem, SLOT(endLineDeleted()));
+                connect(finalLine, SIGNAL(deleted()), box, SLOT(startLineDeleted()));
+
                 //connect(maybeItem, SIGNAL(positionChanged(false)), finalLine, SLOT(updatePosition(bool)));
                 //connect(box, SIGNAL(positionChanged(true)), finalLine, SLOT(updatePosition(bool)));
 
@@ -104,4 +111,52 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
     // Important! Otherwise the box's position doesn't get updated.
     QGraphicsScene::mouseReleaseEvent(evt);
+}
+
+void DiagramScene::keyPressEvent(QKeyEvent *evt)
+{
+    // Delete selected items when 'DELETE' is pressed
+    if (evt->key() == Qt::Key_Delete) {
+        QList<QGraphicsItem *> items = selectedItems();
+
+        int nbItems = items.count();
+        for (int i = 0; i < nbItems; i += 1) {
+            // Remove the item
+            removeItem(qgraphicsitem_cast<DiagramBox *>(items.at(i)));
+        }
+    }
+
+    QGraphicsScene::keyPressEvent(evt);
+}
+
+void DiagramScene::removeItem(QGraphicsItem *item)
+{
+    QGraphicsScene::removeItem(item);
+}
+
+/*
+ * Remove a DiagramBox from the scene and also remove any lines that were connected to it
+ */
+
+void DiagramScene::removeItem(DiagramBox *box)
+{
+    /*
+     * ATTENTION: check for leaks:
+     * - should we delete the pointers?
+     * - Any risks of double deletion?
+     * - Should we restore the pointer to 0?
+     */
+    /*
+    if (box->startLine() && box->startLine()->scene()) {
+        QGraphicsScene::removeItem(box->startLine());
+        box->setStartLine(0);
+    }
+
+    if (box->endLine() && box->endLine()->scene()) {
+        QGraphicsScene::removeItem(box->endLine());
+        box->setEndLine(0);
+    }
+    //*/
+
+    QGraphicsScene::removeItem(box);
 }

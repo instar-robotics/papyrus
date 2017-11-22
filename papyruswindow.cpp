@@ -26,8 +26,6 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     sizes << 230 << 1088 << 250;
     ui->splitter->setSizes(sizes);
 
-    // Bind buttons events
-
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -47,69 +45,36 @@ void PapyrusWindow::on_actionExit_triggered()
 
 void PapyrusWindow::on_btnNewScene_clicked()
 {
-    //QGraphicsScene *newScene = new QGraphicsScene;
-    DiagramScene *newScene = new DiagramScene;
-    //newScene->addText("Hello, people!")->setFlag(QGraphicsItem::ItemIsMovable);
-    //newScene->addRect(QRectF(0, 0, 200, 150))->setFlag(QGraphicsItem::ItemIsMovable);
-    //QGraphicsRectItem *newRect = new QGraphicsRectItem(0, 0, 100, 50);
-    //newRect->setFlag(QGraphicsItem::ItemIsMovable);
-    //newScene->addItem(newRect);
+    /*
+     * ATTENTION: memory is leaking here: we should keep the pointers and delete them when we close
+     * the tab. Or maybe we should look into smart pointers from the std lib.
+     */
 
+    // Create a new scene to contain the items for the new script
+    DiagramScene *newScene = new DiagramScene;
     DiagramBox *newBox = new DiagramBox;
     newScene->addItem(newBox);
 
-    QGraphicsView *newView = new QGraphicsView(newScene);
+    // Create a new view to display the new scene
+    DiagramView *newView = new DiagramView(newScene);
+
+    // Add the new scene as a new tab
     QString str("Tab ");
     str += QString::number(nbPage);
     nbPage += 1;
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView, QIcon(":/icons/script.svg"), str));
-
-    /*
-    // We should probably store the views to prevent leaking
-    //QGraphicsView *page = new QGraphicsView;
-    DiagramView *page = new DiagramView;
-
-    page->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-    //page->setDragMode(QGraphicsView::RubberBandDrag);
-
-    QString str("Script ");
-    str += QString::number(nbPage);
-    nbPage += 1;
-
-    DiagramScene *scene = new DiagramScene(str, 0);
-    page->setScene(scene);
-    connect(scene, SIGNAL(zoomIn()), this, SLOT(zPlus()));
-    connect(scene, SIGNAL(zoomOut()), this, SLOT(zMinus()));
-    connect(scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-
-    //ui->tabWidget->addTab(page, str);
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(page, QIcon(":/icons/script.svg"), str));
-    //*/
+    ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
+                                                         QIcon(":/icons/script.svg"),
+                                                         str));
 }
 
-void PapyrusWindow::zPlus()
-{
-    DiagramView *currView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    currView->scale(1.1, 1.1);
-}
-
-void PapyrusWindow::zMinus()
-{
-    DiagramView *currView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    currView->scale(1 / 1.1, 1 / 1.1);
-}
-
-void PapyrusWindow::selectionChanged()
+void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
 {
     /*
-    DiagramView *currView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    QGraphicsScene *currScene = currView->scene();
-    //QList<QGraphicsItem *> selectedItems = currScene->selectedItems();
-    QList<QGraphicsItem *> currScene->items();
-
-    for (int i = 0; i < selectedItems.count(); i += 1) {
-        DiagramBox *item = qgraphicsitem_cast<DiagramBox *>(selectedItems.at(i));
-        item->setPen(QPen(Qt::black, 3));
-    }
-    */
+     * ATTENTION: it only toggles the antialiasing for the current script
+     * It should probably be done for all scripts
+     */
+    //DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
+    std::cout << "Antialias set to " << antialiasing << std::endl;
 }

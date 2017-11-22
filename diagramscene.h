@@ -20,15 +20,15 @@ signals:
 public slots:
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
-    //void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
-    //void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
+    void mousePressEvent(QGraphicsSceneMouseEvent *evt);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
 
 private:
     //QString *sceneName;
     //bool leftBtnIsDown;
-    //bool middleBtnIsDown;
-    //QGraphicsLineItem *line;
+    bool middleBtnIsDown;
+    QGraphicsLineItem *line;
 
 };
 

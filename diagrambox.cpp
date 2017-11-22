@@ -9,10 +9,6 @@ DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent)
     setFlag(QGraphicsItem::ItemIsMovable);
 }
 
-DiagramBox::DiagramBox(qreal x, qreal y, qreal width, qreal height) : QGraphicsRectItem(x, y, width, height)
-{
-}
-
 /*
 void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {

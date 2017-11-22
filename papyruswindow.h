@@ -21,11 +21,7 @@ private slots:
 
     void on_btnNewScene_clicked();
 
-    void zPlus();
-
-    void zMinus();
-
-    void selectionChanged();
+    void on_actionAntialiasing_toggled(bool antialiasing);
 
 private:
     Ui::PapyrusWindow *ui;

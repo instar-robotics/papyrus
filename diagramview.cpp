@@ -9,37 +9,26 @@ DiagramView::DiagramView(QWidget *parent) : QGraphicsView(parent)
     // Make it so that transformations (essentially zooming) are centered on mouse
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setMouseTracking(true);
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 }
 
-void DiagramView::wheelEvent(QWheelEvent *wheelEvent)
+DiagramView::DiagramView(QGraphicsScene *scene, QWidget *parent) : DiagramView(parent)
+{
+    setScene(scene);
+}
+
+void DiagramView::wheelEvent(QWheelEvent *evt)
 {
     // Zoom if CTRL is pressed while scrolling
-    if (wheelEvent->modifiers() & Qt::ControlModifier) {
+    if (evt->modifiers() & Qt::ControlModifier) {
 
         // Handle direction of zoom
-        if (wheelEvent->delta() > 0)
+        if (evt->delta() > 0)
             scale(SCALE_FACTOR, SCALE_FACTOR);
         else
             scale(1 / SCALE_FACTOR, 1 / SCALE_FACTOR);
     } else {
         // If CTRL is not pressed, simply scroll
-        QGraphicsView::wheelEvent(wheelEvent);
+        QGraphicsView::wheelEvent(evt);
     }
 }
-
-/*
-void DiagramView::mousePressEvent(QMouseEvent *event)
-{
-    QGraphicsView::mousePressEvent(event);
-}
-
-void DiagramView::mouseReleaseEvent(QMouseEvent *event)
-{
-    QGraphicsView::mouseReleaseEvent(event);
-}
-
-void DiagramView::mouseMoveEvent(QMouseEvent *event)
-{
-    QGraphicsView::mouseMoveEvent(event);
-}
-//*/

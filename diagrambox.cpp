@@ -2,8 +2,11 @@
 #include <iostream>
 #include <QPen>
 
+int DiagramBox::nb = 0;
+
 DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent)
 {
+    no = nb;
     startLine_ = 0;
     endLine_ = 0;
     setRect(QRectF(0, 0, 150, 100));
@@ -11,24 +14,17 @@ DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent)
     setFlags(QGraphicsItem::ItemIsSelectable
              | QGraphicsItem::ItemIsMovable |
              QGraphicsItem::ItemSendsScenePositionChanges);
+    nb += 1;
 }
 
-bool DiagramBox::setStartLine(Arrow *line)
+void DiagramBox::setStartLine(Arrow *line)
 {
-    if (startLine_)
-        return false;
-
     startLine_ = line;
-    return true;
 }
 
-bool DiagramBox::setEndLine(Arrow *line)
+void DiagramBox::setEndLine(Arrow *line)
 {
-    if (endLine_)
-        return false;
-
     endLine_ = line;
-    return true;
 }
 
 QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
@@ -43,24 +39,9 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 
         if (endLine_)
             endLine_->updatePosition(newPoint, false);
-    } else if (change == QGraphicsItem::ItemSceneHasChanged && !scene()) {
-        // When the box is removed from a scene
-        emit(deleted());
     }
 
     return QGraphicsItem::itemChange(change, value);
-}
-
-void DiagramBox::startLineDeleted()
-{
-    // ATTENTION: to prevent leak, we must make sure to delete the pointer to the Arrow
-    startLine_ = 0;
-}
-
-void DiagramBox::endLineDeleted()
-{
-    // ATTENTION: to prevent leak, we must make sure to delete the pointer to the Arrow
-    endLine_ = 0;
 }
 
 /*

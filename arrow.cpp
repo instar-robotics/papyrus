@@ -3,9 +3,14 @@
 #include <iostream>
 #include <QGraphicsScene>
 
+int Arrow::nb = 0;
+
 Arrow::Arrow(QGraphicsItem *parent) : QGraphicsLineItem(parent)
 {
-
+    no = nb;
+    from_ = 0;
+    to_ = 0;
+    nb += 1;
 }
 
 Arrow::Arrow(const QLineF &line, QGraphicsItem *parent) : Arrow(parent)
@@ -21,7 +26,12 @@ void Arrow::updatePosition(QPointF newPoint, bool isStartPoint)
     setLine(QLineF(p1, p2));
 }
 
-void Arrow::boxDeleted() {
-    scene()->removeItem(this);
-    emit(deleted());
+void Arrow::setFrom(DiagramBox *box)
+{
+    from_ = box;
+}
+
+void Arrow::setTo(DiagramBox *box)
+{
+    to_ = box;
 }

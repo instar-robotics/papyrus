@@ -3,6 +3,7 @@
 
 #include <QGraphicsScene>
 #include <diagrambox.h>
+#include <arrow.h>
 
 
 class DiagramScene : public QGraphicsScene
@@ -10,13 +11,8 @@ class DiagramScene : public QGraphicsScene
     Q_OBJECT
 
 public:
-    //explicit DiagramScene(const QString &name, QObject *parent = 0);
     explicit DiagramScene(QObject *parent = 0);
-    //~DiagramScene();
-
-signals:
-    //void zoomIn();
-    //void zoomOut();
+    ~DiagramScene();
 
 public slots:
 
@@ -26,6 +22,7 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
     void keyPressEvent(QKeyEvent *evt);
     void removeItem(QGraphicsItem *item);
+    void removeItem(Arrow *arrow);
     void removeItem(DiagramBox *box);
 
 private:

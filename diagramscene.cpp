@@ -15,19 +15,13 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent)
     middleBtnIsDown = false;
     line = 0;
     box = 0;
-    /*
-    sceneName = new QString(name);
-    setSceneRect(0, 0, 5000, 5000);
-    leftBtnIsDown = false;
-    middleBtnIsDown = false;
-    line = 0;
-    //*/
 }
 
-/*
+//*
 DiagramScene::~DiagramScene()
 {
-    delete sceneName;
+    delete line;
+    delete box;
 }
 //*/
 
@@ -77,7 +71,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             removeItem(line);
 
             // Check if we have released on top of an item
-            //QGraphicsItem *maybeItem = itemAt(evt->scenePos(), QTransform());
             DiagramBox *maybeItem = qgraphicsitem_cast<DiagramBox *>(itemAt(evt->scenePos(), QTransform()));
 
             if (maybeItem) {
@@ -91,13 +84,11 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                 box->setStartLine(finalLine);
                 maybeItem->setEndLine(finalLine);
 
-                connect(maybeItem, SIGNAL(deleted()), finalLine, SLOT(boxDeleted()));
-                connect(box, SIGNAL(deleted()), finalLine, SLOT(boxDeleted()));
-                connect(finalLine, SIGNAL(deleted()), maybeItem, SLOT(endLineDeleted()));
-                connect(finalLine, SIGNAL(deleted()), box, SLOT(startLineDeleted()));
-
-                //connect(maybeItem, SIGNAL(positionChanged(false)), finalLine, SLOT(updatePosition(bool)));
-                //connect(box, SIGNAL(positionChanged(true)), finalLine, SLOT(updatePosition(bool)));
+                // Link the newly-created Arrow with its corresponding DiagramBoxes
+                box->setStartLine(finalLine);
+                maybeItem->setEndLine(finalLine);
+                finalLine->setFrom(box);
+                finalLine->setTo(maybeItem);
 
                 addItem(finalLine);
             }
@@ -134,6 +125,11 @@ void DiagramScene::removeItem(QGraphicsItem *item)
     QGraphicsScene::removeItem(item);
 }
 
+void DiagramScene::removeItem(Arrow *arrow)
+{
+    QGraphicsScene::removeItem(arrow);
+}
+
 /*
  * Remove a DiagramBox from the scene and also remove any lines that were connected to it
  */
@@ -158,5 +154,32 @@ void DiagramScene::removeItem(DiagramBox *box)
     }
     //*/
 
-    QGraphicsScene::removeItem(box);
+    if (box->startLine()) {
+        Arrow *line = box->startLine();
+        DiagramBox *endBox = line->to();
+        // Unlink the Arrow from its DiagramBoxes
+        line->setTo(NULL);
+        line->setFrom(NULL);
+        endBox->setEndLine(NULL); // Before removing the Arrow, we remove it from its end box
+        box->setStartLine(NULL);  // Remove the Arrow from this box
+
+        removeItem(line);      // Remove the Arrow from the scene
+        delete line;           // Delete the Arrow
+    }
+
+    if (box->endLine()) {
+        Arrow *line = box->endLine();
+        DiagramBox *startBox = line->from();
+        // Unlink the Arrow from its DiagramBoxes
+        line->setTo(NULL);
+        line->setFrom(NULL);
+        startBox->setStartLine(NULL); // Before removing the Arrow, we remove it from its end box
+        box->setEndLine(NULL);        // Remove the Arrow from this box
+
+        removeItem(line);      // Remove the Arrow from the scene
+        delete line;           // Delete the Arrow
+    }
+
+    QGraphicsScene::removeItem(box); // Remove the Box from the scene
+    delete box;                      // Delete the Box
 }

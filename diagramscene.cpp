@@ -81,12 +81,14 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                 Arrow *finalLine = new Arrow(QLineF(line->line().p1(), endPoint));
                 finalLine->setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap));
 
-                box->setStartLine(finalLine);
-                maybeItem->setEndLine(finalLine);
+//                box->setStartLine(finalLine);
+//                maybeItem->setEndLine(finalLine);
 
                 // Link the newly-created Arrow with its corresponding DiagramBoxes
-                box->setStartLine(finalLine);
-                maybeItem->setEndLine(finalLine);
+//                box->setStartLine(finalLine);
+//                maybeItem->setEndLine(finalLine);
+                box->addStartLine(finalLine);
+                maybeItem->addEndLine(finalLine);
                 finalLine->setFrom(box);
                 finalLine->setTo(maybeItem);
 
@@ -136,23 +138,13 @@ void DiagramScene::removeItem(Arrow *arrow)
 
 void DiagramScene::removeItem(DiagramBox *box)
 {
-    /*
-     * ATTENTION: check for leaks:
-     * - should we delete the pointers?
-     * - Any risks of double deletion?
-     * - Should we restore the pointer to 0?
-     */
-    /*
-    if (box->startLine() && box->startLine()->scene()) {
-        QGraphicsScene::removeItem(box->startLine());
-        box->setStartLine(0);
-    }
+    // ATTENTION: check for leaks: do we need to delete the items?
 
-    if (box->endLine() && box->endLine()->scene()) {
-        QGraphicsScene::removeItem(box->endLine());
-        box->setEndLine(0);
+    // TODO: re-implement this in a more efficient manner!
+    if (!box->startLines().empty()) {
+        const size_t nb = box->startLines().count();
+
     }
-    //*/
 
     if (box->startLine()) {
         Arrow *line = box->startLine();

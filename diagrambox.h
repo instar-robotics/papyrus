@@ -3,6 +3,8 @@
 
 #include "arrow.h"
 
+#include <set>
+
 #include <QGraphicsItem>
 #include <QGraphicsRectItem>
 
@@ -15,10 +17,13 @@ public:
 
     explicit DiagramBox(QGraphicsItem *parent = 0);
 
-    Arrow *startLine() const {return startLine_;}
-    Arrow *endLine() const {return endLine_;}
-    void setStartLine(Arrow *line);
-    void setEndLine(Arrow *line);
+    std::set<Arrow *> startLines() const {return startLines_;}
+    std::set<Arrow *> endLines() const {return endLines_;}
+
+    void addStartLine(Arrow *line);
+    void addEndLine(Arrow *line);
+    void removeStartLine(Arrow *line);
+    void removeEndLine(Arrow *line);
 
     //void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
@@ -27,17 +32,11 @@ public:
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
-//signals:
-    //void positionChanged(bool isStartPoint);
-    //void deleted();
-
 private:
-    Arrow *startLine_;
-    Arrow *endLine_;
-
-//public slots:
-    //void startLineDeleted();
-    //void endLineDeleted();
+    //std::vector<Arrow *> startLines_; // The list of Arrows originating from this Box
+    //std::vector<Arrow *> endLines_;   // The list of Arrows pointing to this Box
+    std::set<Arrow *> startLines_; // The list of Arrows originating from this Box
+    std::set<Arrow *> endLines_;   // The list of Arrows pointing to this Box
 };
 
 #endif // DIAGRAMBOX_H

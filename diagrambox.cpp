@@ -17,14 +17,36 @@ DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent)
     nb += 1;
 }
 
-void DiagramBox::setStartLine(Arrow *line)
+/*
+ * Add an Arrow that originates from this Box
+ */
+void DiagramBox::addStartLine(Arrow *line)
 {
-    startLine_ = line;
+    startLines_.insert(line);
 }
 
-void DiagramBox::setEndLine(Arrow *line)
+/*
+ * Add an Arrow that points to this Box
+ */
+void DiagramBox::addEndLine(Arrow *line)
 {
-    endLine_ = line;
+    endLines_.insert(line);
+}
+
+/*
+ * Remove the given Arrow from the list of starting lines
+ */
+void DiagramBox::removeStartLine(Arrow *line)
+{
+    startLines_.erase(startLines_.find(line));
+}
+
+/*
+ * Remove the given Arrow from the list of ending lines
+ */
+void DiagramBox::removeEndLine(Arrow *line)
+{
+    endLines_.erase(endLines_.find(line));
 }
 
 QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)

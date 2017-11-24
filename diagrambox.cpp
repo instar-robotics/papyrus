@@ -4,16 +4,16 @@
 
 int DiagramBox::nb = 0;
 
-DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent)
+DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent),
+                                                startLines_(),
+                                                endLines_()
 {
     no = nb;
-    startLine_ = 0;
-    endLine_ = 0;
     setRect(QRectF(0, 0, 150, 100));
     setPen((QPen(Qt::black, 2)));
     setFlags(QGraphicsItem::ItemIsSelectable
-             | QGraphicsItem::ItemIsMovable |
-             QGraphicsItem::ItemSendsScenePositionChanges);
+           | QGraphicsItem::ItemIsMovable
+           | QGraphicsItem::ItemSendsScenePositionChanges);
     nb += 1;
 }
 
@@ -49,24 +49,38 @@ void DiagramBox::removeEndLine(Arrow *line)
     endLines_.erase(endLines_.find(line));
 }
 
+/*
+ * React to when the DiagramBox experiences a change
+ */
 QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
+    // When it is moved, we need to move its connected Arrows
     if (change == QGraphicsItem::ItemPositionChange && scene()) {
         QPointF newPos = value.toPointF();
         QPointF newCenter = boundingRect().center();
         QPointF newPoint = newPos + newCenter;
 
-        if (startLine_)
-            startLine_->updatePosition(newPoint, true);
+        // Update position of start lines
+        for (std::set<Arrow *>::iterator it = startLines_.begin(); it != startLines_.end(); ++it) {
+            Arrow *line = *it;
+            line->updatePosition(newPoint, true);
+        }
 
-        if (endLine_)
-            endLine_->updatePosition(newPoint, false);
+        // Update position of end lines
+        for (std::set<Arrow *>::iterator it = endLines_.begin(); it != endLines_.end(); ++it) {
+            Arrow *line = *it;
+            line->updatePosition(newPoint, false);
+        }
+    } else if (change == QGraphicsItem::ItemSelectedHasChanged && isSelected()) {
+        std::cout << std::endl;
+        std::cout << "Box #" << no << " selected, it has " << startLines().size()
+                  << " start lines and " << endLines().size() << " end lines." << std::endl;
     }
 
     return QGraphicsItem::itemChange(change, value);
 }
 
-/*
+//*
 void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     // Make selected boxes appear "bold"

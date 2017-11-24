@@ -140,12 +140,53 @@ void DiagramScene::removeItem(DiagramBox *box)
 {
     // ATTENTION: check for leaks: do we need to delete the items?
 
-    // TODO: re-implement this in a more efficient manner!
-    if (!box->startLines().empty()) {
-        const size_t nb = box->startLines().count();
+    std::cout << "About to delete box #" << box->no << std::endl;
 
+    // TODO: re-implement this in a more efficient manner!
+    std::cout << "Box #" << box->no << " has " << box->startLines().size() << " start lines" << std::endl;
+
+    for (auto line : box->startLines()) {
+        std::cout << "Dealing with line #" << line->no << std::endl;
+        DiagramBox *endBox = line->to();
+        std::cout << "endBox for this line is #" << endBox->no << std::endl;
+
+        // Unlink the Arrow from its DiagramBoxes
+        line->setTo(NULL);
+        line->setFrom(NULL);
+
+        endBox->removeEndLine(line); // Remove this Arrow from the endBox's endlines
+        box->removeStartLine(line);  // Remove this Arrow from this box's start lines
+
+        removeItem(line); // Remove the line from the scene
     }
 
+    // Empty the list of start lines
+    // ATTENTION: do we need to explicitly call 'delete' or will 'erase()' do it for us?
+    box->startLines().clear();
+
+    // TODO: re-implement this in a more efficient manner!
+   std::cout << "Box #" << box->no << " has " << box->endLines().size() << " end lines" << std::endl;
+
+   for (auto line : box->endLines()) {
+       std::cout << "Dealing with line #" << line->no << std::endl;
+       DiagramBox *startBox = line->from();
+       std::cout << "startBox for this line is #" << startBox->no << std::endl;
+
+       // Unlink the Arrow from its DiagramBoxes
+       line->setTo(NULL);
+       line->setFrom(NULL);
+
+       startBox->removeStartLine(line); // Remove this Arrow from the endBox's endlines
+       box->removeEndLine(line);  // Remove this Arrow from this box's start lines
+
+       removeItem(line); // Remove the line from the scene
+   }
+
+   // Empty the list of start lines
+   // ATTENTION: do we need to explicitly call 'delete' or will 'erase()' do it for us?
+   box->endLines().clear();
+
+    /*
     if (box->startLine()) {
         Arrow *line = box->startLine();
         DiagramBox *endBox = line->to();
@@ -171,6 +212,7 @@ void DiagramScene::removeItem(DiagramBox *box)
         removeItem(line);      // Remove the Arrow from the scene
         delete line;           // Delete the Arrow
     }
+    //*/
 
     QGraphicsScene::removeItem(box); // Remove the Box from the scene
     delete box;                      // Delete the Box

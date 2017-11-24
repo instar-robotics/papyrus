@@ -25,7 +25,7 @@ public:
     void removeStartLine(Arrow *line);
     void removeEndLine(Arrow *line);
 
-    //void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     int no; // TEMP
 

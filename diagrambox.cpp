@@ -57,19 +57,24 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     // When it is moved, we need to move its connected Arrows
     if (change == QGraphicsItem::ItemPositionChange && scene()) {
         QPointF newPos = value.toPointF();
-        QPointF newCenter = boundingRect().center();
-        QPointF newPoint = newPos + newCenter;
+
+        QPointF newStartPoint = newPos;
+        newStartPoint.rx() += boundingRect().width();
+        newStartPoint.ry() += boundingRect().height() / 2;
+
+        QPointF newEndPoint = newPos;
+        newEndPoint.ry() += boundingRect().height() / 2;
+//        QPointF newCenter = boundingRect().center();
+//        QPointF newPoint = newPos + newCenter;
 
         // Update position of start lines
-        for (std::set<Arrow *>::iterator it = startLines_.begin(); it != startLines_.end(); ++it) {
-            Arrow *line = *it;
-            line->updatePosition(newPoint, true);
+        for (auto line : startLines_) {
+            line->updatePosition(newStartPoint, true);
         }
 
         // Update position of end lines
-        for (std::set<Arrow *>::iterator it = endLines_.begin(); it != endLines_.end(); ++it) {
-            Arrow *line = *it;
-            line->updatePosition(newPoint, false);
+        for (auto line : endLines_) {
+            line->updatePosition(newEndPoint, false);
         }
     } else if (change == QGraphicsItem::ItemSelectedHasChanged && isSelected()) {
         std::cout << std::endl;

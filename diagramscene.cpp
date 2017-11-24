@@ -40,9 +40,12 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
             addItem(newBox);
         } else {
             // If we clicked on an item, start drawing a line from the center of the item
-            QPointF center = maybeItem->boundingRect().center();
-            line = new QGraphicsLineItem(QLineF(maybeItem->scenePos() + center,
-                                         evt->scenePos()));
+            QPointF startPoint = maybeItem->scenePos();
+            startPoint.ry() += maybeItem->boundingRect().bottom() / 2;
+            startPoint.rx() += maybeItem->boundingRect().right();
+
+            line = new QGraphicsLineItem(QLineF(startPoint,
+                                                     evt->scenePos()));
             line->setPen(QPen(Qt::black, 1, Qt::DashLine));
             box = qgraphicsitem_cast<DiagramBox *>(maybeItem);
             addItem(line);
@@ -75,8 +78,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
             if (maybeItem) {
                 // If we have released on top on something, create an Arrow between the two items
-                QPointF center = maybeItem->boundingRect().center();
-                QPointF endPoint = maybeItem->scenePos() + center;
+                QPointF endPoint = maybeItem->scenePos();
+                endPoint.ry() += maybeItem->boundingRect().bottom() / 2;
+
 
                 Arrow *finalLine = new Arrow(QLineF(line->line().p1(), endPoint));
                 finalLine->setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap));

@@ -26,11 +26,17 @@ public:
     void setFrom(DiagramBox *box);
     void setTo(DiagramBox *box);
 
+    QPainterPath shape() const override;
+
     int no; // TEMP
+
+protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) override;
 
 private:
     DiagramBox *from_; // Box from which this Arrow starts
     DiagramBox *to_;   // Box to which this Arrow ends
+    QPolygonF arrowHead;
 };
 
 #endif // ARROW_H

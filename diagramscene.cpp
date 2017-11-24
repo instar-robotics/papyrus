@@ -83,14 +83,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
 
                 Arrow *finalLine = new Arrow(QLineF(line->line().p1(), endPoint));
-                finalLine->setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap));
-
-//                box->setStartLine(finalLine);
-//                maybeItem->setEndLine(finalLine);
-
                 // Link the newly-created Arrow with its corresponding DiagramBoxes
-//                box->setStartLine(finalLine);
-//                maybeItem->setEndLine(finalLine);
                 box->addStartLine(finalLine);
                 maybeItem->addEndLine(finalLine);
                 finalLine->setFrom(box);
@@ -189,34 +182,6 @@ void DiagramScene::removeItem(DiagramBox *box)
    // Empty the list of start lines
    // ATTENTION: do we need to explicitly call 'delete' or will 'erase()' do it for us?
    box->endLines().clear();
-
-    /*
-    if (box->startLine()) {
-        Arrow *line = box->startLine();
-        DiagramBox *endBox = line->to();
-        // Unlink the Arrow from its DiagramBoxes
-        line->setTo(NULL);
-        line->setFrom(NULL);
-        endBox->setEndLine(NULL); // Before removing the Arrow, we remove it from its end box
-        box->setStartLine(NULL);  // Remove the Arrow from this box
-
-        removeItem(line);      // Remove the Arrow from the scene
-        delete line;           // Delete the Arrow
-    }
-
-    if (box->endLine()) {
-        Arrow *line = box->endLine();
-        DiagramBox *startBox = line->from();
-        // Unlink the Arrow from its DiagramBoxes
-        line->setTo(NULL);
-        line->setFrom(NULL);
-        startBox->setStartLine(NULL); // Before removing the Arrow, we remove it from its end box
-        box->setEndLine(NULL);        // Remove the Arrow from this box
-
-        removeItem(line);      // Remove the Arrow from the scene
-        delete line;           // Delete the Arrow
-    }
-    //*/
 
     QGraphicsScene::removeItem(box); // Remove the Box from the scene
     delete box;                      // Delete the Box

@@ -8,8 +8,8 @@
         <file>icons/zoom-in.svg</file>
         <file>icons/zoom-out.svg</file>
         <file>icons/zoom-fit.svg</file>
-    </qresource>
-    <qresource prefix="/">
+        <file>icons/papyrus.svg</file>
         <file>icons/script.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

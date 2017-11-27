@@ -7,5 +7,9 @@
 // Define the scroll factor for the QGraphicsView
 #define SCALE_FACTOR 1.2
 
+// Define the path to the 'description' directory, containing the neural boxes' XML files
+// TEMPORARY: should be replaced by a global 'settings' file for Papyrus
+#define DESCRIPTION_PATH "/home/nschoe/workspace/qt/Papyrus/descriptions"
+
 #endif // CONSTANTS
 

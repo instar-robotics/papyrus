@@ -9,11 +9,83 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
+#include <QMessageBox>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
     ui->setupUi(this);
     nbPage = 1;
+
+    // Parse the description directory
+    QDir description(DESCRIPTION_PATH);
+
+    // Check that the description directory exists
+    if (!description.exists()) {
+        QMessageBox msgBox;
+        msgBox.setText(QObject::tr("<strong>Failed to load neural boxes' description files.</strong>"));
+
+        QString str("The path ");
+        str += "<em>";
+        str += DESCRIPTION_PATH;
+        str += "</em>";
+        str += " doesn't exist. Since there is not minimal subset (as of now), the application is "
+               "going to exit.";
+
+        msgBox.setInformativeText(QObject::tr(qPrintable(str)));
+        msgBox.setIcon(QMessageBox::Critical);
+
+        msgBox.exec();
+        qApp->exit();
+    }
+
+    description_ = description;
+
+    // Parse the description directory
+    description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+    QStringList categories = description_.entryList();
+
+    ui->treeWidget->setColumnCount(2);        // Col 1: icon, Col 2: Box's name
+    ui->treeWidget->setHeaderHidden(true);    // Hide the header, we don't need it
+    ui->treeWidget->setRootIsDecorated(true); // Try to show the little arrow (doesn't work)
+    ui->treeWidget->setAnimated(true);
+    ui->treeWidget->setIconSize(QSize(40, 40));
+
+    // Create one 'Tree Root' per category
+    for (int i = 0; i < categories.size(); i += 1) {
+        // Add the category in the Tree Widget
+        QTreeWidgetItem *newCategory = addTreeRoot(categories[i]);
+
+        // Parse the corresponding directory to find the functions
+        QDir category(description.canonicalPath() + "/" + categories[i]);
+        category.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
+        QStringList neuralBoxes = category.entryList();
+
+        // Create one entry in the category per neural box
+        for (int j = 0; j < neuralBoxes.size(); j += 1) {
+            // Derive icon path name from XML file name
+            QString iconFilename = neuralBoxes[j];
+            iconFilename.replace(QString(".xml"), QString(".svg"));
+            QString iconPath(category.absoluteFilePath(iconFilename));
+//            std::cout << "PATH: " << qPrintable(category.absoluteFilePath(iconPath)) << std::endl;
+
+            // Load icon from icon path
+            QIcon neuralIcon(iconPath);
+
+            addTreeChild(newCategory, QIcon(neuralIcon), neuralBoxes[j]);
+//            addTreeChild(newCategory, QIcon(":/icons/icons/script.svg"), neuralBoxes[j]);
+        }
+    }
+
+//    addTreeRoot("Layouts");
+//    addTreeRoot("Spacers");
+//    addTreeRoot("Buttons");
+
+    // Display a system tray if it is available
+    if (QSystemTrayIcon::isSystemTrayAvailable()) {
+        trayIcon = new QSystemTrayIcon(this);
+        trayIcon->setIcon(QIcon(":/icons/icons/papyrus.svg"));
+        trayIcon->show();
+    }
 
     // Show a normal status message on application startup
     QString initialMsg = tr(APP_NAME);
@@ -31,6 +103,35 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
 PapyrusWindow::~PapyrusWindow()
 {
     delete ui;
+    delete trayIcon;
+}
+
+/*
+ * Add a category in the Library view
+ * A category contains a number of items which are neural boxes
+ */
+QTreeWidgetItem *PapyrusWindow::addTreeRoot(QString name)
+{
+    QTreeWidgetItem *treeItem = new QTreeWidgetItem();
+    ui->treeWidget->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
+    ui->treeWidget->setFirstItemColumnSpanned(treeItem, true); // Make it span over all columns
+
+    treeItem->setText(0, name);
+    treeItem->setBackground(0, QBrush(Qt::lightGray));
+    treeItem->setForeground(0, QBrush());
+    treeItem->setExpanded(true);
+    treeItem->setTextAlignment(0, Qt::AlignCenter);
+
+    return treeItem;
+}
+
+void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString desc)
+{
+    QTreeWidgetItem *treeItem = new QTreeWidgetItem;
+    treeItem->setIcon(0, icon);
+    treeItem->setText(1, desc);
+
+    parent->addChild(treeItem);
 }
 
 /*
@@ -63,7 +164,7 @@ void PapyrusWindow::on_btnNewScene_clicked()
     str += QString::number(nbPage);
     nbPage += 1;
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
-                                                         QIcon(":/icons/script.svg"),
+                                                         QIcon(":/icons/icons/script.svg"),
                                                          str));
 }
 

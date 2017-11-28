@@ -28,8 +28,6 @@ public:
 private slots:
     void on_actionExit_triggered();
 
-    void on_btnNewScene_clicked();
-
     void on_actionAntialiasing_toggled(bool antialiasing);
 
     void on_actionZoom_In_triggered();
@@ -37,6 +35,20 @@ private slots:
     void on_actionZoom_Out_triggered();
 
     void on_actionZoom_Fit_triggered();
+
+    void on_actionNew_script_hovered();
+
+    void on_actionOpen_Script_hovered();
+
+    void on_actionSave_Script_hovered();
+
+    void on_actionZoom_In_hovered();
+
+    void on_actionZoom_Out_hovered();
+
+    void on_actionZoom_Fit_hovered();
+
+    void on_actionNew_script_triggered();
 
 private:
     Ui::PapyrusWindow *ui;

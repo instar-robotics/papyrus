@@ -11,6 +11,7 @@
         <file>icons/papyrus.svg</file>
         <file>icons/script.svg</file>
         <file>icons/missing-icon.svg</file>
+        <file>icons/close.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

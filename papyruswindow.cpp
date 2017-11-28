@@ -98,6 +98,8 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     sizes << 230 << 1088 << 250;
     ui->splitter->setSizes(sizes);
 
+    // Set the first tab ('Home') not closable
+//    ui->tabWidget->tabBar()->setTabButton();
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -144,7 +146,50 @@ void PapyrusWindow::on_actionExit_triggered()
     qApp->exit();
 }
 
-void PapyrusWindow::on_btnNewScene_clicked()
+void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
+{
+    /*
+     * ATTENTION: it only toggles the antialiasing for the current script
+     * It should probably be done for all scripts
+     */
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    if (currentView)
+        currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
+    else
+        ui->statusBar->showMessage(tr("Cannot toggle antialiasing: no opened script!"));
+}
+
+void PapyrusWindow::on_actionZoom_In_triggered()
+{
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    if (currentView)
+        currentView->scale(1.2 * SCALE_FACTOR, 1.2 * SCALE_FACTOR);
+    else
+        ui->statusBar->showMessage(tr("Cannot zoom in: no opened script!"));
+}
+
+void PapyrusWindow::on_actionZoom_Out_triggered()
+{
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    if (currentView)
+        currentView->scale(1 / (1.2 * SCALE_FACTOR), 1 / (1.2 * SCALE_FACTOR));
+    else
+        ui->statusBar->showMessage(tr("Cannot zoom out: no opened script!"));
+}
+
+void PapyrusWindow::on_actionZoom_Fit_triggered()
+{
+    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    if (currentView) {
+        QRectF wholeScene = currentView->scene()->itemsBoundingRect();
+        currentView->fitInView(wholeScene, Qt::KeepAspectRatio);
+    } else {
+        ui->statusBar->showMessage(tr("Cannot zoom fit: no opened script!"));
+    }
+}
+
+
+void PapyrusWindow::on_actionNew_script_triggered()
 {
     /*
      * ATTENTION: memory is leaking here: we should keep the pointers and delete them when we close
@@ -153,8 +198,6 @@ void PapyrusWindow::on_btnNewScene_clicked()
 
     // Create a new scene to contain the items for the new script
     DiagramScene *newScene = new DiagramScene;
-    //DiagramBox *newBox = new DiagramBox;
-    //newScene->addItem(newBox);
 
     // Create a new view to display the new scene
     DiagramView *newView = new DiagramView(newScene);
@@ -168,33 +211,32 @@ void PapyrusWindow::on_btnNewScene_clicked()
                                                          str));
 }
 
-void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
+void PapyrusWindow::on_actionNew_script_hovered()
 {
-    /*
-     * ATTENTION: it only toggles the antialiasing for the current script
-     * It should probably be done for all scripts
-     */
-    //DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
-    std::cout << "Antialias set to " << antialiasing << std::endl;
+    ui->statusBar->showMessage(tr("Create a new neural script."));
 }
 
-void PapyrusWindow::on_actionZoom_In_triggered()
+void PapyrusWindow::on_actionOpen_Script_hovered()
 {
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    currentView->scale(1.2 * SCALE_FACTOR, 1.2 * SCALE_FACTOR);
+    ui->statusBar->showMessage(tr("Open an existing neural script."));
 }
 
-void PapyrusWindow::on_actionZoom_Out_triggered()
+void PapyrusWindow::on_actionSave_Script_hovered()
 {
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    currentView->scale(1 / (1.2 * SCALE_FACTOR), 1 / (1.2 * SCALE_FACTOR));
+    ui->statusBar->showMessage(tr("Save the current neural script."));
 }
 
-void PapyrusWindow::on_actionZoom_Fit_triggered()
+void PapyrusWindow::on_actionZoom_In_hovered()
 {
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
-    QRectF wholeScene = currentView->scene()->itemsBoundingRect();
-    currentView->fitInView(wholeScene, Qt::KeepAspectRatio);
+    ui->statusBar->showMessage(tr("Zoom in on the current neural script."));
+}
+
+void PapyrusWindow::on_actionZoom_Out_hovered()
+{
+    ui->statusBar->showMessage(tr("Zoom out on the current neural script."));
+}
+
+void PapyrusWindow::on_actionZoom_Fit_hovered()
+{
+    ui->statusBar->showMessage(tr("Zoom to contain the entire script."));
 }

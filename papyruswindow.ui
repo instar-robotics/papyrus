@@ -62,18 +62,6 @@
        </layout>
       </widget>
       <widget class="QTabWidget" name="tabWidget">
-       <property name="tabShape">
-        <enum>QTabWidget::Rounded</enum>
-       </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <property name="documentMode">
-        <bool>false</bool>
-       </property>
-       <property name="tabsClosable">
-        <bool>false</bool>
-       </property>
        <property name="movable">
         <bool>true</bool>
        </property>
@@ -211,6 +199,10 @@
    </property>
   </action>
   <action name="actionClose_Script">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/close.svg</normaloff>:/icons/icons/close.svg</iconset>
+   </property>
    <property name="text">
     <string>Close Script</string>
    </property>

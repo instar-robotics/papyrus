@@ -52,7 +52,6 @@ private slots:
 
 private:
     Ui::PapyrusWindow *ui;
-    int nbPage;
     QDir description_;
     QSystemTrayIcon *trayIcon;
 };

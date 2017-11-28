@@ -15,7 +15,6 @@
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
     ui->setupUi(this);
-    nbPage = 1;
 
     // Parse the description directory
     QDir description(DESCRIPTION_PATH);
@@ -98,9 +97,6 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     QList<int> sizes;
     sizes << 230 << 1088 << 250;
     ui->splitter->setSizes(sizes);
-
-    // Set the first tab ('Home') not closable
-//    ui->tabWidget->tabBar()->setTabButton();
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -218,7 +214,6 @@ void PapyrusWindow::on_actionNew_script_triggered()
     DiagramView *newView = new DiagramView(newScene);
 
     // Add the new scene as a new tab
-    nbPage += 1;
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
                                                          QIcon(":/icons/icons/script.svg"),
                                                          newScriptName));

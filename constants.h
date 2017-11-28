@@ -14,5 +14,8 @@
 // Define the size of the icons in the left 'Library' pane
 #define LIBRARY_ICON_SIZE 40
 
+// Define the default name for a new script
+#define NEW_SCRIPT_DEFAULT_NAME "New Script"
+
 #endif // CONSTANTS
 

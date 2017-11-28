@@ -10,6 +10,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QMessageBox>
+#include <QInputDialog>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
@@ -195,6 +196,20 @@ void PapyrusWindow::on_actionNew_script_triggered()
      * ATTENTION: memory is leaking here: we should keep the pointers and delete them when we close
      * the tab. Or maybe we should look into smart pointers from the std lib.
      */
+    bool ok;
+    QString newScriptName = QInputDialog::getText(this, tr("New script name"), tr("Name:"), QLineEdit::Normal, NEW_SCRIPT_DEFAULT_NAME, &ok);
+
+    // Don't do anything (just print status message) if user cancels the modal window
+    if (!ok) {
+        ui->statusBar->showMessage(tr("New script creation cancelled."));
+        return;
+    }
+
+    // Make sure the script has a name
+    if (newScriptName.length() == 0) {
+        newScriptName = NEW_SCRIPT_DEFAULT_NAME;
+        ui->statusBar->showMessage(tr("Script without a name are not allowed, setting a default name."), 2e3);
+    }
 
     // Create a new scene to contain the items for the new script
     DiagramScene *newScene = new DiagramScene;
@@ -203,12 +218,10 @@ void PapyrusWindow::on_actionNew_script_triggered()
     DiagramView *newView = new DiagramView(newScene);
 
     // Add the new scene as a new tab
-    QString str("Tab ");
-    str += QString::number(nbPage);
     nbPage += 1;
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
                                                          QIcon(":/icons/icons/script.svg"),
-                                                         str));
+                                                         newScriptName));
 }
 
 void PapyrusWindow::on_actionNew_script_hovered()

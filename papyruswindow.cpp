@@ -44,11 +44,12 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
     QStringList categories = description_.entryList();
 
-    ui->treeWidget->setColumnCount(2);        // Col 1: icon, Col 2: Box's name
+    ui->treeWidget->setColumnCount(1);        // Just the function's name (an icon is added)
     ui->treeWidget->setHeaderHidden(true);    // Hide the header, we don't need it
-    ui->treeWidget->setRootIsDecorated(true); // Try to show the little arrow (doesn't work)
     ui->treeWidget->setAnimated(true);
-    ui->treeWidget->setIconSize(QSize(40, 40));
+    ui->treeWidget->setIconSize(QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
+    ui->treeWidget->setIndentation(0);
+    ui->treeWidget->setRootIsDecorated(true); // Try to show the little arrow (doesn't work)
 
     // Create one 'Tree Root' per category
     for (int i = 0; i < categories.size(); i += 1) {
@@ -66,19 +67,18 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
             QString iconFilename = neuralBoxes[j];
             iconFilename.replace(QString(".xml"), QString(".svg"));
             QString iconPath(category.absoluteFilePath(iconFilename));
-//            std::cout << "PATH: " << qPrintable(category.absoluteFilePath(iconPath)) << std::endl;
+            QFile f(iconPath);
 
-            // Load icon from icon path
-            QIcon neuralIcon(iconPath);
+            // Load icon from icon path if it exists, set missing icon otherwise
+            QIcon neuralIcon;
+            if (f.exists())
+                neuralIcon = QIcon(iconPath);
+            else
+                neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
 
             addTreeChild(newCategory, QIcon(neuralIcon), neuralBoxes[j]);
-//            addTreeChild(newCategory, QIcon(":/icons/icons/script.svg"), neuralBoxes[j]);
         }
     }
-
-//    addTreeRoot("Layouts");
-//    addTreeRoot("Spacers");
-//    addTreeRoot("Buttons");
 
     // Display a system tray if it is available
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -114,22 +114,22 @@ QTreeWidgetItem *PapyrusWindow::addTreeRoot(QString name)
 {
     QTreeWidgetItem *treeItem = new QTreeWidgetItem();
     ui->treeWidget->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
-    ui->treeWidget->setFirstItemColumnSpanned(treeItem, true); // Make it span over all columns
 
     treeItem->setText(0, name);
     treeItem->setBackground(0, QBrush(Qt::lightGray));
-    treeItem->setForeground(0, QBrush());
     treeItem->setExpanded(true);
     treeItem->setTextAlignment(0, Qt::AlignCenter);
+    treeItem->setFlags(treeItem->flags() & ~Qt::ItemIsSelectable); // Make categories unselectable
 
     return treeItem;
 }
 
-void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString desc)
+void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString name)
 {
     QTreeWidgetItem *treeItem = new QTreeWidgetItem;
     treeItem->setIcon(0, icon);
-    treeItem->setText(1, desc);
+    treeItem->setText(0, name);
+    treeItem->setSizeHint(0, QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
 
     parent->addChild(treeItem);
 }

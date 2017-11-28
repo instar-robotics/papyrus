@@ -50,25 +50,7 @@
         <item>
          <widget class="QTreeWidget" name="treeWidget">
           <property name="sizeAdjustPolicy">
-           <enum>QAbstractScrollArea::AdjustIgnored</enum>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
-          </property>
-          <property name="dragDropMode">
-           <enum>QAbstractItemView::NoDragDrop</enum>
-          </property>
-          <property name="autoExpandDelay">
-           <number>-1</number>
-          </property>
-          <property name="indentation">
-           <number>0</number>
-          </property>
-          <property name="uniformRowHeights">
-           <bool>false</bool>
-          </property>
-          <property name="animated">
-           <bool>false</bool>
+           <enum>QAbstractScrollArea::AdjustToContents</enum>
           </property>
           <column>
            <property name="text">

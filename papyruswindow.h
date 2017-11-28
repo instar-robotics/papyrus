@@ -23,7 +23,7 @@ public:
     void setDescription(QDir description) {description_ = description;}
 
     QTreeWidgetItem *addTreeRoot(QString name);
-    void addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString desc);
+    void addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString name);
 
 private slots:
     void on_actionExit_triggered();

@@ -11,5 +11,8 @@
 // TEMPORARY: should be replaced by a global 'settings' file for Papyrus
 #define DESCRIPTION_PATH "/home/nschoe/workspace/qt/Papyrus/descriptions"
 
+// Define the size of the icons in the left 'Library' pane
+#define LIBRARY_ICON_SIZE 40
+
 #endif // CONSTANTS
 

@@ -20,6 +20,10 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *evt);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *evt);
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent *evt);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *evt);
+    void dropEvent(QGraphicsSceneDragDropEvent *evt);
     void keyPressEvent(QKeyEvent *evt);
     void removeItem(QGraphicsItem *item);
     void removeItem(Arrow *arrow);

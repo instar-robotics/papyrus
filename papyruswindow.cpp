@@ -11,6 +11,8 @@
 #include <QGraphicsItem>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QVBoxLayout>
+#include <QGroupBox>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
@@ -44,12 +46,31 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
     QStringList categories = description_.entryList();
 
+    libraryPanel_ = new LibraryPanel;
+
+    librarySearchField_ = new QLineEdit;
+    librarySearchField_->setPlaceholderText(tr("Filter..."));
+    librarySearchField_->setClearButtonEnabled(true);
+    librarySearchField_->setFrame(false);
+    connect(librarySearchField_, SIGNAL(textChanged(QString)), this, SLOT(filterLibraryNames(QString)));
+
+    QVBoxLayout *vbox = new QVBoxLayout;
+    vbox->addWidget(librarySearchField_);
+    vbox->addWidget(libraryPanel_);
+
+    QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
+    libraryGroupBox->setLayout(vbox);
+
+    ui->splitter->insertWidget(0, libraryGroupBox);
+
+    /*
     ui->treeWidget->setColumnCount(1);        // Just the function's name (an icon is added)
     ui->treeWidget->setHeaderHidden(true);    // Hide the header, we don't need it
     ui->treeWidget->setAnimated(true);
     ui->treeWidget->setIconSize(QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
     ui->treeWidget->setIndentation(0);
     ui->treeWidget->setRootIsDecorated(true); // Try to show the little arrow (doesn't work)
+    //*/
 
     // Create one 'Tree Root' per category
     for (int i = 0; i < categories.size(); i += 1) {
@@ -97,6 +118,9 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
     QList<int> sizes;
     sizes << 230 << 1088 << 250;
     ui->splitter->setSizes(sizes);
+
+    libraryPanel_->setDragEnabled(true);
+//    ui->treeWidget->setDragEnabled(true);
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -112,7 +136,8 @@ PapyrusWindow::~PapyrusWindow()
 QTreeWidgetItem *PapyrusWindow::addTreeRoot(QString name)
 {
     QTreeWidgetItem *treeItem = new QTreeWidgetItem();
-    ui->treeWidget->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
+    libraryPanel_->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
+//    ui->treeWidget->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
 
     treeItem->setText(0, name);
     treeItem->setBackground(0, QBrush(Qt::lightGray));
@@ -217,6 +242,23 @@ void PapyrusWindow::on_actionNew_script_triggered()
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
                                                          QIcon(":/icons/icons/script.svg"),
                                                          newScriptName));
+
+    ui->statusBar->showMessage("New script '" + newScriptName + "' created.");
+}
+
+QLineEdit *PapyrusWindow::librarySearchField() const
+{
+    return librarySearchField_;
+}
+
+void PapyrusWindow::setLibrarySearchField(QLineEdit *librarySearchField)
+{
+    librarySearchField_ = librarySearchField;
+}
+
+void PapyrusWindow::filterLibraryNames(const QString &text)
+{
+    std::cout << "Should filter on '" << qPrintable(text) << "'" << std::endl;
 }
 
 void PapyrusWindow::on_actionNew_script_hovered()

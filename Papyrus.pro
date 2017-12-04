@@ -23,14 +23,16 @@ SOURCES += main.cpp\
     diagramscene.cpp \
     diagramview.cpp \
     diagrambox.cpp \
-    arrow.cpp
+    arrow.cpp \
+    librarypanel.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
     diagramscene.h \
     diagramview.h \
     diagrambox.h \
-    arrow.h
+    arrow.h \
+    librarypanel.h
 
 FORMS    += papyruswindow.ui
 

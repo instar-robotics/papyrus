@@ -1,11 +1,13 @@
 #ifndef PAPYRUSWINDOW_H
 #define PAPYRUSWINDOW_H
 
+#include "librarypanel.h"
+
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QDir>
 #include <QSystemTrayIcon>
-#include <QTreeWidget>
+#include <QLineEdit>
 
 namespace Ui {
 class PapyrusWindow;
@@ -25,7 +27,12 @@ public:
     QTreeWidgetItem *addTreeRoot(QString name);
     void addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString name);
 
+    QLineEdit *librarySearchField() const;
+    void setLibrarySearchField(QLineEdit *librarySearchField);
+
 private slots:
+    void filterLibraryNames(const QString &text);
+
     void on_actionExit_triggered();
 
     void on_actionAntialiasing_toggled(bool antialiasing);
@@ -50,8 +57,11 @@ private slots:
 
     void on_actionNew_script_triggered();
 
+
 private:
     Ui::PapyrusWindow *ui;
+    LibraryPanel *libraryPanel_;
+    QLineEdit *librarySearchField_;
     QDir description_;
     QSystemTrayIcon *trayIcon;
 };

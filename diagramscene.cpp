@@ -1,6 +1,5 @@
 #include "diagramscene.h"
-//#include "arrow.h"
-//#include "diagrambox.h"
+#include "librarypanel.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -9,6 +8,7 @@
 #include <iostream>
 #include <QKeyEvent>
 #include <QList>
+#include <QMimeData>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -101,6 +101,53 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
     // Important! Otherwise the box's position doesn't get updated.
     QGraphicsScene::mouseReleaseEvent(evt);
+}
+
+void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
+{
+    if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
+
+    } else {
+        // EMIT SIGNAL TO STATUS MESSAGE BAR
+        evt->ignore();
+    }
+}
+
+void DiagramScene::dragLeaveEvent(QGraphicsSceneDragDropEvent *evt)
+{
+    if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
+    } else {
+        // EMIT SIGNAL TO STATUS MESSAGE BAR
+        evt->ignore();
+    }
+}
+
+void DiagramScene::dragMoveEvent(QGraphicsSceneDragDropEvent *evt)
+{
+    if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
+    } else {
+        // EMIT SIGNAL TO STATUS MESSAGE BAR
+        evt->ignore();
+    }
+}
+
+void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
+{
+    if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
+        // If this is a drop from the library
+        QByteArray pieceData = evt->mimeData()->data(LibraryPanel::libraryItemMimeType());
+        QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
+        QString name;
+        QIcon icon;
+
+        dataStream >> name >> icon;
+
+//        addText(name)->setPos(evt->scenePos());
+        addPixmap(icon.pixmap(QSize(150, 150)))->setPos(evt->scenePos());
+    } else {
+        // EMIT SIGNAL TO STATUS MESSAGE BAR
+        evt->ignore();
+    }
 }
 
 void DiagramScene::keyPressEvent(QKeyEvent *evt)

@@ -235,6 +235,8 @@ void PapyrusWindow::on_actionNew_script_triggered()
     // Create a new scene to contain the items for the new script
     DiagramScene *newScene = new DiagramScene;
 
+    connect(newScene, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+
     // Create a new view to display the new scene
     DiagramView *newView = new DiagramView(newScene);
 
@@ -259,6 +261,11 @@ void PapyrusWindow::setLibrarySearchField(QLineEdit *librarySearchField)
 void PapyrusWindow::filterLibraryNames(const QString &text)
 {
     std::cout << "Should filter on '" << qPrintable(text) << "'" << std::endl;
+}
+
+void PapyrusWindow::displayStatusMessage(const QString &text)
+{
+    ui->statusBar->showMessage(text);
 }
 
 void PapyrusWindow::on_actionNew_script_hovered()

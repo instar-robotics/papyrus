@@ -32,6 +32,7 @@ public:
 
 private slots:
     void filterLibraryNames(const QString &text);
+    void displayStatusMessage(const QString &text);
 
     void on_actionExit_triggered();
 

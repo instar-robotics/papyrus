@@ -106,7 +106,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
 {
     if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
-
+        emit(displayStatusMessage("Adding '<insert-name>' in script..."));
+        setBackgroundBrush(QBrush(QColor(220, 220, 220, 50)));
     } else {
         // EMIT SIGNAL TO STATUS MESSAGE BAR
         evt->ignore();
@@ -116,9 +117,11 @@ void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
 void DiagramScene::dragLeaveEvent(QGraphicsSceneDragDropEvent *evt)
 {
     if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
+        emit(displayStatusMessage("Cancelled adding '<insert-name>' in script..."));
+        setBackgroundBrush(QBrush(Qt::white));
     } else {
-        // EMIT SIGNAL TO STATUS MESSAGE BAR
         evt->ignore();
+        emit(displayStatusMessage("Unsupported drop event, discarding."));
     }
 }
 
@@ -126,8 +129,8 @@ void DiagramScene::dragMoveEvent(QGraphicsSceneDragDropEvent *evt)
 {
     if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
     } else {
-        // EMIT SIGNAL TO STATUS MESSAGE BAR
         evt->ignore();
+        emit(displayStatusMessage("Unsupported drop event, discarding."));
     }
 }
 
@@ -142,11 +145,13 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 
         dataStream >> name >> icon;
 
-//        addText(name)->setPos(evt->scenePos());
         addPixmap(icon.pixmap(QSize(150, 150)))->setPos(evt->scenePos());
+
+        setBackgroundBrush(QBrush(Qt::white));
+        emit(displayStatusMessage("Added '<insert-name> in script."));
     } else {
-        // EMIT SIGNAL TO STATUS MESSAGE BAR
         evt->ignore();
+        emit(displayStatusMessage("Unsupported drop event, discarding."));
     }
 }
 

@@ -36,6 +36,8 @@ private:
     QGraphicsLineItem *line; // The current line being drawn while clicking
     DiagramBox *box;         // The current box from which the current line originates
 
+signals:
+    void displayStatusMessage(const QString &text);
 };
 
 #endif // DIAGRAMSCENE_H

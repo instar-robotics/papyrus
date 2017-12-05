@@ -221,6 +221,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
         for (int i = 0; i < nbItems; i += 1) {
             // Remove the item
             removeItem(qgraphicsitem_cast<DiagramBox *>(items.at(i)));
+            updateSceneRect();
         }
     }
 

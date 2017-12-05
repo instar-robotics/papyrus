@@ -10,6 +10,8 @@ class DiagramScene : public QGraphicsScene
 {
     Q_OBJECT
 
+    void updateSceneRect();
+
 public:
     explicit DiagramScene(QObject *parent = 0);
     ~DiagramScene();

@@ -234,6 +234,12 @@ void PapyrusWindow::on_actionNew_script_triggered()
 
     // Create a new scene to contain the items for the new script
     DiagramScene *newScene = new DiagramScene;
+    QSizeF widgetSize = ui->tabWidget->size();
+    // Set the scene's initial rect based on the widget in which it is displayed (and centered)
+    newScene->setSceneRect(QRectF(- widgetSize.width() / 2,
+                                  - widgetSize.height() / 2,
+                                  widgetSize.width(),
+                                  widgetSize.height()));
 
     connect(newScene, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
 
@@ -246,6 +252,11 @@ void PapyrusWindow::on_actionNew_script_triggered()
                                                          newScriptName));
 
     ui->statusBar->showMessage("New script '" + newScriptName + "' created.");
+}
+
+Ui::PapyrusWindow *PapyrusWindow::getUi() const
+{
+    return ui;
 }
 
 QLineEdit *PapyrusWindow::librarySearchField() const

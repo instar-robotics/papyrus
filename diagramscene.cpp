@@ -1,5 +1,8 @@
 #include "diagramscene.h"
 #include "librarypanel.h"
+#include "papyruswindow.h"
+#include "ui_papyruswindow.h"
+#include "constants.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -9,6 +12,8 @@
 #include <QKeyEvent>
 #include <QList>
 #include <QMimeData>
+#include <QGraphicsView>
+#include <QApplication>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent)
 {
@@ -17,13 +22,59 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent)
     box = 0;
 }
 
-//*
 DiagramScene::~DiagramScene()
 {
     delete line;
     delete box;
 }
-//*/
+
+/*
+ * Check the items's bounding rects and update the scene's 'sceneRect' to contain them all.
+ * Default to a minimum size of the container widget's size (this is to prevent weird behavior
+ * when trying to add items in a small scene: the items won't be placed under the mouse)
+ */
+void DiagramScene::updateSceneRect()
+{
+    // First, get the main window
+    PapyrusWindow *mainWindow = NULL;
+
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+            mainWindow = mW;
+            break;
+        }
+    }
+
+    if (mainWindow) {
+        // Now get the tab widget's size: this will be the minimum size we want
+        QSize widgetSize = mainWindow->getUi()->tabWidget->size();
+
+        // Get the bounding rect of all items
+        QRectF bounds = itemsBoundingRect();
+
+        // Get the current sceneRect
+        QRectF sRect = sceneRect();
+
+        if (bounds.isEmpty() || bounds.isNull()) {
+             // If there is no elements, resize the scene to the widget size and center on 0
+            QRectF initial(- widgetSize.width() / 2,
+                           - widgetSize.height() / 2,
+                           widgetSize.width(),
+                           widgetSize.height());
+
+            setSceneRect(initial);
+        } else if (!sRect.contains(bounds)) {
+            // If there are elements, resize the scene if some are outside it
+            QRectF newSize;
+            newSize.setX(bounds.x() - SCENE_RECT_MARGIN);
+            newSize.setY(bounds.y() - SCENE_RECT_MARGIN);
+            newSize.setWidth(bounds.width() + 2 * SCENE_RECT_MARGIN);
+            newSize.setHeight(bounds.height() + 2 * SCENE_RECT_MARGIN);
+
+            setSceneRect(newSize);
+        }
+    }
+}
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
@@ -38,6 +89,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
             QPointF center = newBox->boundingRect().center();
             newBox->setPos(evt->scenePos() - center);
             addItem(newBox);
+
+            updateSceneRect();
         } else {
             // If we clicked on an item, start drawing a line from the center of the item
             QPointF startPoint = maybeItem->scenePos();
@@ -49,6 +102,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
             line->setPen(QPen(Qt::black, 1, Qt::DashLine));
             box = qgraphicsitem_cast<DiagramBox *>(maybeItem);
             addItem(line);
+            updateSceneRect();
         }
     }
 
@@ -98,6 +152,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             box = 0;
         }
     }
+
+    updateSceneRect();
 
     // Important! Otherwise the box's position doesn't get updated.
     QGraphicsScene::mouseReleaseEvent(evt);

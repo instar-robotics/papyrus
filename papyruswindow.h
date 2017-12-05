@@ -30,6 +30,8 @@ public:
     QLineEdit *librarySearchField() const;
     void setLibrarySearchField(QLineEdit *librarySearchField);
 
+    Ui::PapyrusWindow *getUi() const;
+
 private slots:
     void filterLibraryNames(const QString &text);
     void displayStatusMessage(const QString &text);

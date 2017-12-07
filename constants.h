@@ -11,7 +11,7 @@
 // TEMPORARY: should be replaced by a global 'settings' file for Papyrus
 #define DESCRIPTION_PATH "/home/nschoe/workspace/qt/Papyrus/descriptions"
 
-// Define the size of the icons in the left 'Library' pane (in pc)
+// Define the size of the icons in the left 'Library' pane (in px)
 #define LIBRARY_ICON_SIZE 40
 
 // Define the default name for a new script
@@ -19,6 +19,9 @@
 
 // Define the margin added to the scene's rectangle when resizing it (in px)
 #define SCENE_RECT_MARGIN 200
+
+// Define the name of the root element XML tag in the function's description files
+#define XML_ROOT_ELEM "description"
 
 #endif // CONSTANTS
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description>
+    <name>Gaussian</name>
+    <inputs>
+        <input allowMultiple="false">
+            <name>Input Param</name>
+            <type>Scalar</type>
+        </input>
+    </inputs>
+    <output>
+        <name>Output param</name>
+        <type>Scalar</type>
+    </output>
+</description>

@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <description>
-    <name>Scalar to Vector</name>
+    <name>Name</name>
     <inputs>
-        <input allowMultiple="false">
-            <name>scalar</name>
+        <input allowMultiple="true">
+            <name>Param 0</name>
             <type>Scalar</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+        </input>
+        <input allowMultiple="false">
+            <name>Param 1</name>
+            <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
     </inputs>
     <output>
-        <name>vector</name>
+        <name>Output</name>
         <type>Vector</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
     </output>
 </description>

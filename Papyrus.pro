@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
@@ -24,7 +24,11 @@ SOURCES += main.cpp\
     diagramview.cpp \
     diagrambox.cpp \
     arrow.cpp \
-    librarypanel.cpp
+    librarypanel.cpp \
+    library.cpp \
+    category.cpp \
+    function.cpp \
+    xmldescriptionreader.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
@@ -32,7 +36,12 @@ HEADERS  += papyruswindow.h \
     diagramview.h \
     diagrambox.h \
     arrow.h \
-    librarypanel.h
+    librarypanel.h \
+    library.h \
+    category.h \
+    function.h \
+    types.h \
+    xmldescriptionreader.h
 
 FORMS    += papyruswindow.ui
 

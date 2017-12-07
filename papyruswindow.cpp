@@ -4,6 +4,7 @@
 #include "diagramscene.h"
 #include "diagramview.h"
 #include "diagrambox.h"
+#include "xmldescriptionreader.h"
 
 #include <iostream>
 #include <QGraphicsView>
@@ -13,9 +14,12 @@
 #include <QInputDialog>
 #include <QVBoxLayout>
 #include <QGroupBox>
+#include <QXmlStreamReader>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
+    bool libraryParsingError = false;
+
     ui->setupUi(this);
 
     // Parse the description directory
@@ -40,6 +44,8 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
         qApp->exit();
     }
 
+    m_library = new Library;
+
     description_ = description;
 
     // Parse the description directory
@@ -63,19 +69,13 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
 
     ui->splitter->insertWidget(0, libraryGroupBox);
 
-    /*
-    ui->treeWidget->setColumnCount(1);        // Just the function's name (an icon is added)
-    ui->treeWidget->setHeaderHidden(true);    // Hide the header, we don't need it
-    ui->treeWidget->setAnimated(true);
-    ui->treeWidget->setIconSize(QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
-    ui->treeWidget->setIndentation(0);
-    ui->treeWidget->setRootIsDecorated(true); // Try to show the little arrow (doesn't work)
-    //*/
-
     // Create one 'Tree Root' per category
     for (int i = 0; i < categories.size(); i += 1) {
         // Add the category in the Tree Widget
-        QTreeWidgetItem *newCategory = addTreeRoot(categories[i]);
+//        QTreeWidgetItem *newCategory = addTreeRoot(categories[i]);
+        Category *newCategory = addTreeRoot(categories[i]);
+
+//        Category *cat = new Category(categories[i]);
 
         // Parse the corresponding directory to find the functions
         QDir category(description.canonicalPath() + "/" + categories[i]);
@@ -87,8 +87,16 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
             // Derive icon path name from XML file name
             QString iconFilename = neuralBoxes[j];
             iconFilename.replace(QString(".xml"), QString(".svg"));
+
             QString iconPath(category.absoluteFilePath(iconFilename));
             QFile f(iconPath);
+
+            QFile xmlFile(category.absoluteFilePath(neuralBoxes[j]));
+            if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
+                std::cerr << "Could not open file " << qPrintable(neuralBoxes[j]) << " for parsing" << std::endl;
+                libraryParsingError = true;
+                break;
+            }
 
             // Load icon from icon path if it exists, set missing icon otherwise
             QIcon neuralIcon;
@@ -97,9 +105,47 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
             else
                 neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
 
-            addTreeChild(newCategory, QIcon(neuralIcon), neuralBoxes[j]);
+
+//            XmlDescriptionReader xmlReader(cat);
+            XmlDescriptionReader xmlReader(newCategory);
+            // TODO: check return value to decide whether to add in library or not
+            xmlReader.read(&xmlFile, neuralIcon);
+
+//            addTreeChild(newCategory, QIcon(neuralIcon), neuralBoxes[j]);
+        }
+
+        m_library->addCategory(newCategory);
+    }
+
+    /*
+    std::cout << std::endl << "Summary of XML parsing:" << std::endl;
+    foreach (Category *c, m_library->categories()) {
+        std::cout << "Category: " << qPrintable(c->name()) << std::endl;
+
+        foreach (Function *f, c->functions()) {
+            std::cout << "\t Function: " << qPrintable(f->name()) << std::endl;
+            std::cout << "Inputs:" << std::endl;
+
+            foreach (InputSlot is, f->inputs()) {
+                std::cout << "\t\t" << qPrintable(is.name) << "(" << is.allowMultiple << ")" << " of type " << is.type << std::endl;
+            }
+
+            std::cout << "Output:" << std::endl;
+            std::cout << "\t\t" << qPrintable(f->output().name) << " of type " << f->output().type << std::endl;
         }
     }
+    //*/
+
+    // Display a warning box if some library description files could not be read
+    // TODO: display a message in the system tray instead!
+    // TODO: keep a list of the XML files that failed
+    if (libraryParsingError)
+        std::cout << "Could not open XML file" << std::endl;
+        /*
+        QMessageBox::warning(this, "Problem in parsing some XML description files",
+                             QString("There was a problem while parsing at least one XML library description file.\n") +
+                             QString("Make sure the files in the list have the correct format according to the template"));
+                             */
 
     // Display a system tray if it is available
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -127,17 +173,18 @@ PapyrusWindow::~PapyrusWindow()
 {
     delete ui;
     delete trayIcon;
+    delete m_library;
 }
 
 /*
  * Add a category in the Library view
  * A category contains a number of items which are neural boxes
  */
-QTreeWidgetItem *PapyrusWindow::addTreeRoot(QString name)
+Category *PapyrusWindow::addTreeRoot(QString name)
 {
-    QTreeWidgetItem *treeItem = new QTreeWidgetItem();
+//    QTreeWidgetItem *treeItem = new QTreeWidgetItem();
+    Category *treeItem = new Category(name);
     libraryPanel_->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
-//    ui->treeWidget->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
 
     treeItem->setText(0, name);
     treeItem->setBackground(0, QBrush(Qt::lightGray));
@@ -252,6 +299,16 @@ void PapyrusWindow::on_actionNew_script_triggered()
                                                          newScriptName));
 
     ui->statusBar->showMessage("New script '" + newScriptName + "' created.");
+}
+
+Library *PapyrusWindow::getLibrary() const
+{
+    return m_library;
+}
+
+void PapyrusWindow::setLibrary(Library *library)
+{
+    m_library = library;
 }
 
 Ui::PapyrusWindow *PapyrusWindow::getUi() const

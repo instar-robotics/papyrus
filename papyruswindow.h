@@ -2,6 +2,7 @@
 #define PAPYRUSWINDOW_H
 
 #include "librarypanel.h"
+#include "library.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -24,13 +25,18 @@ public:
     QDir description() const {return description_;}
     void setDescription(QDir description) {description_ = description;}
 
-    QTreeWidgetItem *addTreeRoot(QString name);
+    Category *addTreeRoot(QString name);
     void addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString name);
 
     QLineEdit *librarySearchField() const;
     void setLibrarySearchField(QLineEdit *librarySearchField);
 
     Ui::PapyrusWindow *getUi() const;
+
+    Library *getLibrary() const;
+    void setLibrary(Library *library);
+
+
 
 private slots:
     void filterLibraryNames(const QString &text);
@@ -67,6 +73,7 @@ private:
     QLineEdit *librarySearchField_;
     QDir description_;
     QSystemTrayIcon *trayIcon;
+    Library *m_library;
 };
 
 #endif // PAPYRUSWINDOW_H

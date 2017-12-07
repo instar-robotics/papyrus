@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description>
+    <name>Function name</name>
+    <inputs>
+        <input allowMultiple="true">
+            <name>First Argument</name>
+            <type>Scalar</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+        </input>
+        <input allowMultiple="false">
+            <name>Second</name>
+            <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+        </input>
+    </inputs>
+    <output>
+        <name>Output</name>
+        <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+    </output>
+</description>

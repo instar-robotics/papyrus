@@ -28,6 +28,15 @@ DiagramScene::~DiagramScene()
     delete box;
 }
 
+void DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon)
+{
+    // If we clicked on empty space, add an item centered on the mouse cursor
+    DiagramBox *newBox = new DiagramBox(name, icon);
+    QPointF center = newBox->boundingRect().center();
+    newBox->setPos(position - center);
+    addItem(newBox);
+}
+
 /*
  * Check the items's bounding rects and update the scene's 'sceneRect' to contain them all.
  * Default to a minimum size of the container widget's size (this is to prevent weird behavior
@@ -85,10 +94,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
         QGraphicsItem *maybeItem = itemAt(evt->scenePos(), QTransform());
         if (!maybeItem) {
             // If we clicked on empty space, add an item centered on the mouse cursor
-            DiagramBox *newBox = new DiagramBox;
-            QPointF center = newBox->boundingRect().center();
-            newBox->setPos(evt->scenePos() - center);
-            addItem(newBox);
+
+//            addBox(evt->scenePos());
 
             updateSceneRect();
         } else {
@@ -198,10 +205,16 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
         QString name;
         QIcon icon;
+//        std::vector<InputSlot> inputs;
+//        int nb;
 
         dataStream >> name >> icon;
 
-        addPixmap(icon.pixmap(QSize(150, 150)))->setPos(evt->scenePos());
+//        std::cout << "Item " << qPrintable(name) << " placed with " << inputs.size() << " inputs" << std::endl;
+//        std::cout << "Item " << qPrintable(name) << " placed with " << nb << " inputs" << std::endl;
+
+//        addPixmap(icon.pixmap(QSize(150, 150)))->setPos(evt->scenePos());
+        addBox(evt->scenePos(), name, icon);
 
         setBackgroundBrush(QBrush(Qt::white));
         emit(displayStatusMessage("Added '<insert-name> in script."));

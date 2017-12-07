@@ -1,5 +1,6 @@
 #include "librarypanel.h"
 #include "constants.h"
+#include "function.h"
 #include <iostream>
 
 #include <QDragEnterEvent>
@@ -38,13 +39,15 @@ void LibraryPanel::dropEvent(QDropEvent *evt)
     evt->accept();
 }
 
-void LibraryPanel::startDrag(Qt::DropActions supportedActions)
+void LibraryPanel::startDrag(Qt::DropActions)
 {
     std::cout << "Start drag on library" << std::endl;
 
-    QTreeWidgetItem *item = currentItem();
+    Function *item = static_cast<Function *>(currentItem());
     QIcon icon = item->icon(0);
-    QString name = item->text(0);
+    QString name = item->name();
+//    std::vector<InputSlot> inputs = item->inputs();
+//    int s = inputs.size();
 
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);

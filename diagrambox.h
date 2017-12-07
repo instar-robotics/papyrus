@@ -6,16 +6,18 @@
 #include <set>
 
 #include <QGraphicsItem>
-#include <QGraphicsRectItem>
+#include <QIcon>
 
-class DiagramBox : public QObject, public QGraphicsRectItem
+class DiagramBox : public QGraphicsItem
 {
-    Q_OBJECT
-
 public:
     static int nb;
 
-    explicit DiagramBox(QGraphicsItem *parent = 0);
+    explicit DiagramBox(const QString &name, const QIcon &icon, QGraphicsItem *parent = 0);
+
+    QRectF boundingRect() const override;
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     std::set<Arrow *> startLines() const {return startLines_;}
     std::set<Arrow *> endLines() const {return endLines_;}
@@ -25,18 +27,21 @@ public:
     void removeStartLine(Arrow *line);
     void removeEndLine(Arrow *line);
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
     int no; // TEMP
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
-    //std::vector<Arrow *> startLines_; // The list of Arrows originating from this Box
-    //std::vector<Arrow *> endLines_;   // The list of Arrows pointing to this Box
+    QString m_name;
+    QIcon m_icon;
+
     std::set<Arrow *> startLines_; // The list of Arrows originating from this Box
     std::set<Arrow *> endLines_;   // The list of Arrows pointing to this Box
+
+    qreal bWidth;    // Overall width of the function's box
+    qreal bHeight;   // Overall height of the function's box
+    qreal tHeight;   // Height of the space in which th function's name is written
 };
 
 #endif // DIAGRAMBOX_H

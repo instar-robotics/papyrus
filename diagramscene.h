@@ -10,6 +10,7 @@ class DiagramScene : public QGraphicsScene
 {
     Q_OBJECT
 
+    void addBox(const QPointF &position, const QString &name, const QIcon &icon);
     void updateSceneRect();
 
 public:

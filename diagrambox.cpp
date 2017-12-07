@@ -1,20 +1,30 @@
 #include "diagrambox.h"
 #include <iostream>
 #include <QPen>
+#include <QPainter>
+#include <QStyleOptionGraphicsItem>
 
 int DiagramBox::nb = 0;
 
-DiagramBox::DiagramBox(QGraphicsItem *parent) : QGraphicsRectItem(parent),
+DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QGraphicsItem *parent) : QGraphicsItem(parent),
+                                                m_name(name),
+                                                m_icon(icon),
                                                 startLines_(),
-                                                endLines_()
+                                                endLines_(),
+                                                bWidth(170),
+                                                bHeight(70),
+                                                tHeight(20)
 {
-    no = nb;
-    setRect(QRectF(0, 0, 150, 100));
-    setPen((QPen(Qt::black, 2)));
+    no = nb++;
     setFlags(QGraphicsItem::ItemIsSelectable
            | QGraphicsItem::ItemIsMovable
            | QGraphicsItem::ItemSendsScenePositionChanges);
-    nb += 1;
+    setAcceptHoverEvents(true);
+}
+
+QRectF DiagramBox::boundingRect() const
+{
+    return QRectF(0, 0, bWidth + 2, bHeight + 2);
 }
 
 /*
@@ -85,21 +95,51 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
-//*
 void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    // Make selected boxes appear "bold"
-    if (isSelected()) {
-        QPen p = pen();
-        p.setWidth(4);
-        setPen(p);
-    } else {
-        QPen p = pen();
-        p.setWidth(2);
-        setPen(p);
+    Q_UNUSED(widget);
+
+    QPen pen;
+    qreal width = 1.5;
+
+    QFont font = painter->font();
+    font.setPixelSize(13);
+
+    if (option->state & QStyle::State_Selected) {
+        width += 1;
+        font.setBold(true);
     }
 
-    QGraphicsRectItem::paint(painter, option, widget);
+    pen.setWidthF(width);
+    painter->setFont(font);
+
+    QColor color = Qt::gray;
+    color = color.dark();
+
+    pen.setColor(color);
+
+    painter->setPen(pen);
+
+    // Draw enclosure
+    painter->drawRoundedRect(QRectF(0, 0, bWidth, bHeight), 7, 7);
+
+    // Draw vertical lines to create compartments
+    painter->drawLine(QLineF(bWidth / 3, 0, bWidth / 3, bHeight - tHeight));
+    painter->drawLine(QLineF(2 * bWidth / 3, 0, 2 * bWidth / 3, bHeight - tHeight));
+
+    // Draw horizontal line to create the space for the function's name, with dashed line
+    QPen oldPen = painter->pen();
+    QPen dashedPen = oldPen;
+    dashedPen.setStyle(Qt::DashLine);
+    painter->setPen(dashedPen);
+    painter->drawLine(QLineF(0, bHeight - tHeight, bWidth, bHeight - tHeight));
+    painter->setPen(oldPen);
+
+    // Draw the function's icon
+    QPixmap iconPix =  m_icon.pixmap(QSize(bWidth / 3, bHeight - tHeight));
+    painter->drawPixmap(QRect(bWidth / 3, 0, bWidth / 3, bHeight - tHeight), iconPix, QRect(0, 0, bWidth / 3, bHeight - tHeight));
+
+    // Draw the function's name
+    painter->drawText(QRectF(0, bHeight - tHeight, bWidth, tHeight), Qt::AlignCenter, m_name);
 }
-//*/
 

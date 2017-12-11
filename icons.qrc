@@ -13,6 +13,7 @@
         <file>icons/missing-icon.svg</file>
         <file>icons/close.svg</file>
         <file>icons/grid.svg</file>
+        <file>icons/about.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -23,5 +23,11 @@
 // Define the name of the root element XML tag in the function's description files
 #define XML_ROOT_ELEM "description"
 
+// Major version number
+#define MAJOR_VERSION 0
+
+// Minor version number
+#define MINOR_VERSION 1
+
 #endif // CONSTANTS
 

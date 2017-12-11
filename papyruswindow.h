@@ -72,6 +72,8 @@ private slots:
 
     void on_actionDisplay_Grid_toggled(bool arg1);
 
+    void on_actionAbout_Papyrus_triggered();
+
 private:
     Ui::PapyrusWindow *ui;
     LibraryPanel *libraryPanel_;

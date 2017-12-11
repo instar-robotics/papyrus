@@ -15,6 +15,7 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
@@ -375,4 +376,21 @@ void PapyrusWindow::on_actionDisplay_Grid_hovered()
 void PapyrusWindow::on_actionDisplay_Grid_toggled(bool shouldDisplay)
 {
     emit(toggleDisplayGrid(shouldDisplay));
+}
+
+void PapyrusWindow::on_actionAbout_Papyrus_triggered()
+{
+    QString title(tr("About %1").arg(APP_NAME));
+    QString desc("                        .:| ");
+    desc += APP_NAME;
+    desc += " |:.";
+    desc += " v" + QString::number(MAJOR_VERSION) + "." + QString::number(MINOR_VERSION) + "\n";
+    desc += "Graphical programming application to easily create neural networks.\n\n";
+    desc += "Author: Nicolas SCHOEMAEKER <nschoe@protonmail.com>";
+
+    QMessageBox about;
+    about.setIcon(QMessageBox::Information);
+    about.setWindowTitle(title);
+    about.setText(desc);
+    about.exec();
 }

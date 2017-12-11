@@ -181,8 +181,15 @@
    </property>
   </action>
   <action name="actionAbout_Papyrus">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/about.svg</normaloff>:/icons/icons/about.svg</iconset>
+   </property>
    <property name="text">
     <string>About Papyrus...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+?</string>
    </property>
   </action>
   <action name="actionExit">

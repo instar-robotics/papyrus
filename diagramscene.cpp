@@ -359,3 +359,9 @@ void DiagramScene::setShouldDrawGrid(bool shouldDrawGrid)
 {
     m_shouldDrawGrid = shouldDrawGrid;
 }
+
+void DiagramScene::toggleDisplayGrid(bool shouldDraw)
+{
+    m_shouldDrawGrid = shouldDraw;
+    update(sceneRect());
+}

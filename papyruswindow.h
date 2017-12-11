@@ -36,7 +36,8 @@ public:
     Library *getLibrary() const;
     void setLibrary(Library *library);
 
-
+signals:
+    void toggleDisplayGrid(bool);
 
 private slots:
     void filterLibraryNames(const QString &text);
@@ -66,6 +67,10 @@ private slots:
 
     void on_actionNew_script_triggered();
 
+
+    void on_actionDisplay_Grid_hovered();
+
+    void on_actionDisplay_Grid_toggled(bool arg1);
 
 private:
     Ui::PapyrusWindow *ui;

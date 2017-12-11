@@ -289,6 +289,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
                                   widgetSize.height()));
 
     connect(newScene, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+    connect(this, SIGNAL(toggleDisplayGrid(bool)), newScene, SLOT(toggleDisplayGrid(bool)));
 
     // Create a new view to display the new scene
     DiagramView *newView = new DiagramView(newScene);
@@ -364,4 +365,14 @@ void PapyrusWindow::on_actionZoom_Out_hovered()
 void PapyrusWindow::on_actionZoom_Fit_hovered()
 {
     ui->statusBar->showMessage(tr("Zoom to contain the entire script."));
+}
+
+void PapyrusWindow::on_actionDisplay_Grid_hovered()
+{
+    ui->statusBar->showMessage(tr("Toggle grid display."));
+}
+
+void PapyrusWindow::on_actionDisplay_Grid_toggled(bool shouldDisplay)
+{
+    emit(toggleDisplayGrid(shouldDisplay));
 }

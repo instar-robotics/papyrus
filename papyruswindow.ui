@@ -98,6 +98,7 @@
     <addaction name="actionZoom_Fit"/>
     <addaction name="separator"/>
     <addaction name="actionAntialiasing"/>
+    <addaction name="actionDisplay_Grid"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -120,6 +121,7 @@
    <addaction name="actionZoom_In"/>
    <addaction name="actionZoom_Out"/>
    <addaction name="actionZoom_Fit"/>
+   <addaction name="actionDisplay_Grid"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew_script">
@@ -246,6 +248,24 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+=</string>
+   </property>
+  </action>
+  <action name="actionDisplay_Grid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/icons/icons/grid.svg</normaloff>:/icons/icons/grid.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Display Grid</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+G</string>
    </property>
   </action>
  </widget>

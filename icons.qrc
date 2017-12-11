@@ -12,6 +12,7 @@
         <file>icons/script.svg</file>
         <file>icons/missing-icon.svg</file>
         <file>icons/close.svg</file>
+        <file>icons/grid.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -21,6 +21,7 @@ public:
     void setShouldDrawGrid(bool shouldDrawGrid);
 
 public slots:
+    void toggleDisplayGrid(bool shouldDraw);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *evt);

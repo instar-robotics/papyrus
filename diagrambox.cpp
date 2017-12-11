@@ -1,4 +1,6 @@
 #include "diagrambox.h"
+#include "diagramscene.h"
+
 #include <iostream>
 #include <QPen>
 #include <QPainter>
@@ -66,7 +68,19 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 {
     // When it is moved, we need to move its connected Arrows
     if (change == QGraphicsItem::ItemPositionChange && scene()) {
-        QPointF newPos = value.toPointF();
+        // Get coordinate of the target new position
+        QPointF targetPos = value.toPointF();
+
+        // Get the scene in order to get the grid size
+        DiagramScene *theScene = qobject_cast<DiagramScene *>(scene());
+        int gridSize = theScene->gridSize();
+
+        // Snap the new position's (x, y) coordinates to the grid
+        qreal newX = round(targetPos.x() / gridSize) * gridSize;
+        qreal newY = round(targetPos.y() / gridSize) * gridSize;
+
+        // Create the Point representing the new, snapped position
+        QPointF newPos(newX, newY);
 
         QPointF newStartPoint = newPos;
         newStartPoint.rx() += boundingRect().width();
@@ -74,8 +88,6 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 
         QPointF newEndPoint = newPos;
         newEndPoint.ry() += boundingRect().height() / 2;
-//        QPointF newCenter = boundingRect().center();
-//        QPointF newPoint = newPos + newCenter;
 
         // Update position of start lines
         for (auto line : startLines_) {
@@ -86,6 +98,8 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         for (auto line : endLines_) {
             line->updatePosition(newEndPoint, false);
         }
+
+        return newPos;
     } else if (change == QGraphicsItem::ItemSelectedHasChanged && isSelected()) {
         std::cout << std::endl;
         std::cout << "Box #" << no << " selected, it has " << startLines().size()

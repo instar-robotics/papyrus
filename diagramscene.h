@@ -20,6 +20,8 @@ public:
     bool shouldDrawGrid() const;
     void setShouldDrawGrid(bool shouldDrawGrid);
 
+    int gridSize() const;
+
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
 

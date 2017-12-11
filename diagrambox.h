@@ -29,6 +29,8 @@ public:
 
     int no; // TEMP
 
+    QString name() const;
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 

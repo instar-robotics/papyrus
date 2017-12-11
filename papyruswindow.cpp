@@ -297,6 +297,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
 
     // Create the new script and add it to the set of scripts
     Script *newScript = new Script(newScriptName, newScene);
+    connect(newScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
     newScene->setScript(newScript);
     addScript(newScript);
 
@@ -421,6 +422,17 @@ void PapyrusWindow::on_actionSave_Script_triggered()
     // Call the 'Save' function of the current script
     DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->currentWidget());
     if (!currentView) {
-//        QMessageBox::
+        QMessageBox::warning(this, "No open script to save", "There is no scripts opened to save!");
+        return;
     }
+
+    DiagramScene *currentScene = qobject_cast<DiagramScene *>(currentView->scene());
+
+    // A view should always have a scene
+    Q_ASSERT(currentScene != NULL);
+    // And a scene must always have a script
+    Q_ASSERT(currentScene->script() != NULL);
+
+    Script *currentScript = currentScene->script();
+    currentScript->save();
 }

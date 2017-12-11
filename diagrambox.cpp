@@ -109,6 +109,11 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+QString DiagramBox::name() const
+{
+    return m_name;
+}
+
 void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(widget);

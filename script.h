@@ -14,8 +14,9 @@ class DiagramScene;
  * as well as the QGraphicsScene that contains its functions boxes
  */
 
-class Script
+class Script : public QObject
 {
+    Q_OBJECT
 public:
     Script(const QString &name, DiagramScene *scene);
 
@@ -32,6 +33,8 @@ private:
     QString m_name;        // Pretty name of the script (to display in tabs for instance)
     QString m_filePath;    // Path of the (XML) file in which to save this script
     DiagramScene *m_scene; // The associated scene for this script
+signals:
+    void displayStatusMessage(const QString &text);
 };
 
 #endif // SCRIPT_H

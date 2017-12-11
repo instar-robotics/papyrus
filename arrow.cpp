@@ -61,21 +61,21 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
 
     arrowHead.clear();
 
-//    painter->setBrush(QBrush(Qt::blue));
     painter->setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap));
 
     if (to() != from()) {
         // Paint a normal line if the start and end boxes are different
         painter->drawLine(line());
 
-        QPointF arrowP1 = line().p2() - QPointF(sin(angle + M_PI / 3) * arrowSize,
+        QPointF middle = (line().p1() + line().p2()) / 2;
+
+        QPointF arrowP1 = middle - QPointF(sin(angle + M_PI / 3) * arrowSize,
                                                 cos(angle + M_PI / 3) * arrowSize);
 
-        QPointF arrowP2 = line().p2() - QPointF(sin(angle + M_PI - M_PI / 3) * arrowSize,
+        QPointF arrowP2 = middle - QPointF(sin(angle + M_PI - M_PI / 3) * arrowSize,
                                                 cos(angle + M_PI - M_PI / 3) * arrowSize);
 
-
-        arrowHead << line().p2() << arrowP1 << arrowP2;
+        arrowHead << middle << arrowP1 << arrowP2;
     } else {
         // Paint an arc line if the box is connected to itself
         // Get the bounding rect of the associated box for reference

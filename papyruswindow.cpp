@@ -293,7 +293,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
     // Create a new view to display the new scene
     DiagramView *newView = new DiagramView(newScene);
 
-    // Add the new scene as a new tab
+    // Add the new scene as a new tab and make it active
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
                                                          QIcon(":/icons/icons/script.svg"),
                                                          newScriptName));

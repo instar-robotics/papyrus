@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     library.cpp \
     category.cpp \
     function.cpp \
-    xmldescriptionreader.cpp
+    xmldescriptionreader.cpp \
+    script.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
@@ -41,7 +42,8 @@ HEADERS  += papyruswindow.h \
     category.h \
     function.h \
     types.h \
-    xmldescriptionreader.h
+    xmldescriptionreader.h \
+    script.h
 
 FORMS    += papyruswindow.ui
 

@@ -17,6 +17,9 @@ public:
     explicit DiagramScene(QObject *parent = 0);
     ~DiagramScene();
 
+    bool shouldDrawGrid() const;
+    void setShouldDrawGrid(bool shouldDrawGrid);
+
 public slots:
 
 protected:
@@ -32,10 +35,14 @@ protected:
     void removeItem(Arrow *arrow);
     void removeItem(DiagramBox *box);
 
+    void drawBackground(QPainter *painter, const QRectF &rect);
+
 private:
     //QString *sceneName;
     //bool leftBtnIsDown;
     bool middleBtnIsDown;
+    bool m_shouldDrawGrid;   // Whether to draw the grid or not
+    int m_gridSize;          // Size (in px) of the grid
     QGraphicsLineItem *line; // The current line being drawn while clicking
     DiagramBox *box;         // The current box from which the current line originates
 

@@ -15,11 +15,14 @@
 #include <QGraphicsView>
 #include <QApplication>
 
-DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent)
+DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
+                                            middleBtnIsDown(false),
+                                            m_shouldDrawGrid(true),
+                                            m_gridSize(35),
+                                            line(0),
+                                            box(0)
 {
-    middleBtnIsDown = false;
-    line = 0;
-    box = 0;
+
 }
 
 DiagramScene::~DiagramScene()
@@ -169,7 +172,14 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
 {
     if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
-        emit(displayStatusMessage("Adding '<insert-name>' in script..."));
+        QByteArray pieceData = evt->mimeData()->data(LibraryPanel::libraryItemMimeType());
+        QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
+        QString name;
+        QIcon icon;
+
+        dataStream >> name >> icon;
+        QString str(tr("Add '%1' in script...").arg(name));
+        emit(displayStatusMessage(str));
         setBackgroundBrush(QBrush(QColor(220, 220, 220, 50)));
     } else {
         // EMIT SIGNAL TO STATUS MESSAGE BAR
@@ -180,7 +190,15 @@ void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
 void DiagramScene::dragLeaveEvent(QGraphicsSceneDragDropEvent *evt)
 {
     if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
-        emit(displayStatusMessage("Cancelled adding '<insert-name>' in script..."));
+        QByteArray pieceData = evt->mimeData()->data(LibraryPanel::libraryItemMimeType());
+        QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
+        QString name;
+        QIcon icon;
+
+        dataStream >> name >> icon;
+        QString str(tr("Cancel adding '%1' in script...").arg(name));
+
+        emit(displayStatusMessage(str));
         setBackgroundBrush(QBrush(Qt::white));
     } else {
         evt->ignore();
@@ -209,15 +227,11 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 //        int nb;
 
         dataStream >> name >> icon;
-
-//        std::cout << "Item " << qPrintable(name) << " placed with " << inputs.size() << " inputs" << std::endl;
-//        std::cout << "Item " << qPrintable(name) << " placed with " << nb << " inputs" << std::endl;
-
-//        addPixmap(icon.pixmap(QSize(150, 150)))->setPos(evt->scenePos());
         addBox(evt->scenePos(), name, icon);
 
         setBackgroundBrush(QBrush(Qt::white));
-        emit(displayStatusMessage("Added '<insert-name> in script."));
+        QString str(tr("Function '%1' added in script").arg(name));
+        emit(displayStatusMessage(str));
     } else {
         evt->ignore();
         emit(displayStatusMessage("Unsupported drop event, discarding."));
@@ -307,4 +321,41 @@ void DiagramScene::removeItem(DiagramBox *box)
 
     QGraphicsScene::removeItem(box); // Remove the Box from the scene
     delete box;                      // Delete the Box
+}
+
+/**
+ * @brief Draw the grid if the option is set
+ * @param painter the painter object, used to pain
+ * @param rect the portion of the scene that is currently visible
+ */
+void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    if (!m_shouldDrawGrid)
+        return;
+
+    QPen pen;
+    painter->setPen(pen);
+
+    qreal left = int(rect.left()) - (int(rect.left()) % m_gridSize);
+    qreal top = int(rect.top()) - (int(rect.top()) % m_gridSize);
+
+    QVector<QPointF> dots;
+
+    for (qreal x = left; x < rect.right(); x += m_gridSize) {
+        for (qreal y = top; y < rect.bottom(); y += m_gridSize) {
+            dots.append(QPointF(x, y));
+        }
+    }
+
+    painter->drawPoints(dots.data(), dots.size());
+}
+
+bool DiagramScene::shouldDrawGrid() const
+{
+    return m_shouldDrawGrid;
+}
+
+void DiagramScene::setShouldDrawGrid(bool shouldDrawGrid)
+{
+    m_shouldDrawGrid = shouldDrawGrid;
 }

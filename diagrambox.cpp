@@ -11,7 +11,7 @@ DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QGraphicsItem *pa
                                                 m_icon(icon),
                                                 startLines_(),
                                                 endLines_(),
-                                                bWidth(170),
+                                                bWidth(175),
                                                 bHeight(70),
                                                 tHeight(20)
 {

@@ -6,6 +6,9 @@
 #include <QString>
 #include <QFile>
 
+// Forward declaration because of recursive includes
+class DiagramScene;
+
 /**
  * @brief The Script class represents a neural scripts. An XML file is associated to it,
  * as well as the QGraphicsScene that contains its functions boxes

@@ -3,6 +3,7 @@
 
 #include "librarypanel.h"
 #include "library.h"
+#include "script.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -35,6 +36,9 @@ public:
 
     Library *getLibrary() const;
     void setLibrary(Library *library);
+
+    std::set<Script *> getScripts() const;
+    void addScript(Script *script);
 
 signals:
     void toggleDisplayGrid(bool);
@@ -74,6 +78,8 @@ private slots:
 
     void on_actionAbout_Papyrus_triggered();
 
+    void on_actionSave_Script_triggered();
+
 private:
     Ui::PapyrusWindow *ui;
     LibraryPanel *libraryPanel_;
@@ -81,6 +87,7 @@ private:
     QDir description_;
     QSystemTrayIcon *trayIcon;
     Library *m_library;
+    std::set<Script *> m_scripts;
 };
 
 #endif // PAPYRUSWINDOW_H

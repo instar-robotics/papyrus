@@ -1,10 +1,14 @@
 #ifndef DIAGRAMSCENE_H
 #define DIAGRAMSCENE_H
 
+#include "script.h"
+
 #include <QGraphicsScene>
 #include <diagrambox.h>
 #include <arrow.h>
 
+// Deferred declaration because of recursive include
+class Script;
 
 class DiagramScene : public QGraphicsScene
 {
@@ -21,6 +25,9 @@ public:
     void setShouldDrawGrid(bool shouldDrawGrid);
 
     int gridSize() const;
+
+    Script *script() const;
+    void setScript(Script *script);
 
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
@@ -48,6 +55,7 @@ private:
     int m_gridSize;          // Size (in px) of the grid
     QGraphicsLineItem *line; // The current line being drawn while clicking
     DiagramBox *box;         // The current box from which the current line originates
+    Script *m_script;        // The script to which this scene is associated
 
 signals:
     void displayStatusMessage(const QString &text);

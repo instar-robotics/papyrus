@@ -295,6 +295,11 @@ void PapyrusWindow::on_actionNew_script_triggered()
     // Create a new view to display the new scene
     DiagramView *newView = new DiagramView(newScene);
 
+    // Create the new script and add it to the set of scripts
+    Script *newScript = new Script(newScriptName, newScene);
+    newScene->setScript(newScript);
+    addScript(newScript);
+
     // Add the new scene as a new tab and make it active
     ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
                                                          QIcon(":/icons/icons/script.svg"),
@@ -381,16 +386,41 @@ void PapyrusWindow::on_actionDisplay_Grid_toggled(bool shouldDisplay)
 void PapyrusWindow::on_actionAbout_Papyrus_triggered()
 {
     QString title(tr("About %1").arg(APP_NAME));
-    QString desc("                        .:| ");
+//    QString desc("<h2>.:| %1 |:.</h2>");
+    QString desc("<h2>.:| ");
     desc += APP_NAME;
-    desc += " |:.";
-    desc += " v" + QString::number(MAJOR_VERSION) + "." + QString::number(MINOR_VERSION) + "\n";
-    desc += "Graphical programming application to easily create neural networks.\n\n";
-    desc += "Author: Nicolas SCHOEMAEKER <nschoe@protonmail.com>";
+    desc += " v";
+    desc += QString::number(MAJOR_VERSION);
+    desc += ".";
+    desc += QString::number(MINOR_VERSION);
+    desc += " |:.</h2>";
+    desc += "Graphical programming application to easily create neural networks to be run by "
+            "[insert kernel application name here]<br><br>";
+    desc += "<strong>Author:</strong> Nicolas SCHOEMAEKER <pre><a href='mailto:nschoe@protonmail.com'>nschoe@protonmail.com</a></pre>";
+    desc += "<strong>Source:<strong> <a href='https://google.com'>[Insert github link here]</a>";
 
-    QMessageBox about;
-    about.setIcon(QMessageBox::Information);
-    about.setWindowTitle(title);
-    about.setText(desc);
-    about.exec();
+    QMessageBox::about(this, title, desc);
+}
+
+std::set<Script *> PapyrusWindow::getScripts() const
+{
+    return m_scripts;
+}
+
+/**
+ * @brief Add a new script (if it doesn't exist) in the set of scripts
+ * @param script: the script to add
+ */
+void PapyrusWindow::addScript(Script *script)
+{
+    m_scripts.insert(script);
+}
+
+void PapyrusWindow::on_actionSave_Script_triggered()
+{
+    // Call the 'Save' function of the current script
+    DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->currentWidget());
+    if (!currentView) {
+//        QMessageBox::
+    }
 }

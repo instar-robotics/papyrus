@@ -350,6 +350,16 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
     painter->drawPoints(dots.data(), dots.size());
 }
 
+Script *DiagramScene::script() const
+{
+    return m_script;
+}
+
+void DiagramScene::setScript(Script *script)
+{
+    m_script = script;
+}
+
 int DiagramScene::gridSize() const
 {
     return m_gridSize;

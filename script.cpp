@@ -100,7 +100,8 @@ void Script::save()
 
     file.close();
 
-    QMessageBox::information(NULL, "Saved", "Saved!");
+    QString msg(tr("Script ") + m_name + tr(" saved!"));
+    emit displayStatusMessage(msg);
 }
 
 void Script::autoSave()

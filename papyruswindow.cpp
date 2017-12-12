@@ -479,7 +479,11 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
         // Create a new view to display the new scene
         DiagramView *newView = new DiagramView(openScript->scene());
 
+        // Connect the necessary events for the scene and the script
         connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+        connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
+
+        // Add the script in the set of opened scripts
         addScript(openScript);
 
         // Add the new scene as a new tab and make it active

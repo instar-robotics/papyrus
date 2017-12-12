@@ -40,7 +40,7 @@ void XmlScriptReader::readScript()
             if (scriptName.isEmpty()) {
                 reader.raiseError(QObject::tr("Empty script name."));
             } else {
-                m_script->name() = scriptName;
+                m_script->setName(scriptName);
             }
 
             // Then read the opening <functions> tag
@@ -59,8 +59,6 @@ void XmlScriptReader::readScript()
             } else {
                 reader.raiseError(QObject::tr("Incomplete script file (failed to parse functions)."));
             }
-
-            // Then loop reading the functions
         } else {
             reader.raiseError(QObject::tr("Missing script name."));
         }

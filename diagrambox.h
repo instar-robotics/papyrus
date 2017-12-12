@@ -7,13 +7,12 @@
 
 #include <QGraphicsItem>
 #include <QIcon>
+#include <QUuid>
 
 class DiagramBox : public QGraphicsItem
 {
 public:
-    static int nb;
-
-    explicit DiagramBox(const QString &name, const QIcon &icon, QGraphicsItem *parent = 0);
+    explicit DiagramBox(const QString &name, const QIcon &icon, QUuid uuid = 0, QGraphicsItem *parent = 0);
 
     QRectF boundingRect() const override;
 
@@ -27,24 +26,25 @@ public:
     void removeStartLine(Arrow *line);
     void removeEndLine(Arrow *line);
 
-    int no; // TEMP
-
     QString name() const;
     void setName(const QString &name);
+
+    QUuid uuid() const;
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
-    QString m_name;
-    QIcon m_icon;
+    QUuid m_uuid;   // Unique ID of the function's box (to identify links for instance)
+    QString m_name; // Name of the function
+    QIcon m_icon;   // Icon representing the function
 
     std::set<Arrow *> startLines_; // The list of Arrows originating from this Box
     std::set<Arrow *> endLines_;   // The list of Arrows pointing to this Box
 
-    qreal bWidth;    // Overall width of the function's box
-    qreal bHeight;   // Overall height of the function's box
-    qreal tHeight;   // Height of the space in which th function's name is written
+    qreal bWidth;  // Overall width of the function's box
+    qreal bHeight; // Overall height of the function's box
+    qreal tHeight; // Height of the space in which th function's name is written
 };
 
 #endif // DIAGRAMBOX_H

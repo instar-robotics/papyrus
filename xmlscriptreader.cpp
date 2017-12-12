@@ -1,5 +1,7 @@
 #include "xmlscriptreader.h"
 
+#include <QDebug>
+
 XmlScriptReader::XmlScriptReader(Script *script) : m_script(script)
 {
 
@@ -73,10 +75,13 @@ void XmlScriptReader::readFunction()
 
     QPointF pos;
     QString name;
+    QUuid uuid;
 
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readFunctionName(&name);
+        else if (reader.name() == "uuid")
+            readUUID(&uuid);
         else if (reader.name() == "position")
             readPosition(&pos);
         else
@@ -85,7 +90,7 @@ void XmlScriptReader::readFunction()
 
     // We should check (somehow) that the parsing for this box was okay before adding it
     // The Icon is not yet passed in the XMl, so add a temporary default icon
-    m_script->scene()->addBox(pos, name, QIcon(":/icons/icons/missing-icon.svg"));
+    m_script->scene()->addBox(pos, name, QIcon(":/icons/icons/missing-icon.svg"), uuid);
 }
 
 void XmlScriptReader::readFunctionName(QString *name)
@@ -99,6 +104,15 @@ void XmlScriptReader::readFunctionName(QString *name)
     } else {
         name->setUnicode(functionName.unicode(), functionName.size());
     }
+}
+
+void XmlScriptReader::readUUID(QUuid *uuid)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "uuid");
+
+    QUuid id(reader.readElementText());
+
+    *uuid = id;
 }
 
 void XmlScriptReader::readPosition(QPointF *pos)

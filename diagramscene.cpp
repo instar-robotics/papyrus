@@ -32,10 +32,10 @@ DiagramScene::~DiagramScene()
     delete box;
 }
 
-void DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon)
+void DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon, QUuid uuid)
 {
     // If we clicked on empty space, add an item centered on the mouse cursor
-    DiagramBox *newBox = new DiagramBox(name, icon);
+    DiagramBox *newBox = new DiagramBox(name, icon, uuid);
     QPointF center = newBox->boundingRect().center();
     newBox->setPos(position - center);
     addItem(newBox);
@@ -274,15 +274,15 @@ void DiagramScene::removeItem(DiagramBox *box)
 {
     // ATTENTION: check for leaks: do we need to delete the items?
 
-    std::cout << "About to delete box #" << box->no << std::endl;
+    std::cout << "About to delete box #??" << std::endl;
 
     // TODO: re-implement this in a more efficient manner!
-    std::cout << "Box #" << box->no << " has " << box->startLines().size() << " start lines" << std::endl;
+    std::cout << "Box #?? has " << box->startLines().size() << " start lines" << std::endl;
 
     for (auto line : box->startLines()) {
         std::cout << "Dealing with line #" << line->no << std::endl;
         DiagramBox *endBox = line->to();
-        std::cout << "endBox for this line is #" << endBox->no << std::endl;
+        std::cout << "endBox for this line is #??" << std::endl;
 
         // Unlink the Arrow from its DiagramBoxes
         line->setTo(NULL);
@@ -299,12 +299,12 @@ void DiagramScene::removeItem(DiagramBox *box)
     box->startLines().clear();
 
     // TODO: re-implement this in a more efficient manner!
-   std::cout << "Box #" << box->no << " has " << box->endLines().size() << " end lines" << std::endl;
+   std::cout << "Box #??? has " << box->endLines().size() << " end lines" << std::endl;
 
    for (auto line : box->endLines()) {
        std::cout << "Dealing with line #" << line->no << std::endl;
        DiagramBox *startBox = line->from();
-       std::cout << "startBox for this line is #" << startBox->no << std::endl;
+       std::cout << "startBox for this line is #??" << std::endl;
 
        // Unlink the Arrow from its DiagramBoxes
        line->setTo(NULL);

@@ -6,18 +6,20 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-int DiagramBox::nb = 0;
-
-DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QGraphicsItem *parent) : QGraphicsItem(parent),
+DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QUuid uuid, QGraphicsItem *parent) : QGraphicsItem(parent),
                                                 m_name(name),
                                                 m_icon(icon),
                                                 startLines_(),
                                                 endLines_(),
                                                 bWidth(175),
                                                 bHeight(70),
-                                                tHeight(20)
+                                                tHeight(20),
+                                                m_uuid(uuid)
 {
-    no = nb++;
+    // Generate a UUID if there was not one while created
+    if (m_uuid.isNull())
+        m_uuid = QUuid::createUuid();
+
     setFlags(QGraphicsItem::ItemIsSelectable
            | QGraphicsItem::ItemIsMovable
            | QGraphicsItem::ItemSendsScenePositionChanges);
@@ -102,11 +104,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         return newPos;
     } else if (change == QGraphicsItem::ItemSelectedHasChanged && isSelected()) {
         std::cout << std::endl;
-        std::cout << "Box #" << no << " selected, it has " << startLines().size()
+        std::cout << "Box #??? selected, it has " << startLines().size()
                   << " start lines and " << endLines().size() << " end lines." << std::endl;
     }
 
     return QGraphicsItem::itemChange(change, value);
+}
+
+QUuid DiagramBox::uuid() const
+{
+    return m_uuid;
 }
 
 void DiagramBox::setName(const QString &name)

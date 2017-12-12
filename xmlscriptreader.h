@@ -5,6 +5,7 @@
 #include "diagrambox.h"
 
 #include <QXmlStreamReader>
+#include <QUuid>
 
 /**
  * @brief The XmlScriptReader class is an XML parser that reads an XML script file
@@ -27,6 +28,7 @@ private:
     void readScript();
     void readFunction();
     void readFunctionName(QString *name);
+    void readUUID(QUuid *uuid);
     void readPosition(QPointF *pos);
 };
 

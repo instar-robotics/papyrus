@@ -84,9 +84,11 @@ void Script::save()
 
         QString name = item->name();
         QPointF pos = item->scenePos();
+        QUuid uuid = item->uuid();
 
         stream.writeStartElement("function");
         stream.writeTextElement("name", name);
+        stream.writeTextElement("uuid", uuid.toString());
         stream.writeStartElement("position");
         stream.writeTextElement("x", QString::number(pos.x()));
         stream.writeTextElement("y", QString::number(pos.y()));

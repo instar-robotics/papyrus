@@ -29,6 +29,8 @@ public:
     QString filePath() const;
     void setFilePath(const QString &filePath);
 
+    DiagramScene *scene() const;
+
 private:
     QString m_name;        // Pretty name of the script (to display in tabs for instance)
     QString m_filePath;    // Path of the (XML) file in which to save this script

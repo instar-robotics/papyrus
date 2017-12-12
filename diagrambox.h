@@ -30,6 +30,7 @@ public:
     int no; // TEMP
 
     QString name() const;
+    void setName(const QString &name);
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);

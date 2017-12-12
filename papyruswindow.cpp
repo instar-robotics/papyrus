@@ -5,6 +5,7 @@
 #include "diagramview.h"
 #include "diagrambox.h"
 #include "xmldescriptionreader.h"
+#include "xmlscriptreader.h"
 
 #include <iostream>
 #include <QGraphicsView>
@@ -16,6 +17,7 @@
 #include <QGroupBox>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QFileDialog>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
@@ -296,7 +298,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
     DiagramView *newView = new DiagramView(newScene);
 
     // Create the new script and add it to the set of scripts
-    Script *newScript = new Script(newScriptName, newScene);
+    Script *newScript = new Script(newScene, newScriptName);
     connect(newScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
     newScene->setScript(newScript);
     addScript(newScript);
@@ -435,4 +437,44 @@ void PapyrusWindow::on_actionSave_Script_triggered()
 
     Script *currentScript = currentScene->script();
     currentScript->save();
+}
+
+void PapyrusWindow::on_actionOpen_Script_triggered()
+{
+    QString scriptName = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
+                                 QDir::homePath(),
+                                 tr("XML files (*.xml)"));
+
+    // Make sure the user selected a file
+    if (scriptName.isEmpty()) {
+        emit displayStatusMessage(tr("Abort opening script: no selected file."));
+        return;
+    }
+
+    // Open the file for reading
+    QFile scriptFile(scriptName);
+    if (!scriptFile.open(QIODevice::ReadOnly)) {
+        emit displayStatusMessage(tr("Could not open script file."));
+
+        QMessageBox::warning(NULL, tr("Could not open script file"),
+                             tr("We failed to open the script file for reading.\nMake sure you have "
+                                "the correct permissions for this file."));
+        return;
+    }
+
+    DiagramScene *openScene = new DiagramScene;
+    Script *openScript = new Script(openScene);
+
+    XmlScriptReader xmlReader(openScript);
+
+    if (!xmlReader.read(&scriptFile)) {
+        QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
+        str += xmlReader.errorString();
+
+        QMessageBox::warning(NULL, tr("Failed to load script."), str);
+    } else {
+        QString msg(tr("Script loaded."));
+        ui->statusBar->showMessage(msg);
+        m_scripts.insert(openScript);
+    }
 }

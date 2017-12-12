@@ -5,7 +5,7 @@
 #include <QFileInfo>
 #include <QXmlStreamWriter>
 
-Script::Script(const QString &name, DiagramScene *scene) : m_name(name),
+Script::Script(DiagramScene *scene, const QString &name) : m_name(name),
                                                            m_scene(scene)
 {
 

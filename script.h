@@ -18,7 +18,7 @@ class Script : public QObject
 {
     Q_OBJECT
 public:
-    Script(const QString &name, DiagramScene *scene);
+    Script(DiagramScene *scene, const QString &name = "");
 
     void save();
     void autoSave();

@@ -19,7 +19,15 @@ bool XmlScriptReader::read(QIODevice *device)
         reader.raiseError(QObject::tr("Empty script file."));
     }
 
+    if (reader.error())
+        m_errorString = reader.errorString();
+
     return !reader.error();
+}
+
+QString XmlScriptReader::errorString() const
+{
+    return m_errorString;
 }
 
 void XmlScriptReader::readScript()

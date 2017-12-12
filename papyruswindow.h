@@ -80,6 +80,8 @@ private slots:
 
     void on_actionSave_Script_triggered();
 
+    void on_actionOpen_Script_triggered();
+
 private:
     Ui::PapyrusWindow *ui;
     LibraryPanel *libraryPanel_;

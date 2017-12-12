@@ -16,8 +16,12 @@ class XmlScriptReader
 public:
     explicit XmlScriptReader(Script *script);
     bool read(QIODevice *device);
+
+    QString errorString() const;
+
 private:
     QXmlStreamReader reader;
+    QString m_errorString;
     Script *m_script;
 
     void readScript();

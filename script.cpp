@@ -130,3 +130,8 @@ void Script::setFilePath(const QString &filePath)
 {
     m_filePath = filePath;
 }
+
+DiagramScene *Script::scene() const
+{
+    return m_scene;
+}

@@ -32,7 +32,7 @@ void XmlScriptReader::readScript()
             if (scriptName.isEmpty()) {
                 reader.raiseError(QObject::tr("Empty script name."));
             } else {
-                m_script->name() = scriptName
+                m_script->name() = scriptName;
             }
 
             // Then read the opening <functions> tag

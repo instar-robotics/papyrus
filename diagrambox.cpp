@@ -109,6 +109,11 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+void DiagramBox::setName(const QString &name)
+{
+    m_name = name;
+}
+
 QString DiagramBox::name() const
 {
     return m_name;

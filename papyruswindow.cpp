@@ -475,6 +475,16 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
     } else {
         QString msg(tr("Script loaded."));
         ui->statusBar->showMessage(msg);
-        m_scripts.insert(openScript);
+
+        // Create a new view to display the new scene
+        DiagramView *newView = new DiagramView(openScript->scene());
+
+        connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+        addScript(openScript);
+
+        // Add the new scene as a new tab and make it active
+        ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
+                                                             QIcon(":/icons/icons/script.svg"),
+                                                             openScript->name()));
     }
 }

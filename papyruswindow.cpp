@@ -18,6 +18,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QFileDialog>
+#include <QDebug>
 
 PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
 {
@@ -424,7 +425,7 @@ void PapyrusWindow::on_actionSave_Script_triggered()
     // Call the 'Save' function of the current script
     DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->currentWidget());
     if (!currentView) {
-        QMessageBox::warning(this, "No open script to save", "There is no scripts opened to save!");
+        QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
         return;
     }
 
@@ -436,23 +437,26 @@ void PapyrusWindow::on_actionSave_Script_triggered()
     Q_ASSERT(currentScene->script() != NULL);
 
     Script *currentScript = currentScene->script();
+
+    Q_ASSERT(currentScene != NULL);
+
     currentScript->save();
 }
 
 void PapyrusWindow::on_actionOpen_Script_triggered()
 {
-    QString scriptName = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
+    QString scriptPath = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
                                  QDir::homePath(),
                                  tr("XML files (*.xml)"));
 
     // Make sure the user selected a file
-    if (scriptName.isEmpty()) {
+    if (scriptPath.isEmpty()) {
         emit displayStatusMessage(tr("Abort opening script: no selected file."));
         return;
     }
 
     // Open the file for reading
-    QFile scriptFile(scriptName);
+    QFile scriptFile(scriptPath);
     if (!scriptFile.open(QIODevice::ReadOnly)) {
         emit displayStatusMessage(tr("Could not open script file."));
 
@@ -462,8 +466,14 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
         return;
     }
 
+    // Create the scene and script objets, which will be used by the XmlReader
     DiagramScene *openScene = new DiagramScene;
     Script *openScript = new Script(openScene);
+
+    Q_ASSERT(openScene->script() != NULL);
+
+    // Assign the script its filepath
+    openScript->setFilePath(scriptPath);
 
     XmlScriptReader xmlReader(openScript);
 
@@ -473,11 +483,11 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
 
         QMessageBox::warning(NULL, tr("Failed to load script."), str);
     } else {
-        QString msg(tr("Script loaded."));
+        QString msg(tr("Script '") + openScript->name() + tr("' loaded."));
         ui->statusBar->showMessage(msg);
 
         // Create a new view to display the new scene
-        DiagramView *newView = new DiagramView(openScript->scene());
+        DiagramView *newView = new DiagramView(openScene);
 
         // Connect the necessary events for the scene and the script
         connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));

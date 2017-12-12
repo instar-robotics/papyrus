@@ -19,8 +19,9 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             middleBtnIsDown(false),
                                             m_shouldDrawGrid(true),
                                             m_gridSize(35),
-                                            line(0),
-                                            box(0)
+                                            line(NULL),
+                                            box(NULL),
+                                            m_script(NULL)
 {
 
 }

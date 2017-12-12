@@ -4,11 +4,13 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QXmlStreamWriter>
+#include <QDebug>
+#include <iostream>
 
-Script::Script(DiagramScene *scene, const QString &name) : m_name(name),
-                                                           m_scene(scene)
+Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene), m_name(name)
 {
-
+    if (scene != NULL)
+        scene->setScript(this);
 }
 
 /**
@@ -20,6 +22,7 @@ void Script::save()
     // First check if we have a filepath in which to save the script
     if (m_filePath.isEmpty()) {
         emit displayStatusMessage(QObject::tr("No file for this script, please select one..."));
+
         QString savePath = QFileDialog::getSaveFileName(NULL,
                                      QObject::tr("Save as..."),
                                      QDir::homePath(),
@@ -48,56 +51,56 @@ void Script::save()
         }
 
         setFilePath(savePath);
-        save();
     }
-    // If we have a save path, proceed to save
-    else {
-        // Open the XML file
-        QFile file(m_filePath);
-        if (!file.open(QIODevice::WriteOnly)) {
-            QMessageBox::warning(NULL, QObject::tr("Could not open XML file"),
-                                 QObject::tr("An error occured whlie trying to open the XML file to "
-                                             "save the script. "));
-            return;
-        }
 
+    // At this point, we should have a filePath
+    Q_ASSERT (!m_filePath.isEmpty());
 
-        // Create the XML stream on the file
-        QXmlStreamWriter stream(&file);
-        stream.writeStartDocument();        // start the XML document
-        stream.setAutoFormatting(true);     // Make it human-readable
-        stream.writeStartElement("script"); // Write the root tag
-
-        stream.writeTextElement("name", name());     // Write the name of the script
-
-        stream.writeStartElement("functions");
-
-        // Traverse all items in the view and store them
-        foreach (QGraphicsItem *i, m_scene->items()) {
-            DiagramBox *item = qgraphicsitem_cast<DiagramBox *>(i);
-            if (!item)
-                continue;
-
-            QString name = item->name();
-            QPointF pos = item->scenePos();
-
-            stream.writeStartElement("function");
-            stream.writeTextElement("name", name);
-            stream.writeStartElement("position");
-            stream.writeTextElement("x", QString::number(pos.x()));
-            stream.writeTextElement("y", QString::number(pos.y()));
-            stream.writeEndElement(); // position
-            stream.writeEndElement(); // function
-        }
-
-        stream.writeEndElement();
-
-        stream.writeEndDocument(); //Close the document
-
-        file.close();
-
-        QMessageBox::information(NULL, "Saved", "Saved!");
+    // Open the XML file
+    QFile file(m_filePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::warning(NULL, QObject::tr("Could not open XML file"),
+                             QObject::tr("An error occured whlie trying to open the XML file to "
+                                         "save the script. "));
+        return;
     }
+
+
+    // Create the XML stream on the file
+    QXmlStreamWriter stream(&file);
+    stream.writeStartDocument();        // start the XML document
+    stream.setAutoFormatting(true);     // Make it human-readable
+    stream.writeStartElement("script"); // Write the root tag
+
+    stream.writeTextElement("name", name());     // Write the name of the script
+
+    stream.writeStartElement("functions");
+
+    // Traverse all items in the view and store them
+    foreach (QGraphicsItem *i, m_scene->items()) {
+        DiagramBox *item = qgraphicsitem_cast<DiagramBox *>(i);
+        if (!item)
+            continue;
+
+        QString name = item->name();
+        QPointF pos = item->scenePos();
+
+        stream.writeStartElement("function");
+        stream.writeTextElement("name", name);
+        stream.writeStartElement("position");
+        stream.writeTextElement("x", QString::number(pos.x()));
+        stream.writeTextElement("y", QString::number(pos.y()));
+        stream.writeEndElement(); // position
+        stream.writeEndElement(); // function
+    }
+
+    stream.writeEndElement();
+
+    stream.writeEndDocument(); //Close the document
+
+    file.close();
+
+    QMessageBox::information(NULL, "Saved", "Saved!");
 }
 
 void Script::autoSave()

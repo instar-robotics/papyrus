@@ -9,6 +9,7 @@ class DiagramView : public QGraphicsView
 public:
     explicit DiagramView(QWidget *parent = 0);
     DiagramView(QGraphicsScene *scene, QWidget *parent = 0);
+    QString foo;
 
 signals:
 

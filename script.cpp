@@ -27,7 +27,7 @@ void Script::save()
 
     // First check if we have a filepath in which to save the script
     if (m_filePath.isEmpty()) {
-        emit displayStatusMessage(QObject::tr("No file for this script, please select one..."));
+        emit displayStatusMessage(QObject::tr("No file for ") + m_name + tr(", please select one..."));
 
         QString savePath = QFileDialog::getSaveFileName(NULL,
                                      QObject::tr("Save as..."),
@@ -49,7 +49,7 @@ void Script::save()
         if (fi.suffix().isEmpty())
             savePath.append(".xml");
         else if (fi.suffix().toLower() != "xml") {
-            // This case means the user entered an extesnion that is not XML so fail
+            // This case means the user entered an extension that is not XML so fail
             QMessageBox::warning(NULL, QObject::tr("Only .xml file are supported"),
                                  QObject::tr("Scripts must be saved in .xml files, please select or "
                                              "enter a valid .xml filename."));
@@ -93,7 +93,6 @@ void Script::save()
         QUuid uuid = item->uuid();
 
         Q_ASSERT(!name.isEmpty());
-
 
         stream.writeStartElement("function");
         stream.writeAttribute("uuid", uuid.toString());

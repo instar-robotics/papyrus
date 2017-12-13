@@ -5,6 +5,7 @@
 #include <QPen>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
+#include <math.h>
 
 int DiagramBox::getType()
 {

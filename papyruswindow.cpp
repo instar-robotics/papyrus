@@ -189,12 +189,56 @@ void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString na
 
 /*
  * Action executed when the user wants to exit the application
- * WARNING: no saving is performed nor is the user asked about it!
+ * Check for unsaved changes before exiting
  */
 void PapyrusWindow::on_actionExit_triggered()
 {
-    std::cout << "Exiting " << APP_NAME << " without checking for saving!" << std::endl;
-    qApp->exit();
+    // Check if there are unsaved scripts and warn user before quitting
+    bool unsavedScripts = false;
+    foreach (Script *script, m_scripts) {
+        if (script->modified()) {
+            unsavedScripts = true;
+            break;
+        }
+    }
+
+    if (unsavedScripts) {
+        switch (QMessageBox::question(this, tr("Save unsaved scripts?"),
+                              tr("Some scripts have unsaved changes that will be lost if you exit now.\n"
+                                 "Do you want to save them?"),
+                                      QMessageBox::SaveAll | QMessageBox::NoAll | QMessageBox::Cancel)) {
+            case QMessageBox::Cancel:
+                ui->statusBar->showMessage(tr("Cancel exit."));
+                break;
+            case QMessageBox::SaveAll:
+                // Make a pass to save all scripts
+                foreach (Script *script, m_scripts) {
+                    if (script->modified()) {
+                        script->save();
+                    }
+                }
+
+                // Make another pass to check no scripts have been ignored ('save()' should return the status
+                foreach (Script *script, m_scripts) {
+                    if (script->modified()) {
+                        QMessageBox::warning(this, tr("There are still some unsaved scripts"),
+                                             tr("Some scripts are still unsaved, abort exit."));
+                        return;
+                    }
+                }
+
+                qApp->exit();
+                break;
+            case QMessageBox::NoAll:
+                ui->statusBar->showMessage(tr("Discarding unsaved script."));
+                qApp->exit();
+                break;
+            default:
+                ui->statusBar->showMessage(tr("Cancel exit."));
+        }
+    } else {
+        qApp->exit();
+    }
 }
 
 void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)

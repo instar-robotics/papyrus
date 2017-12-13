@@ -33,7 +33,7 @@ public:
 
     bool modified() const;
 
-    void setStatusModified(bool status);
+    void setStatusModified(bool isModified);
 private:
     QString m_name;        // Pretty name of the script (to display in tabs for instance)
     QString m_filePath;    // Path of the (XML) file in which to save this script

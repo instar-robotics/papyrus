@@ -166,14 +166,14 @@ bool Script::modified() const
     return m_modified;
 }
 
-void Script::setStatusModified(bool status)
+void Script::setStatusModified(bool isModified)
 {
     // Prevent doing anything if status is the same
     // NOTE: we should STILL udpate the last modified date, for the autosave feature.
-    if (m_modified == status)
+    if (m_modified == isModified)
         return;
 
-    m_modified = status;
+    m_modified = isModified;
 
     // First, get the main window
     PapyrusWindow *mainWindow = NULL;
@@ -186,7 +186,7 @@ void Script::setStatusModified(bool status)
     }
 
     // If the status is modified, add a '*' after the script's name and change color
-    if (status) {
+    if (isModified) {
         if (mainWindow) {
             QTabWidget *tabWidget = mainWindow->getUi()->tabWidget;
             int index = tabWidget->currentIndex();

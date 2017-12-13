@@ -41,6 +41,9 @@ DiagramBox *DiagramScene::addBox(const QPointF &position, const QString &name, c
     newBox->setPos(position - center);
     addItem(newBox);
 
+    // Set the new script as modified
+    m_script->setStatusModified(true);
+
     return newBox;
 }
 
@@ -158,6 +161,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                 finalLine->setTo(maybeItem);
 
                 addItem(finalLine);
+
+                // Set associated script as modified
+                m_script->setStatusModified(true);
             }
 
             // Delete the current line (whether or not we created the final line)
@@ -233,8 +239,6 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         dataStream >> name >> icon;
         DiagramBox *b = addBox(evt->scenePos(), name, icon);
 
-        qDebug() << "Just added box with type:" << b->type();
-
         setBackgroundBrush(QBrush(Qt::white));
         QString str(tr("Function '%1' added in script").arg(name));
         emit(displayStatusMessage(str));
@@ -256,6 +260,10 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
             removeItem(qgraphicsitem_cast<DiagramBox *>(items.at(i)));
             updateSceneRect();
         }
+
+        // Set the associated script as modified if there was a deletion
+        if (nbItems > 0)
+            m_script->setStatusModified(true);
     }
 
     QGraphicsScene::keyPressEvent(evt);

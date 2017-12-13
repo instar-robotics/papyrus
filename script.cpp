@@ -1,5 +1,8 @@
 #include "script.h"
+#include "papyruswindow.h"
+#include "ui_papyruswindow.h"
 
+#include <QApplication>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -7,10 +10,11 @@
 #include <QDebug>
 #include <iostream>
 
-Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene), m_name(name)
+Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene), m_name(name), m_modified(false)
 {
-    if (scene != NULL)
+    if (scene != NULL) {
         scene->setScript(this);
+    }
 }
 
 /**
@@ -93,7 +97,6 @@ void Script::save()
 
         stream.writeStartElement("function");
         stream.writeAttribute("uuid", uuid.toString());
-//        stream.writeTextElement("uuid", uuid.toString());
         stream.writeTextElement("name", name);
         stream.writeStartElement("position");
         stream.writeTextElement("x", QString::number(pos.x()));
@@ -116,6 +119,9 @@ void Script::save()
     file.close();
 
     QString msg(tr("Script ") + m_name + tr(" saved!"));
+
+    // Set the status as not modified
+    setStatusModified(false);
     emit displayStatusMessage(msg);
 }
 
@@ -153,4 +159,49 @@ void Script::setFilePath(const QString &filePath)
 DiagramScene *Script::scene() const
 {
     return m_scene;
+}
+
+bool Script::modified() const
+{
+    return m_modified;
+}
+
+void Script::setStatusModified(bool status)
+{
+    // Prevent doing anything if status is the same
+    // NOTE: we should STILL udpate the last modified date, for the autosave feature.
+    if (m_modified == status)
+        return;
+
+    m_modified = status;
+
+    // First, get the main window
+    PapyrusWindow *mainWindow = NULL;
+
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+            mainWindow = mW;
+            break;
+        }
+    }
+
+    // If the status is modified, add a '*' after the script's name and change color
+    if (status) {
+        if (mainWindow) {
+            QTabWidget *tabWidget = mainWindow->getUi()->tabWidget;
+            int index = tabWidget->currentIndex();
+            tabWidget->setTabText(index, m_name + "*");
+            tabWidget->tabBar()->setTabTextColor(index, Qt::black);
+        }
+    }
+    // If the status is unmodified, remove the "*"and restore color
+    else {
+        if (mainWindow) {
+            QTabWidget *tabWidget = mainWindow->getUi()->tabWidget;
+            int index = tabWidget->currentIndex();
+            tabWidget->setTabText(index, m_name);
+            QColor color(Qt::gray);
+            tabWidget->tabBar()->setTabTextColor(index, color.dark());
+        }
+    }
 }

@@ -106,6 +106,9 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
             line->updatePosition(newEndPoint, false);
         }
 
+        // Set the script to which this item's scene is associated as modified
+        theScene->script()->setStatusModified(true);
+
         return newPos;
     } else if (change == QGraphicsItem::ItemSelectedHasChanged && isSelected()) {
         std::cout << std::endl;

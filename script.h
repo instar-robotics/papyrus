@@ -31,10 +31,14 @@ public:
 
     DiagramScene *scene() const;
 
+    bool modified() const;
+
+    void setStatusModified(bool status);
 private:
     QString m_name;        // Pretty name of the script (to display in tabs for instance)
     QString m_filePath;    // Path of the (XML) file in which to save this script
     DiagramScene *m_scene; // The associated scene for this script
+    bool m_modified;       // Whether there was some changes since last save
 signals:
     void displayStatusMessage(const QString &text);
 };

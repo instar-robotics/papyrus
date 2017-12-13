@@ -40,6 +40,18 @@ public:
     std::set<Script *> getScripts() const;
     void addScript(Script *script);
 
+    Script *activeScript() const;
+
+private:
+    Ui::PapyrusWindow *ui;
+    LibraryPanel *libraryPanel_;
+    QLineEdit *librarySearchField_;
+    QDir description_;
+    QSystemTrayIcon *trayIcon;
+    Library *m_library;
+    std::set<Script *> m_scripts;
+    Script *m_activeScript;
+
 signals:
     void toggleDisplayGrid(bool);
 
@@ -81,15 +93,7 @@ private slots:
     void on_actionSave_Script_triggered();
 
     void on_actionOpen_Script_triggered();
-
-private:
-    Ui::PapyrusWindow *ui;
-    LibraryPanel *libraryPanel_;
-    QLineEdit *librarySearchField_;
-    QDir description_;
-    QSystemTrayIcon *trayIcon;
-    Library *m_library;
-    std::set<Script *> m_scripts;
+    void on_tabWidget_currentChanged(int index);
 };
 
 #endif // PAPYRUSWINDOW_H

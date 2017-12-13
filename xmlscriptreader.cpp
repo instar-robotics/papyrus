@@ -1,6 +1,7 @@
 #include "xmlscriptreader.h"
 
 #include <QDebug>
+#include <iostream>
 
 XmlScriptReader::XmlScriptReader(Script *script) : m_script(script)
 {
@@ -38,7 +39,6 @@ void XmlScriptReader::readScript()
     if (reader.readNextStartElement()) {
         if (reader.name() == "name") {
             QString scriptName = reader.readElementText();
-
             if (scriptName.isEmpty()) {
                 reader.raiseError(QObject::tr("Empty script name."));
             } else {
@@ -48,12 +48,93 @@ void XmlScriptReader::readScript()
             // Then read the opening <functions> tag
             if (reader.readNextStartElement()) {
                 if (reader.name() == "functions") {
-                    // Then loop through all the <function> tags
+                    /*
+                     * Then loop through all the <function> tags.
+                     * When we find a link, we store the IDs of the functions in a pair
+                     * and once all functions are inserted in the scene, we add the links.
+                     */
+                    std::set<std::pair<QUuid, QUuid>> links;
                     while (reader.readNextStartElement()) {
                         if (reader.name() == "function")
-                            readFunction();
+                            readFunction(&links);
                         else
                             reader.skipCurrentElement();
+                    }
+
+                    /*
+                     * Now create all links
+                     * NOTE: right now the set of links is naively implemented: links are just
+                     * pushed in, without any ordering. This means thant in order to create all
+                     * links, we have to search the QGraphicsScene again and again, which is
+                     * inefficient.
+                     * A better way would be to store a map whose keys are the originating box and
+                     * whose value is a set of all target functions.
+                     * This way, the QGraphicsScene would be searched a fewer number of times (since
+                     * we could keep a reference to the originating function).
+                     * This is not a problem in the beginning, but it might be a bit slow when we
+                     * reach a big number of boxes and a big number of links
+                     */
+                    DiagramScene *scene = m_script->scene();
+
+                    // I don't like 'auto', but syntax error when using correct type
+                    foreach (auto link, links) {
+                        const QUuid originID = link.first;
+                        const QUuid targetID = link.second;
+
+                        DiagramBox *origin = NULL;
+                        DiagramBox *target = NULL;
+
+                        /*
+                         * As explained before, this is suboptimal because we traverse the scene
+                         * many times :/
+                         */
+                        foreach (QGraphicsItem *item, scene->items()) {
+                            // Stop searching if we have found both boxes
+                            if (origin != NULL && target != NULL)
+                                break;
+
+                            DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+                            if (box == NULL) {
+                                // Not a box, so skip it
+                                continue;
+                            }
+
+                            // Match the box against the origin and targets
+                            if (box->uuid() == originID)
+                                origin = box;
+
+                            if (box->uuid() == targetID)
+                                target = box;
+                        }
+
+                        /*
+                         * If either 'origin' or 'target' is still NULL here, it means the link
+                         * references an non-existing box. So issue a warning on console bar and
+                         * skip it
+                         */
+                        if (origin == NULL || target == NULL) {
+                            std::cerr << "Found a link that references a non-existing box ; "
+                                         "skipping it." << std::endl;
+                            continue;
+                        }
+
+                        // Actually create the arrow
+                        QPointF startPoint = origin->scenePos();
+                        startPoint.rx() += origin->boundingRect().right();
+                        startPoint.ry() += origin->boundingRect().bottom() / 2;
+
+                        QPointF endPoint = target->scenePos();
+                        endPoint.ry() += target->boundingRect().bottom() / 2;
+
+                        // TODO: create a function to "add an arrow" instead of doing this
+                        Arrow *arrow = new Arrow(QLineF(startPoint, endPoint));
+                        // Link the newly-created Arrow with its corresponding DiagramBoxes
+                        origin->addStartLine(arrow);
+                        target->addEndLine(arrow);
+                        arrow->setFrom(origin);
+                        arrow->setTo(target);
+
+                        scene->addItem(arrow);
                     }
                 } else {
                     reader.raiseError(QObject::tr("Missing functions definition."));
@@ -69,7 +150,7 @@ void XmlScriptReader::readScript()
     }
 }
 
-void XmlScriptReader::readFunction()
+void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "function");
 
@@ -77,13 +158,14 @@ void XmlScriptReader::readFunction()
     QString name;
     QUuid uuid;
 
+    readUUID(&uuid);
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readFunctionName(&name);
-        else if (reader.name() == "uuid")
-            readUUID(&uuid);
         else if (reader.name() == "position")
             readPosition(&pos);
+        else if (reader.name() == "link")
+            readLink(uuid, links);
         else
             reader.skipCurrentElement();
     }
@@ -108,9 +190,10 @@ void XmlScriptReader::readFunctionName(QString *name)
 
 void XmlScriptReader::readUUID(QUuid *uuid)
 {
-    Q_ASSERT(reader.isStartElement() && reader.name() == "uuid");
+    Q_ASSERT(reader.isStartElement() && reader.name() == "function"
+             && reader.attributes().hasAttribute("uuid"));
 
-    QUuid id(reader.readElementText());
+    QUuid id(reader.attributes().value("uuid").toString());
 
     *uuid = id;
 }
@@ -129,5 +212,16 @@ void XmlScriptReader::readPosition(QPointF *pos)
         } else
             reader.skipCurrentElement();
     }
+}
+
+void XmlScriptReader::readLink(QUuid uuid, std::set<std::pair<QUuid, QUuid> > *links)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "link" && !uuid.isNull());
+
+    QUuid targetUuid(reader.readElementText());
+
+    Q_ASSERT(!targetUuid.isNull());
+
+    links->insert(std::make_pair(uuid, targetUuid));
 }
 

@@ -26,10 +26,11 @@ private:
     Script *m_script;
 
     void readScript();
-    void readFunction();
+    void readFunction(std::set<std::pair<QUuid, QUuid>> *links);
     void readFunctionName(QString *name);
     void readUUID(QUuid *uuid);
     void readPosition(QPointF *pos);
+    void readLink(QUuid uuid, std::set<std::pair<QUuid, QUuid>> *links);
 };
 
 #endif // XMLSCRIPTREADER_H

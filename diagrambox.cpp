@@ -6,6 +6,11 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+int DiagramBox::getType()
+{
+    return UserType + 1;
+}
+
 DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QUuid uuid, QGraphicsItem *parent) : QGraphicsItem(parent),
                                                 m_name(name),
                                                 m_icon(icon),
@@ -114,6 +119,11 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 QUuid DiagramBox::uuid() const
 {
     return m_uuid;
+}
+
+int DiagramBox::type()
+{
+    return DiagramBox::getType();
 }
 
 void DiagramBox::setName(const QString &name)

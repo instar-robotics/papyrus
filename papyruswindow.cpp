@@ -20,7 +20,9 @@
 #include <QFileDialog>
 #include <QDebug>
 
-PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::PapyrusWindow)
+PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent),
+                                                ui(new Ui::PapyrusWindow),
+                                                m_activeScript(NULL)
 {
     bool libraryParsingError = false;
 
@@ -79,8 +81,6 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
 //        QTreeWidgetItem *newCategory = addTreeRoot(categories[i]);
         Category *newCategory = addTreeRoot(categories[i]);
 
-//        Category *cat = new Category(categories[i]);
-
         // Parse the corresponding directory to find the functions
         QDir category(description.canonicalPath() + "/" + categories[i]);
         category.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
@@ -110,35 +110,13 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::
                 neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
 
 
-//            XmlDescriptionReader xmlReader(cat);
             XmlDescriptionReader xmlReader(newCategory);
             // TODO: check return value to decide whether to add in library or not
             xmlReader.read(&xmlFile, neuralIcon);
-
-//            addTreeChild(newCategory, QIcon(neuralIcon), neuralBoxes[j]);
         }
 
         m_library->addCategory(newCategory);
     }
-
-    /*
-    std::cout << std::endl << "Summary of XML parsing:" << std::endl;
-    foreach (Category *c, m_library->categories()) {
-        std::cout << "Category: " << qPrintable(c->name()) << std::endl;
-
-        foreach (Function *f, c->functions()) {
-            std::cout << "\t Function: " << qPrintable(f->name()) << std::endl;
-            std::cout << "Inputs:" << std::endl;
-
-            foreach (InputSlot is, f->inputs()) {
-                std::cout << "\t\t" << qPrintable(is.name) << "(" << is.allowMultiple << ")" << " of type " << is.type << std::endl;
-            }
-
-            std::cout << "Output:" << std::endl;
-            std::cout << "\t\t" << qPrintable(f->output().name) << " of type " << f->output().type << std::endl;
-        }
-    }
-    //*/
 
     // Display a warning box if some library description files could not be read
     // TODO: display a message in the system tray instead!
@@ -301,7 +279,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
     // Create the new script and add it to the set of scripts
     Script *newScript = new Script(newScene, newScriptName);
     connect(newScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
-    newScene->setScript(newScript);
+//    newScene->setScript(newScript); // Unnecessary because it is done in the constructor
     addScript(newScript);
 
     // Add the new scene as a new tab and make it active
@@ -420,27 +398,21 @@ void PapyrusWindow::addScript(Script *script)
     m_scripts.insert(script);
 }
 
+Script *PapyrusWindow::activeScript() const
+{
+    return m_activeScript;
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
     // Call the 'Save' function of the current script
-    DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->currentWidget());
-    if (!currentView) {
+    if (m_activeScript == NULL) {
+        ui->statusBar->showMessage(tr("No open script to save."));
         QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
         return;
     }
 
-    DiagramScene *currentScene = qobject_cast<DiagramScene *>(currentView->scene());
-
-    // A view should always have a scene
-    Q_ASSERT(currentScene != NULL);
-    // And a scene must always have a script
-    Q_ASSERT(currentScene->script() != NULL);
-
-    Script *currentScript = currentScene->script();
-
-    Q_ASSERT(currentScene != NULL);
-
-    currentScript->save();
+    m_activeScript->save();
 }
 
 void PapyrusWindow::on_actionOpen_Script_triggered()
@@ -475,8 +447,8 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
     // Assign the script its filepath
     openScript->setFilePath(scriptPath);
 
+    // Parse the script XML file
     XmlScriptReader xmlReader(openScript);
-
     if (!xmlReader.read(&scriptFile)) {
         QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
         str += xmlReader.errorString();
@@ -501,4 +473,37 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
                                                              QIcon(":/icons/icons/script.svg"),
                                                              openScript->name()));
     }
+}
+
+/**
+ * @brief Fires when the current tab changes. Used to update the pointer to the current active
+ *        script.
+ * @param index: the newly active tab index
+ */
+void PapyrusWindow::on_tabWidget_currentChanged(int index)
+{
+    Q_UNUSED(index);
+
+    // Get the view that is displayed in the tab
+    DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->currentWidget());
+    if (currentView == NULL) {
+        // TODO: _actually_ automatically report it instead of asking the user to do it.
+        ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
+                                      "(this is an internal error, you should report it."));
+        m_activeScript = NULL;
+        return;
+    }
+
+    // Get the scene associated with the view
+    DiagramScene *currentScene = qobject_cast<DiagramScene *>(currentView->scene());
+    if (currentScene == NULL) {
+        // TODO: _actually_ automatically report it instead of asking the user to do it.
+        ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
+                                      "(this is an internal error, you should report it."));
+        m_activeScript = NULL;
+        return;
+    }
+
+    // Get the script associated with the scene and set it as the active script
+    m_activeScript = currentScene->script();
 }

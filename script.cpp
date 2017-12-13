@@ -19,6 +19,8 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene), m_nam
  */
 void Script::save()
 {
+    emit displayStatusMessage(tr("Saving ") + m_name + "...");
+
     // First check if we have a filepath in which to save the script
     if (m_filePath.isEmpty()) {
         emit displayStatusMessage(QObject::tr("No file for this script, please select one..."));
@@ -65,34 +67,45 @@ void Script::save()
         return;
     }
 
-
     // Create the XML stream on the file
     QXmlStreamWriter stream(&file);
     stream.writeStartDocument();        // start the XML document
     stream.setAutoFormatting(true);     // Make it human-readable
     stream.writeStartElement("script"); // Write the root tag
-
     stream.writeTextElement("name", name());     // Write the name of the script
-
     stream.writeStartElement("functions");
 
     // Traverse all items in the view and store them
     foreach (QGraphicsItem *i, m_scene->items()) {
-        DiagramBox *item = qgraphicsitem_cast<DiagramBox *>(i);
-        if (!item)
+        // For some reasons, it fails with 'qgraphicsitem_cast' even though 'type()' is reimplemented
+        DiagramBox *item = dynamic_cast<DiagramBox *>(i);
+        if (item == NULL) {
+            // Item is not a function, skip it
             continue;
+        }
 
         QString name = item->name();
         QPointF pos = item->scenePos();
         QUuid uuid = item->uuid();
 
+        Q_ASSERT(!name.isEmpty());
+
+
         stream.writeStartElement("function");
+        stream.writeAttribute("uuid", uuid.toString());
+//        stream.writeTextElement("uuid", uuid.toString());
         stream.writeTextElement("name", name);
-        stream.writeTextElement("uuid", uuid.toString());
         stream.writeStartElement("position");
         stream.writeTextElement("x", QString::number(pos.x()));
         stream.writeTextElement("y", QString::number(pos.y()));
         stream.writeEndElement(); // position
+
+        // If this function has its output connect with some other functions, insert them
+        foreach (Arrow *link, item->startLines()) {
+            QUuid targetId = link->to()->uuid();
+            stream.writeTextElement("link", targetId.toString());
+        }
+
         stream.writeEndElement(); // function
     }
 

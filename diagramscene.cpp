@@ -14,6 +14,7 @@
 #include <QMimeData>
 #include <QGraphicsView>
 #include <QApplication>
+#include <QDebug>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             middleBtnIsDown(false),
@@ -32,13 +33,15 @@ DiagramScene::~DiagramScene()
     delete box;
 }
 
-void DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon, QUuid uuid)
+DiagramBox *DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon, QUuid uuid)
 {
     // If we clicked on empty space, add an item centered on the mouse cursor
     DiagramBox *newBox = new DiagramBox(name, icon, uuid);
     QPointF center = newBox->boundingRect().center();
     newBox->setPos(position - center);
     addItem(newBox);
+
+    return newBox;
 }
 
 /*
@@ -146,7 +149,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                 QPointF endPoint = maybeItem->scenePos();
                 endPoint.ry() += maybeItem->boundingRect().bottom() / 2;
 
-
+                // TODO: create a function to "add an arrow" instead of doing this
                 Arrow *finalLine = new Arrow(QLineF(line->line().p1(), endPoint));
                 // Link the newly-created Arrow with its corresponding DiagramBoxes
                 box->addStartLine(finalLine);
@@ -228,7 +231,9 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 //        int nb;
 
         dataStream >> name >> icon;
-        addBox(evt->scenePos(), name, icon);
+        DiagramBox *b = addBox(evt->scenePos(), name, icon);
+
+        qDebug() << "Just added box with type:" << b->type();
 
         setBackgroundBrush(QBrush(Qt::white));
         QString str(tr("Function '%1' added in script").arg(name));

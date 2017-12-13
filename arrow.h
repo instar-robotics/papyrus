@@ -15,6 +15,8 @@ class Arrow : public QObject, public QGraphicsLineItem
 public:
     static int nb;
 
+    static int getType();
+
     explicit Arrow(QGraphicsItem *parent = 0);
     Arrow(const QLineF &line, QGraphicsItem *parent = 0);
 
@@ -27,6 +29,8 @@ public:
     void setTo(DiagramBox *box);
 
     QPainterPath shape() const override;
+
+    int type() const;
 
     int no; // TEMP
 

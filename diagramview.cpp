@@ -43,6 +43,7 @@ void DiagramView::mousePressEvent(QMouseEvent *evt)
 //        setSceneRect(QRectF(-200, -200, 300, 300));
         QRectF r = sceneRect();
         QRectF r_ = scene()->sceneRect();
+        std::cout << items().size() << " items" << std::endl;
         std::cout << "View's rect: " << r.x() << " " << r.y() << " " << r.width() << " " << r.height() << std::endl;
         std::cout << "Scene's rect: " << r_.x() << " " << r_.y() << " " << r_.width() << " " << r_.height() << std::endl;
         std::cout << std::endl;

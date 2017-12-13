@@ -10,6 +10,11 @@
 
 int Arrow::nb = 0;
 
+int Arrow::getType()
+{
+    return UserType + 2;
+}
+
 Arrow::Arrow(QGraphicsItem *parent) : QGraphicsLineItem(parent)
 {
     no = nb;
@@ -49,6 +54,11 @@ QPainterPath Arrow::shape() const
     path.addPolygon(arrowHead);
 
     return path;
+}
+
+int Arrow::type() const
+{
+    return Arrow::getType();
 }
 
 void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)

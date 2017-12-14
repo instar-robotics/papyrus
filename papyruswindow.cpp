@@ -34,7 +34,7 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
     }
 
     // Parse the description directory
-    QDir description(DESCRIPTION_PATH);
+    QDir description(QString(RESOURCE_DIR) + "descriptions");
 
     // Check that the description directory exists
     if (!description.exists()) {
@@ -43,7 +43,8 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
 
         QString str("The path ");
         str += "<em>";
-        str += DESCRIPTION_PATH;
+        str += RESOURCE_DIR;
+        str += "descriptions";
         str += "</em>";
         str += " doesn't exist. Since there is not minimal subset (as of now), the application is "
                "going to exit.";

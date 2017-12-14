@@ -30,7 +30,10 @@ SOURCES += main.cpp\
     function.cpp \
     xmldescriptionreader.cpp \
     script.cpp \
-    xmlscriptreader.cpp
+    xmlscriptreader.cpp \
+    slot.cpp \
+    inputslot.cpp \
+    outputslot.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
@@ -45,7 +48,10 @@ HEADERS  += papyruswindow.h \
     types.h \
     xmldescriptionreader.h \
     script.h \
-    xmlscriptreader.h
+    xmlscriptreader.h \
+    slot.h \
+    inputslot.h \
+    outputslot.h
 
 FORMS    += papyruswindow.ui
 

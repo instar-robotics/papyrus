@@ -10,6 +10,7 @@ enum ParameterType {
     Matrix  // A 2-D (or more) matrix
 };
 
+/*
 // Type that describes the common structure for a parameter slot
 struct ParameterSlot {
     QString name;       // The name of the parameter
@@ -26,6 +27,7 @@ struct InputSlot : ParameterSlot {
 struct OutputSlot : ParameterSlot {
     // No difference for now, but it less awkward that having 'InputSlot' inherits from 'OutputSlot'
 };
+//*/
 
 #endif // TYPES
 

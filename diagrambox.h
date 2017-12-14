@@ -2,6 +2,7 @@
 #define DIAGRAMBOX_H
 
 #include "arrow.h"
+#include "outputslot.h"
 
 #include <set>
 
@@ -41,6 +42,9 @@ public:
     QIcon icon() const;
     void setIcon(const QIcon &icon);
 
+    OutputSlot *outputSlot() const;
+    void setOutputSlot(OutputSlot *outputSlot);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -57,6 +61,8 @@ private:
     qreal tHeight; // Height of the space in which th function's name is written
 
     QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
+
+    OutputSlot *m_outputSlot;  // The output slot for this function's box
 };
 
 #endif // DIAGRAMBOX_H

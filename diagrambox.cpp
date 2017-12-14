@@ -13,6 +13,7 @@ int DiagramBox::getType()
 }
 
 DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QUuid uuid, QGraphicsItem *parent) : QGraphicsItem(parent),
+                                                m_uuid(uuid),
                                                 m_name(name),
                                                 m_icon(icon),
                                                 startLines_(),
@@ -20,7 +21,7 @@ DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QUuid uuid, QGrap
                                                 bWidth(175),
                                                 bHeight(70),
                                                 tHeight(20),
-                                                m_uuid(uuid)
+                                                m_outputSlot(NULL)
 {
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
@@ -118,6 +119,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     }
 
     return QGraphicsItem::itemChange(change, value);
+}
+
+OutputSlot *DiagramBox::outputSlot() const
+{
+    return m_outputSlot;
+}
+
+void DiagramBox::setOutputSlot(OutputSlot *outputSlot)
+{
+    m_outputSlot = outputSlot;
 }
 
 QIcon DiagramBox::icon() const

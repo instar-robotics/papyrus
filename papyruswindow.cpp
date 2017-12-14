@@ -19,6 +19,7 @@
 #include <QXmlStreamWriter>
 #include <QFileDialog>
 #include <QDebug>
+#include <QDockWidget>
 
 PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWindow(parent),
                                                 ui(new Ui::PapyrusWindow),
@@ -169,6 +170,16 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
     leftSplitter->setSizes(leftSizes);
 
     leftSplitter->setChildrenCollapsible(false);
+
+    /*
+    QDockWidget *minimap = new QDockWidget;
+    minimap->setFloating(true);
+    minimap->setGeometry(100, 100, 400, 200);
+    minimap->setFeatures(QDockWidget::DockWidgetFloatable);
+    minimap->setAllowedAreas(Qt::NoDockWidgetArea);
+    minimap->setWindowTitle("Minimap");
+    minimap->show();
+    //*/
 
     // Make tab's height a little smaller
     ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");

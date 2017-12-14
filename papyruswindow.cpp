@@ -147,11 +147,13 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
     initialMsg.append(tr("is ready"));
     ui->statusBar->showMessage(initialMsg);
 
-    // Set initial panel size
+    // Set initial panels size
     QList<int> sizes;
-    sizes << 230 << 1088 << 250;
+    int librarySize = 230;
+    int propertiesSize = 250;
+    int tabWidgetSize = geometry().width() - librarySize - propertiesSize;
+    sizes << librarySize << tabWidgetSize << propertiesSize;
     ui->splitter->setSizes(sizes);
-    qDebug() << "Width: " << geometry();
     libraryPanel_->setDragEnabled(true);
 
     // Make tab's height a little smaller

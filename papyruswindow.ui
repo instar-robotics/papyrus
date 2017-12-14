@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>PapyrusWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/icons/papyrus.svg</normaloff>:/icons/icons/papyrus.svg</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">

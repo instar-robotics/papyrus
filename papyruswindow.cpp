@@ -79,7 +79,13 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
     QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
     libraryGroupBox->setLayout(vbox);
 
-    ui->splitter->insertWidget(0, libraryGroupBox);
+    QGroupBox *propertiesGroupBox = new QGroupBox(tr("Properties"));
+
+    QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
+    leftSplitter->addWidget(libraryGroupBox);
+    leftSplitter->addWidget(propertiesGroupBox);
+
+    ui->splitter->insertWidget(0, leftSplitter);
 
     // Create one 'Tree Root' per category
     for (int i = 0; i < categories.size(); i += 1) {
@@ -151,11 +157,18 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
     // Set initial panels size
     QList<int> sizes;
     int librarySize = 230;
-    int propertiesSize = 250;
-    int tabWidgetSize = geometry().width() - librarySize - propertiesSize;
-    sizes << librarySize << tabWidgetSize << propertiesSize;
+    int tabWidgetSize = geometry().width() - librarySize;
+    sizes << librarySize << tabWidgetSize;
     ui->splitter->setSizes(sizes);
     libraryPanel_->setDragEnabled(true);
+
+    QList<int> leftSizes;
+    int propertiesSize = 230;
+    int libSize = geometry().height() - propertiesSize;
+    leftSizes << libSize << propertiesSize;
+    leftSplitter->setSizes(leftSizes);
+
+    leftSplitter->setChildrenCollapsible(false);
 
     // Make tab's height a little smaller
     ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");

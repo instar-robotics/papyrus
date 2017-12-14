@@ -47,20 +47,6 @@
         </attribute>
        </widget>
       </widget>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="title">
-        <string>Properties</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QPushButton" name="btnNewScene">
-          <property name="text">
-           <string>New Script</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>

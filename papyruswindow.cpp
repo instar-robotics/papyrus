@@ -20,13 +20,18 @@
 #include <QFileDialog>
 #include <QDebug>
 
-PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent),
+PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWindow(parent),
                                                 ui(new Ui::PapyrusWindow),
                                                 m_activeScript(NULL)
 {
     bool libraryParsingError = false;
 
     ui->setupUi(this);
+
+    // Set the main window's geometry it given one
+    if (!availableGeometry.isNull()) {
+        setGeometry(0, 0, availableGeometry.width(), availableGeometry.height());
+    }
 
     // Parse the description directory
     QDir description(DESCRIPTION_PATH);
@@ -146,7 +151,7 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent),
     QList<int> sizes;
     sizes << 230 << 1088 << 250;
     ui->splitter->setSizes(sizes);
-
+    qDebug() << "Width: " << geometry();
     libraryPanel_->setDragEnabled(true);
 
     // Make tab's height a little smaller

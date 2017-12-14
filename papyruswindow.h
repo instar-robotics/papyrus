@@ -20,7 +20,7 @@ class PapyrusWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PapyrusWindow(QWidget *parent = 0);
+    explicit PapyrusWindow(QRect availableGeometry = QRect(), QWidget *parent = 0);
     ~PapyrusWindow();
 
     QDir description() const {return description_;}

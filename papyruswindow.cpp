@@ -148,7 +148,9 @@ PapyrusWindow::PapyrusWindow(QWidget *parent) : QMainWindow(parent),
     ui->splitter->setSizes(sizes);
 
     libraryPanel_->setDragEnabled(true);
-//    ui->treeWidget->setDragEnabled(true);
+
+    // Make tab's height a little smaller
+    ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");
 }
 
 PapyrusWindow::~PapyrusWindow()

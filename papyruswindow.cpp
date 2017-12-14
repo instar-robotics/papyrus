@@ -115,10 +115,10 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
             else
                 neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
 
-
             XmlDescriptionReader xmlReader(newCategory);
+            QString descriptionFile = category.absoluteFilePath(neuralBoxes[j]);
             // TODO: check return value to decide whether to add in library or not
-            xmlReader.read(&xmlFile, neuralIcon);
+            xmlReader.read(&xmlFile, neuralIcon, descriptionFile);
         }
 
         m_library->addCategory(newCategory);

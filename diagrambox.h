@@ -35,6 +35,12 @@ public:
 
     int type();
 
+    QString descriptionFile() const;
+    void setDescriptionFile(const QString &descriptionPath);
+
+    QIcon icon() const;
+    void setIcon(const QIcon &icon);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -49,6 +55,8 @@ private:
     qreal bWidth;  // Overall width of the function's box
     qreal bHeight; // Overall height of the function's box
     qreal tHeight; // Height of the space in which th function's name is written
+
+    QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 };
 
 #endif // DIAGRAMBOX_H

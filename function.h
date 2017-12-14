@@ -17,7 +17,7 @@
 class Function : public QTreeWidgetItem
 {
 public:
-    Function();
+    Function(QString &path);
 
     QString name() const;
     void setName(const QString &name);
@@ -31,8 +31,11 @@ public:
 //    QIcon icon() const;
 //    void setIcon(const QIcon &value);
 
+    QString descriptionFile() const;
+
 private:
     QString m_name;
+    QString m_descriptionFile;
 //    QIcon m_icon;
     std::vector<InputSlot> m_inputs;
     OutputSlot m_output;

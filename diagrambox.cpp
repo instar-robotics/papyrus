@@ -120,6 +120,26 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+QIcon DiagramBox::icon() const
+{
+    return m_icon;
+}
+
+void DiagramBox::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
+}
+
+QString DiagramBox::descriptionFile() const
+{
+    return m_descriptionFile;
+}
+
+void DiagramBox::setDescriptionFile(const QString &descriptionFile)
+{
+    m_descriptionFile = descriptionFile;
+}
+
 QUuid DiagramBox::uuid() const
 {
     return m_uuid;

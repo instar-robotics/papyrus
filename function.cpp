@@ -1,6 +1,6 @@
 #include "function.h"
 
-Function::Function() : QTreeWidgetItem()
+Function::Function(QString &path) : QTreeWidgetItem(), m_descriptionFile(path)
 {
 
 }
@@ -33,6 +33,11 @@ OutputSlot Function::output() const
 void Function::setOutput(const OutputSlot &output)
 {
     m_output = output;
+}
+
+QString Function::descriptionFile() const
+{
+    return m_descriptionFile;
 }
 
 /*

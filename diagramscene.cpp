@@ -232,12 +232,14 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QByteArray pieceData = evt->mimeData()->data(LibraryPanel::libraryItemMimeType());
         QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
         QString name;
+        QString descriptionFile;
         QIcon icon;
 //        std::vector<InputSlot> inputs;
 //        int nb;
 
-        dataStream >> name >> icon;
+        dataStream >> name >> icon >> descriptionFile;
         DiagramBox *b = addBox(evt->scenePos(), name, icon);
+        b->setDescriptionFile(descriptionFile);
 
         setBackgroundBrush(QBrush(Qt::white));
         QString str(tr("Function '%1' added in script").arg(name));

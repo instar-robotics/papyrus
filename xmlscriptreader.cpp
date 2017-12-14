@@ -157,6 +157,7 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
     QPointF pos;
     QString name;
     QUuid uuid;
+    QString descriptionFile;
 
     readUUID(&uuid);
     while (reader.readNextStartElement()) {
@@ -166,13 +167,31 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
             readPosition(&pos);
         else if (reader.name() == "link")
             readLink(uuid, links);
+        else if (reader.name() == "description")
+            readDescription(&descriptionFile);
         else
             reader.skipCurrentElement();
     }
 
     // We should check (somehow) that the parsing for this box was okay before adding it
-    // The Icon is not yet passed in the XMl, so add a temporary default icon
-    m_script->scene()->addBox(pos, name, QIcon(":/icons/icons/missing-icon.svg"), uuid);
+    // The Icon is not yet passed in the XML, so add a temporary default icon
+    // Try to find
+    QIcon icon(descriptionFile);
+    DiagramBox *b = m_script->scene()->addBox(pos, name, icon, uuid);
+    b->setDescriptionFile(descriptionFile);
+
+    QString iconPath(descriptionFile);
+    iconPath.replace(".xml", ".svg");
+    QFile f(iconPath);
+
+    // Load icon from icon path if it exists, set missing icon otherwise
+    QIcon neuralIcon;
+    if (f.exists())
+        neuralIcon = QIcon(iconPath);
+    else
+        neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
+
+    b->setIcon(neuralIcon);
 }
 
 void XmlScriptReader::readFunctionName(QString *name)
@@ -223,5 +242,18 @@ void XmlScriptReader::readLink(QUuid uuid, std::set<std::pair<QUuid, QUuid> > *l
     Q_ASSERT(!targetUuid.isNull());
 
     links->insert(std::make_pair(uuid, targetUuid));
+}
+
+void XmlScriptReader::readDescription(QString *descriptionFile)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "description");
+
+    QString description = reader.readElementText();
+
+    if (description.isEmpty()) {
+        reader.raiseError(QObject::tr("Empty description file."));
+    } else {
+        descriptionFile->setUnicode(description.unicode(), description.size());
+    }
 }
 

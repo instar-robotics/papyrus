@@ -31,6 +31,7 @@ private:
     void readUUID(QUuid *uuid);
     void readPosition(QPointF *pos);
     void readLink(QUuid uuid, std::set<std::pair<QUuid, QUuid>> *links);
+    void readDescription(QString *descriptionPath);
 };
 
 #endif // XMLSCRIPTREADER_H

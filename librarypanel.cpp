@@ -9,6 +9,7 @@
 #include <QMimeData>
 #include <QDrag>
 #include <QIcon>
+#include <QDebug>
 
 LibraryPanel::LibraryPanel(QWidget *parent) : QTreeWidget(parent)
 {
@@ -41,18 +42,17 @@ void LibraryPanel::dropEvent(QDropEvent *evt)
 
 void LibraryPanel::startDrag(Qt::DropActions)
 {
-    std::cout << "Start drag on library" << std::endl;
-
     Function *item = static_cast<Function *>(currentItem());
     QIcon icon = item->icon(0);
     QString name = item->name();
+    QString descriptionFile = item->descriptionFile();
 //    std::vector<InputSlot> inputs = item->inputs();
 //    int s = inputs.size();
 
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
 
-    dataStream << name << icon;
+    dataStream << name << icon << descriptionFile;
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(LibraryPanel::libraryItemMimeType(), itemData);
@@ -60,6 +60,6 @@ void LibraryPanel::startDrag(Qt::DropActions)
     QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);
     drag->setPixmap(icon.pixmap(QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE)));
-    std::cout << "End of drag: " << drag->exec(Qt::CopyAction) << std::endl;
+    drag->exec(Qt::CopyAction);
 }
 

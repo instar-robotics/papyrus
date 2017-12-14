@@ -91,6 +91,7 @@ void Script::save()
         QString name = item->name();
         QPointF pos = item->scenePos();
         QUuid uuid = item->uuid();
+        QString descriptionFile = item->descriptionFile();
 
         Q_ASSERT(!name.isEmpty());
 
@@ -101,6 +102,7 @@ void Script::save()
         stream.writeTextElement("x", QString::number(pos.x()));
         stream.writeTextElement("y", QString::number(pos.y()));
         stream.writeEndElement(); // position
+        stream.writeTextElement("description", descriptionFile);
 
         // If this function has its output connect with some other functions, insert them
         foreach (Arrow *link, item->startLines()) {

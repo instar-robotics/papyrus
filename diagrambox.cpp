@@ -39,6 +39,7 @@ DiagramBox::DiagramBox(const QString &name, const QIcon &icon, OutputSlot *outpu
     // Set the output's slot position, in its parent's referential (this item's)
     QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
     p.ry() -= outputSlot->boundingRect().height() / 2;
+    p.rx() += 5; // Set a bit of margin to the right to prevent the diamon-shape to overlap
     outputSlot->setPos(p);
 }
 

@@ -43,10 +43,6 @@ DiagramBox *DiagramScene::addBox(const QPointF &position, const QString &name, c
     QPointF center = newBox->boundingRect().center();
     newBox->setPos(position - center);
 
-//    QPointF p = (newBox->boundingRect().bottomRight() + newBox->boundingRect().topRight()) / 2;
-//    p.ry() -= outputSlot->boundingRect().height() / 2;
-//    outputSlot->setPos(p);
-
     addItem(newBox);
 
     /*

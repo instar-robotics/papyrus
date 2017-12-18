@@ -31,6 +31,7 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(widget);
 
     painter->drawRect(QRectF(0, 0, 10, 10));
+    setRotation(45); // Rotate 45 degrees to make it a diamond shape
 }
 
 QRectF OutputSlot::boundingRect() const

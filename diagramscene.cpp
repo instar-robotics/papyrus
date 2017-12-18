@@ -3,6 +3,7 @@
 #include "papyruswindow.h"
 #include "ui_papyruswindow.h"
 #include "constants.h"
+#include "outputslot.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -33,13 +34,33 @@ DiagramScene::~DiagramScene()
     delete box;
 }
 
-DiagramBox *DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon, QUuid uuid)
+DiagramBox *DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid)
 {
-    // If we clicked on empty space, add an item centered on the mouse cursor
-    DiagramBox *newBox = new DiagramBox(name, icon, uuid);
+    Q_ASSERT(outputSlot != NULL);
+
+    // Create the box itself, the body of the block
+    DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, uuid);
     QPointF center = newBox->boundingRect().center();
     newBox->setPos(position - center);
+
+//    QPointF p = (newBox->boundingRect().bottomRight() + newBox->boundingRect().topRight()) / 2;
+//    p.ry() -= outputSlot->boundingRect().height() / 2;
+//    outputSlot->setPos(p);
+
     addItem(newBox);
+
+    /*
+    // Set the output slot's position
+    QPointF osPos = newBox->pos();
+    osPos.rx() += newBox->boundingRect().right();
+    osPos.ry() += newBox->boundingRect().bottom() / 2;
+    osPos.ry() -= outputSlot->boundingRect().bottom() / 2;
+    outputSlot->setPos(osPos);
+
+    // Create the output slot
+    addItem(newBox);
+    addItem(outputSlot);
+    //*/
 
     // Set the new script as modified
     m_script->setStatusModified(true);
@@ -233,12 +254,15 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
         QString name;
         QString descriptionFile;
+        QString outputName;
         QIcon icon;
 //        std::vector<InputSlot> inputs;
 //        int nb;
 
-        dataStream >> name >> icon >> descriptionFile;
-        DiagramBox *b = addBox(evt->scenePos(), name, icon);
+        dataStream >> name >> icon >> descriptionFile >> outputName;
+
+        OutputSlot *outputSlot = new OutputSlot(outputName);
+        DiagramBox *b = addBox(evt->scenePos(), name, icon, outputSlot);
         b->setDescriptionFile(descriptionFile);
 
         setBackgroundBrush(QBrush(Qt::white));

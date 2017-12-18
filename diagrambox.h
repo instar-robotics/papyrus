@@ -15,7 +15,8 @@ class DiagramBox : public QGraphicsItem
 public:
     static int getType();
     // TODO: implement a copy constructor that should change the uuid and remove the connected arrows
-    explicit DiagramBox(const QString &name, const QIcon &icon, QUuid uuid = 0, QGraphicsItem *parent = 0);
+    explicit DiagramBox(const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid = 0, QGraphicsItem *parent = 0);
+    ~DiagramBox();
 
     QRectF boundingRect() const override;
 

@@ -1,8 +1,9 @@
 #include "librarypanel.h"
 #include "constants.h"
 #include "function.h"
-#include <iostream>
+#include "outputslot.h"
 
+#include <iostream>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
@@ -46,13 +47,15 @@ void LibraryPanel::startDrag(Qt::DropActions)
     QIcon icon = item->icon(0);
     QString name = item->name();
     QString descriptionFile = item->descriptionFile();
+    OutputSlot *outputSlot = item->output();
+    QString outputName = outputSlot->name();
 //    std::vector<InputSlot> inputs = item->inputs();
 //    int s = inputs.size();
 
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
 
-    dataStream << name << icon << descriptionFile;
+    dataStream << name << icon << descriptionFile << outputName;
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(LibraryPanel::libraryItemMimeType(), itemData);

@@ -11,13 +11,15 @@ class OutputSlot : public Slot
 {
     Q_OBJECT
 public:
+    explicit OutputSlot();
     explicit OutputSlot(QString &name);
 
     std::set<Arrow *> outputs() const;
 
     void addOutput(Arrow *output);
-protected:
+
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QRectF boundingRect() const override;
 
 private:
     std::set<Arrow *> m_outputs; // The set of arrows which leaves this slot

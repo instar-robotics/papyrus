@@ -4,11 +4,13 @@
 #include <QString>
 
 // Describes the type of element for a slot (input or output)
+/*
 enum ParameterType {
     Scalar, // One scalar value (floating point value)
     Vector, // A one-dimension matrix
     Matrix  // A 2-D (or more) matrix
 };
+//*/
 
 /*
 // Type that describes the common structure for a parameter slot

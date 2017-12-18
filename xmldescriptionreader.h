@@ -2,6 +2,7 @@
 #define XMLDESCRIPTIONREADER_H
 
 #include "category.h"
+#include "slot.h"
 
 #include <QXmlStreamReader>
 
@@ -14,7 +15,6 @@
 class XmlDescriptionReader
 {
 public:
-//    XmlDescriptionReader(Library *library);
     XmlDescriptionReader(Category *category );
 
     bool read(QIODevice *device, QIcon &icon, QString &descriptionFile);
@@ -26,8 +26,8 @@ private:
     void readDescription(QIcon &icon, QString &descriptionFile);
     void readName(Function *function);
     void readInputs(Function *function);
-    void readParameterName(ParameterSlot *paramSlot);
-    void readParameterType(ParameterSlot *paramSlot);
+    void readParameterName(Slot *paramSlot);
+//    void readParameterType(Slot *paramSlot);
     void readOutput(Function *function);
 };
 

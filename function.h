@@ -2,6 +2,8 @@
 #define FUNCTION_H
 
 #include "types.h"
+#include "outputslot.h"
+#include "inputslot.h"
 
 #include <vector>
 
@@ -22,11 +24,12 @@ public:
     QString name() const;
     void setName(const QString &name);
 
-    std::vector<InputSlot> inputs() const;
-    void setInputs(const std::vector<InputSlot> &inputs);
+    std::vector<InputSlot *> inputs() const;
 
-    OutputSlot output() const;
-    void setOutput(const OutputSlot &output);
+    void addInputSlot (InputSlot *slot);
+
+    OutputSlot *output() const;
+    void setOutput(OutputSlot *output);
 
 //    QIcon icon() const;
 //    void setIcon(const QIcon &value);
@@ -37,8 +40,8 @@ private:
     QString m_name;
     QString m_descriptionFile;
 //    QIcon m_icon;
-    std::vector<InputSlot> m_inputs;
-    OutputSlot m_output;
+    std::vector<InputSlot *> m_inputs;
+    OutputSlot *m_output;
 };
 
 #endif // FUNCTION_H

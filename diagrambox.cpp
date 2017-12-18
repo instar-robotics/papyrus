@@ -6,13 +6,14 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 #include <math.h>
+#include <QDebug>
 
 int DiagramBox::getType()
 {
     return UserType + 1;
 }
 
-DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QUuid uuid, QGraphicsItem *parent) : QGraphicsItem(parent),
+DiagramBox::DiagramBox(const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid, QGraphicsItem *parent) : QGraphicsItem(parent),
                                                 m_uuid(uuid),
                                                 m_name(name),
                                                 m_icon(icon),
@@ -21,7 +22,7 @@ DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QUuid uuid, QGrap
                                                 bWidth(175),
                                                 bHeight(70),
                                                 tHeight(20),
-                                                m_outputSlot(NULL)
+                                                m_outputSlot(outputSlot)
 {
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
@@ -31,6 +32,19 @@ DiagramBox::DiagramBox(const QString &name, const QIcon &icon, QUuid uuid, QGrap
            | QGraphicsItem::ItemIsMovable
            | QGraphicsItem::ItemSendsScenePositionChanges);
     setAcceptHoverEvents(true);
+
+    // Make this the parent item of the output slot, so that it follow drags, etc.
+    outputSlot->setParentItem(this);
+
+    // Set the output's slot position, in its parent's referential (this item's)
+    QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
+    p.ry() -= outputSlot->boundingRect().height() / 2;
+    outputSlot->setPos(p);
+}
+
+DiagramBox::~DiagramBox()
+{
+    delete m_outputSlot;
 }
 
 QRectF DiagramBox::boundingRect() const
@@ -181,6 +195,7 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     QFont font = painter->font();
     font.setPixelSize(13);
 
+    // If the box is selected, make it appear bold
     if (option->state & QStyle::State_Selected) {
         width += 1;
         font.setBold(true);

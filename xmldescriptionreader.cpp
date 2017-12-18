@@ -1,6 +1,7 @@
 #include "xmldescriptionreader.h"
 #include "constants.h"
 #include "types.h"
+#include "slot.h"
 
 #include <iostream>
 
@@ -80,51 +81,53 @@ void XmlDescriptionReader::readInputs(Function *function)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "inputs");
 
-    std::vector<InputSlot> inputs;
+    std::vector<InputSlot *> inputs;
     while (reader.readNextStartElement()) {
         if (reader.name() == "input") {
-            InputSlot inputSlot;
+            InputSlot *inputSlot = new InputSlot;
 
             if (reader.attributes().hasAttribute("allowMultiple") &&
                 reader.attributes().value("allowMultiple").toString() == "true")
-                inputSlot.allowMultiple = true;
+                inputSlot->setAllowMultiple(true);
             else
-                inputSlot.allowMultiple = false;
+                inputSlot->setAllowMultiple(false);
 
             while (reader.readNextStartElement()) {
                 if (reader.name() == "name")
-                    readParameterName(&inputSlot);
-                else if (reader.name() == "type")
-                    readParameterType(&inputSlot);
+                    readParameterName(inputSlot);
+//                else if (reader.name() == "type")
+//                    readParameterType(inputSlot);
                 else {
                     reader.skipCurrentElement();
                 }
             }
 
-            inputs.push_back(inputSlot);
+//            inputs.push_back(inputSlot);
+            function->addInputSlot(inputSlot);
         } else {
             reader.skipCurrentElement();
         }
     }
 
-    function->setInputs(inputs);
+//    function->setInputs(inputs);
 }
 
-void XmlDescriptionReader::readParameterName(ParameterSlot *paramSlot)
+void XmlDescriptionReader::readParameterName(Slot *paramSlot)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "name");
 
     QString paramName = reader.readElementText();
 
     if (!paramName.isEmpty()) {
-        paramSlot->name = paramName;
+        paramSlot->setName(paramName);
     } else {
         reader.raiseError("Empty parameter name are now allowed");
         reader.skipCurrentElement();
     }
 }
 
-void XmlDescriptionReader::readParameterType(ParameterSlot *paramSlot)
+/*
+void XmlDescriptionReader::readParameterType(Slot *paramSlot)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "type");
 
@@ -150,17 +153,18 @@ void XmlDescriptionReader::readParameterType(ParameterSlot *paramSlot)
         reader.skipCurrentElement();
     }
 }
+//*/
 
 void XmlDescriptionReader::readOutput(Function *function)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "output");
 
-    OutputSlot outputSlot;
+    OutputSlot *outputSlot = new OutputSlot;
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
-            readParameterName(&outputSlot);
-        else if (reader.name() == "type")
-            readParameterType(&outputSlot);
+            readParameterName(outputSlot);
+//        else if (reader.name() == "type")
+//            readParameterType(outputSlot);
         else
             reader.skipCurrentElement();
     }

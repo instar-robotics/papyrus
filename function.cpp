@@ -15,22 +15,22 @@ void Function::setName(const QString &name)
     m_name = name;
 }
 
-std::vector<InputSlot> Function::inputs() const
+std::vector<InputSlot *> Function::inputs() const
 {
     return m_inputs;
 }
 
-void Function::setInputs(const std::vector<InputSlot> &inputs)
+void Function::addInputSlot(InputSlot *slot)
 {
-    m_inputs = inputs;
+    m_inputs.push_back(slot);
 }
 
-OutputSlot Function::output() const
+OutputSlot* Function::output() const
 {
     return m_output;
 }
 
-void Function::setOutput(const OutputSlot &output)
+void Function::setOutput(OutputSlot *output)
 {
     m_output = output;
 }

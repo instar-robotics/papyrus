@@ -21,7 +21,7 @@ public:
     explicit DiagramScene(QObject *parent = 0);
     ~DiagramScene();
 
-    DiagramBox* addBox(const QPointF &position, const QString &name, const QIcon &icon, QUuid uuid = 0);
+    DiagramBox* addBox(const QPointF &position, const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid = 0);
 
     bool shouldDrawGrid() const;
     void setShouldDrawGrid(bool shouldDrawGrid);

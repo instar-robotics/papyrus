@@ -1,6 +1,7 @@
 #include "script.h"
 #include "papyruswindow.h"
 #include "ui_papyruswindow.h"
+#include "outputslot.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -92,12 +93,18 @@ void Script::save()
         QPointF pos = item->scenePos();
         QUuid uuid = item->uuid();
         QString descriptionFile = item->descriptionFile();
+        OutputSlot *outputSlot = item->outputSlot();
 
         Q_ASSERT(!name.isEmpty());
 
         stream.writeStartElement("function");
         stream.writeAttribute("uuid", uuid.toString());
         stream.writeTextElement("name", name);
+
+        stream.writeStartElement("output");
+        stream.writeTextElement("name", outputSlot->name());
+        stream.writeEndElement(); // output
+
         stream.writeStartElement("position");
         stream.writeTextElement("x", QString::number(pos.x()));
         stream.writeTextElement("y", QString::number(pos.y()));

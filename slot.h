@@ -1,6 +1,7 @@
 #ifndef SLOT_H
 #define SLOT_H
 
+#include <QObject>
 #include <QString>
 #include <QGraphicsItem>
 
@@ -15,10 +16,14 @@ class Slot : public QObject, public QGraphicsItem
 {
     Q_OBJECT
 public:
+    explicit Slot(QGraphicsItem *parent = 0);
     explicit Slot(QString &name, QGraphicsItem *parent = 0);
+    ~Slot();
 
     QString name() const;
+    void setName(const QString &name);
 
+    virtual QRectF boundingRect() const = 0;
 private:
     QString m_name;  // The name of this slot
 };

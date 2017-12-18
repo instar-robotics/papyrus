@@ -2,6 +2,11 @@
 
 #include <QPainter>
 
+OutputSlot::OutputSlot() : Slot()
+{
+
+}
+
 OutputSlot::OutputSlot(QString &name) : Slot(name)
 {
 
@@ -25,5 +30,10 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    painter->drawRect(QRectF(0, 0, 50, 50));
+    painter->drawRect(QRectF(0, 0, 10, 10));
+}
+
+QRectF OutputSlot::boundingRect() const
+{
+    return QRectF(0, 0, 10, 10);
 }

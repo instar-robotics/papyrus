@@ -11,6 +11,7 @@ class InputSlot : public Slot
 {
     Q_OBJECT
 public:
+    explicit InputSlot();
     explicit InputSlot(QString &name);
 
     bool allowMultiple() const;
@@ -20,6 +21,8 @@ public:
 
     void addInput(Arrow *input);
 
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QRectF boundingRect() const override;
 private:
     bool m_allowMultiple;
     std::set<Arrow *> m_inputs; // The set of arrows connected to this slot

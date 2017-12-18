@@ -10,6 +10,10 @@
             <name>Second</name>
             <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
+        <input allowMultiple="false">
+            <name>Third</name>
+            <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+        </input>
     </inputs>
     <output>
         <name>Output</name>

@@ -13,7 +13,12 @@ int DiagramBox::getType()
     return UserType + 1;
 }
 
-DiagramBox::DiagramBox(const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid, QGraphicsItem *parent) : QGraphicsItem(parent),
+DiagramBox::DiagramBox(const QString &name,
+                       const QIcon &icon,
+                       OutputSlot *outputSlot,
+                       std::set<InputSlot *> inputSlots,
+                       QUuid uuid,
+                       QGraphicsItem *parent) : QGraphicsItem(parent),
                                                 m_uuid(uuid),
                                                 m_name(name),
                                                 m_icon(icon),
@@ -22,7 +27,8 @@ DiagramBox::DiagramBox(const QString &name, const QIcon &icon, OutputSlot *outpu
                                                 bWidth(175),
                                                 bHeight(70),
                                                 tHeight(20),
-                                                m_outputSlot(outputSlot)
+                                                m_outputSlot(outputSlot),
+                                                m_inputSlots(inputSlots)
 {
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
@@ -41,6 +47,30 @@ DiagramBox::DiagramBox(const QString &name, const QIcon &icon, OutputSlot *outpu
     p.ry() -= outputSlot->boundingRect().height() / 2;
     p.rx() += 5; // Set a bit of margin to the right to prevent the diamon-shape to overlap
     outputSlot->setPos(p);
+
+    // Make this the parent item of all input slots, so that they follow drags, etc.
+    qreal s = 20;
+    qreal offset = m_inputSlots.size() % 2 == 0 ? s / 2 : 0; // offset only if even nb of slots
+
+    QPointF g = (boundingRect().bottomLeft() + boundingRect().topLeft()) / 2;
+    g.rx() -= 5;
+
+    g.ry() -= ((m_inputSlots.size() - 1) / 2) * s + offset;
+
+    foreach (InputSlot *inputSlot, m_inputSlots) {
+        inputSlot->setParentItem(this);
+
+        /*
+         * How we compute the (vertical) positions:
+         * - we want the inputs slots to be evenly spaced and centered on the box's center
+         * - we define 's' the distance between each input slots' center
+         * - we use integer division to correctly place the input slots
+         * - in case there are an even number of inputs, we add `s/2` as offset
+         */
+        inputSlot->setPos(g);
+        g.ry() += s;
+    }
+
 }
 
 DiagramBox::~DiagramBox()
@@ -134,6 +164,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     }
 
     return QGraphicsItem::itemChange(change, value);
+}
+
+std::set<InputSlot *> DiagramBox::inputSlots() const
+{
+    return m_inputSlots;
+}
+
+void DiagramBox::setInputSlots(const std::set<InputSlot *> &inputSlots)
+{
+    m_inputSlots = inputSlots;
 }
 
 OutputSlot *DiagramBox::outputSlot() const

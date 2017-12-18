@@ -3,7 +3,11 @@
     <name>Gaussian</name>
     <inputs>
         <input allowMultiple="false">
-            <name>Input Param</name>
+            <name>Sigma</name>
+            <type>Scalar</type>
+        </input>
+        <input allowMultiple="false">
+            <name>Amplitude</name>
             <type>Scalar</type>
         </input>
     </inputs>

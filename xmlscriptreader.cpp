@@ -158,12 +158,15 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
     QString name;
     QString descriptionFile;
     OutputSlot *outputSlot = new OutputSlot;
+    std::set<InputSlot *> inputSlots;
     QUuid uuid;
 
     readUUID(&uuid);
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readFunctionName(&name);
+        else if (reader.name() == "inputs")
+            readInputSlots(&inputSlots);
         else if (reader.name() == "output")
             readOutputSlot(outputSlot);
         else if (reader.name() == "position")
@@ -181,7 +184,7 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
     // The Icon is not yet passed in the XML, so add a temporary default icon
     // Try to find
     QIcon icon(descriptionFile);
-    DiagramBox *b = m_script->scene()->addBox(pos, name, icon, outputSlot, uuid);
+    DiagramBox *b = m_script->scene()->addBox(pos, name, icon, outputSlot, inputSlots, uuid);
     b->setDescriptionFile(descriptionFile);
 
     QString iconPath(descriptionFile);
@@ -208,6 +211,25 @@ void XmlScriptReader::readFunctionName(QString *name)
         reader.raiseError(QObject::tr("Empty function name."));
     } else {
         name->setUnicode(functionName.unicode(), functionName.size());
+    }
+}
+
+void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "inputs");
+
+    while (reader.readNextStartElement()) {
+        if (reader.name() == "input") {
+            while (reader.readNextStartElement()) {
+                if (reader.name() == "name") {
+                    QString inputName = reader.readElementText();
+                    InputSlot *inputSlot = new InputSlot(inputName);
+                    inputSlots->insert(inputSlot);
+                } else
+                    reader.skipCurrentElement();
+            }
+        } else
+            reader.skipCurrentElement();
     }
 }
 

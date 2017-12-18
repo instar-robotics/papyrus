@@ -3,6 +3,7 @@
 
 #include "arrow.h"
 #include "outputslot.h"
+#include "inputslot.h"
 
 #include <set>
 
@@ -15,7 +16,12 @@ class DiagramBox : public QGraphicsItem
 public:
     static int getType();
     // TODO: implement a copy constructor that should change the uuid and remove the connected arrows
-    explicit DiagramBox(const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid = 0, QGraphicsItem *parent = 0);
+    explicit DiagramBox(const QString &name,
+                        const QIcon &icon,
+                        OutputSlot *outputSlot,
+                        std::set<InputSlot *> inputSlots,
+                        QUuid uuid = 0,
+                        QGraphicsItem *parent = 0);
     ~DiagramBox();
 
     QRectF boundingRect() const override;
@@ -46,6 +52,9 @@ public:
     OutputSlot *outputSlot() const;
     void setOutputSlot(OutputSlot *outputSlot);
 
+    std::set<InputSlot *> inputSlots() const;
+    void setInputSlots(const std::set<InputSlot *> &inputSlots);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -64,6 +73,7 @@ private:
     QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 
     OutputSlot *m_outputSlot;  // The output slot for this function's box
+    std::set<InputSlot *> m_inputSlots; // The set of input slots for this function's box
 };
 
 #endif // DIAGRAMBOX_H

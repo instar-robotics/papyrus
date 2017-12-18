@@ -2,6 +2,8 @@
 #define DIAGRAMSCENE_H
 
 #include "script.h"
+#include "outputslot.h"
+#include "inputslot.h"
 
 #include <QGraphicsScene>
 #include <diagrambox.h>
@@ -21,7 +23,12 @@ public:
     explicit DiagramScene(QObject *parent = 0);
     ~DiagramScene();
 
-    DiagramBox* addBox(const QPointF &position, const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid = 0);
+    DiagramBox* addBox(const QPointF &position,
+                       const QString &name,
+                       const QIcon &icon,
+                       OutputSlot *outputSlot,
+                       std::set<InputSlot *> inputSlots,
+                       QUuid uuid = 0);
 
     bool shouldDrawGrid() const;
     void setShouldDrawGrid(bool shouldDrawGrid);

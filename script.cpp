@@ -94,6 +94,7 @@ void Script::save()
         QUuid uuid = item->uuid();
         QString descriptionFile = item->descriptionFile();
         OutputSlot *outputSlot = item->outputSlot();
+        std::set<InputSlot *>inputSlots = item->inputSlots();
 
         Q_ASSERT(!name.isEmpty());
 
@@ -101,6 +102,17 @@ void Script::save()
         stream.writeAttribute("uuid", uuid.toString());
         stream.writeTextElement("name", name);
 
+        // Save input slots
+        stream.writeStartElement("inputs");
+        foreach (InputSlot *inputSlot, inputSlots) {
+            stream.writeStartElement("input");
+            stream.writeTextElement("name", inputSlot->name());
+            stream.writeEndElement(); // input
+        }
+
+        stream.writeEndElement(); // inputs
+
+        // Save output slot
         stream.writeStartElement("output");
         stream.writeTextElement("name", outputSlot->name());
         stream.writeEndElement(); // output

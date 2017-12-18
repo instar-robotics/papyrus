@@ -4,6 +4,7 @@
 #include "script.h"
 #include "diagrambox.h"
 #include "outputslot.h"
+#include "inputslot.h"
 
 #include <QXmlStreamReader>
 #include <QUuid>
@@ -29,6 +30,7 @@ private:
     void readScript();
     void readFunction(std::set<std::pair<QUuid, QUuid>> *links);
     void readFunctionName(QString *name);
+    void readInputSlots(std::set<InputSlot *> *inputSlots);
     void readOutputSlot(OutputSlot *outputSlot);
     void readUUID(QUuid *uuid);
     void readPosition(QPointF *pos);

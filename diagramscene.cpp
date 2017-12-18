@@ -3,7 +3,6 @@
 #include "papyruswindow.h"
 #include "ui_papyruswindow.h"
 #include "constants.h"
-#include "outputslot.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -34,29 +33,22 @@ DiagramScene::~DiagramScene()
     delete box;
 }
 
-DiagramBox *DiagramScene::addBox(const QPointF &position, const QString &name, const QIcon &icon, OutputSlot *outputSlot, QUuid uuid)
+// TODO: shouldn't this become addBox(DiagramBox *) rather?
+DiagramBox *DiagramScene::addBox(const QPointF &position,
+                                 const QString &name,
+                                 const QIcon &icon,
+                                 OutputSlot *outputSlot,
+                                 std::set<InputSlot *> inputSlots,
+                                 QUuid uuid)
 {
     Q_ASSERT(outputSlot != NULL);
 
     // Create the box itself, the body of the block
-    DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, uuid);
+    DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
     QPointF center = newBox->boundingRect().center();
     newBox->setPos(position - center);
 
     addItem(newBox);
-
-    /*
-    // Set the output slot's position
-    QPointF osPos = newBox->pos();
-    osPos.rx() += newBox->boundingRect().right();
-    osPos.ry() += newBox->boundingRect().bottom() / 2;
-    osPos.ry() -= outputSlot->boundingRect().bottom() / 2;
-    outputSlot->setPos(osPos);
-
-    // Create the output slot
-    addItem(newBox);
-    addItem(outputSlot);
-    //*/
 
     // Set the new script as modified
     m_script->setStatusModified(true);
@@ -252,13 +244,28 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QString descriptionFile;
         QString outputName;
         QIcon icon;
-//        std::vector<InputSlot> inputs;
-//        int nb;
+        int nbInputs;
 
-        dataStream >> name >> icon >> descriptionFile >> outputName;
+        // Then proceed to retrieve the other elements
+        dataStream >> name >> icon >> descriptionFile >> outputName >> nbInputs;
+
+        std::vector<QString> inputNames;
+        for (int i = 0; i < nbInputs; i += 1) {
+            QString iName;
+            dataStream >> iName;
+            inputNames.push_back(iName);
+        }
 
         OutputSlot *outputSlot = new OutputSlot(outputName);
-        DiagramBox *b = addBox(evt->scenePos(), name, icon, outputSlot);
+
+        // TODO: join this with the previous foreach?
+        std::set<InputSlot *> inputSlots;
+        foreach (QString iName, inputNames) {
+            InputSlot *iSlot = new InputSlot(iName);
+            inputSlots.insert(iSlot);
+        }
+
+        DiagramBox *b = addBox(evt->scenePos(), name, icon, outputSlot, inputSlots);
         b->setDescriptionFile(descriptionFile);
 
         setBackgroundBrush(QBrush(Qt::white));

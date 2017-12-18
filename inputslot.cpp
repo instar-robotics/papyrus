@@ -50,11 +50,11 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    painter->drawRect(QRectF(0, 0, 50, 50));
+    painter->drawEllipse(QPointF(0, 0), 5, 5);
 }
 
 QRectF InputSlot::boundingRect() const
 {
-    return QRectF(0, 0, 50, 50);
+    return QRectF(-5, -5, 10, 10);
 }
 

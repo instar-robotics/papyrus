@@ -549,6 +549,23 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
         // Add the script in the set of opened scripts
         addScript(openScript);
 
+        /*
+         * Set the scene's initial rect based on the widget in which it is displayed (and centered)
+         * if it's smaller
+         */
+        QSizeF widgetSize = ui->tabWidget->size();
+        QRectF currentSceneRect = openScene->sceneRect();
+        QRectF minSceneRect(- widgetSize.width() / 2,
+                            - widgetSize.height() / 2,
+                            widgetSize.width(),
+                            widgetSize.height());
+
+        if (currentSceneRect.width() < minSceneRect.width()
+           || currentSceneRect.height() < minSceneRect.height()) {
+            openScene->setSceneRect(minSceneRect);
+        }
+
+
         // Add the new scene as a new tab and make it active
         ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
                                                              QIcon(":/icons/icons/script.svg"),

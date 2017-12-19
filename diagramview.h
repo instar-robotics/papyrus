@@ -17,11 +17,6 @@ protected:
     void wheelEvent(QWheelEvent *evt);
     void mousePressEvent(QMouseEvent *evt);
 
-//    void dragEnterEvent(QDragEnterEvent *evt);
-//    void dragLeaveEvent(QDragLeaveEvent *evt);
-//    void dragMoveEvent(QDragMoveEvent *evt);
-//    void dropEvent(QDropEvent *evt);
-
 public slots:
 };
 

@@ -1,6 +1,7 @@
 #include "inputslot.h"
 
 #include <QPainter>
+#include <QDebug>
 
 InputSlot::InputSlot() : Slot()
 {

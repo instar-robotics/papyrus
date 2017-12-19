@@ -33,20 +33,18 @@ DiagramBox::DiagramBox(const QString &name,
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
         m_uuid = QUuid::createUuid();
-
     setFlags(QGraphicsItem::ItemIsSelectable
            | QGraphicsItem::ItemIsMovable
            | QGraphicsItem::ItemSendsScenePositionChanges);
     setAcceptHoverEvents(true);
 
     // Make this the parent item of the output slot, so that it follow drags, etc.
-    outputSlot->setParentItem(this);
+    m_outputSlot->setParentItem(this);
 
     // Set the output's slot position, in its parent's referential (this item's)
     QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
-    p.ry() -= outputSlot->boundingRect().height() / 2;
     p.rx() += 5; // Set a bit of margin to the right to prevent the diamon-shape to overlap
-    outputSlot->setPos(p);
+    m_outputSlot->setPos(p);
 
     // Make this the parent item of all input slots, so that they follow drags, etc.
     qreal s = 20;
@@ -157,10 +155,6 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         theScene->script()->setStatusModified(true);
 
         return newPos;
-    } else if (change == QGraphicsItem::ItemSelectedHasChanged && isSelected()) {
-        std::cout << std::endl;
-        std::cout << "Box #??? selected, it has " << startLines().size()
-                  << " start lines and " << endLines().size() << " end lines." << std::endl;
     }
 
     return QGraphicsItem::itemChange(change, value);

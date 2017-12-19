@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <QPainter>
 #include <math.h>
+#include <QDebug>
 
 #include <diagrambox.h>
 

@@ -403,6 +403,16 @@ void DiagramScene::setScript(Script *script)
     m_script = script;
 }
 
+/**
+ * @brief Create a connection between a box' output slot and another box's input slot
+ * @param from: the starting output slot
+ * @param to: the target input slot
+ */
+void DiagramScene::createLink(OutputSlot *from, InputSlot *to)
+{
+    qDebug() << "Should create link between" << from->name() << "and" << to->name();
+}
+
 int DiagramScene::gridSize() const
 {
     return m_gridSize;

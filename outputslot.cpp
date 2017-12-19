@@ -1,10 +1,15 @@
 #include "outputslot.h"
 
 #include <QPainter>
+#include <QStyleOptionGraphicsItem>
+#include <QDebug>
 
 OutputSlot::OutputSlot() : Slot()
 {
-
+//    setFlags(QGraphicsItem::ItemIsSelectable
+//           | QGraphicsItem::ItemIsMovable
+//           | QGraphicsItem::ItemSendsScenePositionChanges);
+//    setAcceptHoverEvents(true);
 }
 
 OutputSlot::OutputSlot(QString &name) : Slot(name)
@@ -27,14 +32,20 @@ void OutputSlot::addOutput(Arrow *output)
 
 void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    painter->drawRect(QRectF(0, 0, 10, 10));
-    setRotation(45); // Rotate 45 degrees to make it a diamond shape
+    /*
+    if (option->state & QStyle::State_Selected) {
+        qDebug() << "Output slot is selected";
+    } else {
+        qDebug() << "Output not selected" << i++;
+    }
+    //*/
+
+    painter->drawEllipse(QPointF(0, 0), 5, 5);
 }
 
 QRectF OutputSlot::boundingRect() const
 {
-    return QRectF(0, 0, 10, 10);
+    return QRectF(-5, -5, 10, 10);
 }

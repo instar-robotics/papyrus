@@ -38,6 +38,8 @@ public:
     Script *script() const;
     void setScript(Script *script);
 
+    void createLink(OutputSlot *from, InputSlot *to);
+
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
 

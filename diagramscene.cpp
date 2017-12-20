@@ -17,6 +17,7 @@
 #include <QDebug>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
+                                            m_leftBtnDown(false),
                                             middleBtnIsDown(false),
                                             m_shouldDrawGrid(true),
                                             m_gridSize(35),
@@ -106,6 +107,27 @@ void DiagramScene::updateSceneRect()
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
+    if (evt->button() & Qt::LeftButton) {
+        m_leftBtnDown = true;
+
+        // Check if we have clicked on something
+        QGraphicsItem *maybeItem = itemAt(evt->scenePos(), QTransform());
+        if (!maybeItem) {
+            updateSceneRect();
+        } else {
+            // Check if we clicked on an output slot
+            OutputSlot *oSlot = dynamic_cast<OutputSlot *>(maybeItem);
+
+            if (oSlot != NULL) {
+                QPointF startPoint = oSlot->scenePos();
+                line = new QGraphicsLineItem(QLineF(startPoint, evt->scenePos()));
+                line->setPen(QPen(Qt::black, 1, Qt::DashLine));
+                addItem(line);
+                updateSceneRect();
+            }
+        }
+    }
+    /*
     if (evt->button() & Qt::MiddleButton) {
         middleBtnIsDown = true;
 
@@ -131,22 +153,67 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
             updateSceneRect();
         }
     }
+    //*/
 
     QGraphicsScene::mousePressEvent(evt);
 }
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
+    QPointF p = evt->scenePos();
+    QRectF selectFilter(p.x() - 200, p.y() - 200, 400, 400);
+
+    foreach (QGraphicsItem *item, items(selectFilter)) {
+        OutputSlot *oSlot = dynamic_cast<OutputSlot *>(item);
+        if (oSlot != NULL) {
+            QPointF oCenter = oSlot->scenePos();
+            qreal dist = (p - oCenter).manhattanLength();
+            oSlot->setDist(dist);
+        }
+    }
+
+    invalidate(selectFilter);
+
+    // Select only items in the visible rectangle
+    if (m_leftBtnDown && line != 0) {
+        QLineF newLine(line->line().p1(), evt->scenePos());
+        line->setLine(newLine);
+    }
+    /*
+    // Select only items in the visible rectangle
     if (middleBtnIsDown && line != 0 && box != 0) {
         QLineF newLine(line->line().p1(), evt->scenePos());
         line->setLine(newLine);
     }
+    */
 
     QGraphicsScene::mouseMoveEvent(evt);
 
 }
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
+    if (evt->button() == Qt::LeftButton) {
+        m_leftBtnDown = false;
+
+        if (line != 0) {
+            removeItem(line);
+
+            // Check if we have released on top of an input slot
+            InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(evt->scenePos(), QTransform()));
+
+            if (maybeSlot) {
+                // If we have released on top on something, create an Arrow between the two slots
+                QPointF endPoint = maybeSlot->scenePos();
+
+                QLineF newLine(line->line().p1(), endPoint);
+                addLine(newLine);
+            }
+
+            delete line;
+            line = 0;
+        }
+    }
+
     if (evt->button() == Qt::MiddleButton) {
         middleBtnIsDown = false;
 
@@ -391,6 +458,11 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
     }
 
     painter->drawPoints(dots.data(), dots.size());
+}
+
+bool DiagramScene::leftBtnDown() const
+{
+    return m_leftBtnDown;
 }
 
 Script *DiagramScene::script() const

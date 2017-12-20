@@ -24,8 +24,14 @@ public:
     void setName(const QString &name);
 
     virtual QRectF boundingRect() const = 0;
+
+    qreal dist() const;
+    void setDist(const qreal &dist);
+
 private:
     QString m_name;  // The name of this slot
+protected:
+    qreal m_dist;    // Distance to the mouse (used to highlight the slot when mouse approach)
 };
 
 #endif // SLOT_H

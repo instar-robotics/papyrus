@@ -40,6 +40,8 @@ public:
 
     void createLink(OutputSlot *from, InputSlot *to);
 
+    bool leftBtnDown() const;
+
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
 
@@ -60,7 +62,7 @@ protected:
 
 private:
     //QString *sceneName;
-    //bool leftBtnIsDown;
+    bool m_leftBtnDown;
     bool middleBtnIsDown;
     bool m_shouldDrawGrid;   // Whether to draw the grid or not
     int m_gridSize;          // Size (in px) of the grid

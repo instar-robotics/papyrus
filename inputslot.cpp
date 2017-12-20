@@ -2,6 +2,8 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QStyle>
+#include <QStyleOptionGraphicsItem>
 
 InputSlot::InputSlot() : Slot()
 {
@@ -50,6 +52,17 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
+
+    QPen pen;
+    qreal width = 1.5;
+//    QFont font = painter->font();
+
+    if (option->state & QStyle::State_MouseOver) {
+        width += 1;
+    }
+
+    pen.setWidth(width);
+    painter->setPen(pen);
 
     painter->drawEllipse(QPointF(0, 0), 5, 5);
 }

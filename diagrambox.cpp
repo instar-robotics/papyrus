@@ -33,6 +33,7 @@ DiagramBox::DiagramBox(const QString &name,
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
         m_uuid = QUuid::createUuid();
+
     setFlags(QGraphicsItem::ItemIsSelectable
            | QGraphicsItem::ItemIsMovable
            | QGraphicsItem::ItemSendsScenePositionChanges);
@@ -40,6 +41,7 @@ DiagramBox::DiagramBox(const QString &name,
 
     // Make this the parent item of the output slot, so that it follow drags, etc.
     m_outputSlot->setParentItem(this);
+    m_outputSlot->setAcceptHoverEvents(true);
 
     // Set the output's slot position, in its parent's referential (this item's)
     QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
@@ -57,6 +59,8 @@ DiagramBox::DiagramBox(const QString &name,
 
     foreach (InputSlot *inputSlot, m_inputSlots) {
         inputSlot->setParentItem(this);
+//        inputSlot->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        inputSlot->setAcceptHoverEvents(true);
 
         /*
          * How we compute the (vertical) positions:

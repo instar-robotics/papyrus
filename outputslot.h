@@ -21,8 +21,14 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
 
+    void mousePressEvent(QGraphicsSceneMouseEvent *evt);
+
+    bool isDrawingLine() const;
+    void setIsDrawingLine(bool isDrawingLine);
+
 private:
     std::set<Arrow *> m_outputs; // The set of arrows which leaves this slot
+    bool m_isDrawingLine;        // Indicate if we are drawing an outgoing link
 };
 
 #endif // OUTPUTSLOT_H

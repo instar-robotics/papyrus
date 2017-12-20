@@ -6,6 +6,7 @@
 #include <QWheelEvent>
 #include <QMimeData>
 #include <QTreeWidgetItem>
+#include <QDebug>
 
 DiagramView::DiagramView(QWidget *parent) : QGraphicsView(parent)
 {

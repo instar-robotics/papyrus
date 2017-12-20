@@ -4,12 +4,9 @@
 #include <QStyleOptionGraphicsItem>
 #include <QDebug>
 
-OutputSlot::OutputSlot() : Slot()
+OutputSlot::OutputSlot() : Slot(), m_isDrawingLine(false)
 {
-//    setFlags(QGraphicsItem::ItemIsSelectable
-//           | QGraphicsItem::ItemIsMovable
-//           | QGraphicsItem::ItemSendsScenePositionChanges);
-//    setAcceptHoverEvents(true);
+
 }
 
 OutputSlot::OutputSlot(QString &name) : Slot(name)
@@ -34,18 +31,49 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 {
     Q_UNUSED(widget);
 
-    /*
-    if (option->state & QStyle::State_Selected) {
-        qDebug() << "Output slot is selected";
-    } else {
-        qDebug() << "Output not selected" << i++;
-    }
-    //*/
+    QPen pen;
+    qreal width = 1.5;
+//    QFont font = painter->font();
 
-    painter->drawEllipse(QPointF(0, 0), 5, 5);
+    qreal cx = 0;
+    qreal cy = 0;
+    qreal rx = 5;
+    qreal ry = 5;
+
+    if (option->state & QStyle::State_MouseOver) {
+        width += 1;
+    }
+
+    // Make the slot bigger when the mouse is near it
+    qreal sizeOffset = (400 - m_dist) / 100;
+    rx += pow(sizeOffset, 2) / 6;
+    ry += pow(sizeOffset, 2) / 6;
+
+    pen.setWidth(width);
+    painter->setPen(pen);
+
+    painter->drawEllipse(QPointF(cx, cy), rx, ry);
 }
 
 QRectF OutputSlot::boundingRect() const
 {
     return QRectF(-5, -5, 10, 10);
+}
+
+void OutputSlot::mousePressEvent(QGraphicsSceneMouseEvent *evt)
+{
+
+    m_isDrawingLine = true;
+
+    QGraphicsItem::mousePressEvent(evt);
+}
+
+bool OutputSlot::isDrawingLine() const
+{
+    return m_isDrawingLine;
+}
+
+void OutputSlot::setIsDrawingLine(bool isDrawingLine)
+{
+    m_isDrawingLine = isDrawingLine;
 }

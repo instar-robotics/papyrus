@@ -16,11 +16,14 @@ int Arrow::getType()
     return UserType + 2;
 }
 
-Arrow::Arrow(QGraphicsItem *parent) : QGraphicsLineItem(parent)
+Arrow::Arrow(QGraphicsItem *parent) : QGraphicsLineItem(parent),
+                                      no(nb),
+                                      m_from(NULL),
+                                      m_to(NULL)
 {
-    no = nb;
-    from_ = 0;
-    to_ = 0;
+//    no = nb;
+//    from_ = 0;
+//    to_ = 0;
     nb += 1;
 //    setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap));
 //    setFlags(QGraphicsItem::ItemSendsScenePositionChanges | QGraphicsItem::ItemIsSelectable);
@@ -39,14 +42,14 @@ void Arrow::updatePosition(QPointF newPoint, bool isStartPoint)
     setLine(QLineF(p1, p2));
 }
 
-void Arrow::setFrom(DiagramBox *box)
+void Arrow::setFrom(OutputSlot *box)
 {
-    from_ = box;
+    m_from = box;
 }
 
-void Arrow::setTo(DiagramBox *box)
+void Arrow::setTo(InputSlot *box)
 {
-    to_ = box;
+    m_to = box;
 }
 
 QPainterPath Arrow::shape() const
@@ -66,6 +69,8 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
 {
     qreal arrowSize = 10;
     qreal angle = acos(line().dx() / line().length());
+    InputSlot *boxTo = to();
+    OutputSlot *boxFrom = from();
 
     if (line().dy() > 0)
         angle = 2 * M_PI - angle;
@@ -74,7 +79,12 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
 
     painter->setPen(QPen(Qt::blue, 2, Qt::SolidLine, Qt::RoundCap));
 
-    if (to() != from()) {
+    // Check if the arrow has both a destination and an origin
+    if (boxTo == NULL || boxFrom == NULL) {
+       qFatal("ERROR: arrow is missing a destination and/or an origin");
+    }
+
+    if (boxTo->box() != boxFrom->box()) {
         // Paint a normal line if the start and end boxes are different
         painter->drawLine(line());
 
@@ -89,30 +99,54 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
         arrowHead << middle << arrowP1 << arrowP2;
     } else {
         // Paint an arc line if the box is connected to itself
-        // Get the bounding rect of the associated box for reference
-        QRectF arcRect = to()->boundingRect();
-        QRectF lineRect = to()->mapRectToItem(this, arcRect); // Map the coordinates to the item's
-        // Make adjustements so that the arc is drawn above the box
-        lineRect.adjust(-lineRect.width() / 4,
-                        -lineRect.height() / 2,
-                        lineRect.width() / 4,
-                        -lineRect.height() / 3);
+        // Change the angle so that it matches an almost horizontal
+        angle = angle - M_PI + M_PI / 8;
 
-        // Angle values adjusted for pixel precision
-        int startAngle = -48 * 16;
-        int spanAngle = 276 * 16;
+        // Get the target slot's bounding rect for reference
+        QRectF destRect = boxTo->boundingRect();
+        QRectF originRect = boxFrom->boundingRect();
 
-        // Draw the arc
-        painter->drawArc(lineRect, startAngle, spanAngle);
+        // Get origin and destination points
+        QPointF destPt = boxTo->mapRectToItem(this, destRect).center();
+        QPointF origPt = boxFrom->mapRectToItem(this, originRect).center();
 
-        QPointF arrowP1 = line().p2() + QPointF(sin(angle + M_PI / 4) * arrowSize,
+        // Compute control points c1 and c2 for the bezier curve by tracing lines between the origin
+        // and destination points and taking the normal vectors ; then the p2 points are slightly
+        // moved away on the horizontal axis
+
+        QLineF directLine(origPt, destPt);
+        QLineF normalEnd = directLine.normalVector();
+        normalEnd.setAngle(normalEnd.angle() + 180); // reverse direction because it goes down
+
+        QLineF directLine2(destPt, origPt);
+        QLineF normalStart = directLine2.normalVector();
+
+        // Move extremities away from each other on the X axis
+        QPointF c1 = normalEnd.p2();
+        c1.rx() += 100;
+        QPointF c2 = normalStart.p2();
+        c2.rx() -= 100;
+
+        // Draw the bezier as a path
+        QPainterPath curvePath;
+        curvePath.moveTo(origPt);
+        curvePath.cubicTo(c1, c2, destPt);
+        painter->drawPath(curvePath);
+
+        // Create the points for the arrow head
+        QPointF headCenter = (c1 + c2) / 2;
+        headCenter.ry() += 47;
+//        QPointF arrowP1 = line().p2() + QPointF(sin(angle + M_PI / 4) * arrowSize,
+        QPointF arrowP1 = headCenter + QPointF(sin(angle + M_PI / 4) * arrowSize,
                                                 cos(angle + M_PI / 4) * arrowSize);
 
-        QPointF arrowP2 = line().p2() + QPointF(sin(angle + M_PI - M_PI / 2) * arrowSize,
+//        QPointF arrowP2 = line().p2() + QPointF(sin(angle + M_PI - M_PI / 2) * arrowSize,
+        QPointF arrowP2 = headCenter + QPointF(sin(angle + M_PI - M_PI / 2) * arrowSize,
                                                 cos(angle + M_PI - M_PI / 2) * arrowSize);
 
 
-        arrowHead << line().p2() << arrowP1 << arrowP2;
+//        arrowHead << line().p2() << arrowP1 << arrowP2;
+        arrowHead << headCenter << arrowP1 << arrowP2;
 //        painter->drawLine(QLineF(line().p2(), arrowP2));
     }
 

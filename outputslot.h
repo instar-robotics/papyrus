@@ -7,6 +7,15 @@
 #include <QString>
 #include <set>
 
+/**
+ * @brief The specialized version of @Slot used for ouput.
+ * Outputs slots react to the mouse by growing sighly when the mouse comes nears them, in order
+ * to facilitate the creation of a link.
+ */
+
+// Forward declaration here because "arrow.h" includes "outputslot.h"
+class Arrow;
+
 class OutputSlot : public Slot
 {
     Q_OBJECT

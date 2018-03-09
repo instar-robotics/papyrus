@@ -22,7 +22,8 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_shouldDrawGrid(true),
                                             m_gridSize(35),
                                             line(NULL),
-                                            box(NULL),
+                                            m_oSlot(NULL),
+//                                            box(NULL),
                                             m_script(NULL)
 {
 
@@ -31,7 +32,8 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 DiagramScene::~DiagramScene()
 {
     delete line;
-    delete box;
+    delete m_oSlot;
+//    delete box;
 }
 
 // TODO: shouldn't this become addBox(DiagramBox *) rather?
@@ -58,7 +60,7 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
 }
 
 /*
- * Check the items's bounding rects and update the scene's 'sceneRect' to contain them all.
+ * Check the items' bounding rects and update the scene's 'sceneRect' to contain them all.
  * Default to a minimum size of the container widget's size (this is to prevent weird behavior
  * when trying to add items in a small scene: the items won't be placed under the mouse)
  */
@@ -105,6 +107,10 @@ void DiagramScene::updateSceneRect()
     }
 }
 
+/**
+ * @brief DiagramScene::mousePressEvent initiates the creation of a link when the click is made
+ * on an output slot.
+ */
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
     if (evt->button() & Qt::LeftButton) {
@@ -116,10 +122,10 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
             updateSceneRect();
         } else {
             // Check if we clicked on an output slot
-            OutputSlot *oSlot = dynamic_cast<OutputSlot *>(maybeItem);
+            m_oSlot = dynamic_cast<OutputSlot *>(maybeItem);
 
-            if (oSlot != NULL) {
-                QPointF startPoint = oSlot->scenePos();
+            if (m_oSlot != NULL) {
+                QPointF startPoint = m_oSlot->scenePos();
                 line = new QGraphicsLineItem(QLineF(startPoint, evt->scenePos()));
                 line->setPen(QPen(Qt::black, 1, Qt::DashLine));
                 addItem(line);
@@ -179,42 +185,50 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
         QLineF newLine(line->line().p1(), evt->scenePos());
         line->setLine(newLine);
     }
-    /*
-    // Select only items in the visible rectangle
-    if (middleBtnIsDown && line != 0 && box != 0) {
-        QLineF newLine(line->line().p1(), evt->scenePos());
-        line->setLine(newLine);
-    }
-    */
 
     QGraphicsScene::mouseMoveEvent(evt);
 
 }
 
+/**
+ * @brief DiagramScene::mouseReleaseEvent finalizes the creation of a link between some output
+ * slots and input slots when the mouse was clicked on top of an ouput slot and released on top of
+ * an input slot.
+ * @param evt
+ */
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
     if (evt->button() == Qt::LeftButton) {
         m_leftBtnDown = false;
 
+        // Remove temporary line if we were drawing one (click initiated on an output slot)
         if (line != 0) {
             removeItem(line);
 
-            // Check if we have released on top of an input slot
+            // Check if we have released on top of an input slot and create an Arrow if so
             InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(evt->scenePos(), QTransform()));
 
             if (maybeSlot) {
                 // If we have released on top on something, create an Arrow between the two slots
                 QPointF endPoint = maybeSlot->scenePos();
 
-                QLineF newLine(line->line().p1(), endPoint);
-                addLine(newLine);
+                Arrow *newLine = new Arrow(QLineF(line->line().p1(), endPoint));
+                m_oSlot->addOutput(newLine);
+                maybeSlot->addInput(newLine);
+                newLine->setFrom(m_oSlot);
+                newLine->setTo(maybeSlot);
+                addItem(newLine);
+                // TODO: set script status modified
             }
 
             delete line;
             line = 0;
         }
+
+        m_oSlot = 0;
     }
 
     if (evt->button() == Qt::MiddleButton) {
+        /*
         middleBtnIsDown = false;
 
         if (line != 0) {
@@ -247,6 +261,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             line = 0;
             box = 0;
         }
+        //*/
     }
 
     updateSceneRect();
@@ -388,6 +403,9 @@ void DiagramScene::removeItem(DiagramBox *box)
     // TODO: re-implement this in a more efficient manner!
     std::cout << "Box #?? has " << box->startLines().size() << " start lines" << std::endl;
 
+    qDebug() << "Needs to re-implement item deletion with associated arrows, etc.";
+
+    /*
     for (auto line : box->startLines()) {
         std::cout << "Dealing with line #" << line->no << std::endl;
         DiagramBox *endBox = line->to();
@@ -402,6 +420,7 @@ void DiagramScene::removeItem(DiagramBox *box)
 
         removeItem(line); // Remove the line from the scene
     }
+    //*/
 
     // Empty the list of start lines
     // ATTENTION: do we need to explicitly call 'delete' or will 'erase()' do it for us?
@@ -410,6 +429,7 @@ void DiagramScene::removeItem(DiagramBox *box)
     // TODO: re-implement this in a more efficient manner!
    std::cout << "Box #??? has " << box->endLines().size() << " end lines" << std::endl;
 
+   /*
    for (auto line : box->endLines()) {
        std::cout << "Dealing with line #" << line->no << std::endl;
        DiagramBox *startBox = line->from();
@@ -424,6 +444,7 @@ void DiagramScene::removeItem(DiagramBox *box)
 
        removeItem(line); // Remove the line from the scene
    }
+   //*/
 
    // Empty the list of start lines
    // ATTENTION: do we need to explicitly call 'delete' or will 'erase()' do it for us?
@@ -435,11 +456,12 @@ void DiagramScene::removeItem(DiagramBox *box)
 
 /**
  * @brief Draw the grid if the option is set
- * @param painter the painter object, used to pain
+ * @param painter the painter object, used to paint
  * @param rect the portion of the scene that is currently visible
  */
 void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
+    // Well... don't draw the grid if the option is not set
     if (!m_shouldDrawGrid)
         return;
 

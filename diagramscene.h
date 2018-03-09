@@ -67,7 +67,8 @@ private:
     bool m_shouldDrawGrid;   // Whether to draw the grid or not
     int m_gridSize;          // Size (in px) of the grid
     QGraphicsLineItem *line; // The current line being drawn while clicking
-    DiagramBox *box;         // The current box from which the current line originates
+//    DiagramBox *box;         // The current box from which the current line originates
+    OutputSlot *m_oSlot;      // The slot from which the line being drawn originates
     Script *m_script;        // The script to which this scene is associated
 
 signals:

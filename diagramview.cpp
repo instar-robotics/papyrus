@@ -22,6 +22,9 @@ DiagramView::DiagramView(QGraphicsScene *scene, QWidget *parent) : DiagramView(p
     setScene(scene);
 }
 
+/**
+ * @brief DiagramView::wheelEvent handles scrolling and zooming
+ */
 void DiagramView::wheelEvent(QWheelEvent *evt)
 {
     // Zoom if CTRL is pressed while scrolling
@@ -50,7 +53,13 @@ void DiagramView::mousePressEvent(QMouseEvent *evt)
         std::cout << std::endl;
     }
 
+    // Is that where we can prevent the display of the selection rectangle?
     QGraphicsView::mousePressEvent(evt);
+}
+
+void DiagramView::mouseReleaseEvent(QMouseEvent *evt)
+{
+    QGraphicsView::mouseReleaseEvent(evt);
 }
 
 /*

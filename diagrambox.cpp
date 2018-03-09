@@ -41,6 +41,7 @@ DiagramBox::DiagramBox(const QString &name,
 
     // Make this the parent item of the output slot, so that it follow drags, etc.
     m_outputSlot->setParentItem(this);
+    m_outputSlot->setBox(this);
     m_outputSlot->setAcceptHoverEvents(true);
 
     // Set the output's slot position, in its parent's referential (this item's)
@@ -59,6 +60,7 @@ DiagramBox::DiagramBox(const QString &name,
 
     foreach (InputSlot *inputSlot, m_inputSlots) {
         inputSlot->setParentItem(this);
+        inputSlot->setBox(this);
 //        inputSlot->setFlag(QGraphicsItem::ItemIsSelectable, true);
         inputSlot->setAcceptHoverEvents(true);
 
@@ -129,6 +131,10 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 
         // Get the scene in order to get the grid size
         DiagramScene *theScene = qobject_cast<DiagramScene *>(scene());
+        if (!theScene) {
+            std::cerr << "ERROR: could not cast the scene into a DiagramScene!";
+            exit(EXIT_FAILURE);
+        }
         int gridSize = theScene->gridSize();
 
         // Snap the new position's (x, y) coordinates to the grid
@@ -138,6 +144,7 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         // Create the Point representing the new, snapped position
         QPointF newPos(newX, newY);
 
+        // Compute new start and end points for the connected arrows
         QPointF newStartPoint = newPos;
         newStartPoint.rx() += boundingRect().width();
         newStartPoint.ry() += boundingRect().height() / 2;
@@ -147,6 +154,7 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 
         // Update position of start lines
         for (auto line : startLines_) {
+            std::cout << "updating line" << std::endl;
             line->updatePosition(newStartPoint, true);
         }
 
@@ -171,6 +179,7 @@ std::set<InputSlot *> DiagramBox::inputSlots() const
 
 void DiagramBox::setInputSlots(const std::set<InputSlot *> &inputSlots)
 {
+    qDebug() << "SET INPUT SLOTS";
     m_inputSlots = inputSlots;
 }
 
@@ -181,6 +190,7 @@ OutputSlot *DiagramBox::outputSlot() const
 
 void DiagramBox::setOutputSlot(OutputSlot *outputSlot)
 {
+    qDebug() << "SET OUTPUT SLOT";
     m_outputSlot = outputSlot;
 }
 

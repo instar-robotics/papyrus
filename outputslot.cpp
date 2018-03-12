@@ -48,7 +48,7 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     }
 
     // Make the slot bigger when the mouse is near it
-    qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance
+    qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
     rx += pow(sizeOffset, 2) / 6;
     ry += pow(sizeOffset, 2) / 6;
 
@@ -79,4 +79,23 @@ bool OutputSlot::isDrawingLine() const
 void OutputSlot::setIsDrawingLine(bool isDrawingLine)
 {
     m_isDrawingLine = isDrawingLine;
+}
+
+/**
+ * @brief OutputSlot::updateArrows updates this output slot's connected Arrows's starting point,
+ * so that the 'paint' function will draw the line at from the right position
+ */
+void OutputSlot::updateArrows()
+{
+    QPointF p1, p2;
+    QLineF line;
+
+    foreach (Arrow *arrow, m_outputs) {
+        line = arrow->line();
+        p2 = line.p2(); // destination stays the same because we're moving the origin
+        p1 = scenePos(); // new origin of Arrow is this slot's position
+
+        // Set the new line for this Arrow
+        arrow->setLine(QLineF(p1, p2));
+    }
 }

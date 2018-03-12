@@ -8,8 +8,8 @@
 #include <set>
 
 /**
- * @brief The specialized version of @Slot used for ouput.
- * Outputs slots react to the mouse by growing sighly when the mouse comes nears them, in order
+ * @brief The specialized version of @Slot used for output.
+ * Outputs slots react to the mouse by growing sightly when the mouse comes nears them, in order
  * to facilitate the creation of a link.
  */
 
@@ -34,6 +34,8 @@ public:
 
     bool isDrawingLine() const;
     void setIsDrawingLine(bool isDrawingLine);
+
+    void updateArrows();
 
 private:
     std::set<Arrow *> m_outputs; // The set of arrows which leaves this slot

@@ -72,3 +72,22 @@ QRectF InputSlot::boundingRect() const
     return QRectF(-5, -5, 10, 10);
 }
 
+/**
+ * @brief InputSlot::updateArrows updates this input slot's connected Arrows's ending point,
+ * so that the 'paint' function will draw the line at from the right position
+ */
+void InputSlot::updateArrows()
+{
+    QPointF p1, p2;
+    QLineF line;
+
+    foreach (Arrow *arrow, m_inputs) {
+        line = arrow->line();
+        p1 = line.p1(); // origin stays the same because we're moving the destination
+        p2 = scenePos(); // new destination of Arrow is this slot's position
+
+        // Set the new line for this Arrow
+        arrow->setLine(QLineF(p1, p2));
+    }
+}
+

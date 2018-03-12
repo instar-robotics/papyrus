@@ -121,6 +121,8 @@ void DiagramBox::removeEndLine(Arrow *line)
 
 /*
  * React to when the DiagramBox experiences a change
+ * This is where we handle operations where a box is moved (dragged) on the scene: move its
+ * connected links, etc.
  */
 QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
@@ -132,8 +134,7 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         // Get the scene in order to get the grid size
         DiagramScene *theScene = qobject_cast<DiagramScene *>(scene());
         if (!theScene) {
-            std::cerr << "ERROR: could not cast the scene into a DiagramScene!";
-            exit(EXIT_FAILURE);
+            qFatal("ERROR: could not cast the scene into a DiagramScene!");
         }
         int gridSize = theScene->gridSize();
 
@@ -152,15 +153,10 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         QPointF newEndPoint = newPos;
         newEndPoint.ry() += boundingRect().height() / 2;
 
-        // Update position of start lines
-        for (auto line : startLines_) {
-            std::cout << "updating line" << std::endl;
-            line->updatePosition(newStartPoint, true);
-        }
-
-        // Update position of end lines
-        for (auto line : endLines_) {
-            line->updatePosition(newEndPoint, false);
+        // Prompt the output slot and all inputs slots to update their connected Arrows
+        m_outputSlot->updateArrows();
+        foreach (InputSlot *inputSlot, m_inputSlots) {
+            inputSlot->updateArrows();
         }
 
         // Set the script to which this item's scene is associated as modified
@@ -234,6 +230,13 @@ QString DiagramBox::name() const
     return m_name;
 }
 
+/**
+ * @brief DiagramBox::paint draw the function box: its shape, bold when selected, function's icon,
+ * function's name, etc.
+ * @param painter
+ * @param option
+ * @param widget
+ */
 void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(widget);

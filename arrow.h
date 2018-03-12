@@ -34,8 +34,8 @@ public:
     OutputSlot *from() const {return m_from;}
     InputSlot *to() const {return m_to;}
 
-    void setFrom(OutputSlot *box);
-    void setTo(InputSlot *box);
+    void setFrom(OutputSlot *outputSlot);
+    void setTo(InputSlot *inputSlot);
 
     QPainterPath shape() const override;
 

@@ -5,6 +5,9 @@
 #include <QString>
 #include <QGraphicsItem>
 
+//#include <diagrambox.h>
+class DiagramBox;
+
 /**
  * @brief The Slot class defines an argument slot, i.e. an item will either receive
  * a connection from another box's output slot, or from which a connection leaves to
@@ -28,10 +31,13 @@ public:
     qreal dist() const;
     void setDist(const qreal &dist);
 
-private:
-    QString m_name;  // The name of this slot
+    DiagramBox *box() const;
+    void setBox(DiagramBox *box);
+
 protected:
-    qreal m_dist;    // Distance to the mouse (used to highlight the slot when mouse approach)
+    QString m_name;    // The name of this slot
+    qreal m_dist;      // Distance to the mouse (used to highlight the slot when mouse approach)
+    DiagramBox *m_box; // The DiagramBox that is associated with this Slot
 };
 
 #endif // SLOT_H

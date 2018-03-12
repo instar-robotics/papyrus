@@ -127,12 +127,13 @@ void XmlScriptReader::readScript()
                         endPoint.ry() += target->boundingRect().bottom() / 2;
 
                         // TODO: create a function to "add an arrow" instead of doing this
+                        // TODO : if still using this snippet, implement issue #2 to be able to set FROM and TO
                         Arrow *arrow = new Arrow(QLineF(startPoint, endPoint));
                         // Link the newly-created Arrow with its corresponding DiagramBoxes
                         origin->addStartLine(arrow);
                         target->addEndLine(arrow);
-                        arrow->setFrom(origin);
-                        arrow->setTo(target);
+//                        arrow->setFrom(origin);
+//                        arrow->setTo(target);
 
                         scene->addItem(arrow);
                     }

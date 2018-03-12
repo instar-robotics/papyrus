@@ -34,3 +34,13 @@ void Slot::setDist(const qreal &dist)
 {
     m_dist = dist;
 }
+
+DiagramBox *Slot::box() const
+{
+    return m_box;
+}
+
+void Slot::setBox(DiagramBox *box)
+{
+    m_box = box;
+}

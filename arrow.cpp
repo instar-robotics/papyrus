@@ -42,14 +42,14 @@ void Arrow::updatePosition(QPointF newPoint, bool isStartPoint)
     setLine(QLineF(p1, p2));
 }
 
-void Arrow::setFrom(OutputSlot *box)
+void Arrow::setFrom(OutputSlot *outputSlot)
 {
-    m_from = box;
+    m_from = outputSlot;
 }
 
-void Arrow::setTo(InputSlot *box)
+void Arrow::setTo(InputSlot *inputSlot)
 {
-    m_to = box;
+    m_to = inputSlot;
 }
 
 QPainterPath Arrow::shape() const
@@ -135,19 +135,15 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
 
         // Create the points for the arrow head
         QPointF headCenter = (c1 + c2) / 2;
-        headCenter.ry() += 47;
-//        QPointF arrowP1 = line().p2() + QPointF(sin(angle + M_PI / 4) * arrowSize,
+        headCenter.ry() += 47; // align with the bezier curve
         QPointF arrowP1 = headCenter + QPointF(sin(angle + M_PI / 4) * arrowSize,
                                                 cos(angle + M_PI / 4) * arrowSize);
 
-//        QPointF arrowP2 = line().p2() + QPointF(sin(angle + M_PI - M_PI / 2) * arrowSize,
         QPointF arrowP2 = headCenter + QPointF(sin(angle + M_PI - M_PI / 2) * arrowSize,
                                                 cos(angle + M_PI - M_PI / 2) * arrowSize);
 
 
-//        arrowHead << line().p2() << arrowP1 << arrowP2;
         arrowHead << headCenter << arrowP1 << arrowP2;
-//        painter->drawLine(QLineF(line().p2(), arrowP2));
     }
 
     painter->drawPolygon(arrowHead);

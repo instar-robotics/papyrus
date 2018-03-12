@@ -80,7 +80,7 @@ void Script::save()
     stream.writeTextElement("name", name());     // Write the name of the script
     stream.writeStartElement("functions");
 
-    // Traverse all items in the view and store them
+    // Traverse all items in the scene and store them
     foreach (QGraphicsItem *i, m_scene->items()) {
         // For some reasons, it fails with 'qgraphicsitem_cast' even though 'type()' is reimplemented
         DiagramBox *item = dynamic_cast<DiagramBox *>(i);
@@ -124,10 +124,13 @@ void Script::save()
         stream.writeTextElement("description", descriptionFile);
 
         // If this function has its output connect with some other functions, insert them
+        // TODO : implement issue #2 and then check
+        /*
         foreach (Arrow *link, item->startLines()) {
             QUuid targetId = link->to()->uuid();
             stream.writeTextElement("link", targetId.toString());
         }
+        //*/
 
         stream.writeEndElement(); // function
     }

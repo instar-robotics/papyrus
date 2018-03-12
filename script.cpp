@@ -106,7 +106,23 @@ void Script::save()
         stream.writeStartElement("inputs");
         foreach (InputSlot *inputSlot, inputSlots) {
             stream.writeStartElement("input");
+            stream.writeAttribute("type", "TODO");
+            stream.writeAttribute("anchor", "true/false");
+
             stream.writeTextElement("name", inputSlot->name());
+
+            stream.writeStartElement("links");
+            // Should loop for each connection
+            stream.writeStartElement("link");
+            stream.writeAttribute("secondary", "true/false");
+            stream.writeAttribute("sparse", "true/false");
+            stream.writeTextElement("weight", "1.0");
+            stream.writeTextElement("from", "UUID");
+            stream.writeTextElement("connectivity", "TODO");
+            stream.writeTextElement("operator", "multiplicator/addition/etc");
+            stream.writeEndElement(); // link
+
+            stream.writeEndElement(); // links
             stream.writeEndElement(); // input
         }
 

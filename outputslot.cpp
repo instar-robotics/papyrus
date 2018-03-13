@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 #include <QDebug>
+#include <QGraphicsView>
+#include <diagramview.h>
 
 OutputSlot::OutputSlot() : Slot(), m_isDrawingLine(false)
 {
@@ -63,12 +65,55 @@ QRectF OutputSlot::boundingRect() const
     return QRectF(-5, -5, 10, 10);
 }
 
+/**
+ * @brief OutputSlot::mousePressEvent disable the RubberBang drag mode for the scene during the
+ * creation of the link
+ * @param evt
+ */
 void OutputSlot::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
-
     m_isDrawingLine = true;
 
     QGraphicsItem::mousePressEvent(evt);
+}
+
+/**
+ * @brief OutputSlot::hoverEnterEvent deactivates the rubber band selection of the view(s) when
+ * the cursor hovers an OuputSlot (so that when clicking to create a link doesn not create a
+ * selection box)
+ * @param evt
+ */
+void OutputSlot::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
+{
+    QList<QGraphicsView *> views = scene()->views();
+
+    foreach (QGraphicsView *view, views) {
+        // Change the view's drag mode to NoDrag only if it's a DiagramView (to prevent messing with
+        // other views, like the minimap, etc.)
+        DiagramView *view_ = dynamic_cast<DiagramView *>(view);
+        if (view_ != NULL) {
+            view_->setDragMode(QGraphicsView::NoDrag);
+        }
+    }
+}
+
+/**
+ * @brief OutputSlot::hoverLeaveEvent re-activate the rubber band selection of the views when the
+ * cursor hovers out of an output slot, to restore the rubber band selection mode
+ * @param evt
+ */
+void OutputSlot::hoverLeaveEvent(QGraphicsSceneHoverEvent *evt)
+{
+    QList<QGraphicsView *> views = scene()->views();
+
+    foreach (QGraphicsView *view, views) {
+        // Change the view's drag mode to rubber band only if it's a DiagramView (to prevent messing
+        // with other views, like the minimap, etc.)
+        DiagramView *view_ = dynamic_cast<DiagramView *>(view);
+        if (view_ != NULL) {
+            view_->setDragMode(QGraphicsView::RubberBandDrag);
+        }
+    }
 }
 
 bool OutputSlot::isDrawingLine() const

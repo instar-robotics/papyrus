@@ -31,6 +31,8 @@ public:
     QRectF boundingRect() const override;
 
     void mousePressEvent(QGraphicsSceneMouseEvent *evt);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *evt);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *evt);
 
     bool isDrawingLine() const;
     void setIsDrawingLine(bool isDrawingLine);

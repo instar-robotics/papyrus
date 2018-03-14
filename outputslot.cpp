@@ -7,6 +7,7 @@
 #include <QStyleOptionGraphicsItem>
 #include <QDebug>
 #include <QGraphicsView>
+#include <diagramscene.h>
 #include <diagramview.h>
 
 OutputSlot::OutputSlot() : Slot(), m_isDrawingLine(false)
@@ -32,6 +33,13 @@ void OutputSlot::addOutput(Arrow *output)
     m_outputs.insert(output);
 }
 
+/**
+ * @brief OutputSlot::paint the output slots are drawn bigger as the cursor nears them, provided
+ * the user is not in the process of creating a link
+ * @param painter
+ * @param option
+ * @param widget
+ */
 void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(widget);
@@ -49,10 +57,21 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         width += 1;
     }
 
-    // Make the slot bigger when the mouse is near it
-    qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
-    rx += pow(sizeOffset, 2) / 6;
-    ry += pow(sizeOffset, 2) / 6;
+    QGraphicsScene *scene_ = scene();
+    DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene_);
+
+    if (dscene == NULL) {
+        qFatal("Could not cast the scene into a DiagramScene!");
+    }
+
+    // Change the output slot's size only if not drawing a line
+    if (dscene->line() == NULL) {
+        // Make the slot bigger when the mouse is near it
+        qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
+
+        rx += pow(sizeOffset, 2) / 6;
+        ry += pow(sizeOffset, 2) / 6;
+    }
 
     pen.setWidth(width);
     painter->setPen(pen);

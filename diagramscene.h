@@ -42,6 +42,8 @@ public:
 
     bool leftBtnDown() const;
 
+    QGraphicsLineItem *line() const;
+
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
 
@@ -61,14 +63,12 @@ protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
 
 private:
-    //QString *sceneName;
     bool m_leftBtnDown;
     bool middleBtnIsDown;
     bool m_shouldDrawGrid;   // Whether to draw the grid or not
     int m_gridSize;          // Size (in px) of the grid
-    QGraphicsLineItem *line; // The current line being drawn while clicking
-//    DiagramBox *box;         // The current box from which the current line originates
-    OutputSlot *m_oSlot;      // The slot from which the line being drawn originates
+    QGraphicsLineItem *m_line; // The current line being drawn while clicking
+    OutputSlot *m_oSlot;     // The slot from which the line being drawn originates
     Script *m_script;        // The script to which this scene is associated
 
 signals:

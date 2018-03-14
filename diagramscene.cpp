@@ -21,7 +21,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             middleBtnIsDown(false),
                                             m_shouldDrawGrid(true),
                                             m_gridSize(35),
-                                            line(NULL),
+                                            m_line(NULL),
                                             m_oSlot(NULL),
 //                                            box(NULL),
                                             m_script(NULL)
@@ -31,7 +31,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
 DiagramScene::~DiagramScene()
 {
-    delete line;
+    delete m_line;
     delete m_oSlot;
 //    delete box;
 }
@@ -126,9 +126,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 
             if (m_oSlot != NULL) {
                 QPointF startPoint = m_oSlot->scenePos();
-                line = new QGraphicsLineItem(QLineF(startPoint, evt->scenePos()));
-                line->setPen(QPen(Qt::black, 1, Qt::DashLine));
-                addItem(line);
+                m_line = new QGraphicsLineItem(QLineF(startPoint, evt->scenePos()));
+                m_line->setPen(QPen(Qt::black, 1, Qt::DashLine));
+                addItem(m_line);
                 updateSceneRect();
             }
         }
@@ -181,9 +181,9 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
     invalidate(selectFilter);
 
     // Select only items in the visible rectangle
-    if (m_leftBtnDown && line != 0) {
-        QLineF newLine(line->line().p1(), evt->scenePos());
-        line->setLine(newLine);
+    if (m_leftBtnDown && m_line != 0) {
+        QLineF newLine(m_line->line().p1(), evt->scenePos());
+        m_line->setLine(newLine);
     }
 
     QGraphicsScene::mouseMoveEvent(evt);
@@ -201,8 +201,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
         m_leftBtnDown = false;
 
         // Remove temporary line if we were drawing one (click initiated on an output slot)
-        if (line != 0) {
-            removeItem(line);
+        if (m_line != 0) {
+            removeItem(m_line);
 
             // Check if we have released on top of an input slot and create an Arrow if so
             InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(evt->scenePos(), QTransform()));
@@ -211,7 +211,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                 // If we have released on top on something, create an Arrow between the two slots
                 QPointF endPoint = maybeSlot->scenePos();
 
-                Arrow *newLine = new Arrow(QLineF(line->line().p1(), endPoint));
+                Arrow *newLine = new Arrow(QLineF(m_line->line().p1(), endPoint));
                 m_oSlot->addOutput(newLine);
                 maybeSlot->addInput(newLine);
                 newLine->setFrom(m_oSlot);
@@ -220,8 +220,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                 // TODO: set script status modified
             }
 
-            delete line;
-            line = 0;
+            delete m_line;
+            m_line = 0;
         }
 
         m_oSlot = 0;
@@ -480,6 +480,11 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
     }
 
     painter->drawPoints(dots.data(), dots.size());
+}
+
+QGraphicsLineItem *DiagramScene::line() const
+{
+    return m_line;
 }
 
 bool DiagramScene::leftBtnDown() const

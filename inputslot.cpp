@@ -1,9 +1,12 @@
 #include "inputslot.h"
 
+#include <cmath>
+
 #include <QPainter>
 #include <QDebug>
 #include <QStyle>
 #include <QStyleOptionGraphicsItem>
+#include <diagramscene.h>
 
 InputSlot::InputSlot() : Slot()
 {
@@ -48,6 +51,13 @@ void InputSlot::addInput(Arrow *input)
     m_inputs.insert(input);
 }
 
+/**
+ * @brief InputSlot::paint the input slots are drawn bigger when the mouse nears them, and it is
+ * currently drawing a link
+ * @param painter
+ * @param option
+ * @param widget
+ */
 void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
@@ -57,14 +67,35 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     qreal width = 1.5;
 //    QFont font = painter->font();
 
+    qreal cx = 0;
+    qreal cy = 0;
+    qreal rx = 5;
+    qreal ry = 5;
+
     if (option->state & QStyle::State_MouseOver) {
         width += 1;
+    }
+
+    QGraphicsScene *scene_ = scene();
+    DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene_);
+
+    if (dscene == NULL) {
+        qFatal("Could not cast the scene into a DiagramScene!");
+    }
+
+    // Change the output slot's size only if drawing a line
+    if (dscene->line() != NULL) {
+        // Make the slot bigger when the mouse is near it
+        qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
+
+        rx += pow(sizeOffset, 2) / 6;
+        ry += pow(sizeOffset, 2) / 6;
     }
 
     pen.setWidth(width);
     painter->setPen(pen);
 
-    painter->drawEllipse(QPointF(0, 0), 5, 5);
+    painter->drawEllipse(QPointF(cx, cy), rx, ry);
 }
 
 QRectF InputSlot::boundingRect() const

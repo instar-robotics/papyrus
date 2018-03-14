@@ -164,13 +164,19 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
     QGraphicsScene::mousePressEvent(evt);
 }
 
+/**
+ * @brief DiagramScene::mouseMoveEvent update the "dist" member of the slots that are close to the
+ * mouse, so that they can grow accordingly when trying to create a new link, also update the link's
+ * line position (according to mouse movement) when creating a link.
+ * @param evt
+ */
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
     QPointF p = evt->scenePos();
     QRectF selectFilter(p.x() - 200, p.y() - 200, 400, 400);
 
     foreach (QGraphicsItem *item, items(selectFilter)) {
-        OutputSlot *oSlot = dynamic_cast<OutputSlot *>(item);
+        Slot *oSlot = dynamic_cast<Slot *>(item);
         if (oSlot != NULL) {
             QPointF oCenter = oSlot->scenePos();
             qreal dist = (p - oCenter).manhattanLength();

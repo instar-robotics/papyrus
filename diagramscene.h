@@ -4,14 +4,16 @@
 #include "script.h"
 #include "outputslot.h"
 #include "inputslot.h"
+//#include "papyruswindow.h"
 
 #include <QGraphicsScene>
 #include <diagrambox.h>
 #include <arrow.h>
 #include <QUuid>
 
-// Deferred declaration because of recursive include
+// Forward declaration because of recursive include
 class Script;
+class PapyrusWindow;
 
 class DiagramScene : public QGraphicsScene
 {
@@ -44,6 +46,8 @@ public:
 
     QGraphicsLineItem *line() const;
 
+    PapyrusWindow *mainWindow() const;
+
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
     void onOkBtnClicked(bool);
@@ -65,6 +69,7 @@ protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
 
 private:
+    PapyrusWindow *m_mainWindow; // A pointer to the main Papyrus window widget
     bool m_leftBtnDown;
     bool middleBtnIsDown;
     bool m_shouldDrawGrid;   // Whether to draw the grid or not

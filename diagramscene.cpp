@@ -4,6 +4,7 @@
 #include "ui_papyruswindow.h"
 #include "constants.h"
 #include "slot.h"
+#include "helpers.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -18,6 +19,7 @@
 #include <QDebug>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
+                                            m_mainWindow(NULL),
                                             m_leftBtnDown(false),
                                             middleBtnIsDown(false),
                                             m_shouldDrawGrid(true),
@@ -26,20 +28,9 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_oSlot(NULL),
                                             m_script(NULL)
 {
-    // Get the main window to access the properties panel
-    PapyrusWindow *mainWindow = NULL;
+    m_mainWindow = getMainWindow();
 
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
-            mainWindow = mW;
-            break;
-        }
-    }
-
-    if (mainWindow == NULL)
-        qFatal("Impossible to fetch the main window!");
-
-    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+    PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
 
     connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
     connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
@@ -48,9 +39,9 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
 DiagramScene::~DiagramScene()
 {
+    delete m_mainWindow;
     delete m_line;
     delete m_oSlot;
-//    delete box;
 }
 
 // TODO: shouldn't this become addBox(DiagramBox *) rather?
@@ -83,19 +74,9 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
  */
 void DiagramScene::updateSceneRect()
 {
-    // First, get the main window
-    PapyrusWindow *mainWindow = NULL;
-
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
-            mainWindow = mW;
-            break;
-        }
-    }
-
-    if (mainWindow) {
+    if (m_mainWindow) {
         // Now get the tab widget's size: this will be the minimum size we want
-        QSize widgetSize = mainWindow->getUi()->tabWidget->size();
+        QSize widgetSize = m_mainWindow->getUi()->tabWidget->size();
 
         // Get the bounding rect of all items
         QRectF bounds = itemsBoundingRect();
@@ -511,6 +492,11 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
     painter->drawPoints(dots.data(), dots.size());
 }
 
+PapyrusWindow *DiagramScene::mainWindow() const
+{
+    return m_mainWindow;
+}
+
 /**
  * @brief DiagramScene::onSelectionChanged handle selection changed from the scene, for instance
  * how the fact to display a selected box or link's properties
@@ -519,20 +505,7 @@ void DiagramScene::onSelectionChanged()
 {
     QList<QGraphicsItem *> sItems = selectedItems();
 
-    // Get the main window to access the properties panel
-    PapyrusWindow *mainWindow = NULL;
-
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
-            mainWindow = mW;
-            break;
-        }
-    }
-
-    if (mainWindow == NULL)
-        qFatal("Impossible to fetch the main window!");
-
-    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+    PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
 
     if (sItems.count() == 0) {
         // Clears the PropertiesPanel is no items are selected
@@ -602,24 +575,11 @@ void DiagramScene::toggleDisplayGrid(bool shouldDraw)
     update(sceneRect());
 }
 
-void DiagramScene::onOkBtnClicked(bool isClicked)
+void DiagramScene::onOkBtnClicked(bool)
 {
     QList<QGraphicsItem *> sItems = selectedItems();
 
-    // Get the main window to access the properties panel
-    PapyrusWindow *mainWindow = NULL;
-
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
-            mainWindow = mW;
-            break;
-        }
-    }
-
-    if (mainWindow == NULL)
-        qFatal("Impossible to fetch the main window!");
-
-    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+    PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
     if (propPanel == NULL)
         qFatal("Impossible to fetch the properties panel!");
 
@@ -637,20 +597,7 @@ void DiagramScene::onCancelBtnClicked(bool)
 {
     QList<QGraphicsItem *> sItems = selectedItems();
 
-    // Get the main window to access the properties panel
-    PapyrusWindow *mainWindow = NULL;
-
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
-            mainWindow = mW;
-            break;
-        }
-    }
-
-    if (mainWindow == NULL)
-        qFatal("Impossible to fetch the main window!");
-
-    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+    PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
     if (propPanel == NULL)
         qFatal("Impossible to fetch the properties panel!");
 

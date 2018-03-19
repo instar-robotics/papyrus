@@ -20,4 +20,7 @@ PapyrusWindow *getMainWindow();
 QString outputTypeToString(OutputType outputType);
 
 QString inputTypeToString(InputType inputType);
+
+bool canLink(OutputType from, InputType to);
+
 #endif // HELPERS_H

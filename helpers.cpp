@@ -67,3 +67,25 @@ QString inputTypeToString(InputType inputType)
         break;
     }
 }
+
+/**
+ * @brief canLink retursn whether the output type 'from' is compatible with input type 'to' in order
+ * to create a link
+ * @param from the @OutputType that we want to connect
+ * @param to the @InputType we want to connect to
+ * @return whether the connection is valid or not
+ */
+bool canLink(OutputType from, InputType to)
+{
+    // If the input slot expects a scalar, only a scalar can be connected to it
+    if (from == SCALAR && to == SCALAR_SCALAR)
+        return true;
+
+    // If the input slot expects a matrix with any kind of connectivity, then only a matrix can
+    // be connected
+    if (from == MATRIX && to != SCALAR_SCALAR)
+        return true;
+
+    // other cases are invalid
+    return false;
+}

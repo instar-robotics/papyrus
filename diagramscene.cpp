@@ -187,6 +187,25 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
     // Select only items in the visible rectangle
     if (m_leftBtnDown && m_line != 0) {
         QLineF newLine(m_line->line().p1(), evt->scenePos());
+        QPen currPen = m_line->pen();
+
+        InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(evt->scenePos(), QTransform()));
+        if (maybeSlot) {
+            if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
+                currPen.setColor(Qt::green);
+                currPen.setWidth(2);
+            } else {
+                currPen.setColor(Qt::red);
+                currPen.setWidth(1);
+            }
+
+        } else {
+            currPen.setWidth(1);
+            currPen.setColor(Qt::black);
+        }
+
+        m_line->setPen(currPen);
+
         m_line->setLine(newLine);
     }
 
@@ -212,16 +231,20 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(evt->scenePos(), QTransform()));
 
             if (maybeSlot) {
-                // If we have released on top on something, create an Arrow between the two slots
-                QPointF endPoint = maybeSlot->scenePos();
+                // If we have released on top on something, check that the types are compatible
+                if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
+                    QPointF endPoint = maybeSlot->scenePos();
 
-                Arrow *newLine = new Arrow(QLineF(m_line->line().p1(), endPoint));
-                m_oSlot->addOutput(newLine);
-                maybeSlot->addInput(newLine);
-                newLine->setFrom(m_oSlot);
-                newLine->setTo(maybeSlot);
-                addItem(newLine);
-                // TODO: set script status modified
+                    Arrow *newLine = new Arrow(QLineF(m_line->line().p1(), endPoint));
+                    m_oSlot->addOutput(newLine);
+                    maybeSlot->addInput(newLine);
+                    newLine->setFrom(m_oSlot);
+                    newLine->setTo(maybeSlot);
+                    addItem(newLine);
+                    // TODO: set script status modified
+                } else {
+                    emit displayStatusMessage("Invalid connection!");
+                }
             }
 
             delete m_line;

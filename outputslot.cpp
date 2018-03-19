@@ -104,6 +104,8 @@ void OutputSlot::mousePressEvent(QGraphicsSceneMouseEvent *evt)
  */
 void OutputSlot::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
 {
+    Q_UNUSED(evt);
+
     QList<QGraphicsView *> views = scene()->views();
 
     foreach (QGraphicsView *view, views) {
@@ -123,6 +125,8 @@ void OutputSlot::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
  */
 void OutputSlot::hoverLeaveEvent(QGraphicsSceneHoverEvent *evt)
 {
+    Q_UNUSED(evt);
+
     QList<QGraphicsView *> views = scene()->views();
 
     foreach (QGraphicsView *view, views) {

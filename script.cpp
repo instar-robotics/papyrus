@@ -2,6 +2,7 @@
 #include "papyruswindow.h"
 #include "ui_papyruswindow.h"
 #include "outputslot.h"
+#include "helpers.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -130,7 +131,13 @@ void Script::save()
 
         // Save output slot
         stream.writeStartElement("output");
+        stream.writeAttribute("type", outputTypeToString(item->outputType()).toLower());
         stream.writeTextElement("name", outputSlot->name());
+        // If the function outputs a matrix, write the dimensions
+        if (item->outputType() == MATRIX) {
+            stream.writeTextElement("rows", QString::number(item->rows()));
+            stream.writeTextElement("cols", QString::number(item->cols()));
+        }
         stream.writeEndElement(); // output
 
         stream.writeStartElement("position");

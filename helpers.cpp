@@ -20,3 +20,23 @@ PapyrusWindow *getMainWindow()
 
     return mainWindow;
 }
+
+/**
+ * @brief outputTypeToString converts an value from the enum OutputType to a QString, used to save
+ * script for instance
+ * @param outputType the value to convert
+ * @return
+ */
+QString outputTypeToString(OutputType outputType)
+{
+    switch (outputType) {
+    case SCALAR:
+        return QString("Scalar");
+        break;
+    case MATRIX:
+        return QString("Matrix");
+    default:
+        qFatal("Unsupported OutputType when converting to QString.");
+        break;
+    }
+}

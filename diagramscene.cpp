@@ -42,6 +42,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
     PropertiesPanel *propPanel = mainWindow->propertiesPanel();
 
     connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
+    connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
     connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 
@@ -626,6 +627,41 @@ void DiagramScene::onOkBtnClicked(bool isClicked)
         DiagramBox *selectedBox  = qgraphicsitem_cast<DiagramBox *>(sItems.at(0));
         if (selectedBox != NULL) {
             propPanel->updateBoxProperties(selectedBox);
+        } else {
+            qDebug() << "Non-box items selection are not yet supported";
+        }
+    }
+}
+
+void DiagramScene::onCancelBtnClicked(bool)
+{
+    QList<QGraphicsItem *> sItems = selectedItems();
+
+    // Get the main window to access the properties panel
+    PapyrusWindow *mainWindow = NULL;
+
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+            mainWindow = mW;
+            break;
+        }
+    }
+
+    if (mainWindow == NULL)
+        qFatal("Impossible to fetch the main window!");
+
+    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+    if (propPanel == NULL)
+        qFatal("Impossible to fetch the properties panel!");
+
+    if (sItems.count() == 1) {
+        DiagramBox *selectedBox  = qgraphicsitem_cast<DiagramBox *>(sItems.at(0));
+        if (selectedBox != NULL) {
+            // If the selected box outputs a matrix, then fetch the values for rows and cols
+            if (selectedBox->outputType() == MATRIX) {
+                propPanel->rowsInput()->setValue(selectedBox->rows());
+                propPanel->colsInput()->setValue(selectedBox->cols());
+            }
         } else {
             qDebug() << "Non-box items selection are not yet supported";
         }

@@ -47,6 +47,7 @@ public:
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
     void onOkBtnClicked(bool);
+    void onCancelBtnClicked(bool);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *evt);

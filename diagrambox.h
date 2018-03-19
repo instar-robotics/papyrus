@@ -2,6 +2,7 @@
 #define DIAGRAMBOX_H
 
 #include "arrow.h"
+#include "slot.h"
 #include "outputslot.h"
 #include "inputslot.h"
 
@@ -11,8 +12,10 @@
 #include <QIcon>
 #include <QUuid>
 
-class DiagramBox : public QGraphicsItem
+class DiagramBox : public QObject, public QGraphicsItem
 {
+    Q_OBJECT
+
 public:
     static int getType();
     // TODO: implement a copy constructor that should change the uuid and remove the connected arrows
@@ -55,6 +58,17 @@ public:
     std::set<InputSlot *> inputSlots() const;
     void setInputSlots(const std::set<InputSlot *> &inputSlots);
 
+    void mousePressEvent(QGraphicsSceneMouseEvent *evt);
+
+    OutputType outputType() const;
+    void setOutputType(const OutputType &outputType);
+
+    int rows() const;
+    void setRows(int rows);
+
+    int cols() const;
+    void setCols(int cols);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -74,6 +88,13 @@ private:
 
     OutputSlot *m_outputSlot;  // The output slot for this function's box
     std::set<InputSlot *> m_inputSlots; // The set of input slots for this function's box
+
+    OutputType m_outputType; // Output type for this box
+    int m_rows;              // Number of rows in the output (if matrix)
+    int m_cols;              // Number of columns in the output (if matrix)
+
+signals:
+    void boxSelected(DiagramBox *); // Fired when the box is clicked on (used ot signal PropertiesPanel)
 };
 
 #endif // DIAGRAMBOX_H

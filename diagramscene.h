@@ -71,8 +71,12 @@ private:
     OutputSlot *m_oSlot;     // The slot from which the line being drawn originates
     Script *m_script;        // The script to which this scene is associated
 
+private slots:
+    void onSelectionChanged();
+
 signals:
     void displayStatusMessage(const QString &text);
+
 };
 
 #endif // DIAGRAMSCENE_H

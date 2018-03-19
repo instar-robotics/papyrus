@@ -23,7 +23,8 @@
 
 PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWindow(parent),
                                                 ui(new Ui::PapyrusWindow),
-                                                m_activeScript(NULL)
+                                                m_activeScript(NULL),
+                                                m_propertiesPanel(NULL)
 {
     bool libraryParsingError = false;
 
@@ -80,11 +81,11 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
     QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
     libraryGroupBox->setLayout(vbox);
 
-    QGroupBox *propertiesGroupBox = new QGroupBox(tr("Properties"));
+    m_propertiesPanel = new PropertiesPanel;
 
     QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
     leftSplitter->addWidget(libraryGroupBox);
-    leftSplitter->addWidget(propertiesGroupBox);
+    leftSplitter->addWidget(m_propertiesPanel);
 
     ui->splitter->insertWidget(0, leftSplitter);
 
@@ -482,6 +483,16 @@ void PapyrusWindow::addScript(Script *script)
 Script *PapyrusWindow::activeScript() const
 {
     return m_activeScript;
+}
+
+PropertiesPanel *PapyrusWindow::propertiesPanel() const
+{
+    return m_propertiesPanel;
+}
+
+void PapyrusWindow::setPropertiesPanel(PropertiesPanel *propertiesPanel)
+{
+    m_propertiesPanel = propertiesPanel;
 }
 
 void PapyrusWindow::on_actionSave_Script_triggered()

@@ -1,6 +1,6 @@
 #include "slot.h"
 
-Slot::Slot(QGraphicsItem *parent) : QGraphicsItem(parent), m_dist(0)
+Slot::Slot(QGraphicsItem *parent) : QGraphicsItem(parent), m_dist(0), m_inputType(SCALAR_SCALAR)
 {
     m_name.clear();
 }
@@ -43,4 +43,14 @@ DiagramBox *Slot::box() const
 void Slot::setBox(DiagramBox *box)
 {
     m_box = box;
+}
+
+InputType Slot::inputType() const
+{
+    return m_inputType;
+}
+
+void Slot::setInputType(const InputType &type)
+{
+    m_inputType = type;
 }

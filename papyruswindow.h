@@ -4,6 +4,7 @@
 #include "librarypanel.h"
 #include "library.h"
 #include "script.h"
+#include "propertiespanel.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -42,6 +43,9 @@ public:
 
     Script *activeScript() const;
 
+    PropertiesPanel *propertiesPanel() const;
+    void setPropertiesPanel(PropertiesPanel *propertiesPanel);
+
 private:
     Ui::PapyrusWindow *ui;
     LibraryPanel *libraryPanel_;
@@ -51,6 +55,7 @@ private:
     Library *m_library;
     std::set<Script *> m_scripts;
     Script *m_activeScript;
+    PropertiesPanel *m_propertiesPanel;
 
 signals:
     void toggleDisplayGrid(bool);

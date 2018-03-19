@@ -1,7 +1,10 @@
 #include "diagrambox.h"
 #include "diagramscene.h"
+#include "papyruswindow.h"
 
 #include <iostream>
+
+#include <QApplication>
 #include <QPen>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
@@ -22,13 +25,16 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_uuid(uuid),
                                                 m_name(name),
                                                 m_icon(icon),
-                                                startLines_(),
-                                                endLines_(),
+                                                //startLines_(),
+                                                //endLines_(),
                                                 bWidth(175),
                                                 bHeight(70),
                                                 tHeight(20),
                                                 m_outputSlot(outputSlot),
-                                                m_inputSlots(inputSlots)
+                                                m_inputSlots(inputSlots),
+                                                m_outputType(MATRIX),
+                                                m_rows(0),
+                                                m_cols(0)
 {
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
@@ -57,6 +63,25 @@ DiagramBox::DiagramBox(const QString &name,
     g.rx() -= 5;
 
     g.ry() -= ((m_inputSlots.size() - 1) / 2) * s + offset;
+
+    // Get the PropertiesPanel and connect its display slot to this box's signal
+    PapyrusWindow *mainWindow = NULL;
+
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+            mainWindow = mW;
+            break;
+        }
+    }
+
+    if (mainWindow) {
+        PropertiesPanel *propertiesPanel = mainWindow->propertiesPanel();
+
+        if (propertiesPanel == NULL)
+            qFatal("PropertiesPanel doesn't exist!");
+
+        connect(this, SIGNAL(boxSelected(DiagramBox *)), propertiesPanel, SLOT(displayBoxProperties(DiagramBox *)));
+    }
 
     foreach (InputSlot *inputSlot, m_inputSlots) {
         inputSlot->setParentItem(this);
@@ -168,6 +193,36 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+int DiagramBox::cols() const
+{
+    return m_cols;
+}
+
+void DiagramBox::setCols(int cols)
+{
+    m_cols = cols;
+}
+
+int DiagramBox::rows() const
+{
+    return m_rows;
+}
+
+void DiagramBox::setRows(int rows)
+{
+    m_rows = rows;
+}
+
+OutputType DiagramBox::outputType() const
+{
+    return m_outputType;
+}
+
+void DiagramBox::setOutputType(const OutputType &outputType)
+{
+    m_outputType = outputType;
+}
+
 std::set<InputSlot *> DiagramBox::inputSlots() const
 {
     return m_inputSlots;
@@ -175,8 +230,17 @@ std::set<InputSlot *> DiagramBox::inputSlots() const
 
 void DiagramBox::setInputSlots(const std::set<InputSlot *> &inputSlots)
 {
-    qDebug() << "SET INPUT SLOTS";
     m_inputSlots = inputSlots;
+}
+
+/**
+ * @brief DiagramBox::mousePressEvent signals the PropertiesPanel when clicked on
+ * @param evt
+ */
+void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
+{
+    Q_UNUSED(evt);
+//    emit boxSelected(this);
 }
 
 OutputSlot *DiagramBox::outputSlot() const

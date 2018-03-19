@@ -23,10 +23,10 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_gridSize(35),
                                             m_line(NULL),
                                             m_oSlot(NULL),
-//                                            box(NULL),
                                             m_script(NULL)
 {
 
+    connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 
 DiagramScene::~DiagramScene()
@@ -486,6 +486,46 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
     }
 
     painter->drawPoints(dots.data(), dots.size());
+}
+
+/**
+ * @brief DiagramScene::onSelectionChanged handle selection changed from the scene, for instance
+ * how the fact to display a selected box or link's properties
+ */
+void DiagramScene::onSelectionChanged()
+{
+    QList<QGraphicsItem *> sItems = selectedItems();
+
+    // Get the main window to access the properties panel
+    PapyrusWindow *mainWindow = NULL;
+
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+            mainWindow = mW;
+            break;
+        }
+    }
+
+    if (mainWindow == NULL)
+        qFatal("Impossible to fetch the main window!");
+
+    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+
+    if (sItems.count() == 0) {
+        // Clears the PropertiesPanel is no items are selected
+        propPanel->boxFrame()->hide();
+        propPanel->linkFrame()->hide();
+        propPanel->okBtn()->hide();
+        propPanel->cancelBtn()->hide();
+    } else if (sItems.count() == 1) {
+        // Display a box's or link's properties only if there is only one selected
+        DiagramBox *selectedBox  = qgraphicsitem_cast<DiagramBox *>(sItems.at(0));
+        if (selectedBox != NULL) {
+            propPanel->displayBoxProperties(selectedBox);
+        } else {
+            qDebug() << "Non-box items selection are not yet supported";
+        }
+    }
 }
 
 QGraphicsLineItem *DiagramScene::line() const

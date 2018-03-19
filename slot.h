@@ -15,6 +15,18 @@ class DiagramBox;
  * This class is meant to be subclassed (see @InputSlot and @OutputSlot).
  */
 
+enum InputType {
+    SCALAR_SCALAR,
+    SIMPLE_MATRIX,
+    SCALAR_MATRIX,
+    MATRIX_MATRIX
+};
+
+enum OutputType {
+    SCALAR,
+    MATRIX
+};
+
 class Slot : public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -34,10 +46,14 @@ public:
     DiagramBox *box() const;
     void setBox(DiagramBox *box);
 
+    InputType inputType() const;
+    void setInputType(const InputType &type);
+
 protected:
     QString m_name;    // The name of this slot
     qreal m_dist;      // Distance to the mouse (used to highlight the slot when mouse approach)
     DiagramBox *m_box; // The DiagramBox that is associated with this Slot
+    InputType m_inputType;  // The type of the input
 };
 
 #endif // SLOT_H

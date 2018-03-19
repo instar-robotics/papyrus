@@ -1,4 +1,5 @@
 #include "propertiespanel.h"
+#include "helpers.h"
 
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -45,6 +46,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     // Parameterize the fields
     boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
     m_boxName->setAlignment(Qt::AlignCenter);
+    m_rowsInput->setMaximum(MAX_ROWS);
+    m_colsInput->setMaximum(MAX_COLS);
 
     // Add the fields to the layout
     boxLayout->addRow(m_boxName);

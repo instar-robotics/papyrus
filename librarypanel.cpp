@@ -3,6 +3,7 @@
 #include "function.h"
 #include "outputslot.h"
 #include "inputslot.h"
+#include "slot.h"
 
 #include <iostream>
 #include <QDragEnterEvent>
@@ -51,6 +52,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
 
     OutputSlot *outputSlot = item->output();
     QString outputName = outputSlot->name();
+    OutputType outputType = outputSlot->outputType();
 
     std::vector<InputSlot *>inputSlots = item->inputs();
     int nbInputs = inputSlots.size();
@@ -58,7 +60,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
 
-    dataStream << name << icon << descriptionFile << outputName << nbInputs;
+    dataStream << name << icon << descriptionFile << outputName << (qint32)outputType << nbInputs;
 
     // Add all input slots' name followed by the number of them (in order to retrieve them)
     foreach(InputSlot *i, inputSlots) {

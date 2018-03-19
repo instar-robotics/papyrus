@@ -89,7 +89,6 @@ private:
     OutputSlot *m_outputSlot;  // The output slot for this function's box
     std::set<InputSlot *> m_inputSlots; // The set of input slots for this function's box
 
-    OutputType m_outputType; // Output type for this box
     int m_rows;              // Number of rows in the output (if matrix)
     int m_cols;              // Number of columns in the output (if matrix)
 

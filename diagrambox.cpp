@@ -32,7 +32,6 @@ DiagramBox::DiagramBox(const QString &name,
                                                 tHeight(20),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
-                                                m_outputType(MATRIX),
                                                 m_rows(0),
                                                 m_cols(0)
 {
@@ -213,14 +212,24 @@ void DiagramBox::setRows(int rows)
     m_rows = rows;
 }
 
+/**
+ * @brief DiagramBox::outputType returns this function's output slot's output type, re-implemented
+ * for convenience.
+ * @return
+ */
 OutputType DiagramBox::outputType() const
 {
-    return m_outputType;
+    return m_outputSlot->outputType();
 }
 
+/**
+ * @brief DiagramBox::setOutputType sets this function's output slot's output type, re-implemented
+ * for convenience
+ * @param outputType
+ */
 void DiagramBox::setOutputType(const OutputType &outputType)
 {
-    m_outputType = outputType;
+    m_outputSlot->setOutputType(outputType);
 }
 
 std::set<InputSlot *> DiagramBox::inputSlots() const

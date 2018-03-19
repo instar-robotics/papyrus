@@ -27,7 +27,7 @@ private:
     void readName(Function *function);
     void readInputs(Function *function);
     void readParameterName(Slot *paramSlot);
-//    void readParameterType(Slot *paramSlot);
+    void readParameterType(OutputSlot *paramSlot);
     void readOutput(Function *function);
 };
 

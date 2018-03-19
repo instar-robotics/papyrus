@@ -10,14 +10,16 @@
 #include <diagramscene.h>
 #include <diagramview.h>
 
-OutputSlot::OutputSlot() : Slot(), m_isDrawingLine(false)
+OutputSlot::OutputSlot() : Slot(),
+                           m_isDrawingLine(false),
+                           m_outputType(MATRIX)
 {
 
 }
 
-OutputSlot::OutputSlot(QString &name) : Slot(name)
+OutputSlot::OutputSlot(QString &name) : OutputSlot()
 {
-
+    setName(name);
 }
 
 std::set<Arrow *> OutputSlot::outputs() const
@@ -166,4 +168,14 @@ void OutputSlot::updateArrows()
         // Set the new line for this Arrow
         arrow->setLine(QLineF(p1, p2));
     }
+}
+
+OutputType OutputSlot::outputType() const
+{
+    return m_outputType;
+}
+
+void OutputSlot::setOutputType(const OutputType &outputType)
+{
+    m_outputType = outputType;
 }

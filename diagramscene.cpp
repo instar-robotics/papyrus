@@ -3,6 +3,7 @@
 #include "papyruswindow.h"
 #include "ui_papyruswindow.h"
 #include "constants.h"
+#include "slot.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -331,11 +332,16 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QString name;
         QString descriptionFile;
         QString outputName;
+        OutputType outputType;
+        qint32 outputType_;
         QIcon icon;
         int nbInputs;
 
         // Then proceed to retrieve the other elements
-        dataStream >> name >> icon >> descriptionFile >> outputName >> nbInputs;
+        dataStream >> name >> icon >> descriptionFile >> outputName >> outputType_ >> nbInputs;
+
+        // Cast the integer to the Enum type (problem of operator '>>' with enums)
+        outputType = static_cast<OutputType>(outputType_);
 
         std::vector<QString> inputNames;
         for (int i = 0; i < nbInputs; i += 1) {
@@ -345,6 +351,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         }
 
         OutputSlot *outputSlot = new OutputSlot(outputName);
+        outputSlot->setOutputType(outputType);
 
         // TODO: join this with the previous foreach?
         std::set<InputSlot *> inputSlots;

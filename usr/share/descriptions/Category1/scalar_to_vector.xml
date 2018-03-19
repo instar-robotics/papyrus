@@ -9,6 +9,6 @@
     </inputs>
     <output>
         <name>vector</name>
-        <type>Vector</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+        <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
     </output>
 </description>

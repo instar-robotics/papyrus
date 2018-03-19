@@ -4,6 +4,7 @@
 #include "slot.h"
 
 #include <iostream>
+#include <QDebug>
 
 XmlDescriptionReader::XmlDescriptionReader(Category* category) : m_category(category)
 {
@@ -126,8 +127,8 @@ void XmlDescriptionReader::readParameterName(Slot *paramSlot)
     }
 }
 
-/*
-void XmlDescriptionReader::readParameterType(Slot *paramSlot)
+//*
+void XmlDescriptionReader::readParameterType(OutputSlot *paramSlot)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "type");
 
@@ -135,11 +136,9 @@ void XmlDescriptionReader::readParameterType(Slot *paramSlot)
 
     if (!paramName.isEmpty()) {
         if (paramName.toLower() == "scalar")
-            paramSlot->type = Scalar;
-        else if (paramName.toLower() == "vector")
-            paramSlot->type = Vector;
+            paramSlot->setOutputType(SCALAR);
         else if (paramName.toLower() == "matrix")
-            paramSlot->type = Matrix;
+            paramSlot->setOutputType(MATRIX);
         else {
             QString errStr = "Unknown input parameter type '";
             errStr += paramName;
@@ -163,8 +162,8 @@ void XmlDescriptionReader::readOutput(Function *function)
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readParameterName(outputSlot);
-//        else if (reader.name() == "type")
-//            readParameterType(outputSlot);
+        else if (reader.name() == "type")
+            readParameterType(outputSlot);
         else
             reader.skipCurrentElement();
     }

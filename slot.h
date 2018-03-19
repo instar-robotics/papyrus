@@ -46,14 +46,10 @@ public:
     DiagramBox *box() const;
     void setBox(DiagramBox *box);
 
-    InputType inputType() const;
-    void setInputType(const InputType &type);
-
 protected:
     QString m_name;    // The name of this slot
     qreal m_dist;      // Distance to the mouse (used to highlight the slot when mouse approach)
     DiagramBox *m_box; // The DiagramBox that is associated with this Slot
-    InputType m_inputType;  // The type of the input
 };
 
 #endif // SLOT_H

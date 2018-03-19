@@ -8,14 +8,16 @@
 #include <QStyleOptionGraphicsItem>
 #include <diagramscene.h>
 
-InputSlot::InputSlot() : Slot()
+InputSlot::InputSlot() : Slot(),
+                         m_allowMultiple(false),
+                         m_inputType(MATRIX_MATRIX)
 {
 
 }
 
-InputSlot::InputSlot(QString &name) : Slot(name), m_allowMultiple(false)
+InputSlot::InputSlot(QString &name) : InputSlot()
 {
-
+    setName(name);
 }
 
 bool InputSlot::allowMultiple() const
@@ -120,5 +122,15 @@ void InputSlot::updateArrows()
         // Set the new line for this Arrow
         arrow->setLine(QLineF(p1, p2));
     }
+}
+
+InputType InputSlot::inputType() const
+{
+    return m_inputType;
+}
+
+void InputSlot::setInputType(const InputType &inputType)
+{
+    m_inputType = inputType;
 }
 

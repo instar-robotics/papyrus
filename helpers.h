@@ -14,4 +14,6 @@
 PapyrusWindow *getMainWindow();
 
 QString outputTypeToString(OutputType outputType);
+
+QString inputTypeToString(InputType inputType);
 #endif // HELPERS_H

@@ -28,9 +28,14 @@ public:
     QRectF boundingRect() const override;
 
     void updateArrows();
+
+    InputType inputType() const;
+    void setInputType(const InputType &inputType);
+
 private:
     bool m_allowMultiple;
     std::set<Arrow *> m_inputs; // The set of arrows connected to this slot
+    InputType m_inputType;      // Indicate type and connectivity of this input
 signals:
     void slotFull(); // Fired when trying to add a second input to a slot that doesn't allow multiple
 };

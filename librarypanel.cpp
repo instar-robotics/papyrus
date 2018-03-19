@@ -62,9 +62,9 @@ void LibraryPanel::startDrag(Qt::DropActions)
 
     dataStream << name << icon << descriptionFile << outputName << (qint32)outputType << nbInputs;
 
-    // Add all input slots' name followed by the number of them (in order to retrieve them)
+    // Add all input slots' name and type
     foreach(InputSlot *i, inputSlots) {
-        dataStream << i->name();
+        dataStream << i->name() << (qint32)i->inputType();
     }
 
     QMimeData *mimeData = new QMimeData;

@@ -4,15 +4,15 @@
     <inputs>
         <input allowMultiple="true">
             <name>First Argument</name>
-            <type>Scalar</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+            <type>scalar_scalar</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
         <input allowMultiple="false">
             <name>Second</name>
-            <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+            <type>simple_matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
         <input allowMultiple="false">
             <name>Third</name>
-            <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+            <type>matrix_matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
     </inputs>
     <output>

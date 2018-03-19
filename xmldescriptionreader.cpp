@@ -82,7 +82,7 @@ void XmlDescriptionReader::readInputs(Function *function)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "inputs");
 
-    std::vector<InputSlot *> inputs;
+//    std::vector<InputSlot *> inputs;
     while (reader.readNextStartElement()) {
         if (reader.name() == "input") {
             InputSlot *inputSlot = new InputSlot;
@@ -96,8 +96,8 @@ void XmlDescriptionReader::readInputs(Function *function)
             while (reader.readNextStartElement()) {
                 if (reader.name() == "name")
                     readParameterName(inputSlot);
-//                else if (reader.name() == "type")
-//                    readParameterType(inputSlot);
+                else if (reader.name() == "type")
+                    readParameterType(inputSlot);
                 else {
                     reader.skipCurrentElement();
                 }
@@ -139,6 +139,35 @@ void XmlDescriptionReader::readParameterType(OutputSlot *paramSlot)
             paramSlot->setOutputType(SCALAR);
         else if (paramName.toLower() == "matrix")
             paramSlot->setOutputType(MATRIX);
+        else {
+            QString errStr = "Unknown ouput parameter type '";
+            errStr += paramName;
+            errStr += "'";
+
+            reader.raiseError(errStr);
+            reader.skipCurrentElement();
+        }
+    } else {
+        reader.raiseError("Empty parameter type are now allowed");
+        reader.skipCurrentElement();
+    }
+}
+
+void XmlDescriptionReader::readParameterType(InputSlot *paramSlot)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "type");
+
+    QString paramName = reader.readElementText();
+
+    if (!paramName.isEmpty()) {
+        if (paramName.toLower() == "scalar_scalar")
+            paramSlot->setInputType(SCALAR_SCALAR);
+        else if (paramName.toLower() == "simple_matrix")
+            paramSlot->setInputType(SIMPLE_MATRIX);
+        else if (paramName.toLower() == "scalar_matrix")
+            paramSlot->setInputType(SCALAR_MATRIX);
+        else if (paramName.toLower() == "matrix_matrix")
+            paramSlot->setInputType(MATRIX_MATRIX);
         else {
             QString errStr = "Unknown input parameter type '";
             errStr += paramName;

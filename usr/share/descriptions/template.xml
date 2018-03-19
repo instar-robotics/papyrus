@@ -4,11 +4,11 @@
     <inputs>
         <input allowMultiple="true">
             <name>Param 0</name>
-            <type>Scalar</type> <!-- Can be 'Scalar' or 'Matrix' -->
+            <type>scalar_scalar</type> <!-- Can be 'scalar_scalar', 'simpe_matrix', 'scalar_matrix' or 'matrix_matrix' -->
         </input>
         <input allowMultiple="false">
             <name>Param 1</name>
-            <type>Matrix</type> <!-- Can be 'Scalar' or 'Matrix' -->
+            <type>simple_matrix</type> <!-- Can be 'Scalar' or 'Matrix' -->
         </input>
     </inputs>
     <output>

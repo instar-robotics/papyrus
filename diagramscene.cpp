@@ -340,22 +340,35 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         // Cast the integer to the Enum type (problem of operator '>>' with enums)
         outputType = static_cast<OutputType>(outputType_);
 
-        std::vector<QString> inputNames;
+//        std::vector<QString> inputNames;
+        std::set<InputSlot *> inputSlots;
         for (int i = 0; i < nbInputs; i += 1) {
             QString iName;
-            dataStream >> iName;
-            inputNames.push_back(iName);
+            InputType inputType;
+            qint32 inputType_;
+            dataStream >> iName >> inputType_;
+
+            // Cast the integer input type into enum InputType
+            inputType = static_cast<InputType>(inputType_);
+
+            InputSlot *iSlot = new InputSlot(iName);
+            iSlot->setInputType(inputType);
+            inputSlots.insert(iSlot);
+
+//            inputNames.push_back(iName);
         }
 
         OutputSlot *outputSlot = new OutputSlot(outputName);
         outputSlot->setOutputType(outputType);
 
+        /*
         // TODO: join this with the previous foreach?
         std::set<InputSlot *> inputSlots;
         foreach (QString iName, inputNames) {
             InputSlot *iSlot = new InputSlot(iName);
             inputSlots.insert(iSlot);
         }
+        //*/
 
         DiagramBox *b = addBox(evt->scenePos(), name, icon, outputSlot, inputSlots);
         b->setDescriptionFile(descriptionFile);

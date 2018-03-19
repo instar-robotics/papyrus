@@ -107,7 +107,7 @@ void Script::save()
         stream.writeStartElement("inputs");
         foreach (InputSlot *inputSlot, inputSlots) {
             stream.writeStartElement("input");
-            stream.writeAttribute("type", "TODO");
+            stream.writeAttribute("type", inputTypeToString(inputSlot->inputType()));
             stream.writeAttribute("anchor", "true/false");
 
             stream.writeTextElement("name", inputSlot->name());

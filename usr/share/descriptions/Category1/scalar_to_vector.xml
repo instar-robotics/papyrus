@@ -4,7 +4,7 @@
     <inputs>
         <input allowMultiple="false">
             <name>scalar</name>
-            <type>Scalar</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+            <type>scalar_scalar</type>
         </input>
     </inputs>
     <output>

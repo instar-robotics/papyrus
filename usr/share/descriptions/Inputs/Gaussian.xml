@@ -4,11 +4,11 @@
     <inputs>
         <input allowMultiple="false">
             <name>Sigma</name>
-            <type>Scalar</type>
+            <type>scalar_scalar</type>
         </input>
         <input allowMultiple="false">
             <name>Amplitude</name>
-            <type>Scalar</type>
+            <type>scalar_scalar</type>
         </input>
     </inputs>
     <output>

@@ -26,7 +26,22 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_oSlot(NULL),
                                             m_script(NULL)
 {
+    // Get the main window to access the properties panel
+    PapyrusWindow *mainWindow = NULL;
 
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+            mainWindow = mW;
+            break;
+        }
+    }
+
+    if (mainWindow == NULL)
+        qFatal("Impossible to fetch the main window!");
+
+    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+
+    connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
     connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 
@@ -584,4 +599,35 @@ void DiagramScene::toggleDisplayGrid(bool shouldDraw)
 {
     m_shouldDrawGrid = shouldDraw;
     update(sceneRect());
+}
+
+void DiagramScene::onOkBtnClicked(bool isClicked)
+{
+    QList<QGraphicsItem *> sItems = selectedItems();
+
+    // Get the main window to access the properties panel
+    PapyrusWindow *mainWindow = NULL;
+
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+            mainWindow = mW;
+            break;
+        }
+    }
+
+    if (mainWindow == NULL)
+        qFatal("Impossible to fetch the main window!");
+
+    PropertiesPanel *propPanel = mainWindow->propertiesPanel();
+    if (propPanel == NULL)
+        qFatal("Impossible to fetch the properties panel!");
+
+    if (sItems.count() == 1) {
+        DiagramBox *selectedBox  = qgraphicsitem_cast<DiagramBox *>(sItems.at(0));
+        if (selectedBox != NULL) {
+            propPanel->updateBoxProperties(selectedBox);
+        } else {
+            qDebug() << "Non-box items selection are not yet supported";
+        }
+    }
 }

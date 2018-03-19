@@ -23,6 +23,8 @@ public:
     explicit PropertiesPanel(QWidget *parent = 0);
     ~PropertiesPanel();
 
+    void updateBoxProperties(DiagramBox *box);
+
     QFrame *boxFrame() const;
     void setBoxFrame(QFrame *boxFrame);
 

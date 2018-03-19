@@ -186,3 +186,21 @@ void PropertiesPanel::displayLinkProperties()
     // Show the link frame
     m_linkFrame->show();
 }
+
+/**
+ * @brief PropertiesPanel::updateBoxProperties is called when the user clicked "OK" after changing
+ * some properties of the selected box. It updates the selected box's properties based on the
+ * contents of the fields in the properties panel
+ * @param box
+ */
+void PropertiesPanel::updateBoxProperties(DiagramBox *box)
+{
+    if (box == NULL)
+        qFatal("Cannot update box's properties: none selected!");
+
+    // If the box's output is matrix, then set its rows and cols
+    if (box->outputType() == MATRIX) {
+        box->setRows(m_rowsInput->value());
+        box->setCols(m_colsInput->value());
+    }
+}

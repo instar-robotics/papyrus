@@ -82,16 +82,20 @@ void XmlDescriptionReader::readInputs(Function *function)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "inputs");
 
-//    std::vector<InputSlot *> inputs;
     while (reader.readNextStartElement()) {
         if (reader.name() == "input") {
             InputSlot *inputSlot = new InputSlot;
+            QXmlStreamAttributes attributes = reader.attributes();
 
-            if (reader.attributes().hasAttribute("allowMultiple") &&
-                reader.attributes().value("allowMultiple").toString() == "true")
-                inputSlot->setAllowMultiple(true);
+            if (!attributes.hasAttribute("multiple")) {
+                reader.raiseError(QObject::tr("Missing boolean attribute 'multiple'."));
+                continue;
+            }
+
+            if (attributes.value("multiple").toString() == "true")
+                inputSlot->setMultiple(true);
             else
-                inputSlot->setAllowMultiple(false);
+                inputSlot->setMultiple(false);
 
             while (reader.readNextStartElement()) {
                 if (reader.name() == "name")

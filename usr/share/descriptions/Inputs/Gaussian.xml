@@ -2,11 +2,11 @@
 <description>
     <name>Gaussian</name>
     <inputs>
-        <input allowMultiple="false">
+        <input multiple="false">
             <name>Sigma</name>
             <type>scalar_scalar</type>
         </input>
-        <input allowMultiple="false">
+        <input multiple="false">
             <name>Amplitude</name>
             <type>scalar_scalar</type>
         </input>

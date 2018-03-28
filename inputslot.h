@@ -17,8 +17,8 @@ public:
     explicit InputSlot();
     explicit InputSlot(QString &name);
 
-    bool allowMultiple() const;
-    void setAllowMultiple(bool allowMultiple);
+    bool multiple() const;
+    void setMultiple(bool allowMultiple);
 
     std::set<Arrow *> inputs() const;
 
@@ -33,7 +33,7 @@ public:
     void setInputType(const InputType &inputType);
 
 private:
-    bool m_allowMultiple;
+    bool m_multiple;
     std::set<Arrow *> m_inputs; // The set of arrows connected to this slot
     InputType m_inputType;      // Indicate type and connectivity of this input
 signals:

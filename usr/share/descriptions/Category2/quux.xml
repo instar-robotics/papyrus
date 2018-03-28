@@ -2,15 +2,15 @@
 <description>
     <name>Function name</name>
     <inputs>
-        <input allowMultiple="true">
+        <input multiple="true">
             <name>First Argument</name>
             <type>scalar_scalar</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
-        <input allowMultiple="false">
+        <input multiple="false">
             <name>Second</name>
             <type>simple_matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
-        <input allowMultiple="false">
+        <input multiple="false">
             <name>Third</name>
             <type>matrix_matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>

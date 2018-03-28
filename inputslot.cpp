@@ -9,7 +9,7 @@
 #include <diagramscene.h>
 
 InputSlot::InputSlot() : Slot(),
-                         m_allowMultiple(false),
+                         m_multiple(false),
                          m_inputType(MATRIX_MATRIX)
 {
 
@@ -20,14 +20,14 @@ InputSlot::InputSlot(QString &name) : InputSlot()
     setName(name);
 }
 
-bool InputSlot::allowMultiple() const
+bool InputSlot::multiple() const
 {
-    return m_allowMultiple;
+    return m_multiple;
 }
 
-void InputSlot::setAllowMultiple(bool allowMultiple)
+void InputSlot::setMultiple(bool allowMultiple)
 {
-    m_allowMultiple = allowMultiple;
+    m_multiple = allowMultiple;
 }
 
 std::set<Arrow *> InputSlot::inputs() const
@@ -45,7 +45,7 @@ void InputSlot::addInput(Arrow *input)
         return;
 
     // If the input slot is set not to allow multiple values, only add if the set is empty
-    if (!m_allowMultiple && !m_inputs.empty()) {
+    if (!m_multiple && !m_inputs.empty()) {
         emit slotFull();
         return;
     }

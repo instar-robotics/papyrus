@@ -2,11 +2,11 @@
 <description>
     <name>Name</name>
     <inputs>
-        <input allowMultiple="true">
+        <input multiple="true">
             <name>Param 0</name>
             <type>scalar_scalar</type> <!-- Can be 'scalar_scalar', 'simpe_matrix', 'scalar_matrix' or 'matrix_matrix' -->
         </input>
-        <input allowMultiple="false">
+        <input multiple="false">
             <name>Param 1</name>
             <type>simple_matrix</type> <!-- Can be 'Scalar' or 'Matrix' -->
         </input>

@@ -369,13 +369,16 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
             QString iName;
             InputType inputType;
             qint32 inputType_;
-            dataStream >> iName >> inputType_;
+            bool multiple;
+
+            dataStream >> iName >> inputType_ >> multiple;
 
             // Cast the integer input type into enum InputType
             inputType = static_cast<InputType>(inputType_);
 
             InputSlot *iSlot = new InputSlot(iName);
             iSlot->setInputType(inputType);
+            iSlot->setMultiple(multiple);
             inputSlots.insert(iSlot);
 
 //            inputNames.push_back(iName);

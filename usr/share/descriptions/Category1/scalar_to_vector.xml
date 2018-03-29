@@ -2,7 +2,7 @@
 <description>
     <name>Scalar to Vector</name>
     <inputs>
-        <input multiple="false">
+        <input multiple="true">
             <name>scalar</name>
             <type>scalar_scalar</type>
         </input>

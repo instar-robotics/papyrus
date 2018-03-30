@@ -243,10 +243,34 @@ void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots)
 
     while (reader.readNextStartElement()) {
         if (reader.name() == "input") {
+            QXmlStreamAttributes attributes = reader.attributes();
+
+            if (!attributes.hasAttribute("type") || !attributes.hasAttribute("multiple")) {
+                reader.raiseError(QObject::tr("Missing attributes 'multiple' or 'type' to '<input>'."));
+                reader.skipCurrentElement();
+                continue;
+            }
+
+            InputType iType = stringToInputType(attributes.value("type").toString());
+
+            bool multiple;
+            QString multipleStr = attributes.value("multiple").toString().toLower();
+            if (multipleStr == "true")
+                multiple = true;
+            else if (multipleStr == "false")
+                multiple = false;
+            else {
+                reader.raiseError(QObject::tr("Failed to parse boolean value for 'multiple'"));
+                reader.skipCurrentElement();
+                continue;
+            }
+
             while (reader.readNextStartElement()) {
                 if (reader.name() == "name") {
                     QString inputName = reader.readElementText();
                     InputSlot *inputSlot = new InputSlot(inputName);
+                    inputSlot->setMultiple(multiple);
+                    inputSlot->setInputType(iType);
                     inputSlots->insert(inputSlot);
                 } else
                     reader.skipCurrentElement();

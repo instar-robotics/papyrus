@@ -37,7 +37,8 @@ SOURCES += main.cpp\
     inputslot.cpp \
     outputslot.cpp \
     propertiespanel.cpp \
-    helpers.cpp
+    helpers.cpp \
+    link.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
@@ -57,7 +58,8 @@ HEADERS  += papyruswindow.h \
     inputslot.h \
     outputslot.h \
     propertiespanel.h \
-    helpers.h
+    helpers.h \
+    link.h
 
 FORMS    += papyruswindow.ui
 

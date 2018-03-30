@@ -30,8 +30,9 @@ private:
     void readScript();
     void readFunction(std::set<std::pair<QUuid, QUuid>> *links);
     void readFunctionName(QString *name);
+    void readFunctionSave(bool *save);
     void readInputSlots(std::set<InputSlot *> *inputSlots);
-    void readOutputSlot(OutputSlot *outputSlot);
+    void readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols);
     void readUUID(QUuid *uuid);
     void readPosition(QPointF *pos);
     void readLink(QUuid uuid, std::set<std::pair<QUuid, QUuid>> *links);

@@ -25,15 +25,14 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_uuid(uuid),
                                                 m_name(name),
                                                 m_icon(icon),
-                                                //startLines_(),
-                                                //endLines_(),
                                                 bWidth(175),
                                                 bHeight(70),
                                                 tHeight(20),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
                                                 m_rows(0),
-                                                m_cols(0)
+                                                m_cols(0),
+                                                m_saveActivity(false)
 {
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
@@ -192,6 +191,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+bool DiagramBox::saveActivity() const
+{
+    return m_saveActivity;
+}
+
+void DiagramBox::setSaveActivity(bool saveActivity)
+{
+    m_saveActivity = saveActivity;
+}
+
 int DiagramBox::cols() const
 {
     return m_cols;
@@ -199,6 +208,9 @@ int DiagramBox::cols() const
 
 void DiagramBox::setCols(int cols)
 {
+    if (cols < 0)
+        qFatal("Cannot have a negative number of columns");
+
     m_cols = cols;
 }
 
@@ -209,6 +221,9 @@ int DiagramBox::rows() const
 
 void DiagramBox::setRows(int rows)
 {
+    if (rows < 0)
+        qFatal("Cannot have a negative number of rows");
+
     m_rows = rows;
 }
 

@@ -1,4 +1,5 @@
 #include "xmlscriptreader.h"
+#include "helpers.h"
 
 #include <QDebug>
 #include <iostream>
@@ -157,8 +158,11 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
 
     QPointF pos;
     QString name;
+    bool save = false;
     QString descriptionFile;
     OutputSlot *outputSlot = new OutputSlot;
+    int rows = 0;
+    int cols = 0;
     std::set<InputSlot *> inputSlots;
     QUuid uuid;
 
@@ -166,10 +170,12 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readFunctionName(&name);
+        else if (reader.name() == "save")
+            readFunctionSave(&save);
         else if (reader.name() == "inputs")
             readInputSlots(&inputSlots);
         else if (reader.name() == "output")
-            readOutputSlot(outputSlot);
+            readOutputSlot(outputSlot, &rows, &cols);
         else if (reader.name() == "position")
             readPosition(&pos);
         else if (reader.name() == "link")
@@ -187,6 +193,9 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
     QIcon icon(descriptionFile);
     DiagramBox *b = m_script->scene()->addBox(pos, name, icon, outputSlot, inputSlots, uuid);
     b->setDescriptionFile(descriptionFile);
+    b->setSaveActivity(save);
+    b->setRows(rows);
+    b->setCols(cols);
 
     QString iconPath(descriptionFile);
     iconPath.replace(".xml", ".svg");
@@ -215,6 +224,19 @@ void XmlScriptReader::readFunctionName(QString *name)
     }
 }
 
+void XmlScriptReader::readFunctionSave(bool *save)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "save");
+
+    QString functionSave = reader.readElementText().toLower();
+
+    if (functionSave.isEmpty()) {
+        reader.raiseError(QObject::tr("Empty function save."));
+    } else {
+        *save = (functionSave == "true") ? true : false;
+    }
+}
+
 void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "inputs");
@@ -234,14 +256,25 @@ void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots)
     }
 }
 
-void XmlScriptReader::readOutputSlot(OutputSlot *outputSlot)
+void XmlScriptReader::readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols)
 {
-    Q_ASSERT(reader.isStartElement() && reader.name() == "output");
+    Q_ASSERT(reader.isStartElement() && reader.name() == "output" && reader.attributes().hasAttribute("type"));
+    OutputType oType = stringToOutputType(reader.attributes().value("type").toString());
+
+    outputSlot->setOutputType(oType);
+
+    QString name;
 
     while (reader.readNextStartElement()) {
-        if (reader.name() == "name") {
+        name = reader.name().toString();
+
+        if (name == "name") {
             QString outputName = reader.readElementText();
             outputSlot->setName(outputName);
+        } else if (name == "rows") {
+            *rows = reader.readElementText().toInt();
+        } else if (name == "cols") {
+            *cols = reader.readElementText().toInt();
         } else {
             reader.skipCurrentElement();
         }

@@ -10,11 +10,12 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_boxFrame(NULL),
                                                     m_boxName(NULL),
                                                     m_boxOutputType(NULL),
-                                                    m_linkFrame(NULL),
                                                     m_rowsInput(NULL),
                                                     m_colsInput(NULL),
+                                                    m_saveActivity(NULL),
                                                     m_okBtn(NULL),
-                                                    m_cancelBtn(NULL)
+                                                    m_cancelBtn(NULL),
+                                                    m_linkFrame(NULL)
 {
     setTitle(tr("Properties"));
 
@@ -42,6 +43,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_boxOutputType = new QLabel;
     m_rowsInput = new QSpinBox;
     m_colsInput = new QSpinBox;
+    m_saveActivity = new QCheckBox(tr("Save Activity"));
 
     // Parameterize the fields
     boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
@@ -54,6 +56,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     boxLayout->addRow(tr("Type:"), m_boxOutputType);
     boxLayout->addRow(tr("Rows:"), m_rowsInput);
     boxLayout->addRow(tr("Cols:"), m_colsInput);
+    boxLayout->addRow(m_saveActivity);
 
     m_boxFrame->setLayout(boxLayout);
 
@@ -74,6 +77,7 @@ PropertiesPanel::~PropertiesPanel()
     delete m_linkFrame;
     delete m_rowsInput;
     delete m_colsInput;
+    delete m_saveActivity;
     delete m_okBtn;
     delete m_cancelBtn;
 }
@@ -138,6 +142,16 @@ void PropertiesPanel::setCancelBtn(QPushButton *cancelBtn)
     m_cancelBtn = cancelBtn;
 }
 
+QCheckBox *PropertiesPanel::saveActivity() const
+{
+    return m_saveActivity;
+}
+
+void PropertiesPanel::setSaveActivity(QCheckBox *saveActivity)
+{
+    m_saveActivity = saveActivity;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -152,6 +166,9 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
     // Update the fields with the selected box
     m_boxName->setText("<b>" + box->name() + "</b>");
+
+    // Check the "save activity" box according to the box's flag
+    m_saveActivity->setChecked(box->saveActivity());
 
     OutputType oType = box->outputType();
 
@@ -206,4 +223,7 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
         box->setRows(m_rowsInput->value());
         box->setCols(m_colsInput->value());
     }
+
+    // Set the box's "save activity" flag
+    box->setSaveActivity(m_saveActivity->isChecked());
 }

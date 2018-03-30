@@ -42,6 +42,24 @@ QString outputTypeToString(OutputType outputType)
 }
 
 /**
+ * @brief stringToOutputType converts a QString to the enum OutputType. It is case-insensitive
+ * @param str the string to convert
+ * @return
+ */
+OutputType stringToOutputType(QString str)
+{
+    QString lower = str.toLower();
+
+    if (lower == "scalar")
+        return SCALAR;
+
+    if (lower == "matrix")
+        return MATRIX;
+
+    qFatal("Failed to parse string into OutputType");
+}
+
+/**
  * @brief inputTypeToString converts a value from the enum InputType to a QString, used to save
  * script for instance
  * @param inputType the value to convert
@@ -66,6 +84,30 @@ QString inputTypeToString(InputType inputType)
         qFatal("Unsupported InputType when converting to QString.");
         break;
     }
+}
+
+/**
+ * @brief stringToInputType converts a string to the enum InputType. It is case-insensitive.
+ * @param str the string to convert
+ * @return
+ */
+InputType stringToInputType(QString str)
+{
+    QString lower = str.toLower();
+
+    if (lower == "scalar_scalar")
+        return SCALAR_SCALAR;
+
+    if (lower == "simple_matrix")
+        return SIMPLE_MATRIX;
+
+    if (lower == "scalar_matrix")
+        return SCALAR_MATRIX;
+
+    if (lower == "matrix_matrix")
+        return MATRIX_MATRIX;
+
+    qFatal("Failed to parse string to InputType");
 }
 
 /**

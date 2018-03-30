@@ -69,6 +69,9 @@ public:
     int cols() const;
     void setCols(int cols);
 
+    bool saveActivity() const;
+    void setSaveActivity(bool saveActivity);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -91,6 +94,15 @@ private:
 
     int m_rows;              // Number of rows in the output (if matrix)
     int m_cols;              // Number of columns in the output (if matrix)
+
+    /*
+     * Whether or not this function saves its activity in memory. It defaults to false. Saving the
+     * activity is not free and should only be done for activities that you need to recover if
+     * the script crashes and the robot cannot rebuild from its environement.
+     * For instance the path integration, or a counter, or smth.
+     * This should normally only be scalar values or small matrices
+     */
+    bool m_saveActivity;
 
 signals:
     void boxSelected(DiagramBox *); // Fired when the box is clicked on (used ot signal PropertiesPanel)

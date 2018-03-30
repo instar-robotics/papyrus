@@ -102,6 +102,7 @@ void Script::save()
         stream.writeStartElement("function");
         stream.writeAttribute("uuid", uuid.toString());
         stream.writeTextElement("name", name);
+        stream.writeTextElement("save", item->saveActivity() ? "true" : "false");
 
         // Save input slots
         stream.writeStartElement("inputs");

@@ -18,8 +18,10 @@
 PapyrusWindow *getMainWindow();
 
 QString outputTypeToString(OutputType outputType);
+OutputType stringToOutputType(QString str);
 
 QString inputTypeToString(InputType inputType);
+InputType stringToInputType(QString str);
 
 bool canLink(OutputType from, InputType to);
 

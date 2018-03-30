@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QCheckBox>
 
 /**
  * @brief The PropertiesPanel class is used to display (and modify) the properties of selected
@@ -44,15 +45,19 @@ public:
     QPushButton *cancelBtn() const;
     void setCancelBtn(QPushButton *cancelBtn);
 
+    QCheckBox *saveActivity() const;
+    void setSaveActivity(QCheckBox *saveActivity);
+
 private:
     QFrame *m_boxFrame;        // Container for box's properties
     QLabel *m_boxName;         // Display the name of the box
     QLabel *m_boxOutputType;   // Display the box's output type (scalar, matrix)
-    QFrame *m_linkFrame;       // Container for link's properties
     QSpinBox *m_rowsInput;     // Spin box to input number of rows in the output (if matrix)
     QSpinBox *m_colsInput;     // Spin box to input number of columns in the output (if matrix)
+    QCheckBox *m_saveActivity; // To enable saving the activity of the box
     QPushButton *m_okBtn;      // Button used to validate changes in parameters
     QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
+    QFrame *m_linkFrame;       // Container for link's properties
 
 public slots:
     void displayBoxProperties(DiagramBox *box);

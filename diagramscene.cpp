@@ -27,7 +27,8 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_gridSize(35),
                                             m_line(NULL),
                                             m_oSlot(NULL),
-                                            m_script(NULL)
+                                            m_script(NULL),
+                                            m_displayLabels(false)
 {
     m_mainWindow = getMainWindow();
 
@@ -359,10 +360,17 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
     }
 }
 
+/**
+ * @brief DiagramScene::keyPressEvent handles key pressed
+ * - DEL: deletes the selected item(s)
+ * - T  : toggles displaying input slot's text labels
+ * @param evt
+ */
 void DiagramScene::keyPressEvent(QKeyEvent *evt)
 {
+    int key = evt->key();
     // Delete selected items when 'DELETE' is pressed
-    if (evt->key() == Qt::Key_Delete) {
+    if (key == Qt::Key_Delete) {
         QList<QGraphicsItem *> items = selectedItems();
 
         int nbItems = items.count();
@@ -375,6 +383,9 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
         // Set the associated script as modified if there was a deletion
         if (nbItems > 0)
             m_script->setStatusModified(true);
+    } else if (key == Qt::Key_T) {
+        m_displayLabels = !m_displayLabels;
+        update();
     }
 
     QGraphicsScene::keyPressEvent(evt);
@@ -480,6 +491,16 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
     }
 
     painter->drawPoints(dots.data(), dots.size());
+}
+
+bool DiagramScene::displayLabels() const
+{
+    return m_displayLabels;
+}
+
+void DiagramScene::setDisplayLabels(bool displayLabels)
+{
+    m_displayLabels = displayLabels;
 }
 
 PapyrusWindow *DiagramScene::mainWindow() const

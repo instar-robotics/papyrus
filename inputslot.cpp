@@ -134,6 +134,8 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->setPen(pen);
 
     painter->drawEllipse(QPointF(cx, cy), rx, ry);
+
+    m_label->setVisible(dscene->displayLabels());
 }
 
 QRectF InputSlot::boundingRect() const

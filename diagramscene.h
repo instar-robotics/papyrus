@@ -46,6 +46,9 @@ public:
 
     PapyrusWindow *mainWindow() const;
 
+    bool displayLabels() const;
+    void setDisplayLabels(bool displayLabels);
+
 public slots:
     void toggleDisplayGrid(bool shouldDraw);
     void onOkBtnClicked(bool);
@@ -75,6 +78,7 @@ private:
     QGraphicsLineItem *m_line; // The current line being drawn while clicking
     OutputSlot *m_oSlot;     // The slot from which the line being drawn originates
     Script *m_script;        // The script to which this scene is associated
+    bool m_displayLabels;    // Whether or not to display input slots's names
 
 private slots:
     void onSelectionChanged();

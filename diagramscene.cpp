@@ -194,34 +194,13 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
         }
     }
 
-    QGraphicsScene::mouseMoveEvent(evt);
-}
-/*
-void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
-{
-    // This is dirty because this arbitrarily invalidate the scene (it should handle this itself)
-    QPointF p = evt->scenePos();
-    QRectF selectFilter(p.x() - 200, p.y() - 200, 400, 400);
-
-
-
-    foreach (QGraphicsItem *item, items(selectFilter)) {
-        Slot *oSlot = dynamic_cast<Slot *>(item);
-        if (oSlot != NULL) {
-            QPointF oCenter = oSlot->scenePos();
-            qreal dist = (p - oCenter).manhattanLength();
-            oSlot->setDist(dist);
-        }
-    }
-
-    invalidate(selectFilter);
-
-    // Select only items in the visible rectangle
+    // Draw a dotted line if we are creating a Link
     if (m_leftBtnDown && m_line != 0) {
-        QLineF newLine(m_line->line().p1(), evt->scenePos());
+        QLineF newLine(m_line->line().p1(), mousePos);
         QPen currPen = m_line->pen();
 
-        InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(evt->scenePos(), QTransform()));
+        // Update line's color and thickness based on the validity of the Link
+        InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));
         if (maybeSlot) {
             if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
                 currPen.setColor(Qt::green);
@@ -230,20 +209,17 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
                 currPen.setColor(Qt::red);
                 currPen.setWidth(1);
             }
-
         } else {
             currPen.setWidth(1);
             currPen.setColor(Qt::black);
         }
 
         m_line->setPen(currPen);
-
         m_line->setLine(newLine);
     }
 
     QGraphicsScene::mouseMoveEvent(evt);
 }
-//*/
 
 /**
  * @brief DiagramScene::mouseReleaseEvent finalizes the creation of a link between some output

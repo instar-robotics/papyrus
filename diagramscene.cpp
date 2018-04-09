@@ -127,6 +127,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
             m_oSlot = dynamic_cast<OutputSlot *>(maybeItem);
 
             if (m_oSlot != NULL) {
+                // Display input slot's names when creating a link
+                m_displayLabels = true;
+
                 QPointF startPoint = m_oSlot->scenePos();
                 m_line = new QGraphicsLineItem(QLineF(startPoint, mousePos));
                 m_line->setPen(QPen(Qt::black, 1, Qt::DashLine));
@@ -218,6 +221,10 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
         // Remove temporary line if we were drawing one (click initiated on an output slot)
         if (m_line != 0) {
             removeItem(m_line);
+
+            // Hide the input slots' names when releasing the mouse if we were drawing a link
+            m_displayLabels = false;
+            update();
 
             // Check if we have released on top of an input slot and create an Arrow if so
             InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));

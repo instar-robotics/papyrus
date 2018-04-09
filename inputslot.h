@@ -2,13 +2,12 @@
 #define INPUTSLOT_H
 
 #include "slot.h"
-#include "arrow.h"
 
 #include <QString>
 #include <set>
 
 // Forward declaration here because "arrow.h" includes "inputslot.h"
-class Arrow;
+class Link;
 
 class InputSlot : public Slot
 {
@@ -20,14 +19,14 @@ public:
     bool multiple() const;
     void setMultiple(bool allowMultiple);
 
-    std::set<Arrow *> inputs() const;
+    std::set<Link *> inputs() const;
 
-    void addInput(Arrow *input);
+    void addInput(Link *input);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
 
-    void updateArrows();
+    void updateLinks();
 
     InputType inputType() const;
     void setInputType(const InputType &inputType);
@@ -37,7 +36,7 @@ public:
 
 private:
     bool m_multiple;
-    std::set<Arrow *> m_inputs; // The set of arrows connected to this slot
+    std::set<Link *> m_inputs; // The set of arrows connected to this slot
     InputType m_inputType;      // Indicate type and connectivity of this input
     bool m_canLink; // Indicate if this input can be linked to the current output when creating a Link
 signals:

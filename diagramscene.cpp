@@ -112,11 +112,13 @@ void DiagramScene::updateSceneRect()
  */
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
+    QPointF mousePos = evt->scenePos();
+
     if (evt->button() & Qt::LeftButton) {
         m_leftBtnDown = true;
 
         // Check if we have clicked on something
-        QGraphicsItem *maybeItem = itemAt(evt->scenePos(), QTransform());
+        QGraphicsItem *maybeItem = itemAt(mousePos, QTransform());
         if (!maybeItem) {
             updateSceneRect();
         } else {
@@ -125,40 +127,13 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 
             if (m_oSlot != NULL) {
                 QPointF startPoint = m_oSlot->scenePos();
-                m_line = new QGraphicsLineItem(QLineF(startPoint, evt->scenePos()));
+                m_line = new QGraphicsLineItem(QLineF(startPoint, mousePos));
                 m_line->setPen(QPen(Qt::black, 1, Qt::DashLine));
                 addItem(m_line);
                 updateSceneRect();
             }
         }
     }
-    /*
-    if (evt->button() & Qt::MiddleButton) {
-        middleBtnIsDown = true;
-
-        // Check if we have clicked on something
-        QGraphicsItem *maybeItem = itemAt(evt->scenePos(), QTransform());
-        if (!maybeItem) {
-            // If we clicked on empty space, add an item centered on the mouse cursor
-
-//            addBox(evt->scenePos());
-
-            updateSceneRect();
-        } else {
-            // If we clicked on an item, start drawing a line from the center of the item
-            QPointF startPoint = maybeItem->scenePos();
-            startPoint.ry() += maybeItem->boundingRect().bottom() / 2;
-            startPoint.rx() += maybeItem->boundingRect().right();
-
-            line = new QGraphicsLineItem(QLineF(startPoint,
-                                                     evt->scenePos()));
-            line->setPen(QPen(Qt::black, 1, Qt::DashLine));
-            box = qgraphicsitem_cast<DiagramBox *>(maybeItem);
-            addItem(line);
-            updateSceneRect();
-        }
-    }
-    //*/
 
     QGraphicsScene::mousePressEvent(evt);
 }
@@ -234,6 +209,8 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
  * @param evt
  */
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
+    QPointF mousePos = evt->scenePos();
+
     if (evt->button() == Qt::LeftButton) {
         m_leftBtnDown = false;
 
@@ -242,32 +219,17 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             removeItem(m_line);
 
             // Check if we have released on top of an input slot and create an Arrow if so
-            InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(evt->scenePos(), QTransform()));
+            InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));
 
             if (maybeSlot) {
                 // If we have released on top on something, check that the types are compatible
                 if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
-//                    QPointF endPoint = maybeSlot->scenePos();
+                    Link *zelda = new Link(m_oSlot, maybeSlot);
+                    addItem(zelda); // Important to add the Link to the scene first
+                    zelda->addLinesToScene(); // And then it's important to call this to add the segments to the scene
 
-                    /*
-                    Link *zelda = new Link();
-                    zelda->setFrom(m_oSlot);
-                    zelda->setTo(maybeSlot);
-                    m_oSlot->addOutput(zelda);
-                    addItem(zelda);
-
-                    qDebug() << "Link added";
-                    //*/
-
-                    /*
-                    Arrow *newLine = new Arrow(QLineF(m_line->line().p1(), endPoint));
-                    m_oSlot->addOutput(newLine);
-                    maybeSlot->addInput(newLine);
-                    newLine->setFrom(m_oSlot);
-                    newLine->setTo(maybeSlot);
-                    addItem(newLine);
-                    //*/
-                    // TODO: set script status modified
+                    emit displayStatusMessage(tr("New link created."));
+                    script()->setStatusModified(true);
                 } else {
                     emit displayStatusMessage("Invalid connection!");
                 }
@@ -278,43 +240,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
         }
 
         m_oSlot = 0;
-    }
-
-    if (evt->button() == Qt::MiddleButton) {
-        /*
-        middleBtnIsDown = false;
-
-        if (line != 0) {
-            removeItem(line);
-
-            // Check if we have released on top of an item
-            DiagramBox *maybeItem = qgraphicsitem_cast<DiagramBox *>(itemAt(evt->scenePos(), QTransform()));
-
-            if (maybeItem) {
-                // If we have released on top on something, create an Arrow between the two items
-                QPointF endPoint = maybeItem->scenePos();
-                endPoint.ry() += maybeItem->boundingRect().bottom() / 2;
-
-                // TODO: create a function to "add an arrow" instead of doing this
-                Arrow *finalLine = new Arrow(QLineF(line->line().p1(), endPoint));
-                // Link the newly-created Arrow with its corresponding DiagramBoxes
-                box->addStartLine(finalLine);
-                maybeItem->addEndLine(finalLine);
-                finalLine->setFrom(box);
-                finalLine->setTo(maybeItem);
-
-                addItem(finalLine);
-
-                // Set associated script as modified
-                m_script->setStatusModified(true);
-            }
-
-            // Delete the current line (whether or not we created the final line)
-            delete line;
-            line = 0;
-            box = 0;
-        }
-        //*/
     }
 
     updateSceneRect();
@@ -337,6 +262,7 @@ void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
         setBackgroundBrush(QBrush(QColor(220, 220, 220, 50)));
     } else {
         // EMIT SIGNAL TO STATUS MESSAGE BAR
+        emit displayStatusMessage(tr("Unknown MIME type received: ignoring."));
         evt->ignore();
     }
 }
@@ -389,7 +315,6 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         // Cast the integer to the Enum type (problem of operator '>>' with enums)
         outputType = static_cast<OutputType>(outputType_);
 
-//        std::vector<QString> inputNames;
         std::set<InputSlot *> inputSlots;
         for (int i = 0; i < nbInputs; i += 1) {
             QString iName;
@@ -607,16 +532,6 @@ Script *DiagramScene::script() const
 void DiagramScene::setScript(Script *script)
 {
     m_script = script;
-}
-
-/**
- * @brief Create a connection between a box' output slot and another box's input slot
- * @param from: the starting output slot
- * @param to: the target input slot
- */
-void DiagramScene::createLink(OutputSlot *from, InputSlot *to)
-{
-    qDebug() << "Should create link between" << from->name() << "and" << to->name();
 }
 
 int DiagramScene::gridSize() const

@@ -1,4 +1,5 @@
 #include "inputslot.h"
+#include "link.h"
 
 #include <cmath>
 
@@ -31,16 +32,16 @@ void InputSlot::setMultiple(bool allowMultiple)
     m_multiple = allowMultiple;
 }
 
-std::set<Arrow *> InputSlot::inputs() const
+std::set<Link *> InputSlot::inputs() const
 {
     return m_inputs;
 }
 
 /**
- * @brief Add a new input Arrow to this slot
+ * @brief Add a new input Link to this slot
  * @param input: the new input to add
  */
-void InputSlot::addInput(Arrow *input)
+void InputSlot::addInput(Link *input)
 {
     if (input == NULL)
         return;
@@ -96,7 +97,6 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             rx += pow(sizeOffset, 2) / 6;
             ry += pow(sizeOffset, 2) / 6;
 
-
             color = Qt::green;
             width += 1;
         }
@@ -124,21 +124,14 @@ QRectF InputSlot::boundingRect() const
 }
 
 /**
- * @brief InputSlot::updateArrows updates this input slot's connected Arrows's ending point,
+ * @brief InputSlot::updateLinks updates this input slot's connected Links's ending point,
  * so that the 'paint' function will draw the line at from the right position
  */
-void InputSlot::updateArrows()
+void InputSlot::updateLinks()
 {
-    QPointF p1, p2;
-    QLineF line;
-
-    foreach (Arrow *arrow, m_inputs) {
-        line = arrow->line();
-        p1 = line.p1(); // origin stays the same because we're moving the destination
-        p2 = scenePos(); // new destination of Arrow is this slot's position
-
-        // Set the new line for this Arrow
-        arrow->setLine(QLineF(p1, p2));
+    foreach(Link *link, m_inputs) {
+        link->updateLines();
+        link->update();
     }
 }
 

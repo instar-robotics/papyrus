@@ -177,10 +177,10 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         newEndPoint.ry() += boundingRect().height() / 2;
 
         // Prompt the output slot and all inputs slots to update their connected Arrows
-//        m_outputSlot->updateLinks();
-//        foreach (InputSlot *inputSlot, m_inputSlots) {
-//            inputSlot->updateArrows();
-//        }
+        m_outputSlot->updateLinks();
+        foreach (InputSlot *inputSlot, m_inputSlots) {
+            inputSlot->updateLinks();
+        }
 
         // Set the script to which this item's scene is associated as modified
         theScene->script()->setStatusModified(true);

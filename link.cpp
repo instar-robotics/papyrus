@@ -1,14 +1,22 @@
 #include "link.h"
 #include "diagrambox.h"
+#include "diagramscene.h"
 
 #include <QPainter>
+#include <QDebug>
+#include <QGraphicsScene>
+#include <QStyleOptionGraphicsItem>
 
-Link::Link(QGraphicsItem *parent) : QGraphicsItem(parent),
-                                    m_from(NULL),
-                                    m_to(NULL),
-                                    m_secondary(false)
+Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(parent),
+                                    m_from(f),
+                                    m_to(t),
+                                    m_secondary(checkIfSecondary())
 {
     m_uuid = QUuid::createUuid();
+
+    // Add ourselves as input and output to the corresponding slots
+    f->addOutput(this);
+    t->addInput(this);
 }
 
 Link::~Link()
@@ -30,15 +38,36 @@ QRectF Link::boundingRect() const
 
 void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    painter->drawLine(m_line.line());
-
-    if (m_secondary) {
-        painter->drawLine(m_leftSegment.line());
-        painter->drawLine(m_rightSegment.line());
+    if (!m_secondary) {
+        m_line.paint(painter, option, widget);
+    } else {
+        m_leftSegment.paint(painter, option, widget);
+        m_line.paint(painter, option, widget);
+        m_rightSegment.paint(painter, option, widget);
     }
+}
+
+/**
+ * @brief Link::addLinesToScene adds the segments that constitutes this Link to the scene.
+ * Unfortunately we need to have a separate function: it cannot be done in the constructor, because
+ * when we call new Link(from, to), the Link object is not yet added to the scene, so it cannot do
+ * it at this moment.
+ */
+void Link::addLinesToScene()
+{
+    DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
+    if (dscene == NULL)
+        qFatal("Could not cast scene in DiagramScene");
+
+    if (!m_secondary) {
+        dscene->addItem(&m_line);
+    } else {
+        dscene->addItem(&m_leftSegment);
+        dscene->addItem(&m_line);
+        dscene->addItem(&m_rightSegment);
+    }
+
+    updateLines();
 }
 
 QUuid Link::uuid() const
@@ -99,8 +128,9 @@ bool Link::checkIfSecondary()
     else if (m_from->box() == m_to->box()) {
         return true;
     }
-
-    qFatal("Problem when checking if secondary");
+    else {
+        return false;
+    }
 }
 
 void Link::updateLines()
@@ -109,8 +139,8 @@ void Link::updateLines()
     if (m_from == NULL || m_to == NULL)
         return;
 
-    QPointF orig = m_from->boundingRect().center();
-    QPointF end  = m_to->boundingRect().center();
+    QPointF orig = mapFromItem(m_from, m_from->boundingRect().center());
+    QPointF end  = mapFromItem(m_to, m_to->boundingRect().center());
 
     // Create just a single line when not secondary link
     if (!m_secondary) {
@@ -118,10 +148,10 @@ void Link::updateLines()
     } else {
         // When in secondary, we have to create two vertical lines
         QPointF one = orig;
-        one.ry() += 50;
+        one.ry() -= 50;
 
         QPointF two = end;
-        two.ry() += 50;
+        two.ry() -= 50;
 
         m_leftSegment.setLine(QLineF(two, end));
         m_rightSegment.setLine(QLineF(orig, one));

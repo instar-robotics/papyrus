@@ -168,19 +168,6 @@ void OutputSlot::updateLinks()
         link->updateLines();
         link->update();
     }
-    /*
-    QPointF p1, p2;
-    QLineF line;
-
-    foreach (Arrow *arrow, m_outputs) {
-        line = arrow->line();
-        p2 = line.p2(); // destination stays the same because we're moving the origin
-        p1 = scenePos(); // new origin of Arrow is this slot's position
-
-        // Set the new line for this Arrow
-        arrow->setLine(QLineF(p1, p2));
-    }
-    //*/
 }
 
 OutputType OutputSlot::outputType() const

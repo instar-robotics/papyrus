@@ -40,8 +40,6 @@ public:
     Script *script() const;
     void setScript(Script *script);
 
-    void createLink(OutputSlot *from, InputSlot *to);
-
     bool leftBtnDown() const;
 
     QGraphicsLineItem *line() const;

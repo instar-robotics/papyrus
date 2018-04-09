@@ -19,12 +19,16 @@ class Link : public QObject, public QGraphicsItem
     Q_OBJECT
 
 public:
-    explicit Link(QGraphicsItem *parent = 0);
+    explicit Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent = 0);
     ~Link();
 
 //    QPainterPath shape() const override;
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    void addLinesToScene();
+
+    void updateLines();
 
     QUuid uuid() const;
     void setUuid(const QUuid &uuid);
@@ -40,7 +44,6 @@ public:
 
 private:
     bool checkIfSecondary();
-    void updateLines();
 
     QUuid m_uuid;           // Unique identifier
     OutputSlot *m_from;     // The OutputSlot this link goes from

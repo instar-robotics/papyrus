@@ -2,7 +2,6 @@
 #define OUTPUTSLOT_H
 
 #include "slot.h"
-#include "arrow.h"
 
 #include <QString>
 #include <set>
@@ -13,8 +12,7 @@
  * to facilitate the creation of a link.
  */
 
-// Forward declaration here because "arrow.h" includes "outputslot.h"
-class Arrow;
+class Link;
 
 class OutputSlot : public Slot
 {
@@ -23,9 +21,9 @@ public:
     explicit OutputSlot();
     explicit OutputSlot(QString &name);
 
-    std::set<Arrow *> outputs() const;
+    std::set<Link *> outputs() const;
 
-    void addOutput(Arrow *output);
+    void addOutput(Link *output);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
@@ -37,13 +35,13 @@ public:
     bool isDrawingLine() const;
     void setIsDrawingLine(bool isDrawingLine);
 
-    void updateArrows();
+    void updateLinks();
 
     OutputType outputType() const;
     void setOutputType(const OutputType &outputType);
 
 private:
-    std::set<Arrow *> m_outputs; // The set of arrows which leaves this slot
+    std::set<Link *> m_outputs; // The set of arrows which leaves this slot
     bool m_isDrawingLine;        // Indicate if we are drawing an outgoing link
     OutputType m_outputType;     // Indicate whether this function (slot) outputs a matrix or scalar
 };

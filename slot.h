@@ -39,6 +39,7 @@ public:
     void setName(const QString &name);
 
     virtual QRectF boundingRect() const = 0;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) = 0;
 
     qreal dist() const;
     void setDist(const qreal &dist);

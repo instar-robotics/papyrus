@@ -10,6 +10,8 @@
 #include <diagramscene.h>
 #include <diagramview.h>
 
+#include "link.h"
+
 OutputSlot::OutputSlot() : Slot(),
                            m_isDrawingLine(false),
                            m_outputType(MATRIX)
@@ -22,12 +24,12 @@ OutputSlot::OutputSlot(QString &name) : OutputSlot()
     setName(name);
 }
 
-std::set<Arrow *> OutputSlot::outputs() const
+std::set<Link *> OutputSlot::outputs() const
 {
     return m_outputs;
 }
 
-void OutputSlot::addOutput(Arrow *output)
+void OutputSlot::addOutput(Link *output)
 {
     if (output == NULL)
         return;
@@ -75,6 +77,10 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         ry += pow(sizeOffset, 2) / 6;
     }
 
+    // Subtract the half the line's width to prevetn drawing outside the boudingRect
+    rx -= width / 2.0;
+    ry -= width / 2.0;
+
     pen.setWidth(width);
     painter->setPen(pen);
 
@@ -83,7 +89,8 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 QRectF OutputSlot::boundingRect() const
 {
-    return QRectF(-5, -5, 10, 10);
+    // Set to be the same size as the input slot, for arbitrary reason
+    return QRectF(-7.7, -7.7, 15.4, 15.4);
 }
 
 /**
@@ -106,8 +113,6 @@ void OutputSlot::mousePressEvent(QGraphicsSceneMouseEvent *evt)
  */
 void OutputSlot::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
 {
-    Q_UNUSED(evt);
-
     QList<QGraphicsView *> views = scene()->views();
 
     foreach (QGraphicsView *view, views) {
@@ -118,6 +123,8 @@ void OutputSlot::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
             view_->setDragMode(QGraphicsView::NoDrag);
         }
     }
+
+    Slot::hoverEnterEvent(evt);
 }
 
 /**
@@ -127,8 +134,6 @@ void OutputSlot::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
  */
 void OutputSlot::hoverLeaveEvent(QGraphicsSceneHoverEvent *evt)
 {
-    Q_UNUSED(evt);
-
     QList<QGraphicsView *> views = scene()->views();
 
     foreach (QGraphicsView *view, views) {
@@ -139,6 +144,8 @@ void OutputSlot::hoverLeaveEvent(QGraphicsSceneHoverEvent *evt)
             view_->setDragMode(QGraphicsView::RubberBandDrag);
         }
     }
+
+    Slot::hoverLeaveEvent(evt);
 }
 
 bool OutputSlot::isDrawingLine() const
@@ -152,11 +159,16 @@ void OutputSlot::setIsDrawingLine(bool isDrawingLine)
 }
 
 /**
- * @brief OutputSlot::updateArrows updates this output slot's connected Arrows's starting point,
- * so that the 'paint' function will draw the line at from the right position
+ * @brief OutputSlot::updateLinks updates this output slot's connected Links's starting point,
+ * so that the 'paint' function will draw the line from the right position
  */
-void OutputSlot::updateArrows()
+void OutputSlot::updateLinks()
 {
+    foreach(Link *link, m_outputs) {
+        link->updateLines();
+        link->update();
+    }
+    /*
     QPointF p1, p2;
     QLineF line;
 
@@ -168,6 +180,7 @@ void OutputSlot::updateArrows()
         // Set the new line for this Arrow
         arrow->setLine(QLineF(p1, p2));
     }
+    //*/
 }
 
 OutputType OutputSlot::outputType() const

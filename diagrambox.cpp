@@ -107,7 +107,7 @@ DiagramBox::~DiagramBox()
 
 QRectF DiagramBox::boundingRect() const
 {
-    return QRectF(0, 0, bWidth + 2, bHeight + 2);
+    return QRectF(0, 0, bWidth, bHeight);
 }
 
 /*
@@ -177,10 +177,10 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         newEndPoint.ry() += boundingRect().height() / 2;
 
         // Prompt the output slot and all inputs slots to update their connected Arrows
-        m_outputSlot->updateArrows();
-        foreach (InputSlot *inputSlot, m_inputSlots) {
-            inputSlot->updateArrows();
-        }
+//        m_outputSlot->updateLinks();
+//        foreach (InputSlot *inputSlot, m_inputSlots) {
+//            inputSlot->updateArrows();
+//        }
 
         // Set the script to which this item's scene is associated as modified
         theScene->script()->setStatusModified(true);
@@ -351,20 +351,28 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     painter->setPen(pen);
 
+    // We have to calculate offsets to draw lines in order to stay inside the boundingRect
+    qreal x0 = 0 + width / 2.0;
+    qreal y0 = x0;
+    qreal w = bWidth - width; // width/2 on the left and width/2 on the right, hence width
+    qreal h = bHeight - width;
+
     // Draw enclosure
-    painter->drawRoundedRect(QRectF(0, 0, bWidth, bHeight), 7, 7);
+    painter->drawRoundedRect(QRectF(x0, y0, w, h), 7, 7);
 
     // Draw vertical lines to create compartments
-    painter->drawLine(QLineF(bWidth / 3, 0, bWidth / 3, bHeight - tHeight));
-    painter->drawLine(QLineF(2 * bWidth / 3, 0, 2 * bWidth / 3, bHeight - tHeight));
+    painter->drawLine(QLineF(bWidth / 3 - width / 2.0, 1.5 * width, bWidth / 3 - width / 2.0, bHeight - tHeight - width));
+    painter->drawLine(QLineF(2 * bWidth / 3 - width / 2.0, 1.5 * width, 2 * bWidth / 3 - width / 2.0, bHeight - tHeight - width));
 
     // Draw horizontal line to create the space for the function's name, with dashed line
-    QPen oldPen = painter->pen();
-    QPen dashedPen = oldPen;
-    dashedPen.setStyle(Qt::DashLine);
-    painter->setPen(dashedPen);
-    painter->drawLine(QLineF(0, bHeight - tHeight, bWidth, bHeight - tHeight));
-    painter->setPen(oldPen);
+    pen.setStyle(Qt::DotLine);
+    painter->setPen(pen);
+
+    // width and not 1.5 * width at the end for aesthetics (dots don't go toward the end of line)
+    painter->drawLine(QLineF(1.5 * width, bHeight - tHeight, bWidth - width, bHeight - tHeight));
+
+    pen.setStyle(Qt::SolidLine);
+    painter->setPen(pen);
 
     // Draw the function's icon
     QPixmap iconPix =  m_icon.pixmap(QSize(bWidth / 3, bHeight - tHeight));

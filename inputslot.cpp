@@ -62,7 +62,6 @@ void InputSlot::addInput(Arrow *input)
  */
 void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
     Q_UNUSED(widget);
 
     QPen pen;
@@ -94,6 +93,10 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         ry += pow(sizeOffset, 2) / 6;
     }
 
+    // Subtract the half the line's width to prevent drawing outside the boudingRect
+    rx -= width / 2.0;
+    ry -= width / 2.0;
+
     pen.setWidth(width);
     painter->setPen(pen);
 
@@ -102,7 +105,8 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
 QRectF InputSlot::boundingRect() const
 {
-    return QRectF(-5, -5, 10, 10);
+    // This is the maximum size the circle can grow when mouse nears it
+    return QRectF(-7.7, -7.7, 15.4, 15.4);
 }
 
 /**

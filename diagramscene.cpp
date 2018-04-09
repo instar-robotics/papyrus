@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "slot.h"
 #include "helpers.h"
+#include "link.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -170,8 +171,39 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
  */
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
+    QPointF mousePos = evt->scenePos();
+
+    // Select all Slots that are visible on the scene (in the view's viewport)
+    QList<QGraphicsView *> vs = views();
+    // At the moment, for simplicity, we suppose there is only one view (that will change when
+    // we introduce the minimap
+    if (vs.count() != 1)
+        qFatal("Only one view is supported at this moment (DiagramScene::mouseMoveEvent");
+
+    QWidget *viewport = vs[0]->viewport();
+    QRect viewportRect(0, 0, viewport->width(), viewport->height());
+    QRectF visibleArea = vs[0]->mapToScene(viewportRect).boundingRect();
+
+    foreach(QGraphicsItem *item, items(visibleArea)) {
+        Slot *slot = dynamic_cast<Slot *>(item);
+        if (slot != NULL) {
+            QPointF center = slot->scenePos();
+            qreal dist = (mousePos - center).manhattanLength();
+            slot->setDist(dist <= 400 ? dist : 400);
+            slot->update();
+        }
+    }
+
+    QGraphicsScene::mouseMoveEvent(evt);
+}
+/*
+void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
+{
+    // This is dirty because this arbitrarily invalidate the scene (it should handle this itself)
     QPointF p = evt->scenePos();
     QRectF selectFilter(p.x() - 200, p.y() - 200, 400, 400);
+
+
 
     foreach (QGraphicsItem *item, items(selectFilter)) {
         Slot *oSlot = dynamic_cast<Slot *>(item);
@@ -210,8 +242,8 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
     }
 
     QGraphicsScene::mouseMoveEvent(evt);
-
 }
+//*/
 
 /**
  * @brief DiagramScene::mouseReleaseEvent finalizes the creation of a link between some output
@@ -233,14 +265,26 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             if (maybeSlot) {
                 // If we have released on top on something, check that the types are compatible
                 if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
-                    QPointF endPoint = maybeSlot->scenePos();
+//                    QPointF endPoint = maybeSlot->scenePos();
 
+                    /*
+                    Link *zelda = new Link();
+                    zelda->setFrom(m_oSlot);
+                    zelda->setTo(maybeSlot);
+                    m_oSlot->addOutput(zelda);
+                    addItem(zelda);
+
+                    qDebug() << "Link added";
+                    //*/
+
+                    /*
                     Arrow *newLine = new Arrow(QLineF(m_line->line().p1(), endPoint));
                     m_oSlot->addOutput(newLine);
                     maybeSlot->addInput(newLine);
                     newLine->setFrom(m_oSlot);
                     newLine->setTo(maybeSlot);
                     addItem(newLine);
+                    //*/
                     // TODO: set script status modified
                 } else {
                     emit displayStatusMessage("Invalid connection!");

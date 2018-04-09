@@ -79,6 +79,7 @@ private:
     OutputSlot *m_oSlot;     // The slot from which the line being drawn originates
     Script *m_script;        // The script to which this scene is associated
     bool m_displayLabels;    // Whether or not to display input slots's names
+    bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
 
 private slots:
     void onSelectionChanged();

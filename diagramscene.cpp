@@ -128,6 +128,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 
             if (m_oSlot != NULL) {
                 // Display input slot's names when creating a link
+                m_prevDisplayLabels = m_displayLabels;
                 m_displayLabels = true;
 
                 QPointF startPoint = m_oSlot->scenePos();
@@ -222,8 +223,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
         if (m_line != 0) {
             removeItem(m_line);
 
-            // Hide the input slots' names when releasing the mouse if we were drawing a link
-            m_displayLabels = false;
+            // Restore the state of names display when releasing mouse if we were creating a Link
+            m_displayLabels = m_prevDisplayLabels;
             update();
 
             // Check if we have released on top of an input slot and create an Arrow if so

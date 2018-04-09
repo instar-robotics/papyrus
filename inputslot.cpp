@@ -12,14 +12,32 @@
 InputSlot::InputSlot() : Slot(),
                          m_multiple(false),
                          m_inputType(MATRIX_MATRIX),
-                         m_canLink(false)
+                         m_canLink(false),
+                         m_label(NULL)
 {
-
 }
 
 InputSlot::InputSlot(QString &name) : InputSlot()
 {
     setName(name);
+    m_label = new QGraphicsSimpleTextItem(m_name, this);
+    QFont font;
+    font.setPixelSize(10);
+    m_label->setFont(font);
+    QPointF textPos = pos();
+
+    // This is meant to align the labels with the input slots
+    qreal w = m_label->boundingRect().width();
+    textPos.ry() -= 6;
+    textPos.rx() -= w + 10;
+
+    m_label->setPos(textPos);
+    m_label->setVisible(false); // hide the names by defaults
+}
+
+InputSlot::~InputSlot()
+{
+    delete m_label;
 }
 
 bool InputSlot::multiple() const
@@ -69,6 +87,7 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     QPen pen;
     qreal width = 1.5;
     QColor color = Qt::black;
+
 //    QFont font = painter->font();
 
     qreal cx = 0;
@@ -153,5 +172,15 @@ bool InputSlot::canLink() const
 void InputSlot::setCanLink(bool canLink)
 {
     m_canLink = canLink;
+}
+
+QGraphicsSimpleTextItem *InputSlot::label() const
+{
+    return m_label;
+}
+
+void InputSlot::setLabel(QGraphicsSimpleTextItem *label)
+{
+    m_label = label;
 }
 

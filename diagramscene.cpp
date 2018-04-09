@@ -191,11 +191,17 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
             qreal dist = (mousePos - center).manhattanLength();
             slot->setDist(dist <= 400 ? dist : 400);
             slot->update();
+
+            // Flag input slots that can be linked to the current output slot (if any)
+            InputSlot *inputSlot = dynamic_cast<InputSlot *>(slot);
+            if (inputSlot != NULL && m_leftBtnDown && m_line != NULL && m_oSlot != NULL) {
+                inputSlot->setCanLink(canLink(m_oSlot->outputType(), inputSlot->inputType()));
+            }
         }
     }
 
     // Draw a dotted line if we are creating a Link
-    if (m_leftBtnDown && m_line != 0) {
+    if (m_leftBtnDown && m_line != 0 && m_oSlot != NULL) {
         QLineF newLine(m_line->line().p1(), mousePos);
         QPen currPen = m_line->pen();
 

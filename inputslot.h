@@ -32,10 +32,14 @@ public:
     InputType inputType() const;
     void setInputType(const InputType &inputType);
 
+    bool canLink() const;
+    void setCanLink(bool canLink);
+
 private:
     bool m_multiple;
     std::set<Arrow *> m_inputs; // The set of arrows connected to this slot
     InputType m_inputType;      // Indicate type and connectivity of this input
+    bool m_canLink; // Indicate if this input can be linked to the current output when creating a Link
 signals:
     void slotFull(); // Fired when trying to add a second input to a slot that doesn't allow multiple
 };

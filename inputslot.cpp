@@ -10,7 +10,8 @@
 
 InputSlot::InputSlot() : Slot(),
                          m_multiple(false),
-                         m_inputType(MATRIX_MATRIX)
+                         m_inputType(MATRIX_MATRIX),
+                         m_canLink(false)
 {
 
 }
@@ -66,6 +67,7 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     QPen pen;
     qreal width = 1.5;
+    QColor color = Qt::black;
 //    QFont font = painter->font();
 
     qreal cx = 0;
@@ -86,18 +88,30 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     // Change the output slot's size only if drawing a line
     if (dscene->line() != NULL) {
-        // Make the slot bigger when the mouse is near it
-        qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
+        // Update color and size according to validity of current link (is there is one being created)
+        if (m_canLink) {
+            // Make the slot bigger when the mouse is near it
+            qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
 
-        rx += pow(sizeOffset, 2) / 6;
-        ry += pow(sizeOffset, 2) / 6;
+            rx += pow(sizeOffset, 2) / 6;
+            ry += pow(sizeOffset, 2) / 6;
+
+
+            color = Qt::green;
+            width += 1;
+        }
+        else {
+            color = Qt::lightGray;
+        }
     }
+
+    pen.setColor(color);
 
     // Subtract the half the line's width to prevent drawing outside the boudingRect
     rx -= width / 2.0;
     ry -= width / 2.0;
-
     pen.setWidth(width);
+
     painter->setPen(pen);
 
     painter->drawEllipse(QPointF(cx, cy), rx, ry);
@@ -136,5 +150,15 @@ InputType InputSlot::inputType() const
 void InputSlot::setInputType(const InputType &inputType)
 {
     m_inputType = inputType;
+}
+
+bool InputSlot::canLink() const
+{
+    return m_canLink;
+}
+
+void InputSlot::setCanLink(bool canLink)
+{
+    m_canLink = canLink;
 }
 

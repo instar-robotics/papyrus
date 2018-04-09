@@ -38,9 +38,20 @@ QRectF Link::boundingRect() const
 
 void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    QColor color(48, 140, 198);
+    QPen pen(color);
+
     if (!m_secondary) {
+        m_line.setPen(pen);
+
         m_line.paint(painter, option, widget);
     } else {
+        pen.setStyle(Qt::DashLine);
+
+        m_line.setPen(pen);
+        m_leftSegment.setPen(pen);
+        m_rightSegment.setPen(pen);
+
         m_leftSegment.paint(painter, option, widget);
         m_line.paint(painter, option, widget);
         m_rightSegment.paint(painter, option, widget);
@@ -148,10 +159,17 @@ void Link::updateLines()
     } else {
         // When in secondary, we have to create two vertical lines
         QPointF one = orig;
-        one.ry() -= 50;
-
         QPointF two = end;
-        two.ry() -= 50;
+
+        // We need a way to differentiate multiple self-links on the same function box
+        // this is why we use the yDiff to offset the values for the segments
+        qreal yDiff = one.y() - two.y();
+
+        one.ry() -= 75 + yDiff;
+        two.setY(one.y());
+
+        one.rx() -= qAbs(yDiff);
+        two.rx() += qAbs(yDiff);
 
         m_leftSegment.setLine(QLineF(two, end));
         m_rightSegment.setLine(QLineF(orig, one));

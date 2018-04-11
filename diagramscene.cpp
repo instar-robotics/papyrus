@@ -171,11 +171,6 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
                 updateSceneRect();
             }
         }
-    } else if (evt->button() & Qt::RightButton) {
-        QGraphicsSvgItem *svg = new QGraphicsSvgItem("/home/nschoe/workspace/qt/papyrus/icons/home.svg");
-        svg->setPos(evt->scenePos());
-        svg->setScale(0.1);
-        addItem(svg);
     }
 
     QGraphicsScene::mousePressEvent(evt);

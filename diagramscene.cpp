@@ -526,20 +526,19 @@ void DiagramScene::onSelectionChanged()
 
     PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
 
-    if (sItems.count() == 0) {
-        // Clears the PropertiesPanel is no items are selected
-        propPanel->boxFrame()->hide();
-        propPanel->linkFrame()->hide();
-        propPanel->okBtn()->hide();
-        propPanel->cancelBtn()->hide();
-    } else if (sItems.count() == 1) {
+    if (sItems.count() == 1) {
         // Display a box's or link's properties only if there is only one selected
-        DiagramBox *selectedBox  = qgraphicsitem_cast<DiagramBox *>(sItems.at(0));
+        DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(sItems.at(0));
         if (selectedBox != NULL) {
             propPanel->displayBoxProperties(selectedBox);
         } else {
             qDebug() << "Non-box items selection are not yet supported";
         }
+    } else {
+        propPanel->boxFrame()->hide();
+        propPanel->linkFrame()->hide();
+        propPanel->okBtn()->hide();
+        propPanel->cancelBtn()->hide();
     }
 }
 

@@ -22,9 +22,9 @@ public:
     explicit Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent = 0);
     ~Link();
 
-//    QPainterPath shape() const override;
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+    QPainterPath shape() const;
 
     void addLinesToScene();
 

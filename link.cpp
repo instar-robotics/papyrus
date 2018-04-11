@@ -6,6 +6,8 @@
 #include <QDebug>
 #include <QGraphicsScene>
 #include <QStyleOptionGraphicsItem>
+#include <QPainterPath>
+#include <QPainterPathStroker>
 
 Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(parent),
                                     m_from(f),
@@ -17,6 +19,9 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
     // Add ourselves as input and output to the corresponding slots
     f->addOutput(this);
     t->addInput(this);
+
+    setAcceptHoverEvents(true);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
 Link::~Link()
@@ -40,6 +45,13 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 {
     QColor color(48, 140, 198);
     QPen pen(color);
+    qreal width = pen.widthF();
+
+    if (option->state & QStyle::State_MouseOver) {
+        width += 1;
+    }
+
+    pen.setWidthF(width);
 
     if (!m_secondary) {
         m_line.setPen(pen);
@@ -55,6 +67,25 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         m_leftSegment.paint(painter, option, widget);
         m_line.paint(painter, option, widget);
         m_rightSegment.paint(painter, option, widget);
+    }
+}
+
+QPainterPath Link::shape() const
+{
+    if (!m_secondary) {
+        QPainterPathStroker *stroke = new QPainterPathStroker();
+        stroke->setWidth(60.0);
+        return stroke->createStroke(m_line.shape());
+    } else {
+        // This is not perfect, for some reason the m_line path is not symmetric
+        QPainterPath path(m_rightSegment.shape());
+        path.addPath(m_line.shape());
+        path.addPath(m_leftSegment.shape());
+
+        QPainterPathStroker *stroke = new QPainterPathStroker();
+        stroke->setWidth(20.0);
+        stroke->setJoinStyle(Qt::RoundJoin);
+        return stroke->createStroke(path);
     }
 }
 

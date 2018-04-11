@@ -51,12 +51,22 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         width += 1;
     }
 
+    // If the link is selected, set the bold value (prevent changing it when hovering)
+    if (option->state & QStyle::State_Selected) {
+        width = 4;
+    }
+
     pen.setWidthF(width);
+
+    // Create a copy of option and remove the State_Selected option to prevent displaying an ugly
+    // dotted rectangle
+    QStyleOptionGraphicsItem newOption(*option);
+    newOption.state.setFlag(QStyle::State_Selected, false);
 
     if (!m_secondary) {
         m_line.setPen(pen);
 
-        m_line.paint(painter, option, widget);
+        m_line.paint(painter, &newOption, widget);
     } else {
         pen.setStyle(Qt::DashLine);
 
@@ -64,9 +74,9 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         m_leftSegment.setPen(pen);
         m_rightSegment.setPen(pen);
 
-        m_leftSegment.paint(painter, option, widget);
-        m_line.paint(painter, option, widget);
-        m_rightSegment.paint(painter, option, widget);
+        m_leftSegment.paint(painter, &newOption, widget);
+        m_line.paint(painter, &newOption, widget);
+        m_rightSegment.paint(painter, &newOption, widget);
     }
 }
 

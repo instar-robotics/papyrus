@@ -158,14 +158,14 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
 
     // Set initial panels size
     QList<int> sizes;
-    int librarySize = 230;
+    int librarySize = 240;
     int tabWidgetSize = geometry().width() - librarySize;
     sizes << librarySize << tabWidgetSize;
     ui->splitter->setSizes(sizes);
     libraryPanel_->setDragEnabled(true);
 
     QList<int> leftSizes;
-    int propertiesSize = 230;
+    int propertiesSize = 240;
     int libSize = geometry().height() - propertiesSize;
     leftSizes << libSize << propertiesSize;
     leftSplitter->setSizes(leftSizes);

@@ -18,6 +18,7 @@
 #include <QGraphicsView>
 #include <QApplication>
 #include <QDebug>
+#include <QGraphicsSvgItem>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_mainWindow(NULL),
@@ -52,6 +53,7 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
                                  const QIcon &icon,
                                  OutputSlot *outputSlot,
                                  std::set<InputSlot *> inputSlots,
+                                 const QString &descriptionFile,
                                  QUuid uuid)
 {
     Q_ASSERT(outputSlot != NULL);
@@ -60,6 +62,37 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
     DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
     QPointF center = newBox->boundingRect().center();
     newBox->setPos(position - center);
+    newBox->setDescriptionFile(descriptionFile);
+
+    // We add the Svg item here, as a child of the box, this way the box doesn't need to have knowledge of it
+    QString svgPath(descriptionFile);
+    svgPath.replace(".xml", ".svg");
+    QGraphicsSvgItem *svg = new QGraphicsSvgItem(svgPath, newBox);
+
+    // Compute the ratio with which to scale the svg based on its dimension and the box's
+    QSizeF svgSize = svg->boundingRect().size();
+    qreal targetWidth = newBox->bWidth() / 3 - 1.5;
+    qreal targetHeight = newBox->bHeight() - newBox->tHeight() - 2.5;
+    qreal svgWidth = svgSize.width();
+    qreal svgHeight = svgSize.height();
+    qreal ratio = 1.0;
+    qreal xOffset = 0.0;
+    qreal yOffset = 0.0;
+
+    if (svgWidth > svgHeight) {
+        qDebug() << "scaling in width";
+        // When scaling in width, we need to center the image vertically
+        ratio = targetWidth / svgWidth;
+        yOffset = (targetHeight - ratio * svgHeight) / 2.0;
+    } else {
+        qDebug() << "scaling in height";
+        // When scaling in height, we need to center the image horizontally
+        ratio = targetHeight / svgHeight;
+        xOffset = (targetWidth - ratio * svgWidth) / 2.0;
+    }
+
+    svg->setScale(ratio);
+    svg->setPos(QPointF(newBox->bWidth() / 3 + xOffset, 1.5 + yOffset));
 
     addItem(newBox);
 
@@ -138,6 +171,11 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
                 updateSceneRect();
             }
         }
+    } else if (evt->button() & Qt::RightButton) {
+        QGraphicsSvgItem *svg = new QGraphicsSvgItem("/home/nschoe/workspace/qt/papyrus/icons/home.svg");
+        svg->setPos(evt->scenePos());
+        svg->setScale(0.1);
+        addItem(svg);
     }
 
     QGraphicsScene::mousePressEvent(evt);
@@ -356,8 +394,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         }
         //*/
 
-        DiagramBox *b = addBox(evt->scenePos(), name, icon, outputSlot, inputSlots);
-        b->setDescriptionFile(descriptionFile);
+        DiagramBox *b = addBox(evt->scenePos(), name, icon, outputSlot, inputSlots, descriptionFile);
 
         setBackgroundBrush(QBrush(Qt::white));
         QString str(tr("Function '%1' added in script").arg(name));

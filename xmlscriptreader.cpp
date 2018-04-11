@@ -191,8 +191,7 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
     // The Icon is not yet passed in the XML, so add a temporary default icon
     // Try to find
     QIcon icon(descriptionFile);
-    DiagramBox *b = m_script->scene()->addBox(pos, name, icon, outputSlot, inputSlots, uuid);
-    b->setDescriptionFile(descriptionFile);
+    DiagramBox *b = m_script->scene()->addBox(pos, name, icon, outputSlot, inputSlots, descriptionFile, uuid);
     b->setSaveActivity(save);
     b->setRows(rows);
     b->setCols(cols);

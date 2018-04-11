@@ -72,6 +72,12 @@ public:
     bool saveActivity() const;
     void setSaveActivity(bool saveActivity);
 
+    qreal bWidth() const;
+
+    qreal bHeight() const;
+
+    qreal tHeight() const;
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -83,9 +89,9 @@ private:
     std::set<Arrow *> startLines_; // The list of Arrows originating from this Box
     std::set<Arrow *> endLines_;   // The list of Arrows pointing to this Box
 
-    qreal bWidth;  // Overall width of the function's box
-    qreal bHeight; // Overall height of the function's box
-    qreal tHeight; // Height of the space in which th function's name is written
+    qreal m_bWidth;  // Overall width of the function's box
+    qreal m_bHeight; // Overall height of the function's box
+    qreal m_tHeight; // Height of the space in which th function's name is written
 
     QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 

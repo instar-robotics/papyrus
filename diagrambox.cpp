@@ -25,9 +25,9 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_uuid(uuid),
                                                 m_name(name),
                                                 m_icon(icon),
-                                                bWidth(175),
-                                                bHeight(70),
-                                                tHeight(20),
+                                                m_bWidth(175),
+                                                m_bHeight(70),
+                                                m_tHeight(20),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
                                                 m_rows(0),
@@ -84,7 +84,6 @@ DiagramBox::DiagramBox(const QString &name,
     foreach (InputSlot *inputSlot, m_inputSlots) {
         inputSlot->setParentItem(this);
         inputSlot->setBox(this);
-//        inputSlot->setFlag(QGraphicsItem::ItemIsSelectable, true);
         inputSlot->setAcceptHoverEvents(true);
 
         /*
@@ -97,7 +96,6 @@ DiagramBox::DiagramBox(const QString &name,
         inputSlot->setPos(g);
         g.ry() += s;
     }
-
 }
 
 DiagramBox::~DiagramBox()
@@ -107,7 +105,7 @@ DiagramBox::~DiagramBox()
 
 QRectF DiagramBox::boundingRect() const
 {
-    return QRectF(0, 0, bWidth, bHeight);
+    return QRectF(0, 0, m_bWidth, m_bHeight);
 }
 
 /*
@@ -189,6 +187,21 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     }
 
     return QGraphicsItem::itemChange(change, value);
+}
+
+qreal DiagramBox::tHeight() const
+{
+    return m_tHeight;
+}
+
+qreal DiagramBox::bHeight() const
+{
+    return m_bHeight;
+}
+
+qreal DiagramBox::bWidth() const
+{
+    return m_bWidth;
 }
 
 bool DiagramBox::saveActivity() const
@@ -354,31 +367,29 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     // We have to calculate offsets to draw lines in order to stay inside the boundingRect
     qreal x0 = 0 + width / 2.0;
     qreal y0 = x0;
-    qreal w = bWidth - width; // width/2 on the left and width/2 on the right, hence width
-    qreal h = bHeight - width;
+    qreal w = m_bWidth - width; // width/2 on the left and width/2 on the right, hence width
+    qreal h = m_bHeight - width;
 
     // Draw enclosure
     painter->drawRoundedRect(QRectF(x0, y0, w, h), 7, 7);
 
     // Draw vertical lines to create compartments
-    painter->drawLine(QLineF(bWidth / 3 - width / 2.0, 1.5 * width, bWidth / 3 - width / 2.0, bHeight - tHeight - width));
-    painter->drawLine(QLineF(2 * bWidth / 3 - width / 2.0, 1.5 * width, 2 * bWidth / 3 - width / 2.0, bHeight - tHeight - width));
+    painter->drawLine(QLineF(m_bWidth / 3 - width / 2.0, 1.5 * width, m_bWidth / 3 - width / 2.0, m_bHeight - m_tHeight - width));
+    painter->drawLine(QLineF(2 * m_bWidth / 3 - width / 2.0, 1.5 * width, 2 * m_bWidth / 3 - width / 2.0, m_bHeight - m_tHeight - width));
 
     // Draw horizontal line to create the space for the function's name, with dashed line
     pen.setStyle(Qt::DotLine);
     painter->setPen(pen);
 
     // width and not 1.5 * width at the end for aesthetics (dots don't go toward the end of line)
-    painter->drawLine(QLineF(1.5 * width, bHeight - tHeight, bWidth - width, bHeight - tHeight));
+    painter->drawLine(QLineF(1.5 * width, m_bHeight - m_tHeight, m_bWidth - width, m_bHeight - m_tHeight));
 
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
 
-    // Draw the function's icon
-    QPixmap iconPix =  m_icon.pixmap(QSize(bWidth / 3, bHeight - tHeight));
-    painter->drawPixmap(QRect(bWidth / 3, 0, bWidth / 3, bHeight - tHeight), iconPix, QRect(0, 0, bWidth / 3, bHeight - tHeight));
+    // The function's icon is not drawn here since it's a SVG element set as a child of this one
 
     // Draw the function's name
-    painter->drawText(QRectF(0, bHeight - tHeight, bWidth, tHeight), Qt::AlignCenter, m_name);
+    painter->drawText(QRectF(0, m_bHeight - m_tHeight, m_bWidth, m_tHeight), Qt::AlignCenter, m_name);
 }
 

@@ -30,6 +30,7 @@ public:
                        const QIcon &icon,
                        OutputSlot *outputSlot,
                        std::set<InputSlot *> inputSlots,
+                       const QString &descriptionFile,
                        QUuid uuid = 0);
 
     bool shouldDrawGrid() const;

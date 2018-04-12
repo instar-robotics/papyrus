@@ -12,7 +12,8 @@
 Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(parent),
                                     m_from(f),
                                     m_to(t),
-                                    m_secondary(checkIfSecondary())
+                                    m_secondary(checkIfSecondary()),
+                                    m_weight(1.0)
 {
     m_uuid = QUuid::createUuid();
 
@@ -183,6 +184,16 @@ bool Link::checkIfSecondary()
     else {
         return false;
     }
+}
+
+qreal Link::weight() const
+{
+    return m_weight;
+}
+
+void Link::setWeight(const qreal &weight)
+{
+    m_weight = weight;
 }
 
 void Link::updateLines()

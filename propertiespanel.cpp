@@ -15,7 +15,11 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_saveActivity(NULL),
                                                     m_okBtn(NULL),
                                                     m_cancelBtn(NULL),
-                                                    m_linkFrame(NULL)
+                                                    m_linkFrame(NULL),
+                                                    m_linkType(NULL),
+                                                    m_linkOperation(NULL),
+                                                    m_linkSecondary(NULL),
+                                                    m_linkWeight(NULL)
 {
     setTitle(tr("Properties"));
 
@@ -48,8 +52,13 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     // Parameterize the fields
     boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
     m_boxName->setAlignment(Qt::AlignCenter);
+    QFont f(m_boxName->font());
+    f.setBold(true);
+    m_boxName->setFont(f);
     m_rowsInput->setMaximum(MAX_ROWS);
     m_colsInput->setMaximum(MAX_COLS);
+    m_rowsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_colsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     // Add the fields to the layout
     boxLayout->addRow(m_boxName);
@@ -60,7 +69,36 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
     m_boxFrame->setLayout(boxLayout);
 
-    m_linkFrame->setLayout(new QVBoxLayout);
+    QFormLayout *linkLayout = new QFormLayout;
+    linkLayout->setContentsMargins(0, 0, 0, 0);
+    m_linkType = new QLabel;
+    m_linkType->setAlignment(Qt::AlignCenter);
+    f = (m_linkType->font());
+    f.setBold(true);
+    m_linkType->setFont(f);
+    m_linkOperation = new QComboBox();
+    m_linkOperation->addItem(tr("Input * Weight"), PRODUCT);
+    m_linkOperation->addItem(tr("Input + Weight"), ADDITION);
+    m_linkOperation->addItem(tr("Input - Weight"), SUBTRACTION);
+    m_linkOperation->addItem(tr("Input / Weight"), DIVISION);
+    m_linkOperation->setFixedWidth(150);
+
+    m_linkSecondary = new QCheckBox(tr("Secondary"));
+    m_linkSecondary->setEnabled(false); // For the moment, only display the information
+    m_linkWeight = new QDoubleSpinBox();
+    m_linkWeight->setRange(MIN_WEIGHT, MAX_WEIGHT);
+    m_linkWeight->setDecimals(3);
+    m_linkWeight->setFixedWidth(150);
+    m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    linkLayout->addRow(m_linkType);
+    linkLayout->addRow(tr("Operator:"), m_linkOperation);
+    linkLayout->addRow(m_linkSecondary);
+    linkLayout->addRow(tr("Weight:"), m_linkWeight);
+
+    m_linkFrame->setLayout(linkLayout);
+
+    linkLayout->setSizeConstraint(QLayout::SetFixedSize);
 
     // By default, hide the frames and the buttons
     m_linkFrame->hide();
@@ -80,6 +118,10 @@ PropertiesPanel::~PropertiesPanel()
     delete m_saveActivity;
     delete m_okBtn;
     delete m_cancelBtn;
+    delete m_linkType;
+    delete m_linkOperation;
+    delete m_linkSecondary;
+    delete m_linkWeight;
 }
 
 QFrame *PropertiesPanel::boxFrame() const
@@ -165,7 +207,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
     m_linkFrame->hide();
 
     // Update the fields with the selected box
-    m_boxName->setText("<b>" + box->name() + "</b>");
+    m_boxName->setText(box->name());
 
     // Check the "save activity" box according to the box's flag
     m_saveActivity->setChecked(box->saveActivity());
@@ -198,13 +240,22 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
  * @brief PropertiesPanel::displayLinkProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
  */
-void PropertiesPanel::displayLinkProperties()
+void PropertiesPanel::displayLinkProperties(Link *link)
 {
+    if (link == NULL)
+        qFatal("Cannot display link's properties because link is null!");
+
     // Hide the box frame
     m_boxFrame->hide();
 
+    m_linkType->setText(inputTypeToString(link->to()->inputType()));
+    m_linkSecondary->setChecked(link->secondary());
+    m_linkWeight->setValue(link->weight());
+
     // Show the link frame
     m_linkFrame->show();
+    m_okBtn->show();
+    m_cancelBtn->show();
 }
 
 /**

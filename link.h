@@ -14,6 +14,14 @@
 class InputSlot;
 class OutputSlot;
 
+enum LinkOperator {
+    PRODUCT,     // input * weight
+    ADDITION,    // input + weigth
+    SUBTRACTION, // input - weight
+    DIVISION,    // input / weight
+    DISABLED     // used when non applicable
+};
+
 class Link : public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -42,6 +50,9 @@ public:
     bool secondary() const;
     void setSecondary(bool secondary);
 
+    qreal weight() const;
+    void setWeight(const qreal &weight);
+
 private:
     bool checkIfSecondary();
 
@@ -53,6 +64,8 @@ private:
     QGraphicsLineItem m_line;          // Main line that represents the link
     QGraphicsLineItem m_rightSegment;  // Right segment (for secondary links)
     QGraphicsLineItem m_leftSegment;   // Left segment (for secondary links)
+
+    qreal m_weight; // The weight associated to this link
 };
 
 #endif // LINK_H

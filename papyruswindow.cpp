@@ -172,6 +172,10 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
 
     leftSplitter->setChildrenCollapsible(false);
 
+    QSizePolicy splitterPolicy = leftSplitter->sizePolicy();
+    splitterPolicy.setHorizontalPolicy(QSizePolicy::Fixed);
+    leftSplitter->setSizePolicy(splitterPolicy);
+
     /*
     QDockWidget *minimap = new QDockWidget;
     minimap->setFloating(true);

@@ -2,6 +2,7 @@
 #define PROPERTIESPANEL_H
 
 #include "diagrambox.h"
+#include "link.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -10,6 +11,8 @@
 #include <QSpinBox>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QComboBox>
 
 /**
  * @brief The PropertiesPanel class is used to display (and modify) the properties of selected
@@ -57,11 +60,16 @@ private:
     QCheckBox *m_saveActivity; // To enable saving the activity of the box
     QPushButton *m_okBtn;      // Button used to validate changes in parameters
     QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
-    QFrame *m_linkFrame;       // Container for link's properties
+
+    QFrame *m_linkFrame;         // Container for link's properties
+    QLabel *m_linkType;          // Display the type of the link
+    QComboBox *m_linkOperation;     // Chose the operation between inputs and weights
+    QCheckBox *m_linkSecondary;  // Will display if the link is secondary or not
+    QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
 
 public slots:
     void displayBoxProperties(DiagramBox *box);
-    void displayLinkProperties();
+    void displayLinkProperties(Link *link);
 };
 
 #endif // PROPERTIESPANEL_H

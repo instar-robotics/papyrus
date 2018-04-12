@@ -80,12 +80,10 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
     qreal yOffset = 0.0;
 
     if (svgWidth > svgHeight) {
-        qDebug() << "scaling in width";
         // When scaling in width, we need to center the image vertically
         ratio = targetWidth / svgWidth;
         yOffset = (targetHeight - ratio * svgHeight) / 2.0;
     } else {
-        qDebug() << "scaling in height";
         // When scaling in height, we need to center the image horizontally
         ratio = targetHeight / svgHeight;
         xOffset = (targetWidth - ratio * svgWidth) / 2.0;

@@ -153,3 +153,79 @@ void informUserAndCrash(const QString &text, const QString &title)
     QMessageBox::critical(NULL, title, text, QMessageBox::Close);
     qFatal("[Papyrus] FATAL: %s", text.toStdString().c_str());
 }
+
+/**
+ * @brief rescaleSvgItem computes a ratio to apply to an svg icon, based on the given dimension.
+ * If xOffset and/or yOffset are not null, the computed values for the offsets are set, so that
+ * the user can then use these offsets to position the item at the center
+ * @param svg the svg item to rescale
+ * @param xOffset pointer to qreal to save xoffset
+ * @param yOffset pointer to qreal to save yoffset
+ */
+void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF size, const QPointF pos, bool center)
+{
+    QSizeF svgSize = svg->boundingRect().size();
+    qreal targetWidth = size.width();
+    qreal targetHeight = size.height();
+    qreal svgWidth = svgSize.width();
+    qreal svgHeight = svgSize.height();
+    qreal xOffset = 0.0;
+    qreal yOffset = 0.0;
+    qreal ratio = 1.0;
+
+    if (svgWidth > svgHeight) {
+        // When scaling in width, we need to center the image vertically
+        ratio = targetWidth / svgWidth;
+        if (center)
+            yOffset = (targetHeight - ratio * svgHeight) / 2.0;
+    } else {
+        // When scaling in height, we need to center the image horizontally
+        ratio = targetHeight / svgHeight;
+        if (center)
+            xOffset = (targetWidth - ratio * svgWidth) / 2.0;
+    }
+
+    svg->setScale(ratio);
+
+    QPointF pos_ = pos;
+    pos_.rx() += xOffset;
+    pos_.ry() += yOffset;
+    svg->setPos(pos_);
+}
+
+/**
+ * @brief updateSizeIcon update the svg renderer to display the correct icon for the box's size
+ * @param box the pointer to the box whose icon to update
+ */
+void updateSizeIcon(DiagramBox *box)
+{
+    if (box == NULL)
+        informUserAndCrash(QObject::tr("Cannot update box's size icon: box is null!"));
+
+    OutputType oType = box->outputType();
+    QGraphicsSvgItem *sizeIcon = box->sizeIcon();
+    if (sizeIcon == NULL)
+        informUserAndCrash(QObject::tr("Cannot update box's size icon: svg item is null!"));
+
+    // If the output type is SCALAR, then set the icon size as scalar
+    if (oType == SCALAR)
+        sizeIcon->setElementId("scalar");
+
+    // If the output is MATRIX, then compares rows and cols to display a column vector, a row vector
+    // or a general matrix
+    else if (oType == MATRIX) {
+        int rows = box->rows();
+        int cols = box->cols();
+
+        if (rows == 1 && cols != 1)
+            sizeIcon->setElementId("row");
+        else if (cols == 1 && rows != 1)
+            sizeIcon->setElementId("column");
+        else
+            sizeIcon->setElementId("matrix");
+    } else {
+        informUserAndCrash(QObject::tr("Unsupported output type when trying to update a box's icon size. "
+                              "Supported types are SCALAR and MATRIX."));
+    }
+
+}

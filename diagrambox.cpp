@@ -30,8 +30,8 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_tHeight(20),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
-                                                m_rows(0),
-                                                m_cols(0),
+                                                m_rows(1),
+                                                m_cols(1),
                                                 m_saveActivity(false)
 {
     // Generate a UUID if there was not one while created
@@ -189,6 +189,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+QGraphicsSvgItem *DiagramBox::sizeIcon() const
+{
+    return m_sizeIcon;
+}
+
+void DiagramBox::setSizeIcon(QGraphicsSvgItem *sizeIcon)
+{
+    m_sizeIcon = sizeIcon;
+}
+
 qreal DiagramBox::tHeight() const
 {
     return m_tHeight;
@@ -268,16 +278,6 @@ std::set<InputSlot *> DiagramBox::inputSlots() const
 void DiagramBox::setInputSlots(const std::set<InputSlot *> &inputSlots)
 {
     m_inputSlots = inputSlots;
-}
-
-/**
- * @brief DiagramBox::mousePressEvent signals the PropertiesPanel when clicked on
- * @param evt
- */
-void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
-{
-    Q_UNUSED(evt);
-//    emit boxSelected(this);
 }
 
 OutputSlot *DiagramBox::outputSlot() const

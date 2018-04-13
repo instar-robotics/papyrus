@@ -6,6 +6,7 @@
 
 #include <QApplication>
 #include <QString>
+#include <QGraphicsSvgItem>
 
 /**
  * This file provides a set of helpers that are used throughout this project.
@@ -30,5 +31,9 @@ InputType stringToInputType(QString str);
 bool canLink(OutputType from, InputType to);
 
 void informUserAndCrash(const QString &text, const QString &title = QObject::tr("Papyrus is about to crash!"));
+
+void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF size, const QPointF pos, bool center = true);
+
+void updateSizeIcon(DiagramBox *box);
 
 #endif // HELPERS_H

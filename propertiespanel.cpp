@@ -57,8 +57,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     QFont f(m_boxName->font());
     f.setBold(true);
     m_boxName->setFont(f);
-    m_rowsInput->setMaximum(MAX_ROWS);
-    m_colsInput->setMaximum(MAX_COLS);
+    m_rowsInput->setRange(1, MAX_ROWS);
+    m_colsInput->setRange(1, MAX_COLS);
     m_rowsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_colsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -90,7 +90,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_linkSecondary->setEnabled(false); // For the moment, only display the information
     m_linkWeight = new QDoubleSpinBox();
     m_linkWeight->setRange(MIN_WEIGHT, MAX_WEIGHT);
-    m_linkWeight->setDecimals(3);
+    m_linkWeight->setDecimals(6);
     m_linkWeight->setFixedWidth(150);
     m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -343,6 +343,11 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
     if (box->outputType() == MATRIX) {
         box->setRows(m_rowsInput->value());
         box->setCols(m_colsInput->value());
+        // Make sure to call updateSizeIcon() BEFORE rescaleSvgItem() because the latter is based on the former
+        updateSizeIcon(box);
+        rescaleSvgItem(box->sizeIcon(),
+                       QSizeF(box->bWidth() / 3 - 1.5, box->bHeight() - box->tHeight() - 2.5),
+                       QPointF(2 * box->bWidth() / 3, 1.5));
     }
 
     // Set the box's "save activity" flag

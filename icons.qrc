@@ -16,6 +16,7 @@
         <file>icons/about.svg</file>
         <file>icons/check.svg</file>
         <file>icons/cancel.svg</file>
+        <file>icons/size-icon.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

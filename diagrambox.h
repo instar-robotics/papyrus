@@ -11,6 +11,7 @@
 #include <QGraphicsItem>
 #include <QIcon>
 #include <QUuid>
+#include <QGraphicsSvgItem>
 
 class DiagramBox : public QObject, public QGraphicsItem
 {
@@ -58,8 +59,6 @@ public:
     std::set<InputSlot *> inputSlots() const;
     void setInputSlots(const std::set<InputSlot *> &inputSlots);
 
-    void mousePressEvent(QGraphicsSceneMouseEvent *evt);
-
     OutputType outputType() const;
     void setOutputType(const OutputType &outputType);
 
@@ -77,6 +76,9 @@ public:
     qreal bHeight() const;
 
     qreal tHeight() const;
+
+    QGraphicsSvgItem *sizeIcon() const;
+    void setSizeIcon(QGraphicsSvgItem *sizeIcon);
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
@@ -109,6 +111,8 @@ private:
      * This should normally only be scalar values or small matrices
      */
     bool m_saveActivity;
+
+    QGraphicsSvgItem *m_sizeIcon; // Contains the svg that hints the box's size
 
 signals:
     void boxSelected(DiagramBox *); // Fired when the box is clicked on (used ot signal PropertiesPanel)

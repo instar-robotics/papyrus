@@ -69,28 +69,19 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
     svgPath.replace(".xml", ".svg");
     QGraphicsSvgItem *svg = new QGraphicsSvgItem(svgPath, newBox);
 
-    // Compute the ratio with which to scale the svg based on its dimension and the box's
-    QSizeF svgSize = svg->boundingRect().size();
-    qreal targetWidth = newBox->bWidth() / 3 - 1.5;
-    qreal targetHeight = newBox->bHeight() - newBox->tHeight() - 2.5;
-    qreal svgWidth = svgSize.width();
-    qreal svgHeight = svgSize.height();
-    qreal ratio = 1.0;
-    qreal xOffset = 0.0;
-    qreal yOffset = 0.0;
+    rescaleSvgItem(svg,
+                   QSizeF(newBox->bWidth() / 3 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
+                   QPointF(newBox->bWidth() / 3, 1.5));
 
-    if (svgWidth > svgHeight) {
-        // When scaling in width, we need to center the image vertically
-        ratio = targetWidth / svgWidth;
-        yOffset = (targetHeight - ratio * svgHeight) / 2.0;
-    } else {
-        // When scaling in height, we need to center the image horizontally
-        ratio = targetHeight / svgHeight;
-        xOffset = (targetWidth - ratio * svgWidth) / 2.0;
-    }
+    // Add an SVG element to display to hint the size of the function
+    svgPath = ":/icons/icons/size-icon.svg";
+    QGraphicsSvgItem *s = new QGraphicsSvgItem(svgPath, newBox);
+    newBox->setSizeIcon(s);
+    updateSizeIcon(newBox);
 
-    svg->setScale(ratio);
-    svg->setPos(QPointF(newBox->bWidth() / 3 + xOffset, 1.5 + yOffset));
+    rescaleSvgItem(s,
+                   QSizeF(newBox->bWidth() / 3 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
+                   QPointF(2 * newBox->bWidth() / 3, 1.5));
 
     addItem(newBox);
 

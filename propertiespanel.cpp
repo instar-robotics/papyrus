@@ -93,8 +93,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
     linkLayout->addRow(m_linkType);
     linkLayout->addRow(tr("Operator:"), m_linkOperation);
-    linkLayout->addRow(m_linkSecondary);
     linkLayout->addRow(tr("Weight:"), m_linkWeight);
+    linkLayout->addRow(m_linkSecondary);
 
     m_linkFrame->setLayout(linkLayout);
 
@@ -248,9 +248,20 @@ void PropertiesPanel::displayLinkProperties(Link *link)
     // Hide the box frame
     m_boxFrame->hide();
 
-    m_linkType->setText(inputTypeToString(link->to()->inputType()));
+    InputType linkType = link->to()->inputType();
+
+    // Populate the panels with the link's properties
+    m_linkType->setText(inputTypeToString(linkType));
     m_linkSecondary->setChecked(link->secondary());
-    m_linkWeight->setValue(link->weight());
+
+    // Weight is not applicable for SIMPLE_MATRIX type (in this case set to 0 and disable)
+    if (linkType == SIMPLE_MATRIX) {
+        m_linkWeight->setValue(0);
+        m_linkWeight->setDisabled(true);
+    } else {
+        m_linkWeight->setValue(link->weight());
+        m_linkWeight->setEnabled(true);
+    }
 
     // Show the link frame
     m_linkFrame->show();

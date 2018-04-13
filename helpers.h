@@ -29,4 +29,6 @@ InputType stringToInputType(QString str);
 
 bool canLink(OutputType from, InputType to);
 
+void informUserAndCrash(const QString &text, const QString &title = QObject::tr("Papyrus is about to crash!"));
+
 #endif // HELPERS_H

@@ -2,11 +2,12 @@
 #include "helpers.h"
 
 #include <QVBoxLayout>
-#include <QFormLayout>
 #include <QDebug>
 #include <QLabel>
+#include <QMessageBox>
 
 PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
+                                                    m_boxLayout(NULL),
                                                     m_boxFrame(NULL),
                                                     m_boxName(NULL),
                                                     m_boxOutputType(NULL),
@@ -15,6 +16,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_saveActivity(NULL),
                                                     m_okBtn(NULL),
                                                     m_cancelBtn(NULL),
+                                                    m_linkLayout(NULL),
                                                     m_linkFrame(NULL),
                                                     m_linkType(NULL),
                                                     m_linkOperation(NULL),
@@ -42,7 +44,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     setLayout(layout);
 
     // Create the layout for the two frames
-    QFormLayout *boxLayout = new QFormLayout;
+    m_boxLayout = new QFormLayout;
     m_boxName = new QLabel;
     m_boxOutputType = new QLabel;
     m_rowsInput = new QSpinBox;
@@ -50,7 +52,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_saveActivity = new QCheckBox(tr("Save Activity"));
 
     // Parameterize the fields
-    boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
+    m_boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
     m_boxName->setAlignment(Qt::AlignCenter);
     QFont f(m_boxName->font());
     f.setBold(true);
@@ -61,16 +63,16 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_colsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     // Add the fields to the layout
-    boxLayout->addRow(m_boxName);
-    boxLayout->addRow(tr("Type:"), m_boxOutputType);
-    boxLayout->addRow(tr("Rows:"), m_rowsInput);
-    boxLayout->addRow(tr("Cols:"), m_colsInput);
-    boxLayout->addRow(m_saveActivity);
+    m_boxLayout->addRow(m_boxName);
+    m_boxLayout->addRow(tr("Type:"), m_boxOutputType);
+    m_boxLayout->addRow(tr("Rows:"), m_rowsInput);
+    m_boxLayout->addRow(tr("Cols:"), m_colsInput);
+    m_boxLayout->addRow(m_saveActivity);
 
-    m_boxFrame->setLayout(boxLayout);
+    m_boxFrame->setLayout(m_boxLayout);
 
-    QFormLayout *linkLayout = new QFormLayout;
-    linkLayout->setContentsMargins(0, 0, 0, 0);
+    m_linkLayout = new QFormLayout;
+    m_linkLayout->setContentsMargins(0, 0, 0, 0);
     m_linkType = new QLabel;
     m_linkType->setAlignment(Qt::AlignCenter);
     f = (m_linkType->font());
@@ -91,14 +93,14 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_linkWeight->setFixedWidth(150);
     m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    linkLayout->addRow(m_linkType);
-    linkLayout->addRow(tr("Operator:"), m_linkOperation);
-    linkLayout->addRow(tr("Weight:"), m_linkWeight);
-    linkLayout->addRow(m_linkSecondary);
+    m_linkLayout->addRow(m_linkType);
+    m_linkLayout->addRow(tr("Operator:"), m_linkOperation);
+    m_linkLayout->addRow(tr("Weight:"), m_linkWeight);
+    m_linkLayout->addRow(m_linkSecondary);
 
-    m_linkFrame->setLayout(linkLayout);
+    m_linkFrame->setLayout(m_linkLayout);
 
-    linkLayout->setSizeConstraint(QLayout::SetFixedSize);
+    m_linkLayout->setSizeConstraint(QLayout::SetFixedSize);
 
     // By default, hide the frames and the buttons
     m_linkFrame->hide();
@@ -201,7 +203,7 @@ void PropertiesPanel::setSaveActivity(QCheckBox *saveActivity)
 void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 {
     if (box == NULL)
-        qFatal("Cannot display box's properties because box is null!");
+        informUserAndCrash(tr("Cannot display box's properties because box is null!"));
 
     // Hide the link frame
     m_linkFrame->hide();
@@ -218,16 +220,38 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
         m_boxOutputType->setText(tr("matrix"));
         m_rowsInput->setValue(box->rows());
         m_colsInput->setValue(box->cols());
-        // Re-enable input for row and columns since it's a matrix
-        m_colsInput->setEnabled(true);
-        m_rowsInput->setEnabled(true);
+
+        // Re-insert input for row and columns since it's a matrix
+        QWidget *dimLabel = NULL;
+        if (dimLabel = m_boxLayout->labelForField(m_colsInput))
+            dimLabel->show();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
+        m_rowsInput->show();
+
+        if (dimLabel = m_boxLayout->labelForField(m_rowsInput))
+            dimLabel->show();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
+        m_colsInput->show();
     } else if (oType == SCALAR) {
         m_boxOutputType->setText(tr("scalar"));
-        // Disable input for rows and columns since it's a scalar
-        m_colsInput->setEnabled(false);
-        m_rowsInput->setEnabled(false);
+
+        // Hide input for rows and columns since it's a scalar
+        QWidget *dimLabel = NULL;
+        if (dimLabel = m_boxLayout->labelForField(m_colsInput))
+            dimLabel->hide();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
+        m_colsInput->hide();
+
+        if (dimLabel = m_boxLayout->labelForField(m_rowsInput))
+            m_rowsInput->hide();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
+        dimLabel->hide();
     } else {
-        qFatal("Output type not supported");
+        informUserAndCrash(tr("Unsupported output type for a box. Supported types are MATRIX and SCALAR"));
     }
 
     // Show the box frame and the buttons
@@ -254,13 +278,24 @@ void PropertiesPanel::displayLinkProperties(Link *link)
     m_linkType->setText(inputTypeToString(linkType));
     m_linkSecondary->setChecked(link->secondary());
 
-    // Weight is not applicable for SIMPLE_MATRIX type (in this case set to 0 and disable)
+    // Weight is not applicable for SIMPLE_MATRIX type, so hide it
     if (linkType == SIMPLE_MATRIX) {
-        m_linkWeight->setValue(0);
-        m_linkWeight->setDisabled(true);
+        QWidget *weightLabel = NULL;
+        if (weightLabel = m_linkLayout->labelForField(m_linkWeight))
+            weightLabel->hide();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
+        m_linkWeight->hide();
     } else {
+        // Re-enable the weights since it is applicable
         m_linkWeight->setValue(link->weight());
-        m_linkWeight->setEnabled(true);
+
+        QWidget *weightLabel = NULL;
+        if (weightLabel = m_linkLayout->labelForField(m_linkWeight))
+            weightLabel->show();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
+        m_linkWeight->show();
     }
 
     // Show the link frame

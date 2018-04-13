@@ -1,5 +1,7 @@
 #include "helpers.h"
 
+#include <QMessageBox>
+
 /**
  * @brief getMainWindow returns the instance of the main Papyrus window, checking that is exists
  * @return
@@ -130,4 +132,24 @@ bool canLink(OutputType from, InputType to)
 
     // other cases are invalid
     return false;
+}
+
+/**
+ * @brief informUserAndCrash is used whenever we perform a check (for instance check if a pointer is
+ * null before using it (that's good practise BTW!)) and we then want to crash the application.
+ * Rather that only writing a debug message in the logs (which the user probably would not read, and
+ * this he will only pester agains the application, wondering what happened), the developper MUST
+ * use this function with an informative error message.
+ * This error message will be displayed on a blocking, modal window, with a unique button "close",
+ * then it calls qFatal() which makes the application crash.
+ * This way, the user knows why it crashed, and it's also logged.
+ *
+ * TL;DR: use this function *everywhere* you want to make the program crash
+ * @param text the informative error message that will be displayed to the user and the logs
+ * @param title (optional) the title of the modal window, will default to "Papyrus is about to crash!"
+ */
+void informUserAndCrash(const QString &text, const QString &title)
+{
+    QMessageBox::critical(NULL, title, text, QMessageBox::Close);
+    qFatal("[Papyrus] FATAL: %s", text.toStdString().c_str());
 }

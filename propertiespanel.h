@@ -13,6 +13,7 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
+#include <QFormLayout>
 
 /**
  * @brief The PropertiesPanel class is used to display (and modify) the properties of selected
@@ -52,6 +53,7 @@ public:
     void setSaveActivity(QCheckBox *saveActivity);
 
 private:
+    QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
     QFrame *m_boxFrame;        // Container for box's properties
     QLabel *m_boxName;         // Display the name of the box
     QLabel *m_boxOutputType;   // Display the box's output type (scalar, matrix)
@@ -61,6 +63,7 @@ private:
     QPushButton *m_okBtn;      // Button used to validate changes in parameters
     QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
 
+    QFormLayout *m_linkLayout;   // Layout for the link properties (access needed to hide rows)
     QFrame *m_linkFrame;         // Container for link's properties
     QLabel *m_linkType;          // Display the type of the link
     QComboBox *m_linkOperation;     // Chose the operation between inputs and weights

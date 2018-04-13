@@ -13,7 +13,8 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
                                     m_from(f),
                                     m_to(t),
                                     m_secondary(checkIfSecondary()),
-                                    m_weight(1.0)
+                                    m_weight(1.0),
+                                    m_operation(OP_PRODUCT)
 {
     m_uuid = QUuid::createUuid();
 
@@ -184,6 +185,16 @@ bool Link::checkIfSecondary()
     else {
         return false;
     }
+}
+
+LinkOperation Link::operation() const
+{
+    return m_operation;
+}
+
+void Link::setOperation(const LinkOperation &operation)
+{
+    m_operation = operation;
 }
 
 qreal Link::weight() const

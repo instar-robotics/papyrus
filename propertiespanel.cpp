@@ -79,10 +79,11 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     f.setBold(true);
     m_linkType->setFont(f);
     m_linkOperation = new QComboBox();
-    m_linkOperation->addItem(tr("Input * Weight"), PRODUCT);
-    m_linkOperation->addItem(tr("Input + Weight"), ADDITION);
-    m_linkOperation->addItem(tr("Input - Weight"), SUBTRACTION);
-    m_linkOperation->addItem(tr("Input / Weight"), DIVISION);
+    // WARNING: order must respect the order definition of the enum, because of the setCurrentIndex()
+    m_linkOperation->addItem(tr("Input * Weight"), OP_PRODUCT);
+    m_linkOperation->addItem(tr("Input + Weight"), OP_ADDITION);
+    m_linkOperation->addItem(tr("Input - Weight"), OP_SUBTRACTION);
+    m_linkOperation->addItem(tr("Input / Weight"), OP_DIVISION);
     m_linkOperation->setFixedWidth(150);
 
     m_linkSecondary = new QCheckBox(tr("Secondary"));
@@ -267,7 +268,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 void PropertiesPanel::displayLinkProperties(Link *link)
 {
     if (link == NULL)
-        qFatal("Cannot display link's properties because link is null!");
+        informUserAndCrash(tr("Cannot display link's properties because link is null!"));
 
     // Hide the box frame
     m_boxFrame->hide();
@@ -278,24 +279,37 @@ void PropertiesPanel::displayLinkProperties(Link *link)
     m_linkType->setText(inputTypeToString(linkType));
     m_linkSecondary->setChecked(link->secondary());
 
-    // Weight is not applicable for SIMPLE_MATRIX type, so hide it
+    // Weight and operator are not applicable for SIMPLE_MATRIX type, so hide them
     if (linkType == SIMPLE_MATRIX) {
-        QWidget *weightLabel = NULL;
-        if (weightLabel = m_linkLayout->labelForField(m_linkWeight))
-            weightLabel->hide();
+        QWidget *fieldLabel = NULL;
+        if (fieldLabel = m_linkLayout->labelForField(m_linkWeight))
+            fieldLabel->hide();
         else
             informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
         m_linkWeight->hide();
+
+        if (fieldLabel = m_linkLayout->labelForField(m_linkOperation))
+            fieldLabel->hide();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'operation'"));
+        m_linkOperation->hide();
     } else {
-        // Re-enable the weights since it is applicable
+        // Re-enable the weights and operator since they are applicable
         m_linkWeight->setValue(link->weight());
 
-        QWidget *weightLabel = NULL;
-        if (weightLabel = m_linkLayout->labelForField(m_linkWeight))
-            weightLabel->show();
+        QWidget *fieldLabel = NULL;
+        if (fieldLabel = m_linkLayout->labelForField(m_linkWeight))
+            fieldLabel->show();
         else
             informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
         m_linkWeight->show();
+
+        if (fieldLabel = m_linkLayout->labelForField(m_linkOperation))
+            fieldLabel->show();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'operation'"));
+        m_linkOperation->setCurrentIndex(link->operation()); // Careful of order (see enum definition)
+        m_linkOperation->show();
     }
 
     // Show the link frame
@@ -313,7 +327,7 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
     if (box == NULL)
-        qFatal("Cannot update box's properties: none selected!");
+        informUserAndCrash(tr("Cannot update box's properties: box is null!"));
 
     // If the box's output is matrix, then set its rows and cols
     if (box->outputType() == MATRIX) {
@@ -323,4 +337,16 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 
     // Set the box's "save activity" flag
     box->setSaveActivity(m_saveActivity->isChecked());
+}
+
+void PropertiesPanel::updateLinkProperties(Link *link)
+{
+    if (link == NULL)
+        informUserAndCrash(tr("Cannot update link's properties: link is null!"));
+
+    // If the link is not SIMPLE_MATRIX, set the weight and the operator
+    if (link->to()->inputType() != SIMPLE_MATRIX) {
+        link->setWeight(m_linkWeight->value());
+        link->setOperation(m_linkOperation->currentData().value<LinkOperation>());
+    }
 }

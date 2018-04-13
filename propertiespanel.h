@@ -29,6 +29,7 @@ public:
     ~PropertiesPanel();
 
     void updateBoxProperties(DiagramBox *box);
+    void updateLinkProperties(Link *link);
 
     QFrame *boxFrame() const;
     void setBoxFrame(QFrame *boxFrame);

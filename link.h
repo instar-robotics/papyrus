@@ -14,13 +14,20 @@
 class InputSlot;
 class OutputSlot;
 
-enum LinkOperator {
-    PRODUCT,     // input * weight
-    ADDITION,    // input + weigth
-    SUBTRACTION, // input - weight
-    DIVISION,    // input / weight
-    DISABLED     // used when non applicable
+/**
+ * @brief The LinkOperation enum is used to set the type of operation that is performed between
+ * the input and the weights of an input.
+ * BE CAREFUL: the order of the definition here must match the order in which they are presented in
+ * the QComboBox in the @PropertiesPanel (because of setCurrentIndex())
+ */
+enum LinkOperation {
+    OP_PRODUCT,     // input * weight
+    OP_ADDITION,    // input + weigth
+    OP_SUBTRACTION, // input - weight
+    OP_DIVISION    // input / weight
 };
+
+Q_DECLARE_METATYPE(LinkOperation) // This allows convertion from/to QVariant
 
 class Link : public QObject, public QGraphicsItem
 {
@@ -53,6 +60,9 @@ public:
     qreal weight() const;
     void setWeight(const qreal &weight);
 
+    LinkOperation operation() const;
+    void setOperation(const LinkOperation &operation);
+
 private:
     bool checkIfSecondary();
 
@@ -65,7 +75,8 @@ private:
     QGraphicsLineItem m_rightSegment;  // Right segment (for secondary links)
     QGraphicsLineItem m_leftSegment;   // Left segment (for secondary links)
 
-    qreal m_weight; // The weight associated to this link
+    qreal m_weight;            // The weight associated to this link
+    LinkOperation m_operation; // The operator used between the inputs and the weights
 };
 
 #endif // LINK_H

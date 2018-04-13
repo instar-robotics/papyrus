@@ -655,7 +655,8 @@ void DiagramScene::onCancelBtnClicked(bool)
         informUserAndCrash(tr("Impossible to fetch the properties panel!"));
 
     if (sItems.count() == 1) {
-        DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(sItems.at(0));
+        QGraphicsItem *item = sItems.at(0);
+        DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
         if (selectedBox != NULL) {
             // If the selected box outputs a matrix, then fetch the values for rows and cols
             if (selectedBox->outputType() == MATRIX) {
@@ -663,7 +664,17 @@ void DiagramScene::onCancelBtnClicked(bool)
                 propPanel->colsInput()->setValue(selectedBox->cols());
             }
         } else {
-            qDebug() << "Non-box items selection are not yet supported";
+            Link *selectedLink = dynamic_cast<Link *>(item);
+            if (selectedLink != NULL) {
+                // If the selected link is not SIMPLE_MATRIX, then fetch the weight and operator
+                if (selectedLink->to()->inputType() != SIMPLE_MATRIX) {
+                    propPanel->linkOperation()->setCurrentIndex(selectedLink->to()->inputType());
+                    propPanel->linkWeight()->setValue(selectedLink->weight());
+                }
+            } else {
+                informUserAndCrash(tr("Unsupported element for restoring properties, only function "
+                                      "boxes and links are supported at the moment."));
+            }
         }
     }
 }

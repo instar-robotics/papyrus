@@ -53,6 +53,10 @@ public:
     QCheckBox *saveActivity() const;
     void setSaveActivity(QCheckBox *saveActivity);
 
+    QComboBox *linkOperation() const;
+
+    QDoubleSpinBox *linkWeight() const;
+
 private:
     QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
     QFrame *m_boxFrame;        // Container for box's properties

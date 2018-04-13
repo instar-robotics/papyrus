@@ -197,6 +197,16 @@ void PropertiesPanel::setSaveActivity(QCheckBox *saveActivity)
     m_saveActivity = saveActivity;
 }
 
+QComboBox *PropertiesPanel::linkOperation() const
+{
+    return m_linkOperation;
+}
+
+QDoubleSpinBox *PropertiesPanel::linkWeight() const
+{
+    return m_linkWeight;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box

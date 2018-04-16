@@ -53,7 +53,9 @@ void XmlDescriptionReader::readDescription(QIcon &icon, QString &descriptionFile
     function->setText(0, function->name());
     function->setSizeHint(0, QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
 
-    m_category->addChild(function);
+    // Only add the function to the library (category) if there was no error while parsing it.
+    if (!reader.error())
+        m_category->addChild(function);
 }
 
 /**

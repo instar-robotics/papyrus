@@ -30,7 +30,7 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
 
     ui->setupUi(this);
 
-    // Set the main window's geometry it given one
+    // Set the main window's geometry if given one
     if (!availableGeometry.isNull()) {
         setGeometry(0, 0, availableGeometry.width(), availableGeometry.height());
     }
@@ -104,7 +104,7 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
         for (int j = 0; j < neuralBoxes.size(); j += 1) {
             // Derive icon path name from XML file name
             QString iconFilename = neuralBoxes[j];
-            iconFilename.replace(QString(".xml"), QString(".svg"));
+            iconFilename.replace(".xml", ".svg");
 
             QString iconPath(category.absoluteFilePath(iconFilename));
             QFile f(iconPath);
@@ -126,7 +126,12 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
             XmlDescriptionReader xmlReader(newCategory);
             QString descriptionFile = category.absoluteFilePath(neuralBoxes[j]);
             // TODO: check return value to decide whether to add in library or not
-            xmlReader.read(&xmlFile, neuralIcon, descriptionFile);
+            if (!xmlReader.read(&xmlFile, neuralIcon, descriptionFile)) {
+                QMessageBox::warning(this, tr("Problems while parsing the description files"),
+                                     tr("There was some issues while trying to parse the XML "
+                                        "description files. Only the functions with a valid XML "
+                                        "file were added to the library."));
+            }
         }
 
         m_library->addCategory(newCategory);

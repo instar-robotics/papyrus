@@ -4,7 +4,7 @@
     <inputs>
         <input multiple="true">
             <name>First Argument</name>
-            <type>scalar_scalar</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+            <type>scalar_matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
         <input multiple="false">
             <name>Second</name>

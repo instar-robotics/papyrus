@@ -18,7 +18,7 @@ PapyrusWindow *getMainWindow()
     }
 
     if (mainWindow == NULL)
-        qFatal("Impossible to fetch the main window!");
+        informUserAndCrash(QObject::tr("Could not fetch Papyrus' main window."));
 
     return mainWindow;
 }

@@ -91,6 +91,30 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
     return newBox;
 }
 
+/**
+ * @brief DiagramScene::checkForInvalidLinks makes a global on <b>all</b> items on the scene, filter
+ * by Link and check every one of them for invalidity.
+ * This is costly, so it should be done only when necessary
+ * @return
+ */
+bool DiagramScene::checkForInvalidLinks()
+{
+    QList<QGraphicsItem *> allItems = items();
+    bool foundInvalidLinks = false;
+
+    foreach (QGraphicsItem *item, allItems) {
+        Link *link = dynamic_cast<Link *>(item);
+        if (link != NULL) {
+            foundInvalidLinks |= link->checkIfInvalid();
+        }
+    }
+
+    // Update script's status and tab text color based on the result
+    m_script->setIsInvalid(foundInvalidLinks);
+
+    return foundInvalidLinks;
+}
+
 /*
  * Check the items' bounding rects and update the scene's 'sceneRect' to contain them all.
  * Default to a minimum size of the container widget's size (this is to prevent weird behavior
@@ -258,11 +282,32 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                     Link *zelda = new Link(m_oSlot, maybeSlot);
                     addItem(zelda); // Important to add the Link to the scene first
                     zelda->addLinesToScene(); // And then it's important to call this to add the segments to the scene
+                    if (zelda->checkIfInvalid()) {
+                        emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
+                        script()->setIsInvalid(true);
+                    }
+                    // Check matrices size when the connection is SCALAR_MATRIX
+//                    if (maybeSlot->inputType() == SCALAR_MATRIX) {
+                        /*
+                        DiagramBox *box = maybeSlot->box();
+                        int toRows = box->rows();
+                        int toCols = box->cols();
+                        box = m_oSlot->box();
+                        int fromRows = box->rows();
+                        int fromCols = box->cols();
+
+                        if (toRows != fromRows || toCols != fromCols) {
+                            emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
+                            zelda->setIsInvalid(true);
+                            script()->setIsInvalid(true);
+                        }
+                    }
+                        //*/
 
                     emit displayStatusMessage(tr("New link created."));
                     script()->setStatusModified(true);
                 } else {
-                    emit displayStatusMessage("Invalid connection!");
+                    emit displayStatusMessage(tr("Invalid connection!"));
                 }
             }
 
@@ -625,6 +670,53 @@ void DiagramScene::onOkBtnClicked(bool)
         DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
         if (selectedBox != NULL) {
             propPanel->updateBoxProperties(selectedBox);
+
+            // Now check all SCALAR_MATRIX links for invalidity and if there was one found, trigger
+            // a recheck for the entie script
+            bool linkWasFixed = false;   // wether a link switched from invalid to valid
+            bool invalidLinkFound = false; // wether we found an invalid link
+
+            foreach (InputSlot *inputSlot, selectedBox->inputSlots()) {
+                if (inputSlot->inputType() == SCALAR_MATRIX) {
+                    // Recheck every of these links individually
+                    foreach (Link *link, inputSlot->inputs()) {
+                        bool wasInvalid = link->isInvalid();
+                        bool isInvalidNow = link->checkIfInvalid();
+
+                        if (isInvalidNow)
+                            invalidLinkFound = true;
+
+                        if (wasInvalid && !isInvalidNow) {
+                            linkWasFixed = true;
+                        }
+                    }
+                }
+            }
+
+            // Do the same for output slots
+            foreach (Link *link, selectedBox->outputSlot()->outputs()) {
+                bool wasInvalid = link->isInvalid();
+                bool isInvalidNow = link->checkIfInvalid();
+
+                if (isInvalidNow)
+                    invalidLinkFound = true;
+
+                if (wasInvalid && !isInvalidNow)
+                    linkWasFixed = true;
+            }
+
+            // After checking all individual links, decide if we need to trigger a global recheck
+            if (!invalidLinkFound && linkWasFixed) {
+                emit displayStatusMessage(tr("Initiating global recheck for invalid link..."));
+                if (checkForInvalidLinks())
+                    emit displayStatusMessage(tr("Invalid links were found: script is in invalid state!"));
+                else
+                    emit displayStatusMessage(tr("Everything's ok, no invalid links were found."));
+            }
+            else if (invalidLinkFound) {
+                emit displayStatusMessage(tr("Invalid link found!"));
+                script()->setIsInvalid(true);
+            }
         } else {
             Link *selectedLink = dynamic_cast<Link *>(item);
             if (selectedLink != NULL) {

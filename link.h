@@ -1,5 +1,6 @@
 #ifndef LINK_H
 #define LINK_H
+#include "script.h"
 
 #include <QGraphicsItem>
 #include <QUuid>
@@ -45,6 +46,8 @@ public:
 
     void updateLines();
 
+    bool checkIfInvalid();
+
     QUuid uuid() const;
     void setUuid(const QUuid &uuid);
 
@@ -63,6 +66,9 @@ public:
     LinkOperation operation() const;
     void setOperation(const LinkOperation &operation);
 
+    bool isInvalid() const;
+    void setIsInvalid(bool isInvalid);
+
 private:
     bool checkIfSecondary();
 
@@ -77,6 +83,8 @@ private:
 
     qreal m_weight;            // The weight associated to this link
     LinkOperation m_operation; // The operator used between the inputs and the weights
+
+    bool m_isInvalid; // Tells that this link is currently not valid (error in type, in sizes, etc.)
 };
 
 #endif // LINK_H

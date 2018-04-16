@@ -23,6 +23,8 @@ public:
     void save();
     void autoSave();
 
+    void updateTextStyle();
+
     QString name() const;
     void setName(const QString &name);
 
@@ -34,11 +36,17 @@ public:
     bool modified() const;
 
     void setStatusModified(bool isModified);
+
+    bool isInvalid() const;
+    void setIsInvalid(bool isInvalid);
+
 private:
     DiagramScene *m_scene; // The associated scene for this script
     QString m_name;        // Pretty name of the script (to display in tabs for instance)
     QString m_filePath;    // Path of the (XML) file in which to save this script
     bool m_modified;       // Whether there was some changes since last save
+    bool m_isInvalid;      // Whether this script is currently invalid (and thus prevent saving)
+
 signals:
     void displayStatusMessage(const QString &text);
 };

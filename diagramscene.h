@@ -33,6 +33,8 @@ public:
                        const QString &descriptionFile,
                        QUuid uuid = 0);
 
+    bool checkForInvalidLinks();
+
     bool shouldDrawGrid() const;
     void setShouldDrawGrid(bool shouldDrawGrid);
 

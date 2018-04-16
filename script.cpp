@@ -12,7 +12,10 @@
 #include <QDebug>
 #include <iostream>
 
-Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene), m_name(name), m_modified(false)
+Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
+                                                           m_name(name),
+                                                           m_modified(false),
+                                                           m_isInvalid(false)
 {
     if (scene != NULL) {
         scene->setScript(this);
@@ -25,6 +28,18 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene), m_nam
  */
 void Script::save()
 {
+    // Prevent saving when the script is in invalid state
+    if (m_isInvalid) {
+        QMessageBox::warning(NULL, tr("Saving not allowed in invalid state!"),
+                             tr("You cannot save the script at this time because it is currently "
+                                "in an invalid state.\nThis can mean that:\n"
+                                "   - some function boxes are linked with SCALAR_MATRIX but are "
+                                "not the same size\n"
+                                "   - some function boxes have negative sizes\n"
+                                "   - etc."));
+        return;
+    }
+
     emit displayStatusMessage(tr("Saving ") + m_name + "...");
 
     // First check if we have a filepath in which to save the script
@@ -183,6 +198,39 @@ void Script::autoSave()
     msgBox.exec();
 }
 
+/**
+ * @brief Script::updateTextStyle updates the current tab text's appearance based on whether the
+ * script has been modified since last save and whether it is in invalid state
+ */
+void Script::updateTextStyle()
+{
+    // First, get the main window
+    PapyrusWindow *mainWindow = getMainWindow();
+
+    // Then get the tab widget and teh current index
+    QTabWidget *tabWidget = mainWindow->getUi()->tabWidget;
+    if (tabWidget == NULL)
+        informUserAndCrash(tr("Failed to fetch the main tabbed widget"));
+    int index = tabWidget->currentIndex();
+
+    // If the status is modified, add a '*' after the script's name and change color
+    if (m_modified) {
+        tabWidget->setTabText(index, m_name + "*");
+        tabWidget->tabBar()->setTabTextColor(index, Qt::black);
+    }
+    // If the status is unmodified, remove the "*"and restore color
+    else {
+        tabWidget->setTabText(index, m_name);
+        QColor color(Qt::gray);
+        tabWidget->tabBar()->setTabTextColor(index, color.dark());
+    }
+
+    // And finally, change the color to red if the script is in invalid state
+    if (m_isInvalid) {
+        tabWidget->tabBar()->setTabTextColor(index, Qt::red);
+    }
+}
+
 QString Script::name() const
 {
     return m_name;
@@ -222,33 +270,16 @@ void Script::setStatusModified(bool isModified)
 
     m_modified = isModified;
 
-    // First, get the main window
-    PapyrusWindow *mainWindow = NULL;
+    updateTextStyle();
+}
 
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
-            mainWindow = mW;
-            break;
-        }
-    }
+bool Script::isInvalid() const
+{
+    return m_isInvalid;
+}
 
-    // If the status is modified, add a '*' after the script's name and change color
-    if (isModified) {
-        if (mainWindow) {
-            QTabWidget *tabWidget = mainWindow->getUi()->tabWidget;
-            int index = tabWidget->currentIndex();
-            tabWidget->setTabText(index, m_name + "*");
-            tabWidget->tabBar()->setTabTextColor(index, Qt::black);
-        }
-    }
-    // If the status is unmodified, remove the "*"and restore color
-    else {
-        if (mainWindow) {
-            QTabWidget *tabWidget = mainWindow->getUi()->tabWidget;
-            int index = tabWidget->currentIndex();
-            tabWidget->setTabText(index, m_name);
-            QColor color(Qt::gray);
-            tabWidget->tabBar()->setTabTextColor(index, color.dark());
-        }
-    }
+void Script::setIsInvalid(bool isInvalid)
+{
+    m_isInvalid = isInvalid;
+    updateTextStyle();
 }

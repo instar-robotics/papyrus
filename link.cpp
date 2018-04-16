@@ -1,6 +1,7 @@
 #include "link.h"
 #include "diagrambox.h"
 #include "diagramscene.h"
+#include "helpers.h"
 
 #include <QPainter>
 #include <QDebug>
@@ -14,7 +15,8 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
                                     m_to(t),
                                     m_secondary(checkIfSecondary()),
                                     m_weight(1.0),
-                                    m_operation(OP_PRODUCT)
+                                    m_operation(OP_PRODUCT),
+                                    m_isInvalid(false)
 {
     m_uuid = QUuid::createUuid();
 
@@ -56,6 +58,12 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     // If the link is selected, set the bold value (prevent changing it when hovering)
     if (option->state & QStyle::State_Selected) {
         width = 4;
+    }
+
+    // If the link is invalid, set the bold value and the color
+    if (m_isInvalid) {
+        width = 5;
+        pen.setColor(Qt::red);
     }
 
     pen.setWidthF(width);
@@ -187,6 +195,16 @@ bool Link::checkIfSecondary()
     }
 }
 
+bool Link::isInvalid() const
+{
+    return m_isInvalid;
+}
+
+void Link::setIsInvalid(bool isInvalid)
+{
+    m_isInvalid = isInvalid;
+}
+
 LinkOperation Link::operation() const
 {
     return m_operation;
@@ -238,5 +256,42 @@ void Link::updateLines()
         m_rightSegment.setLine(QLineF(orig, one));
         m_line.setLine(QLineF(one, two));
     }
+}
+
+/**
+ * @brief Link::checkIfInvalid checks that dimensions of the two boxes it is connected to are the
+ * same when the type is SCALAR_MATRIX
+ */
+bool Link::checkIfInvalid()
+{
+    // Pointers check
+    if (m_to == NULL)
+        informUserAndCrash(tr("Can't check if Link is invalid: no InputSlot"));
+
+    if (m_from == NULL)
+        informUserAndCrash(tr("Can't check if Link is invalid: no OutputSlot"));
+
+    if (m_to->inputType() == SCALAR_MATRIX) {
+        DiagramBox *box = m_to->box();
+        if (box == NULL)
+            informUserAndCrash(tr("Can't check if Link is invalid: no destination box"));
+        int toRows = box->rows();
+        int toCols = box->cols();
+
+        box = m_from->box();
+        if (box == NULL)
+            informUserAndCrash(tr("Can't check if Link is invalid: no origin box"));
+        int fromRows = box->rows();
+        int fromCols = box->cols();
+
+        // I *know* parentheses are optional here, but they increase readability, so sue me
+        m_isInvalid = (toRows != fromRows) || (toCols != fromCols);
+    } else {
+        // This is considered valid
+        m_isInvalid = false;
+    }
+
+    // At the end, return wether we are invalid
+    return m_isInvalid;
 }
 

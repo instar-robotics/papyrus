@@ -22,6 +22,8 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
     if (scene != NULL) {
         scene->setScript(this);
     }
+
+    m_uuid = QUuid::createUuid();
 }
 
 /**
@@ -42,7 +44,7 @@ void Script::save()
         return;
     }
 
-    emit displayStatusMessage(tr("Saving ") + m_name + "...");
+    emit displayStatusMessage(tr("Saving \"") + m_name + "\"...");
 
     // First check if we have a filepath in which to save the script
     if (m_filePath.isEmpty()) {
@@ -92,13 +94,14 @@ void Script::save()
 
     // Create the XML stream on the file
     QXmlStreamWriter stream(&file);
-    stream.writeStartDocument();        // start the XML document
-    stream.setAutoFormatting(true);     // Make it human-readable
-    stream.writeStartElement("script"); // Write the root tag
-    stream.writeTextElement("name", name());     // Write the name of the script
+    stream.writeStartDocument();             // start the XML document
+    stream.setAutoFormatting(true);          // Make it human-readable
+    stream.writeStartElement("script");      // Write the root tag
+    stream.writeTextElement("name", name()); // Write the name of the script
 
     // Write the RT token parameters
     stream.writeStartElement("rt_token");
+    stream.writeAttribute("uuid", m_uuid.toString());
     stream.writeAttribute("unit", timeUnitToString(m_timeUnit));
     stream.writeCharacters(QString::number(m_timeValue));
     stream.writeEndElement(); // rt_token
@@ -312,4 +315,14 @@ TimeUnit Script::timeUnit() const
 void Script::setTimeUnit(const TimeUnit &timeUnit)
 {
     m_timeUnit = timeUnit;
+}
+
+QUuid Script::uuid() const
+{
+    return m_uuid;
+}
+
+void Script::setUuid(const QUuid &uuid)
+{
+    m_uuid = uuid;
 }

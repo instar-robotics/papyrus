@@ -20,6 +20,8 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QDockWidget>
+#include <QDialog>
+#include <QFileInfo>
 
 PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWindow(parent),
                                                 ui(new Ui::PapyrusWindow),
@@ -291,7 +293,7 @@ void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
      * ATTENTION: it only toggles the antialiasing for the current script
      * It should probably be done for all scripts
      */
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
     if (currentView)
         currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
     else
@@ -300,7 +302,7 @@ void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
 
 void PapyrusWindow::on_actionZoom_In_triggered()
 {
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
     if (currentView)
         currentView->scale(1.2 * SCALE_FACTOR, 1.2 * SCALE_FACTOR);
     else
@@ -309,7 +311,7 @@ void PapyrusWindow::on_actionZoom_In_triggered()
 
 void PapyrusWindow::on_actionZoom_Out_triggered()
 {
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
     if (currentView)
         currentView->scale(1 / (1.2 * SCALE_FACTOR), 1 / (1.2 * SCALE_FACTOR));
     else
@@ -318,7 +320,7 @@ void PapyrusWindow::on_actionZoom_Out_triggered()
 
 void PapyrusWindow::on_actionZoom_Fit_triggered()
 {
-    QGraphicsView *currentView = qobject_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
     if (currentView) {
         QRectF wholeScene = currentView->scene()->itemsBoundingRect();
         currentView->fitInView(wholeScene, Qt::KeepAspectRatio);
@@ -605,7 +607,7 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
     Q_UNUSED(index);
 
     // Get the view that is displayed in the tab
-    DiagramView *currentView = qobject_cast<DiagramView *>(ui->tabWidget->currentWidget());
+    DiagramView *currentView = dynamic_cast<DiagramView *>(ui->tabWidget->currentWidget());
     if (currentView == NULL) {
         // TODO: _actually_ automatically report it instead of asking the user to do it.
         ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
@@ -615,7 +617,7 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
     }
 
     // Get the scene associated with the view
-    DiagramScene *currentScene = qobject_cast<DiagramScene *>(currentView->scene());
+    DiagramScene *currentScene = dynamic_cast<DiagramScene *>(currentView->scene());
     if (currentScene == NULL) {
         // TODO: _actually_ automatically report it instead of asking the user to do it.
         ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
@@ -626,4 +628,77 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 
     // Get the script associated with the scene and set it as the active script
     m_activeScript = currentScene->script();
+}
+
+void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
+{
+    DiagramView *view = dynamic_cast<DiagramView *>(ui->tabWidget->widget(index));
+    if (view == NULL) {
+        ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated view."));
+        return;
+    }
+
+    DiagramScene *scene = dynamic_cast<DiagramScene *>(view->scene());
+    if (scene == NULL) {
+        ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated scene."));
+        return;
+    }
+
+    QString currentName = scene->script()->name();
+    Script *script = scene->script();
+    QString currentFilePath = script->filePath();
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Papyrus - Rename script"));
+    msgBox.setText(tr("Here you can rename script \"") + currentName + "\"");
+    msgBox.setIcon(QMessageBox::Question);
+    QGridLayout *layout = dynamic_cast<QGridLayout *>(msgBox.layout());
+    if (layout == NULL)
+        return;
+    QFormLayout *addLayout = new QFormLayout();
+    QLineEdit *newName = new QLineEdit(currentName);
+    QLabel label(tr("New script name:"));
+    QCheckBox *cBox = new QCheckBox(tr("Also rename file?"));
+    cBox->setDisabled(currentFilePath.isEmpty()); // Don't offer to rename if no path exists
+    addLayout->addRow(&label, newName);
+    addLayout->addRow(cBox);
+    layout->addLayout(addLayout, 1, 0, 1, 3);
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+
+    ui->statusBar->showMessage(tr("Renaming \"") + currentName + "\"...");
+
+    int ret = msgBox.exec();
+    if (ret == QMessageBox::Ok) {
+        QString newScriptName(newName->text());
+        QString str(tr("\"") + currentName + "\" renamed to \"" + newScriptName + "\"");
+        script->setName(newScriptName);
+        ui->tabWidget->tabBar()->setTabText(index, newScriptName);
+
+        if (cBox->isChecked() && !currentFilePath.isEmpty()) {
+            QFileInfo fi(currentFilePath);
+            QString ext = fi.completeSuffix();
+            QFile file(currentFilePath);
+            QString dir(fi.absoluteDir().absolutePath());
+            QString sanitizedScriptName(newScriptName.toLower().replace(" ", "_"));
+            QString newScriptFilePath(dir + "/" + sanitizedScriptName + "." + ext);
+
+            script->setFilePath(newScriptFilePath);
+            script->setStatusModified(true);
+
+            if (file.rename(newScriptFilePath)) {
+                str += tr(", and XML filed renamed too.");
+            } else {
+                str += tr(", BUT the XML file could NOT be renamed (reason unknown).");
+            }
+
+            m_propertiesPanel->displayScriptProperties(scene->script());
+        } else {
+            str += ".";
+        }
+
+        ui->statusBar->showMessage(str);
+    } else {
+        ui->statusBar->showMessage(tr("Renaming cancelled. Nothing was done."));
+    }
 }

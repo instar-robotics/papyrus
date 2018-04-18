@@ -37,6 +37,14 @@ void OutputSlot::addOutput(Link *output)
     m_outputs.insert(output);
 }
 
+void OutputSlot::removeOutput(Link *output)
+{
+    if (output == NULL)
+        return;
+
+    m_outputs.erase(output);
+}
+
 /**
  * @brief OutputSlot::paint the output slots are drawn bigger as the cursor nears them, provided
  * the user is not in the process of creating a link

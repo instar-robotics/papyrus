@@ -131,8 +131,8 @@ void XmlScriptReader::readScript()
                         // TODO : if still using this snippet, implement issue #2 to be able to set FROM and TO
                         Arrow *arrow = new Arrow(QLineF(startPoint, endPoint));
                         // Link the newly-created Arrow with its corresponding DiagramBoxes
-                        origin->addStartLine(arrow);
-                        target->addEndLine(arrow);
+//                        origin->addStartLine(arrow);
+//                        target->addEndLine(arrow);
 //                        arrow->setFrom(origin);
 //                        arrow->setTo(target);
 

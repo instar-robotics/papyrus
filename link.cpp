@@ -28,12 +28,6 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
     setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
-Link::~Link()
-{
-    delete m_from;
-    delete m_to;
-}
-
 QRectF Link::boundingRect() const
 {
     // If the line is not self-looping, then returns the bounding rect of the main line
@@ -119,7 +113,7 @@ void Link::addLinesToScene()
 {
     DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
     if (dscene == NULL)
-        qFatal("Could not cast scene in DiagramScene");
+        informUserAndCrash("Could not cast scene in DiagramScene");
 
     if (!m_secondary) {
         dscene->addItem(&m_line);

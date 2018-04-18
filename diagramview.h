@@ -14,8 +14,6 @@ signals:
 
 protected:
     void wheelEvent(QWheelEvent *evt);
-    void mousePressEvent(QMouseEvent *evt);
-    void mouseReleaseEvent(QMouseEvent *evt);
 
 public slots:
 };

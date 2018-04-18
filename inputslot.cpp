@@ -73,6 +73,14 @@ void InputSlot::addInput(Link *input)
     m_inputs.insert(input);
 }
 
+void InputSlot::removeInput(Link *input)
+{
+    if (input == NULL)
+        return;
+
+    m_inputs.erase(input);
+}
+
 /**
  * @brief InputSlot::paint the input slots are drawn bigger when the mouse nears them, and it is
  * currently drawing a link

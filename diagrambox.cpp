@@ -1,6 +1,7 @@
 #include "diagrambox.h"
 #include "diagramscene.h"
 #include "papyruswindow.h"
+#include "helpers.h"
 
 #include <iostream>
 
@@ -100,44 +101,27 @@ DiagramBox::DiagramBox(const QString &name,
 
 DiagramBox::~DiagramBox()
 {
+    // Normally, upon deletion, the box should not have any remaining Link connected
+    if (!m_outputSlot->outputs().empty())
+        qWarning() << "WARNING: DiagramBox is being destructed, but there remains Links on its OutputSlot";
     delete m_outputSlot;
+
+    bool warnedForInput = false;
+    foreach (InputSlot *inputSlot, m_inputSlots) {
+        if (!warnedForInput && !inputSlot->inputs().empty()) {
+            warnedForInput = true;
+            qWarning() << "WARNING: DiagramBox is being destructed, but there remains Links on its InputSlot";
+        }
+        delete inputSlot;
+    }
+    m_inputSlots.clear();
+
+    delete m_sizeIcon;
 }
 
 QRectF DiagramBox::boundingRect() const
 {
     return QRectF(0, 0, m_bWidth, m_bHeight);
-}
-
-/*
- * Add an Arrow that originates from this Box
- */
-void DiagramBox::addStartLine(Arrow *line)
-{
-    startLines_.insert(line);
-}
-
-/*
- * Add an Arrow that points to this Box
- */
-void DiagramBox::addEndLine(Arrow *line)
-{
-    endLines_.insert(line);
-}
-
-/*
- * Remove the given Arrow from the list of starting lines
- */
-void DiagramBox::removeStartLine(Arrow *line)
-{
-    startLines_.erase(startLines_.find(line));
-}
-
-/*
- * Remove the given Arrow from the list of ending lines
- */
-void DiagramBox::removeEndLine(Arrow *line)
-{
-    endLines_.erase(endLines_.find(line));
 }
 
 /*
@@ -153,9 +137,9 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
         QPointF targetPos = value.toPointF();
 
         // Get the scene in order to get the grid size
-        DiagramScene *theScene = qobject_cast<DiagramScene *>(scene());
-        if (!theScene) {
-            qFatal("ERROR: could not cast the scene into a DiagramScene!");
+        DiagramScene *theScene = dynamic_cast<DiagramScene *>(scene());
+        if (theScene == NULL) {
+            informUserAndCrash("Could not cast the scene into a DiagramScene!");
         }
         int gridSize = theScene->gridSize();
 

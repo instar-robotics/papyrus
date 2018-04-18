@@ -32,14 +32,6 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
-    std::set<Arrow *> startLines() const {return startLines_;}
-    std::set<Arrow *> endLines() const {return endLines_;}
-
-    void addStartLine(Arrow *line);
-    void addEndLine(Arrow *line);
-    void removeStartLine(Arrow *line);
-    void removeEndLine(Arrow *line);
-
     QString name() const;
     void setName(const QString &name);
 
@@ -87,9 +79,6 @@ private:
     QUuid m_uuid;   // Unique ID of the function's box (to identify links for instance)
     QString m_name; // Name of the function
     QIcon m_icon;   // Icon representing the function
-
-    std::set<Arrow *> startLines_; // The list of Arrows originating from this Box
-    std::set<Arrow *> endLines_;   // The list of Arrows pointing to this Box
 
     qreal m_bWidth;  // Overall width of the function's box
     qreal m_bHeight; // Overall height of the function's box

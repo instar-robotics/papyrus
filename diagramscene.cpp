@@ -267,7 +267,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
         // Remove temporary line if we were drawing one (click initiated on an output slot)
         if (m_line != 0) {
-            removeItem(m_line);
+            // Deleting the line is enough, the QGraphicsScene will take care of removing it
+            delete m_line;
+            m_line = 0;
 
             // Restore the state of names display when releasing mouse if we were creating a Link
             m_displayLabels = m_prevDisplayLabels;
@@ -286,23 +288,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                         emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
                         script()->setIsInvalid(true);
                     }
-                    // Check matrices size when the connection is SCALAR_MATRIX
-//                    if (maybeSlot->inputType() == SCALAR_MATRIX) {
-                        /*
-                        DiagramBox *box = maybeSlot->box();
-                        int toRows = box->rows();
-                        int toCols = box->cols();
-                        box = m_oSlot->box();
-                        int fromRows = box->rows();
-                        int fromCols = box->cols();
-
-                        if (toRows != fromRows || toCols != fromCols) {
-                            emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
-                            zelda->setIsInvalid(true);
-                            script()->setIsInvalid(true);
-                        }
-                    }
-                        //*/
 
                     emit displayStatusMessage(tr("New link created."));
                     script()->setStatusModified(true);
@@ -310,9 +295,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                     emit displayStatusMessage(tr("Invalid connection!"));
                 }
             }
-
-            delete m_line;
-            m_line = 0;
         }
 
         m_oSlot = 0;
@@ -423,7 +405,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         }
         //*/
 
-        DiagramBox *b = addBox(evt->scenePos(), name, icon, outputSlot, inputSlots, descriptionFile);
+        addBox(evt->scenePos(), name, icon, outputSlot, inputSlots, descriptionFile);
 
         setBackgroundBrush(QBrush(Qt::white));
         QString str(tr("Function '%1' added in script").arg(name));
@@ -443,21 +425,40 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 void DiagramScene::keyPressEvent(QKeyEvent *evt)
 {
     int key = evt->key();
+
     // Delete selected items when 'DELETE' is pressed
     if (key == Qt::Key_Delete) {
         QList<QGraphicsItem *> items = selectedItems();
-
         int nbItems = items.count();
+
+        foreach (QGraphicsItem *item, items) {
+            Link *link = dynamic_cast<Link *>(item);
+            if (link != NULL) {
+                deleteItem(link);
+                continue;
+            }
+
+            DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+            if (box != NULL) {
+                deleteItem(box);
+                continue;
+            }
+        }
+        /*
         for (int i = 0; i < nbItems; i += 1) {
             // Remove the item
             removeItem(qgraphicsitem_cast<DiagramBox *>(items.at(i)));
             updateSceneRect();
         }
+        //*/
 
         // Set the associated script as modified if there was a deletion
-        if (nbItems > 0)
+        if (nbItems > 0) {
             m_script->setStatusModified(true);
+            emit displayStatusMessage(tr("Deleted ") + nbItems + " items.");
+        }
     } else if (key == Qt::Key_T) {
+        // Toggle displaying input slot names when 'T' is pressed
         m_displayLabels = !m_displayLabels;
         update();
     }
@@ -465,78 +466,67 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
     QGraphicsScene::keyPressEvent(evt);
 }
 
+/**
+ * @brief DiagramScene::removeItem is used to delete a @Link object from the scene
+ * @param link
+ */
+void DiagramScene::deleteItem(Link *link)
+{
+    if (link == NULL) {
+        emit displayStatusMessage(tr("WARNING: tried to remove a link that was null."));
+        return;
+    }
+
+    // First, remove this link from its OutputSlot
+    if (link->from() != NULL) {
+        link->from()->removeOutput(link);
+    } else {
+        emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an "
+                                     "originating output slot."));
+    }
+
+    // Then, remove this link from its InputSlot
+    if (link->to() != NULL) {
+        link->to()->removeInput(link);
+    } else {
+        emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an ending "
+                                     "input slot."));
+    }
+
+    // And finally, delete the Link (the QGraphicsScene will take care of removing the object)
+    delete link;
+}
+
+/**
+ * @brief DiagramScene::deleteItem is used to delete a box from the scene. It firsts deletes all
+ * connected @Links
+ * @param box
+ */
+void DiagramScene::deleteItem(DiagramBox *box)
+{
+    if (box == NULL) {
+        emit displayStatusMessage(tr("WARNING: tried to remove a box that was null."));
+        return;
+    }
+
+    // First, delete all links attached to this box
+    foreach (Link *outputLink, box->outputSlot()->outputs()) {
+        deleteItem(outputLink);
+    }
+
+    foreach (InputSlot *inputSlot, box->inputSlots()) {
+        foreach (Link *inputLink, inputSlot->inputs()) {
+            deleteItem(inputLink);
+        }
+    }
+
+    // Finally, delete the box (the QGraphicsScene will take care of removing the box)
+    delete box;
+}
+
 void DiagramScene::removeItem(QGraphicsItem *item)
 {
     QGraphicsScene::removeItem(item);
-}
-
-void DiagramScene::removeItem(Arrow *arrow)
-{
-    QGraphicsScene::removeItem(arrow);
-}
-
-/*
- * Remove a DiagramBox from the scene and also remove any lines that were connected to it
- */
-
-void DiagramScene::removeItem(DiagramBox *box)
-{
-    // ATTENTION: check for leaks: do we need to delete the items?
-
-    std::cout << "About to delete box #??" << std::endl;
-
-    // TODO: re-implement this in a more efficient manner!
-    std::cout << "Box #?? has " << box->startLines().size() << " start lines" << std::endl;
-
-    qDebug() << "Needs to re-implement item deletion with associated arrows, etc.";
-
-    /*
-    for (auto line : box->startLines()) {
-        std::cout << "Dealing with line #" << line->no << std::endl;
-        DiagramBox *endBox = line->to();
-        std::cout << "endBox for this line is #??" << std::endl;
-
-        // Unlink the Arrow from its DiagramBoxes
-        line->setTo(NULL);
-        line->setFrom(NULL);
-
-        endBox->removeEndLine(line); // Remove this Arrow from the endBox's endlines
-        box->removeStartLine(line);  // Remove this Arrow from this box's start lines
-
-        removeItem(line); // Remove the line from the scene
-    }
-    //*/
-
-    // Empty the list of start lines
-    // ATTENTION: do we need to explicitly call 'delete' or will 'erase()' do it for us?
-    box->startLines().clear();
-
-    // TODO: re-implement this in a more efficient manner!
-   std::cout << "Box #??? has " << box->endLines().size() << " end lines" << std::endl;
-
-   /*
-   for (auto line : box->endLines()) {
-       std::cout << "Dealing with line #" << line->no << std::endl;
-       DiagramBox *startBox = line->from();
-       std::cout << "startBox for this line is #??" << std::endl;
-
-       // Unlink the Arrow from its DiagramBoxes
-       line->setTo(NULL);
-       line->setFrom(NULL);
-
-       startBox->removeStartLine(line); // Remove this Arrow from the endBox's endlines
-       box->removeEndLine(line);  // Remove this Arrow from this box's start lines
-
-       removeItem(line); // Remove the line from the scene
-   }
-   //*/
-
-   // Empty the list of start lines
-   // ATTENTION: do we need to explicitly call 'delete' or will 'erase()' do it for us?
-   box->endLines().clear();
-
-    QGraphicsScene::removeItem(box); // Remove the Box from the scene
-    delete box;                      // Delete the Box
 }
 
 /**

@@ -36,7 +36,6 @@ class Link : public QObject, public QGraphicsItem
 
 public:
     explicit Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent = 0);
-    ~Link();
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);

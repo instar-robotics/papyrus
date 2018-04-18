@@ -66,9 +66,10 @@ protected:
     void dragMoveEvent(QGraphicsSceneDragDropEvent *evt);
     void dropEvent(QGraphicsSceneDragDropEvent *evt);
     void keyPressEvent(QKeyEvent *evt);
+    void deleteItem(Link *link);
+    void deleteItem(DiagramBox *box);
+
     void removeItem(QGraphicsItem *item);
-    void removeItem(Arrow *arrow);
-    void removeItem(DiagramBox *box);
 
     void drawBackground(QPainter *painter, const QRectF &rect);
 

@@ -24,6 +24,7 @@ public:
     std::set<Link *> outputs() const;
 
     void addOutput(Link *output);
+    void removeOutput(Link *output);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;

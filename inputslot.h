@@ -25,6 +25,7 @@ public:
     std::set<Link *> inputs() const;
 
     void addInput(Link *input);
+    void removeInput(Link *input);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;

@@ -3,6 +3,7 @@
 #include "ui_papyruswindow.h"
 #include "outputslot.h"
 #include "helpers.h"
+#include "constants.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -33,14 +34,15 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 void Script::save()
 {
     // Prevent saving when the script is in invalid state
-    if (m_isInvalid) {
+    if (m_isInvalid || m_name == NEW_SCRIPT_DEFAULT_NAME) {
         QMessageBox::warning(NULL, tr("Saving not allowed in invalid state!"),
                              tr("You cannot save the script at this time because it is currently "
                                 "in an invalid state.\nThis can mean that:\n"
-                                "   - some function boxes are linked with SCALAR_MATRIX but are "
+                                "  - some function boxes are linked with SCALAR_MATRIX but are "
                                 "not the same size\n"
-                                "   - some function boxes have negative sizes\n"
-                                "   - etc."));
+                                "  - some function boxes have negative sizes\n"
+                                "  - it is still named \"") + QString(NEW_SCRIPT_DEFAULT_NAME) + tr("\"\n"
+                                "  - etc."));
         return;
     }
 

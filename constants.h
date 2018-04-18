@@ -16,7 +16,7 @@
 #define LIBRARY_ICON_SIZE 40
 
 // Define the default name for a new script
-#define NEW_SCRIPT_DEFAULT_NAME "New Script"
+#define NEW_SCRIPT_DEFAULT_NAME "Untitled"
 
 // Define the margin added to the scene's rectangle when resizing it (in px)
 #define SCENE_RECT_MARGIN 200

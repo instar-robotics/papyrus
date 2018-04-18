@@ -369,7 +369,6 @@ void PapyrusWindow::on_actionNew_script_triggered()
     // Create the new script and add it to the set of scripts
     Script *newScript = new Script(newScene, newScriptName);
     connect(newScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
-//    newScene->setScript(newScript); // Unnecessary because it is done in the constructor
     addScript(newScript);
 
     // Add the new scene as a new tab and make it active

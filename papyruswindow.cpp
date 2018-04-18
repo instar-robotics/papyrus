@@ -375,6 +375,8 @@ void PapyrusWindow::on_actionNew_script_triggered()
                                                          QIcon(":/icons/icons/script.svg"),
                                                          newScriptName));
 
+    m_propertiesPanel->displayScriptProperties(newScript);
+
     // Set the script as modified
     newScript->setStatusModified(true);
 

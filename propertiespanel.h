@@ -3,6 +3,7 @@
 
 #include "diagrambox.h"
 #include "link.h"
+#include "script.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -30,6 +31,7 @@ public:
 
     void updateBoxProperties(DiagramBox *box);
     void updateLinkProperties(Link *link);
+    void updateScriptProperties(Script *script);
 
     QFrame *boxFrame() const;
     void setBoxFrame(QFrame *boxFrame);
@@ -57,7 +59,22 @@ public:
 
     QDoubleSpinBox *linkWeight() const;
 
+    QLabel *scriptName() const;
+    void setScriptName(QLabel *scriptName);
+
+    QDoubleSpinBox *timeValue() const;
+    void setTimeValue(QDoubleSpinBox *timeValue);
+
+    QComboBox *timeUnit() const;
+    void setTimeUnit(QComboBox *timeUnit);
+
 private:
+    QFrame *m_scriptFrame;       // Container for script's properties
+    QLabel *m_scriptName;        // Label used to change the script (and tab) name
+    QLabel *m_timeLabel;         // Contains either "frequency" or "period"
+    QDoubleSpinBox *m_timeValue; // Used to input the script's frequency (or period)
+    QComboBox *m_timeUnit;       // Used to select the unit (in Hz or ms)
+
     QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
     QFrame *m_boxFrame;        // Container for box's properties
     QLabel *m_boxName;         // Display the name of the box
@@ -65,19 +82,23 @@ private:
     QSpinBox *m_rowsInput;     // Spin box to input number of rows in the output (if matrix)
     QSpinBox *m_colsInput;     // Spin box to input number of columns in the output (if matrix)
     QCheckBox *m_saveActivity; // To enable saving the activity of the box
+
+
+    QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
+    QFrame *m_linkFrame;          // Container for link's properties
+    QLabel *m_linkType;           // Display the type of the link
+    QComboBox *m_linkOperation;   // Chose the operation between inputs and weights
+    QCheckBox *m_linkSecondary;   // Will display if the link is secondary or not
+    QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
+
     QPushButton *m_okBtn;      // Button used to validate changes in parameters
     QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
-
-    QFormLayout *m_linkLayout;   // Layout for the link properties (access needed to hide rows)
-    QFrame *m_linkFrame;         // Container for link's properties
-    QLabel *m_linkType;          // Display the type of the link
-    QComboBox *m_linkOperation;     // Chose the operation between inputs and weights
-    QCheckBox *m_linkSecondary;  // Will display if the link is secondary or not
-    QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
 
 public slots:
     void displayBoxProperties(DiagramBox *box);
     void displayLinkProperties(Link *link);
+    void displayScriptProperties(Script *script);
+    void convertTimeValues(int unit);
 };
 
 #endif // PROPERTIESPANEL_H

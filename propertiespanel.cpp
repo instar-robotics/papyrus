@@ -7,6 +7,10 @@
 #include <QMessageBox>
 
 PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
+                                                    m_scriptFrame(NULL),
+                                                    m_scriptName(NULL),
+                                                    m_timeLabel(NULL),
+                                                    m_timeValue(NULL),
                                                     m_boxLayout(NULL),
                                                     m_boxFrame(NULL),
                                                     m_boxName(NULL),
@@ -14,18 +18,18 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_rowsInput(NULL),
                                                     m_colsInput(NULL),
                                                     m_saveActivity(NULL),
-                                                    m_okBtn(NULL),
-                                                    m_cancelBtn(NULL),
                                                     m_linkLayout(NULL),
                                                     m_linkFrame(NULL),
                                                     m_linkType(NULL),
                                                     m_linkOperation(NULL),
                                                     m_linkSecondary(NULL),
-                                                    m_linkWeight(NULL)
+                                                    m_linkWeight(NULL),
+                                                    m_okBtn(NULL),
+                                                    m_cancelBtn(NULL)
 {
     setTitle(tr("Properties"));
-
     QVBoxLayout *layout = new QVBoxLayout;
+    m_scriptFrame = new QFrame;
     m_boxFrame = new QFrame;
     m_linkFrame = new QFrame;
     m_okBtn = new QPushButton("OK");
@@ -35,6 +39,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_cancelBtn->setIcon(QIcon(":/icons/icons/cancel.svg"));
     m_cancelBtn->setIconSize(QSize(22, 22)); // Shrink the cancel icon size a little
     m_cancelBtn->setToolTip(tr("Discard changes and reset to the selected item's"));
+    layout->addWidget(m_scriptFrame);
     layout->addWidget(m_boxFrame);
     layout->addWidget(m_linkFrame);
     QHBoxLayout *btnsLayout = new QHBoxLayout;
@@ -43,7 +48,34 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     layout->addLayout(btnsLayout);
     setLayout(layout);
 
-    // Create the layout for the two frames
+    // Create layout for script's frame
+    QFormLayout *scriptLayout = new QFormLayout;
+    QLabel scriptTitle(tr("Script Properties"));
+    QFont scriptFont = scriptTitle.font();
+    scriptFont.setBold(true);
+    scriptTitle.setFont(scriptFont);
+    m_scriptName = new QLabel;
+    m_timeLabel = new QLabel(tr("Freq:"));
+    m_timeValue = new QDoubleSpinBox;
+    m_timeUnit = new QComboBox;
+
+    // Parameterize the fields
+    scriptLayout->setContentsMargins(0, 0, 0, 0);
+    m_timeValue->setRange(MIN_TIME_VALUE, MAX_TIME_VALUE);
+    m_timeValue->setDecimals(3);
+    m_timeUnit->addItem("Hz", HZ);
+    m_timeUnit->addItem("ms", MS);
+    connect(m_timeUnit, SIGNAL(currentIndexChanged(int)), SLOT(convertTimeValues(int)));
+
+    // Add fields to layout
+    scriptLayout->addRow(&scriptTitle);
+    scriptLayout->addRow(tr("Name:"), m_scriptName);
+    scriptLayout->addRow(m_timeLabel, m_timeValue);
+    scriptLayout->addRow(tr("Unit:"), m_timeUnit);
+
+    m_scriptFrame->setLayout(scriptLayout);
+
+    // Create the layout for the frames
     m_boxLayout = new QFormLayout;
     m_boxName = new QLabel;
     m_boxOutputType = new QLabel;
@@ -106,12 +138,18 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     // By default, hide the frames and the buttons
     m_linkFrame->hide();
     m_boxFrame->hide();
+    m_scriptFrame->hide();
     m_okBtn->hide();
     m_cancelBtn->hide();
 }
 
 PropertiesPanel::~PropertiesPanel()
 {
+    delete m_scriptFrame;
+    delete m_scriptName;
+    delete m_timeLabel;
+    delete m_timeValue;
+    delete m_timeUnit;
     delete m_boxName;
     delete m_boxOutputType;
     delete m_boxFrame;
@@ -207,6 +245,36 @@ QDoubleSpinBox *PropertiesPanel::linkWeight() const
     return m_linkWeight;
 }
 
+QLabel *PropertiesPanel::scriptName() const
+{
+    return m_scriptName;
+}
+
+void PropertiesPanel::setScriptName(QLabel *scriptName)
+{
+    m_scriptName = scriptName;
+}
+
+QDoubleSpinBox *PropertiesPanel::timeValue() const
+{
+    return m_timeValue;
+}
+
+void PropertiesPanel::setTimeValue(QDoubleSpinBox *timeValue)
+{
+    m_timeValue = timeValue;
+}
+
+QComboBox *PropertiesPanel::timeUnit() const
+{
+    return m_timeUnit;
+}
+
+void PropertiesPanel::setTimeUnit(QComboBox *timeUnit)
+{
+    m_timeUnit = timeUnit;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -216,8 +284,9 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
     if (box == NULL)
         informUserAndCrash(tr("Cannot display box's properties because box is null!"));
 
-    // Hide the link frame
+    // Hide the other frames
     m_linkFrame->hide();
+    m_scriptFrame->hide();
 
     // Update the fields with the selected box
     m_boxName->setText(box->name());
@@ -280,8 +349,9 @@ void PropertiesPanel::displayLinkProperties(Link *link)
     if (link == NULL)
         informUserAndCrash(tr("Cannot display link's properties because link is null!"));
 
-    // Hide the box frame
+    // Hide the other frames
     m_boxFrame->hide();
+    m_scriptFrame->hide();
 
     InputType linkType = link->to()->inputType();
 
@@ -329,6 +399,44 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 }
 
 /**
+ * @brief PropertiesPanel::displayScriptProperties shows the script's properties in the properties
+ * panel (information such as script name, script frequency, etc.)
+ * @param script
+ */
+void PropertiesPanel::displayScriptProperties(Script *script)
+{
+    if (script == NULL)
+        informUserAndCrash(tr("Cannot display script's properties because script is null!"));
+
+    // Hide the other frames
+    m_boxFrame->hide();
+    m_linkFrame->hide();
+
+    // Populate fields
+    m_scriptName->setText(script->name());
+    m_timeValue->setValue(script->timeValue());
+    m_timeUnit->setCurrentIndex(script->timeUnit());
+
+    // Show the script's frame
+    m_scriptFrame->show();
+    m_okBtn->show();
+    m_cancelBtn->show();
+}
+
+void PropertiesPanel::convertTimeValues(int unit)
+{
+    m_timeValue->setValue(1000.0 / m_timeValue->value());
+
+    if (unit == MS) {
+        m_timeLabel->setText(tr("Period:"));
+    } else if (unit == HZ) {
+        m_timeLabel->setText(tr("Freq:"));
+    } else {
+        informUserAndCrash(tr("Unsupported time unit. Supported units are Hz and ms."));
+    }
+}
+
+/**
  * @brief PropertiesPanel::updateBoxProperties is called when the user clicked "OK" after changing
  * some properties of the selected box. It updates the selected box's properties based on the
  * contents of the fields in the properties panel
@@ -364,4 +472,18 @@ void PropertiesPanel::updateLinkProperties(Link *link)
         link->setWeight(m_linkWeight->value());
         link->setOperation(m_linkOperation->currentData().value<LinkOperation>());
     }
+}
+
+/**
+ * @brief PropertiesPanel::updateScriptProperties updates the script's properties (such as RT Token)
+ * when "OK" is pressed in the properties panel
+ * @param script
+ */
+void PropertiesPanel::updateScriptProperties(Script *script)
+{
+    if (script == NULL)
+        informUserAndCrash(tr("Cannot update script's properties: script is null!"));
+
+    script->setTimeValue(m_timeValue->value());
+    script->setTimeUnit(m_timeUnit->currentData().value<TimeUnit>());
 }

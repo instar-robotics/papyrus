@@ -229,3 +229,17 @@ void updateSizeIcon(DiagramBox *box)
     }
 
 }
+
+QString timeUnitToString(TimeUnit unit)
+{
+    if (unit == HZ)
+        return "Hz";
+
+    if (unit == MS)
+        return "ms";
+
+    informUserAndCrash(QObject::tr("Unsupported time unit when trying to convert to string. Supported "
+                          "time units are: HZ and MS"));
+
+    return ""; // should not reach here as informUserAndCrash() crashes
+}

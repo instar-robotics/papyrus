@@ -20,6 +20,10 @@
 #define MIN_WEIGHT -10000
 #define MAX_WEIGHT 10000
 
+// Define the minimum and maximum time value (for the double spinbox)
+#define MIN_TIME_VALUE 0.001
+#define MAX_TIME_VALUE 10000
+
 PapyrusWindow *getMainWindow();
 
 QString outputTypeToString(OutputType outputType);
@@ -27,6 +31,8 @@ OutputType stringToOutputType(QString str);
 
 QString inputTypeToString(InputType inputType);
 InputType stringToInputType(QString str);
+
+QString timeUnitToString(TimeUnit unit);
 
 bool canLink(OutputType from, InputType to);
 

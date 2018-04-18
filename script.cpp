@@ -15,7 +15,9 @@
 Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_name(name),
                                                            m_modified(false),
-                                                           m_isInvalid(false)
+                                                           m_isInvalid(false),
+                                                           m_timeValue(10.0),
+                                                           m_timeUnit(HZ)
 {
     if (scene != NULL) {
         scene->setScript(this);
@@ -94,6 +96,14 @@ void Script::save()
     stream.setAutoFormatting(true);     // Make it human-readable
     stream.writeStartElement("script"); // Write the root tag
     stream.writeTextElement("name", name());     // Write the name of the script
+
+    // Write the RT token parameters
+    stream.writeStartElement("rt_token");
+    stream.writeAttribute("unit", timeUnitToString(m_timeUnit));
+    stream.writeCharacters(QString::number(m_timeValue));
+    stream.writeEndElement(); // rt_token
+
+    // Write all functions
     stream.writeStartElement("functions");
 
     // Traverse all items in the scene and store them
@@ -282,4 +292,24 @@ void Script::setIsInvalid(bool isInvalid)
 {
     m_isInvalid = isInvalid;
     updateTextStyle();
+}
+
+double Script::timeValue() const
+{
+    return m_timeValue;
+}
+
+void Script::setTimeValue(double timeValue)
+{
+    m_timeValue = timeValue;
+}
+
+TimeUnit Script::timeUnit() const
+{
+    return m_timeUnit;
+}
+
+void Script::setTimeUnit(const TimeUnit &timeUnit)
+{
+    m_timeUnit = timeUnit;
 }

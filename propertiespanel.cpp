@@ -63,9 +63,12 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     scriptLayout->setContentsMargins(0, 0, 0, 0);
     m_timeValue->setRange(MIN_TIME_VALUE, MAX_TIME_VALUE);
     m_timeValue->setDecimals(3);
+    m_timeValue->setSuffix(" Hz");
     m_timeUnit->addItem("Hz", HZ);
     m_timeUnit->addItem("ms", MS);
     connect(m_timeUnit, SIGNAL(currentIndexChanged(int)), SLOT(convertTimeValues(int)));
+    m_timeValue->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_timeUnit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     // Add fields to layout
     scriptLayout->addRow(&scriptTitle);
@@ -429,8 +432,10 @@ void PropertiesPanel::convertTimeValues(int unit)
 
     if (unit == MS) {
         m_timeLabel->setText(tr("Period:"));
+        m_timeValue->setSuffix(" ms");
     } else if (unit == HZ) {
         m_timeLabel->setText(tr("Freq:"));
+        m_timeValue->setSuffix(" Hz");
     } else {
         informUserAndCrash(tr("Unsupported time unit. Supported units are Hz and ms."));
     }

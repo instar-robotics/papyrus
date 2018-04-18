@@ -1,5 +1,6 @@
 #include "propertiespanel.h"
 #include "helpers.h"
+#include "constants.h"
 
 #include <QVBoxLayout>
 #include <QDebug>

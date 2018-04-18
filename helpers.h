@@ -12,18 +12,6 @@
  * This file provides a set of helpers that are used throughout this project.
  */
 
-// Define the maximum number of rows / columns a matrix can have (for the spinbox)
-#define MAX_ROWS 100000
-#define MAX_COLS 100000
-
-// Define the minimum and maximum allowed weight (for the double spinbox)
-#define MIN_WEIGHT -10000
-#define MAX_WEIGHT 10000
-
-// Define the minimum and maximum time value (for the double spinbox)
-#define MIN_TIME_VALUE 0.001
-#define MAX_TIME_VALUE 10000
-
 PapyrusWindow *getMainWindow();
 
 QString outputTypeToString(OutputType outputType);

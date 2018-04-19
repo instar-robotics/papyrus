@@ -42,5 +42,8 @@
 #define MIN_TIME_VALUE 0.001
 #define MAX_TIME_VALUE 10000
 
+// Define the z-value for the links (used to put them behind slots to prevent hiding the slots)
+#define LINKS_Z_VALUE -1.0
+
 #endif // CONSTANTS
 

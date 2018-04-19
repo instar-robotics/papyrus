@@ -291,6 +291,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
                             script()->setIsInvalid(true);
                         }
 
+                        zelda->setZValue(LINKS_Z_VALUE);
+
                         emit displayStatusMessage(tr("New link created."));
                         script()->setStatusModified(true);
                     } else {

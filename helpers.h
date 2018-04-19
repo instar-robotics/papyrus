@@ -30,4 +30,6 @@ void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF size, const QPointF pos,
 
 void updateSizeIcon(DiagramBox *box);
 
+bool areLinked(OutputSlot *oSlot, InputSlot *iSlot);
+
 #endif // HELPERS_H

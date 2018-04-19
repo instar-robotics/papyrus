@@ -243,3 +243,25 @@ QString timeUnitToString(TimeUnit unit)
 
     return ""; // should not reach here as informUserAndCrash() crashes
 }
+
+/**
+ * @brief areLinked tells whether an output slot and an input slot have a link between them
+ * @param oSlot the originating output slot
+ * @param iSlot the target input slot
+ * @return whether they are linked or not
+ */
+bool areLinked(OutputSlot *oSlot, InputSlot *iSlot)
+{
+    if (oSlot == NULL || iSlot == NULL)
+        informUserAndCrash(QObject::tr("Cannot check whether two slots are linked: at least one of them is null."));
+
+    bool areLinked = false;
+    foreach (Link *link, oSlot->outputs()) {
+        if (link->to() == iSlot) {
+            areLinked = true;
+            break;
+        }
+    }
+
+    return areLinked;
+}

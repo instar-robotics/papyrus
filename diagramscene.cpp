@@ -281,16 +281,21 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             if (maybeSlot) {
                 // If we have released on top on something, check that the types are compatible
                 if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
-                    Link *zelda = new Link(m_oSlot, maybeSlot);
-                    addItem(zelda); // Important to add the Link to the scene first
-                    zelda->addLinesToScene(); // And then it's important to call this to add the segments to the scene
-                    if (zelda->checkIfInvalid()) {
-                        emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
-                        script()->setIsInvalid(true);
-                    }
+                    // And check that the link doesn't already exists
+                    if (!areLinked(m_oSlot, maybeSlot)) {
+                        Link *zelda = new Link(m_oSlot, maybeSlot);
+                        addItem(zelda); // Important to add the Link to the scene first
+                        zelda->addLinesToScene(); // And then it's important to call this to add the segments to the scene
+                        if (zelda->checkIfInvalid()) {
+                            emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
+                            script()->setIsInvalid(true);
+                        }
 
-                    emit displayStatusMessage(tr("New link created."));
-                    script()->setStatusModified(true);
+                        emit displayStatusMessage(tr("New link created."));
+                        script()->setStatusModified(true);
+                    } else {
+                        emit displayStatusMessage(tr("Link already exists!"));
+                    }
                 } else {
                     emit displayStatusMessage(tr("Invalid connection!"));
                 }

@@ -189,13 +189,13 @@ void Script::save()
         stream.writeEndElement(); // function
     }
 
-    stream.writeEndElement();
+    stream.writeEndElement(); // functions
 
     stream.writeEndDocument(); //Close the document
 
     file.close();
 
-    QString msg(tr("Script ") + m_name + tr(" saved!"));
+    QString msg(tr("Script \"") + m_name + tr("\" saved!"));
 
     // Set the status as not modified
     setStatusModified(false);

@@ -21,8 +21,10 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
     m_uuid = QUuid::createUuid();
 
     // Add ourselves as input and output to the corresponding slots
-    f->addOutput(this);
-    t->addInput(this);
+    if (f != NULL)
+        f->addOutput(this);
+    if (t != NULL)
+        t->addInput(this);
 
     setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);

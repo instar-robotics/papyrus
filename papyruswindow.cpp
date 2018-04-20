@@ -462,7 +462,6 @@ void PapyrusWindow::on_actionDisplay_Grid_toggled(bool shouldDisplay)
 void PapyrusWindow::on_actionAbout_Papyrus_triggered()
 {
     QString title(tr("About %1").arg(APP_NAME));
-//    QString desc("<h2>.:| %1 |:.</h2>");
     QString desc("<h2>.:| ");
     desc += APP_NAME;
     desc += " v";
@@ -471,7 +470,7 @@ void PapyrusWindow::on_actionAbout_Papyrus_triggered()
     desc += QString::number(MINOR_VERSION);
     desc += " |:.</h2>";
     desc += "Graphical programming application to easily create neural networks to be run by "
-            "[insert kernel application name here]<br><br>";
+            "kheops<br><br>";
     desc += "<strong>Author:</strong> Nicolas SCHOEMAEKER <pre><a href='mailto:nschoe@protonmail.com'>nschoe@protonmail.com</a></pre>";
     desc += "<strong>Source:<strong> <a href='https://google.com'>[Insert github link here]</a>";
 

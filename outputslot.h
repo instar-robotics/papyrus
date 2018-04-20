@@ -43,8 +43,8 @@ public:
 
 private:
     std::set<Link *> m_outputs; // The set of arrows which leaves this slot
-    bool m_isDrawingLine;        // Indicate if we are drawing an outgoing link
-    OutputType m_outputType;     // Indicate whether this function (slot) outputs a matrix or scalar
+    bool m_isDrawingLine;       // Indicate if we are drawing an outgoing link
+    OutputType m_outputType;    // Indicate whether this function (slot) outputs a matrix or scalar
 };
 
 #endif // OUTPUTSLOT_H

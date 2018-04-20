@@ -28,15 +28,21 @@ private:
     Script *m_script;
 
     void readScript();
-    void readFunction(std::set<std::pair<QUuid, QUuid>> *links);
+    void readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
+                      std::map<QUuid, Link *> *incompleteLinks);
     void readFunctionName(QString *name);
     void readFunctionSave(bool *save);
-    void readInputSlots(std::set<InputSlot *> *inputSlots);
+    void readInputSlots(std::set<InputSlot *> *inputSlots,
+                        std::map<QUuid, DiagramBox *> *allBoxes,
+                        std::map<QUuid, Link *> *incompleteLinks);
     void readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols);
     void readUUID(QUuid *uuid);
     void readPosition(QPointF *pos);
-    void readLink(QUuid uuid, std::set<std::pair<QUuid, QUuid>> *links);
     void readDescription(QString *descriptionPath);
+    void readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
+                   std::map<QUuid, Link *> *incompleteLinks);
+    void readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
+                  std::map<QUuid, Link *> *incompleteLinks);
 };
 
 #endif // XMLSCRIPTREADER_H

@@ -265,3 +265,43 @@ bool areLinked(OutputSlot *oSlot, InputSlot *iSlot)
 
     return areLinked;
 }
+
+QString linkOperationToString(LinkOperation op)
+{
+    switch (op) {
+    case OP_PRODUCT:
+        return "OP_PRODUCT";
+        break;
+
+    case OP_ADDITION:
+        return "OP_ADDITION";
+        break;
+
+    case OP_SUBTRACTION:
+        return "OP_SUBTRACTION";
+        break;
+
+    case OP_DIVISION:
+        return "OP_DIVISION";
+        break;
+
+        informUserAndCrash(QObject::tr("Unsupported LinkOperation while trying to convert to string. "
+                              "Supported types are OP_PRODUCT, OP_ADDITION, OP_SUBTRACTION and "
+                              "OP_DIVISION"));
+    }
+}
+
+LinkOperation stringToLinkOperation(QString str)
+{
+    QString lower = str.toUpper();
+    if (lower == "OP_PRODUCT")
+        return OP_PRODUCT;
+    else if (lower == "OP_ADDITION")
+        return OP_ADDITION;
+    else if (lower == "OP_SUBTRACTION")
+        return OP_SUBTRACTION;
+    else if (lower == "OP_DIVISION")
+        return OP_DIVISION;
+    else
+        informUserAndCrash(QObject::tr("Could not parse \"") + str + QObject::tr("\" into a LinkOpeation"));
+}

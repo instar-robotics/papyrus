@@ -1,5 +1,6 @@
 #include "xmlscriptreader.h"
 #include "helpers.h"
+#include "constants.h"
 
 #include <QDebug>
 #include <iostream>
@@ -46,98 +47,97 @@ void XmlScriptReader::readScript()
                 m_script->setName(scriptName);
             }
 
+            // Then read the rt_token flag
+            if (reader.readNextStartElement()) {
+                if (reader.name() == "rt_token") {
+                    // Read its UUID
+                    if (reader.attributes().hasAttribute("uuid")) {
+                        QUuid uuid(reader.attributes().value("uuid").toString());
+                        if (!uuid.isNull()) {
+                            m_script->setUuid(uuid);
+                        } else {
+                            reader.raiseError(QObject::tr("Invalid UUID for RT Token."));
+                        }
+                    } else {
+                        reader.raiseError(QObject::tr("Missing UUID attribute for the RT Token."));
+                    }
+
+                    // Read its unit
+                    if (reader.attributes().hasAttribute("unit")) {
+                        QString unit(reader.attributes().value("unit").toString());
+                        if (!unit.isNull() && (unit == "Hz" || unit == "ms")) {
+                            if (unit == "Hz")
+                                m_script->setTimeUnit(HZ);
+                            else
+                                m_script->setTimeUnit(MS);
+                        } else {
+                            reader.raiseError(QObject::tr("Invalid unit for the RT Token."));
+                        }
+                    } else {
+                        reader.raiseError(QObject::tr("Missing unit attribute for the RT Token."));
+                    }
+
+                    // Read its value
+                    bool ok = false;
+                    double timeValue = reader.readElementText().toDouble(&ok);
+                    if (ok)
+                        m_script->setTimeValue(timeValue);
+                    else
+                        reader.raiseError(QObject::tr("Invalid unit value for the RT Token."));
+                } else {
+                    reader.raiseError(QObject::tr("No RT Token found."));
+                }
+            }
+
             // Then read the opening <functions> tag
             if (reader.readNextStartElement()) {
                 if (reader.name() == "functions") {
                     /*
-                     * Then loop through all the <function> tags.
-                     * When we find a link, we store the IDs of the functions in a pair
-                     * and once all functions are inserted in the scene, we add the links.
+                     * Then loop through all <function> tags. We create the function (box) when we
+                     * parse it, and add a link to it in the dict below.
+                     * When we find a link for its input(s), we lookup the uuid in the dict and see
+                     * if the box it originates from was already created.
+                     * If yes, make the link, otherwise, store the (incomplete) link in the second
+                     * dict. When <function> parsing is over, we traverse the incomplete links are
+                     * complete them.
                      */
-                    std::set<std::pair<QUuid, QUuid>> links;
+                    std::map<QUuid, DiagramBox *> allBoxes;
+                    std::map<QUuid, Link *> incompleteLinks;
                     while (reader.readNextStartElement()) {
                         if (reader.name() == "function")
-                            readFunction(&links);
+                            readFunction(&allBoxes, &incompleteLinks);
                         else
                             reader.skipCurrentElement();
                     }
 
-                    /*
-                     * Now create all links
-                     * NOTE: right now the set of links is naively implemented: links are just
-                     * pushed in, without any ordering. This means thant in order to create all
-                     * links, we have to search the QGraphicsScene again and again, which is
-                     * inefficient.
-                     * A better way would be to store a map whose keys are the originating box and
-                     * whose value is a set of all target functions.
-                     * This way, the QGraphicsScene would be searched a fewer number of times (since
-                     * we could keep a reference to the originating function).
-                     * This is not a problem in the beginning, but it might be a bit slow when we
-                     * reach a big number of boxes and a big number of links
-                     */
-                    DiagramScene *scene = m_script->scene();
+                    if (incompleteLinks.size() > 0) {
+                        foreach (auto pair, incompleteLinks) {
+                            QUuid fromUuid = pair.first;
+                            Link *link = pair.second;
 
-                    // I don't like 'auto', but syntax error when using correct type
-                    foreach (auto link, links) {
-                        const QUuid originID = link.first;
-                        const QUuid targetID = link.second;
+                            std::map<QUuid, DiagramBox *>::iterator it = allBoxes.find(fromUuid);
 
-                        DiagramBox *origin = NULL;
-                        DiagramBox *target = NULL;
+                            if (it != allBoxes.end()) {
+                                OutputSlot *oSlot = it->second->outputSlot();
+                                link->setFrom(oSlot);
+                                oSlot->addOutput(link);
+                                m_script->scene()->addItem(link);
+                                link->addLinesToScene();
 
-                        /*
-                         * As explained before, this is suboptimal because we traverse the scene
-                         * many times :/
-                         */
-                        foreach (QGraphicsItem *item, scene->items()) {
-                            // Stop searching if we have found both boxes
-                            if (origin != NULL && target != NULL)
-                                break;
-
-                            DiagramBox *box = dynamic_cast<DiagramBox *>(item);
-                            if (box == NULL) {
-                                // Not a box, so skip it
-                                continue;
+                                if (link->checkIfInvalid())
+                                    m_script->setIsInvalid(true);
+                                link->setZValue(LINKS_Z_VALUE);
+                                incompleteLinks.erase(fromUuid);
+                            } else {
+                                informUserAndCrash(QObject::tr("One incomplete link could not be "
+                                                               "completed: did not find its "
+                                                               "originating box."));
                             }
-
-                            // Match the box against the origin and targets
-                            if (box->uuid() == originID)
-                                origin = box;
-
-                            if (box->uuid() == targetID)
-                                target = box;
                         }
-
-                        /*
-                         * If either 'origin' or 'target' is still NULL here, it means the link
-                         * references an non-existing box. So issue a warning on console bar and
-                         * skip it
-                         */
-                        if (origin == NULL || target == NULL) {
-                            std::cerr << "Found a link that references a non-existing box ; "
-                                         "skipping it." << std::endl;
-                            continue;
-                        }
-
-                        // Actually create the arrow
-                        QPointF startPoint = origin->scenePos();
-                        startPoint.rx() += origin->boundingRect().right();
-                        startPoint.ry() += origin->boundingRect().bottom() / 2;
-
-                        QPointF endPoint = target->scenePos();
-                        endPoint.ry() += target->boundingRect().bottom() / 2;
-
-                        // TODO: create a function to "add an arrow" instead of doing this
-                        // TODO : if still using this snippet, implement issue #2 to be able to set FROM and TO
-                        Arrow *arrow = new Arrow(QLineF(startPoint, endPoint));
-                        // Link the newly-created Arrow with its corresponding DiagramBoxes
-//                        origin->addStartLine(arrow);
-//                        target->addEndLine(arrow);
-//                        arrow->setFrom(origin);
-//                        arrow->setTo(target);
-
-                        scene->addItem(arrow);
                     }
+                    DiagramScene *scene = m_script->scene();
+//                    scene->updateSceneRect();
+                    scene->update();
                 } else {
                     reader.raiseError(QObject::tr("Missing functions definition."));
                 }
@@ -152,7 +152,8 @@ void XmlScriptReader::readScript()
     }
 }
 
-void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
+void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
+                                   std::map<QUuid, Link *> *incompleteLinks)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "function");
 
@@ -173,13 +174,11 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
         else if (reader.name() == "save")
             readFunctionSave(&save);
         else if (reader.name() == "inputs")
-            readInputSlots(&inputSlots);
+            readInputSlots(&inputSlots, allBoxes, incompleteLinks);
         else if (reader.name() == "output")
             readOutputSlot(outputSlot, &rows, &cols);
         else if (reader.name() == "position")
             readPosition(&pos);
-        else if (reader.name() == "link")
-            readLink(uuid, links);
         else if (reader.name() == "description")
             readDescription(&descriptionFile);
         else {
@@ -195,6 +194,9 @@ void XmlScriptReader::readFunction(std::set<std::pair<QUuid, QUuid> > *links)
     b->setSaveActivity(save);
     b->setRows(rows);
     b->setCols(cols);
+
+    // Add this box to the dict
+    allBoxes->insert(std::pair<QUuid, DiagramBox *>(uuid, b));
 
     QString iconPath(descriptionFile);
     iconPath.replace(".xml", ".svg");
@@ -236,7 +238,9 @@ void XmlScriptReader::readFunctionSave(bool *save)
     }
 }
 
-void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots)
+void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots,
+                                     std::map<QUuid, DiagramBox *> *allBoxes,
+                                     std::map<QUuid, Link *> *incompleteLinks)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "inputs");
 
@@ -264,13 +268,17 @@ void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots)
                 continue;
             }
 
+            // WARNING: this will segfault when <links> are before <name>
+            InputSlot *inputSlot = NULL;
             while (reader.readNextStartElement()) {
                 if (reader.name() == "name") {
                     QString inputName = reader.readElementText();
-                    InputSlot *inputSlot = new InputSlot(inputName);
+                    inputSlot = new InputSlot(inputName);
                     inputSlot->setMultiple(multiple);
                     inputSlot->setInputType(iType);
                     inputSlots->insert(inputSlot);
+                } else if (reader.name() == "links") {
+                    readLinks(inputSlot, allBoxes, incompleteLinks);
                 } else
                     reader.skipCurrentElement();
             }
@@ -330,16 +338,84 @@ void XmlScriptReader::readPosition(QPointF *pos)
     }
 }
 
-void XmlScriptReader::readLink(QUuid uuid, std::set<std::pair<QUuid, QUuid> > *links)
+void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
+                               std::map<QUuid, Link *> *incompleteLinks)
 {
-    Q_ASSERT(reader.isStartElement() && reader.name() == "link" && !uuid.isNull());
+    Q_ASSERT(reader.isStartElement() && reader.name() == "link");
 
-    QUuid targetUuid(reader.readElementText());
+    QXmlStreamAttributes attributes = reader.attributes();
 
-    Q_ASSERT(!targetUuid.isNull());
+    // Create the new link, without an originating output slot yet
+    Link *link = new Link(NULL, inputSlot);
 
-    links->insert(std::make_pair(uuid, targetUuid));
+    if (attributes.hasAttribute("uuid")) {
+        QUuid uuid(attributes.value("uuid").toString());
+        if (!uuid.isNull()) {
+            link->setUuid(uuid);
+        } else {
+            reader.raiseError(QObject::tr("Invalid UUID for a link."));
+        }
+    } else {
+        reader.raiseError(QObject::tr("Missing UUID attribute for a link."));
+    }
+
+    if (attributes.hasAttribute("secondary")) {
+        // TODO: check if parsed value is "true" or "false" and invalid on anything else
+        QString isSecondary(attributes.value("secondary").toString());
+        link->setSecondary(isSecondary == "true" ? true : false);
+    } else {
+        reader.raiseError(QObject::tr("Missing secondary attribute for a link."));
+    }
+
+    while (reader.readNextStartElement()) {
+        if (reader.name() == "weight") {
+            bool ok = false;
+            double weight = reader.readElementText().toDouble(&ok);
+            if (ok) {
+                link->setWeight(weight);
+            } else {
+                reader.raiseError(QObject::tr("Invalid weight for a type."));
+            }
+        } else if (reader.name() == "from") {
+            QUuid fromUuid(reader.readElementText());
+
+            if (!fromUuid.isNull()) {
+                std::map<QUuid, DiagramBox *>::iterator it = allBoxes->find(fromUuid);
+                // Now we check if the box with this UUID was already created (and so we can create
+                // the link now) or not (in which case we store the link in the imcomplete dict)
+                if (it != allBoxes->end()) {
+                    DiagramBox *fromBox = it->second;
+                    OutputSlot *fromSlot = fromBox->outputSlot();
+                    if (fromSlot != NULL) {
+                        link->setFrom(fromSlot);
+                        fromSlot->addOutput(link);
+                        // Should add to scene here
+                        m_script->scene()->addItem(link);
+                        link->addLinesToScene();
+                        if (link->checkIfInvalid())
+                            m_script->setIsInvalid(true);
+                        link->setZValue(LINKS_Z_VALUE);
+                        link->updateLines();
+                        m_script->scene()->update();
+                    } else {
+                        // If the OutputSlot is not yet created, we can't link, so put in incomplete
+                        incompleteLinks->insert(std::pair<QUuid, Link *>(fromUuid, link));
+                    }
+                } else {
+                    // If the box doesn't already exists, store it in incomplete
+                    incompleteLinks->insert(std::pair<QUuid, Link *>(fromUuid, link));
+                }
+            } else {
+                reader.raiseError(QObject::tr("Invalid UUID in from field for a link."));
+            }
+        } else if (reader.name() == "operator") {
+            link->setOperation(stringToLinkOperation(reader.readElementText()));
+        } else {
+            reader.skipCurrentElement();
+        }
+    }
 }
+
 
 void XmlScriptReader::readDescription(QString *descriptionFile)
 {
@@ -351,6 +427,19 @@ void XmlScriptReader::readDescription(QString *descriptionFile)
         reader.raiseError(QObject::tr("Empty description file."));
     } else {
         descriptionFile->setUnicode(description.unicode(), description.size());
+    }
+}
+
+void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
+                                std::map<QUuid, Link *> *incompleteLinks)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "links");
+
+    while (reader.readNextStartElement()) {
+        if (reader.name() == "link")
+            readLink(inputSlot, allBoxes, incompleteLinks);
+        else
+            reader.skipCurrentElement();
     }
 }
 

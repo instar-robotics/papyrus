@@ -85,9 +85,6 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
 
     addItem(newBox);
 
-    // Set the new script as modified
-    m_script->setStatusModified(true);
-
     return newBox;
 }
 
@@ -413,6 +410,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         //*/
 
         addBox(evt->scenePos(), name, icon, outputSlot, inputSlots, descriptionFile);
+        m_script->setStatusModified(true);
 
         setBackgroundBrush(QBrush(Qt::white));
         QString str(tr("Function '%1' added in script").arg(name));

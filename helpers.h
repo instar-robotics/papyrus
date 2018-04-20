@@ -22,6 +22,9 @@ InputType stringToInputType(QString str);
 
 QString timeUnitToString(TimeUnit unit);
 
+QString linkOperationToString(LinkOperation op);
+LinkOperation stringToLinkOperation(QString str);
+
 bool canLink(OutputType from, InputType to);
 
 void informUserAndCrash(const QString &text, const QString &title = QObject::tr("Papyrus is about to crash!"));

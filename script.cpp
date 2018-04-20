@@ -1,4 +1,4 @@
-#include "script.h"
+﻿#include "script.h"
 #include "papyruswindow.h"
 #include "ui_papyruswindow.h"
 #include "outputslot.h"
@@ -144,15 +144,21 @@ void Script::save()
             stream.writeTextElement("name", inputSlot->name());
 
             stream.writeStartElement("links");
-            // Should loop for each connection
-            stream.writeStartElement("link");
-            stream.writeAttribute("secondary", "true/false");
-            stream.writeAttribute("sparse", "true/false");
-            stream.writeTextElement("weight", "1.0");
-            stream.writeTextElement("from", "UUID");
-            stream.writeTextElement("connectivity", "TODO");
-            stream.writeTextElement("operator", "multiplicator/addition/etc");
-            stream.writeEndElement(); // link
+
+            foreach (Link* link, inputSlot->inputs()) {
+                // Should loop for each connection
+                stream.writeStartElement("link");
+                bool isSecondary = link->to()->box() == link->from()->box();
+                stream.writeAttribute("uuid", link->uuid().toString());
+                stream.writeAttribute("secondary", isSecondary ? "true" : "false");
+                stream.writeAttribute("sparse", "true/false");
+                stream.writeTextElement("weight", QString::number(link->weight()));
+                // Be careful to use the box's uuid and not the slot's
+                stream.writeTextElement("from", link->from()->box()->uuid().toString());
+                stream.writeTextElement("connectivity", "TODO");
+                stream.writeTextElement("operator", linkOperationToString(link->operation()));
+                stream.writeEndElement(); // link
+            }
 
             stream.writeEndElement(); // links
             stream.writeEndElement(); // input

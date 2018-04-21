@@ -8,6 +8,7 @@
 #include <QMessageBox>
 
 PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
+                                                    m_panelLayout(NULL),
                                                     m_scriptFrame(NULL),
                                                     m_scriptName(NULL),
                                                     m_timeLabel(NULL),
@@ -29,7 +30,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_cancelBtn(NULL)
 {
     setTitle(tr("Properties"));
-    QVBoxLayout *layout = new QVBoxLayout;
+    QVBoxLayout *m_panelLayout = new QVBoxLayout;
     m_scriptFrame = new QFrame;
     m_boxFrame = new QFrame;
     m_linkFrame = new QFrame;
@@ -40,14 +41,14 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_cancelBtn->setIcon(QIcon(":/icons/icons/cancel.svg"));
     m_cancelBtn->setIconSize(QSize(22, 22)); // Shrink the cancel icon size a little
     m_cancelBtn->setToolTip(tr("Discard changes and reset to the selected item's"));
-    layout->addWidget(m_scriptFrame);
-    layout->addWidget(m_boxFrame);
-    layout->addWidget(m_linkFrame);
+    m_panelLayout->addWidget(m_scriptFrame);
+    m_panelLayout->addWidget(m_boxFrame);
+    m_panelLayout->addWidget(m_linkFrame);
     QHBoxLayout *btnsLayout = new QHBoxLayout;
     btnsLayout->addWidget(m_okBtn);
     btnsLayout->addWidget(m_cancelBtn);
-    layout->addLayout(btnsLayout);
-    setLayout(layout);
+    m_panelLayout->addLayout(btnsLayout);
+    setLayout(m_panelLayout);
 
     // Create layout for script's frame
     QFormLayout *scriptLayout = new QFormLayout;
@@ -145,28 +146,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_scriptFrame->hide();
     m_okBtn->hide();
     m_cancelBtn->hide();
-}
-
-PropertiesPanel::~PropertiesPanel()
-{
-    delete m_scriptFrame;
-    delete m_scriptName;
-    delete m_timeLabel;
-    delete m_timeValue;
-    delete m_timeUnit;
-    delete m_boxName;
-    delete m_boxOutputType;
-    delete m_boxFrame;
-    delete m_linkFrame;
-    delete m_rowsInput;
-    delete m_colsInput;
-    delete m_saveActivity;
-    delete m_okBtn;
-    delete m_cancelBtn;
-    delete m_linkType;
-    delete m_linkOperation;
-    delete m_linkSecondary;
-    delete m_linkWeight;
 }
 
 QFrame *PropertiesPanel::boxFrame() const

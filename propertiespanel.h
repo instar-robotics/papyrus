@@ -27,7 +27,6 @@ class PropertiesPanel : public QGroupBox
 
 public:
     explicit PropertiesPanel(QWidget *parent = 0);
-    ~PropertiesPanel();
 
     void updateBoxProperties(DiagramBox *box);
     void updateLinkProperties(Link *link);
@@ -69,6 +68,7 @@ public:
     void setTimeUnit(QComboBox *timeUnit);
 
 private:
+    QVBoxLayout *m_panelLayout;  // The properties panel's main layout
     QFrame *m_scriptFrame;       // Container for script's properties
     QLabel *m_scriptName;        // Label used to change the script (and tab) name
     QLabel *m_timeLabel;         // Contains either "frequency" or "period"

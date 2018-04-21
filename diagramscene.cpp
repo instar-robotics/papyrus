@@ -42,9 +42,9 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
 DiagramScene::~DiagramScene()
 {
-    delete m_mainWindow;
     delete m_line;
-    delete m_oSlot;
+    // do not call delete on m_oSlot because it's only a cast and not something we created
+    delete m_script;
 }
 
 // TODO: shouldn't this become addBox(DiagramBox *) rather?

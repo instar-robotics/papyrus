@@ -6,6 +6,7 @@
 #include <QString>
 #include <QFile>
 #include <QUuid>
+#include <QTimer>
 
 // Forward declaration because of recursive includes
 class DiagramScene;
@@ -58,6 +59,9 @@ public:
     QUuid uuid() const;
     void setUuid(const QUuid &uuid);
 
+public slots:
+    void warnAboutModifiedScript();
+
 private:
     DiagramScene *m_scene; // The associated scene for this script
     QString m_name;        // Pretty name of the script (to display in tabs for instance)
@@ -67,6 +71,7 @@ private:
     double m_timeValue;    // The RT Token time (either frequency or period)
     TimeUnit m_timeUnit;   // Whether the time value is a frequency or a period
     QUuid m_uuid;          // UUID for the RT Token (needed by kheops)
+    QTimer *m_modifiedNotifTimer; // Timer to display a system tray notification when unsaved for more than X minutes
 
 signals:
     void displayStatusMessage(const QString &text);

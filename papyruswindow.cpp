@@ -506,6 +506,11 @@ void PapyrusWindow::setPropertiesPanel(PropertiesPanel *propertiesPanel)
     m_propertiesPanel = propertiesPanel;
 }
 
+QSystemTrayIcon *PapyrusWindow::getTrayIcon() const
+{
+    return trayIcon;
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
     // Call the 'Save' function of the current script

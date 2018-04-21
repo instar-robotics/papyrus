@@ -46,6 +46,8 @@ public:
     PropertiesPanel *propertiesPanel() const;
     void setPropertiesPanel(PropertiesPanel *propertiesPanel);
 
+    QSystemTrayIcon *getTrayIcon() const;
+
 private:
     Ui::PapyrusWindow *ui;
     LibraryPanel *libraryPanel_;

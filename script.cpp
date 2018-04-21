@@ -25,6 +25,9 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
     }
 
     m_uuid = QUuid::createUuid();
+
+    m_modifiedNotifTimer = new QTimer(this);
+    connect(m_modifiedNotifTimer, SIGNAL(timeout()), this, SLOT(warnAboutModifiedScript()));
 }
 
 /**
@@ -294,9 +297,21 @@ bool Script::modified() const
 void Script::setStatusModified(bool isModified)
 {
     // Prevent doing anything if status is the same
-    // NOTE: we should STILL udpate the last modified date, for the autosave feature.
     if (m_modified == isModified)
         return;
+
+    if (m_modifiedNotifTimer == NULL)
+        informUserAndCrash(tr("The timer to warn about modified and unsaved script is null."));
+
+    // If there was a change and it's true, check if a timer for warning exists and set one otherwise
+    if (isModified) {
+        if (m_modifiedNotifTimer->isActive()) {
+        } else {
+            m_modifiedNotifTimer->start(TIME_WARN_MODIFIED * 60 * 1000);
+        }
+    } else {
+        m_modifiedNotifTimer->stop();
+    }
 
     m_modified = isModified;
 
@@ -342,4 +357,11 @@ QUuid Script::uuid() const
 void Script::setUuid(const QUuid &uuid)
 {
     m_uuid = uuid;
+}
+
+void Script::warnAboutModifiedScript()
+{
+    QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
+    QString msg(tr("You should save it to prevent data loss."));
+    m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
 }

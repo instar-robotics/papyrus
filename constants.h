@@ -45,5 +45,8 @@
 // Define the z-value for the links (used to put them behind slots to prevent hiding the slots)
 #define LINKS_Z_VALUE -1.0
 
+// Define the time (in minutes) after which the user is notified about modified, unsaved scripts
+#define TIME_WARN_MODIFIED 10
+
 #endif // CONSTANTS
 

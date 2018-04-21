@@ -35,6 +35,8 @@ QString XmlScriptReader::errorString() const
     return m_errorString;
 }
 
+// TODO: it should be a while(readNextElement()) and use decidated functions such as
+// readRTToken(), readScene(), readScriptName(), etc. (and the order should maybe not matter?)
 void XmlScriptReader::readScript()
 {
     // First read the name of the script
@@ -86,6 +88,30 @@ void XmlScriptReader::readScript()
                         reader.raiseError(QObject::tr("Invalid unit value for the RT Token."));
                 } else {
                     reader.raiseError(QObject::tr("No RT Token found."));
+                }
+            }
+
+            // Then read the scene's rect
+            if (reader.readNextStartElement()) {
+                if (reader.name() == "scene") {
+                    double x, y, width, height;
+
+                    while (reader.readNextStartElement()) {
+                        if (reader.name() == "x")
+                            x = reader.readElementText().toDouble();
+                        else if (reader.name() == "y")
+                            y = reader.readElementText().toDouble();
+                        else if (reader.name() == "width")
+                            width = reader.readElementText().toDouble();
+                        else if (reader.name() == "height")
+                            height = reader.readElementText().toDouble();
+                        else
+                            reader.skipCurrentElement();
+                    }
+
+                    m_script->scene()->setSceneRect(QRectF(x, y, width, height));
+                } else {
+                    reader.raiseError(QObject::tr("No scene found."));
                 }
             }
 

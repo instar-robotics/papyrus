@@ -108,6 +108,15 @@ void Script::save()
     stream.writeCharacters(QString::number(m_timeValue));
     stream.writeEndElement(); // rt_token
 
+    // Write the scene and view coordinates
+    stream.writeStartElement("scene");
+    QRectF rect(scene()->sceneRect());
+    stream.writeTextElement("x", QString::number(rect.x()));
+    stream.writeTextElement("y", QString::number(rect.y()));
+    stream.writeTextElement("width", QString::number(rect.width()));
+    stream.writeTextElement("height", QString::number(rect.height()));
+    stream.writeEndElement(); // scene
+
     // Write all functions
     stream.writeStartElement("functions");
 

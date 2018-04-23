@@ -24,6 +24,8 @@ public:
     explicit PapyrusWindow(QRect availableGeometry = QRect(), QWidget *parent = 0);
     ~PapyrusWindow();
 
+    Script *parseXmlScriptFile(const QString &scriptPath);
+
     QDir description() const {return description_;}
     void setDescription(QDir description) {description_ = description;}
 

@@ -12,13 +12,24 @@
 #include <QXmlStreamWriter>
 #include <QDebug>
 #include <iostream>
+#include <fstream>
+#include <unistd.h>
+
+#include <cryptopp/filters.h>
+#include <cryptopp/aes.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/files.h>
+
 
 Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_name(name),
                                                            m_modified(false),
                                                            m_isInvalid(false),
                                                            m_timeValue(10.0),
-                                                           m_timeUnit(HZ)
+                                                           m_timeUnit(HZ),
+                                                           m_encrypt(false)
 {
     if (scene != NULL) {
         scene->setScript(this);
@@ -50,6 +61,33 @@ void Script::save()
     }
 
     emit displayStatusMessage(tr("Saving \"") + m_name + "\"...");
+
+    // Read keys if the script is specified to be encrypted
+    if (m_encrypt) {
+        std::string keyFile("/home/nschoe/workspace/qt/papyrus/key");
+        std::string ivFile("/home/nschoe/workspace/qt/papyrus/iv");
+
+        // Prevent saving if the script should be encrypted but no key/iv could be found
+        if (!fileExists(keyFile) || !fileExists(ivFile)) {
+            QMessageBox::warning(NULL, tr("Encryption key and IV not found"), tr("Saving is not possible because you specified that this "
+                                          "script should be encrypted on save, but we could not find"
+                                          " either the key or the iV file (or both)!"));
+            return;
+        }
+
+        // Read and store key
+        CryptoPP::FileSource fkey(keyFile.c_str(), true,
+                                new CryptoPP::HexDecoder(
+                                    new CryptoPP::StringSink(m_key)));
+
+        // Read and store iv
+        CryptoPP::FileSource fiv(ivFile.c_str(), true,
+                                new CryptoPP::HexDecoder(
+                                    new CryptoPP::StringSink(m_iv)));
+
+        Q_UNUSED(fkey);
+        Q_UNUSED(fiv);
+    }
 
     // First check if we have a filepath in which to save the script
     if (m_filePath.isEmpty()) {
@@ -213,6 +251,25 @@ void Script::save()
 
     file.close();
 
+    // Encrypt the file if the option is set
+    if (m_encrypt) {
+        // TODO: at the moment, security is limited, because we copy the file.
+        //       it should be done as a stream, all inside memory (look at ArraySource/Sink maybe)
+
+        // Create encryptor
+        CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption enc;
+        enc.SetKeyWithIV(reinterpret_cast<const byte *>(m_key.data()),
+                         m_key.size(),
+                         reinterpret_cast<const byte *>(m_iv.data()));
+        // Encrypt the file
+        CryptoPP::FileSource f(m_filePath.toStdString().c_str(), true,
+                               new CryptoPP::StreamTransformationFilter(enc,
+                                        new CryptoPP::FileSink((m_filePath + ".crypted").toStdString().c_str())));
+
+        // Remove the unencrypted file
+        QFile::remove(m_filePath);
+    }
+
     QString msg(tr("Script \"") + m_name + tr("\" saved!"));
 
     // Set the status as not modified
@@ -364,4 +421,14 @@ void Script::warnAboutModifiedScript()
     QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
     QString msg(tr("You should save it to prevent data loss."));
     m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
+}
+
+bool Script::encrypt() const
+{
+    return m_encrypt;
+}
+
+void Script::setEncrypt(bool encrypt)
+{
+    m_encrypt = encrypt;
 }

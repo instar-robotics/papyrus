@@ -1,5 +1,8 @@
 #include "helpers.h"
 
+#include <unistd.h>
+#include <sys/stat.h>
+
 #include <QMessageBox>
 
 /**
@@ -304,4 +307,10 @@ LinkOperation stringToLinkOperation(QString str)
         return OP_DIVISION;
     else
         informUserAndCrash(QObject::tr("Could not parse \"") + str + QObject::tr("\" into a LinkOpeation"));
+}
+
+bool fileExists(const std::string &filename)
+{
+    struct stat buffer;
+    return (stat (filename.c_str(), &buffer) == 0);
 }

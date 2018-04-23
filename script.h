@@ -59,6 +59,9 @@ public:
     QUuid uuid() const;
     void setUuid(const QUuid &uuid);
 
+    bool encrypt() const;
+    void setEncrypt(bool encrypt);
+
 public slots:
     void warnAboutModifiedScript();
 
@@ -72,6 +75,9 @@ private:
     TimeUnit m_timeUnit;   // Whether the time value is a frequency or a period
     QUuid m_uuid;          // UUID for the RT Token (needed by kheops)
     QTimer *m_modifiedNotifTimer; // Timer to display a system tray notification when unsaved for more than X minutes
+    bool m_encrypt;        // Whether the XML script should be encrypted on save (to protect IP)
+    std::string m_key;     // AES Key used to encrypt the file
+    std::string m_iv;      // AES IV used to encrypt the file
 
 signals:
     void displayStatusMessage(const QString &text);

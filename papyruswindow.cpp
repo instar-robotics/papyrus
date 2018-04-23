@@ -1,4 +1,4 @@
-#include "papyruswindow.h"
+﻿#include "papyruswindow.h"
 #include "ui_papyruswindow.h"
 #include "constants.h"
 #include "diagramscene.h"
@@ -6,6 +6,14 @@
 #include "diagrambox.h"
 #include "xmldescriptionreader.h"
 #include "xmlscriptreader.h"
+#include "helpers.h"
+
+#include <cryptopp/filters.h>
+#include <cryptopp/aes.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/files.h>
 
 #include <iostream>
 #include <QGraphicsView>
@@ -527,7 +535,7 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
 {
     QString scriptPath = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
                                  QDir::homePath(),
-                                 tr("XML files (*.xml)"));
+                                 tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
     // Make sure the user selected a file
     if (scriptPath.isEmpty()) {
@@ -535,6 +543,68 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
         return;
     }
 
+    // Check if the file is an encrypted file, and if yes, decrypt it
+    QFileInfo fi(scriptPath);
+    if (fi.completeSuffix() == "xml.crypted") {
+        // Check that we can read the key and IV
+        std::string keyFile("/home/nschoe/workspace/qt/papyrus/key");
+        std::string ivFile("/home/nschoe/workspace/qt/papyrus/iv");
+
+        if (!fileExists(keyFile) || !fileExists(ivFile)) {
+            QMessageBox::warning(NULL, tr("Encryption key and IV not found"),
+                                 tr("We could not open this encrypted script file because either the"
+                                    " key of the IV file could not be found."));
+            return;
+        }
+
+        // Read and store key
+        std::string key;
+        CryptoPP::FileSource fkey(keyFile.c_str(), true,
+                                  new CryptoPP::HexDecoder(
+                                      new CryptoPP::StringSink(key)));
+
+        // Read and store iv
+        std::string iv;
+        CryptoPP::FileSource fiv(ivFile.c_str(), true,
+                                 new CryptoPP::HexDecoder(
+                                     new CryptoPP::StringSink(iv)));
+
+        Q_UNUSED(fkey);
+        Q_UNUSED(fiv);
+
+        // Create decryptor
+        CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+        dec.SetKeyWithIV(reinterpret_cast<const byte *>(key.data()),
+                         key.size(),
+                         reinterpret_cast<const byte *>(iv.data()));
+
+        QString tmpDestFile(scriptPath);
+        tmpDestFile.replace(".crypted", ".decrypted");
+
+        // Decrypt the file
+        CryptoPP::FileSource f(scriptPath.toStdString().c_str(), true,
+                               new CryptoPP::StreamTransformationFilter(dec,
+                                   new CryptoPP::FileSink(tmpDestFile.toStdString().c_str())));
+
+        Script *newScript = parseXmlScriptFile(tmpDestFile);
+
+        if (newScript != NULL) {
+            // Remove the temporary clear file used to decrypt
+            QFile::remove(tmpDestFile);
+
+            // Assign the script its new filepath (remove ".decrypted" extension)
+            newScript->setFilePath(tmpDestFile.replace(".decrypted", ""));
+
+            // Also set the script as encrypted
+            newScript->setEncrypt(true);
+        }
+    } else {
+        parseXmlScriptFile(scriptPath);
+    }
+}
+
+Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
+{
     // Open the file for reading
     QFile scriptFile(scriptPath);
     if (!scriptFile.open(QIODevice::ReadOnly)) {
@@ -543,7 +613,7 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
         QMessageBox::warning(NULL, tr("Could not open script file"),
                              tr("We failed to open the script file for reading.\nMake sure you have "
                                 "the correct permissions for this file."));
-        return;
+        return NULL;
     }
 
     // Create the scene and script objets, which will be used by the XmlReader
@@ -552,7 +622,6 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
 
     Q_ASSERT(openScene->script() != NULL);
 
-    // Assign the script its filepath
     openScript->setFilePath(scriptPath);
 
     // Parse the script XML file
@@ -562,6 +631,8 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
         str += xmlReader.errorString();
 
         QMessageBox::warning(NULL, tr("Failed to load script."), str);
+
+        return NULL;
     } else {
         QString msg(tr("Script '") + openScript->name() + tr("' loaded."));
         ui->statusBar->showMessage(msg);
@@ -598,6 +669,8 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
                                                              QIcon(":/icons/icons/script.svg"),
                                                              openScript->name()));
     }
+
+    return openScript;
 }
 
 /**

@@ -35,4 +35,6 @@ void updateSizeIcon(DiagramBox *box);
 
 bool areLinked(OutputSlot *oSlot, InputSlot *iSlot);
 
+bool fileExists(const std::string& filename);
+
 #endif // HELPERS_H

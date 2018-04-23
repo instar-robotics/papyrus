@@ -20,7 +20,7 @@ TEMPLATE = app
 
 #LIBS += -L/nix/store/yk8k2m6zq1ih0dr46j86fmh3710cp6a7-qtbase-5.9.1/lib
 
-LIBS += -L/nix/store/8d54pnh1wqv12ghwqq9psv7r9sdzbkvq-qtbase-5.9.1/lib
+LIBS += -L/nix/store/8d54pnh1wqv12ghwqq9psv7r9sdzbkvq-qtbase-5.9.1/lib -lcryptopp
 
 SOURCES += main.cpp\
         papyruswindow.cpp \

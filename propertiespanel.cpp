@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QLabel>
 #include <QMessageBox>
+#include <QToolButton>
 
 PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_panelLayout(NULL),
@@ -13,6 +14,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_scriptName(NULL),
                                                     m_timeLabel(NULL),
                                                     m_timeValue(NULL),
+                                                    m_encrypt(NULL),
                                                     m_boxLayout(NULL),
                                                     m_boxFrame(NULL),
                                                     m_boxName(NULL),
@@ -60,6 +62,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_timeLabel = new QLabel(tr("Freq:"));
     m_timeValue = new QDoubleSpinBox;
     m_timeUnit = new QComboBox;
+    m_encrypt = new QCheckBox;
 
     // Parameterize the fields
     scriptLayout->setContentsMargins(0, 0, 0, 0);
@@ -77,6 +80,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     scriptLayout->addRow(tr("Name:"), m_scriptName);
     scriptLayout->addRow(m_timeLabel, m_timeValue);
     scriptLayout->addRow(tr("Unit:"), m_timeUnit);
+    scriptLayout->addRow(tr("Encrypted:"), m_encrypt);
 
     m_scriptFrame->setLayout(scriptLayout);
 
@@ -399,6 +403,7 @@ void PropertiesPanel::displayScriptProperties(Script *script)
     m_scriptName->setText(script->name());
     m_timeValue->setValue(script->timeValue());
     m_timeUnit->setCurrentIndex(script->timeUnit());
+    m_encrypt->setChecked(script->encrypt());
 
     // Show the script's frame
     m_scriptFrame->show();
@@ -471,4 +476,5 @@ void PropertiesPanel::updateScriptProperties(Script *script)
 
     script->setTimeValue(m_timeValue->value());
     script->setTimeUnit(m_timeUnit->currentData().value<TimeUnit>());
+    script->setEncrypt(m_encrypt->isChecked());
 }

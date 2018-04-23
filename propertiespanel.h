@@ -74,6 +74,7 @@ private:
     QLabel *m_timeLabel;         // Contains either "frequency" or "period"
     QDoubleSpinBox *m_timeValue; // Used to input the script's frequency (or period)
     QComboBox *m_timeUnit;       // Used to select the unit (in Hz or ms)
+    QCheckBox *m_encrypt;        // Whether or not the file is encrypted on save
 
     QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
     QFrame *m_boxFrame;        // Container for box's properties

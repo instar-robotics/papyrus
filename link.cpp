@@ -13,7 +13,8 @@
 Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(parent),
                                     m_from(f),
                                     m_to(t),
-                                    m_secondary(checkIfSecondary()),
+                                    m_secondary(checkIfSelfLoop()), // valable for initialisation
+                                    m_selfLoop(checkIfSelfLoop()),
                                     m_weight(1.0),
                                     m_isInvalid(false)
 {
@@ -32,7 +33,7 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
 QRectF Link::boundingRect() const
 {
     // If the line is not self-looping, then returns the bounding rect of the main line
-    if (!m_secondary) {
+    if (!m_selfLoop) {
         return m_line.boundingRect();
     } else {
         // Otherwise, return the intersection of the three line's bounding rects
@@ -68,13 +69,14 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     QStyleOptionGraphicsItem newOption(*option);
     newOption.state.setFlag(QStyle::State_Selected, false);
 
-    if (!m_secondary) {
+    if (m_selfLoop || m_secondary)
+        pen.setStyle(Qt::DashLine);
+
+    if (!m_selfLoop) {
         m_line.setPen(pen);
 
         m_line.paint(painter, &newOption, widget);
     } else {
-        pen.setStyle(Qt::DashLine);
-
         m_line.setPen(pen);
         m_leftSegment.setPen(pen);
         m_rightSegment.setPen(pen);
@@ -87,7 +89,7 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 QPainterPath Link::shape() const
 {
-    if (!m_secondary) {
+    if (!m_selfLoop) {
         QPainterPathStroker *stroke = new QPainterPathStroker();
         stroke->setWidth(60.0);
         return stroke->createStroke(m_line.shape());
@@ -116,7 +118,7 @@ void Link::addLinesToScene()
     if (dscene == NULL)
         informUserAndCrash("Could not cast scene in DiagramScene");
 
-    if (!m_secondary) {
+    if (!m_selfLoop) {
         dscene->addItem(&m_line);
     } else {
         dscene->addItem(&m_leftSegment);
@@ -145,7 +147,7 @@ OutputSlot *Link::from() const
 void Link::setFrom(OutputSlot *from)
 {
     m_from = from;
-    m_secondary = checkIfSecondary();
+    m_selfLoop = checkIfSelfLoop();
     updateLines();
 }
 
@@ -157,7 +159,7 @@ InputSlot *Link::to() const
 void Link::setTo(InputSlot *to)
 {
     m_to = to;
-    m_secondary = checkIfSecondary();
+    m_selfLoop = checkIfSelfLoop();
     updateLines();
 }
 
@@ -171,7 +173,7 @@ void Link::setSecondary(bool secondary)
     m_secondary = secondary;
 }
 
-bool Link::checkIfSecondary()
+bool Link::checkIfSelfLoop()
 {
     // If either 'from' or 'to' is NULL, then it cannot be a secondary link
     if (m_from == NULL || m_to == NULL) {
@@ -188,6 +190,11 @@ bool Link::checkIfSecondary()
     else {
         return false;
     }
+}
+
+bool Link::selfLoop() const
+{
+    return m_selfLoop;
 }
 
 bool Link::isInvalid() const
@@ -220,7 +227,7 @@ void Link::updateLines()
     QPointF end  = mapFromItem(m_to, m_to->boundingRect().center());
 
     // Create just a single line when not secondary link
-    if (!m_secondary) {
+    if (!m_selfLoop) {
         m_line.setLine(QLineF(orig, end));
     } else {
         // When in secondary, we have to create two vertical lines

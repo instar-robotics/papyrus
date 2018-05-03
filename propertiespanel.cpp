@@ -127,7 +127,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_linkType->setFont(f);
 
     m_linkSecondary = new QCheckBox(tr("Secondary"));
-    m_linkSecondary->setEnabled(false); // For the moment, only display the information
     m_linkWeight = new QDoubleSpinBox();
     m_linkWeight->setRange(MIN_WEIGHT, MAX_WEIGHT);
     m_linkWeight->setDecimals(6);
@@ -354,6 +353,12 @@ void PropertiesPanel::displayLinkProperties(Link *link)
         informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
     m_linkWeight->show();
 
+    // Disable secondary if the link is self-looping (necessary a secondary link)
+    if (link->selfLoop())
+        m_linkSecondary->setEnabled(false);
+    else
+        m_linkSecondary->setEnabled(true);
+
     // Show the link frame
     m_linkFrame->show();
     m_okBtn->show();
@@ -446,6 +451,7 @@ void PropertiesPanel::updateLinkProperties(Link *link)
         informUserAndCrash(tr("Cannot update link's properties: link is null!"));
 
     link->setWeight(m_linkWeight->value());
+    link->setSecondary(m_linkSecondary->isChecked());
 }
 
 /**

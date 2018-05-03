@@ -22,6 +22,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_rowsInput(NULL),
                                                     m_colsInput(NULL),
                                                     m_saveActivity(NULL),
+                                                    m_publish(NULL),
+                                                    m_topic(NULL),
                                                     m_linkLayout(NULL),
                                                     m_linkFrame(NULL),
                                                     m_linkType(NULL),
@@ -90,6 +92,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_rowsInput = new QSpinBox;
     m_colsInput = new QSpinBox;
     m_saveActivity = new QCheckBox(tr("Save Activity"));
+    m_publish = new QCheckBox(tr("Publish output"));
+    m_topic = new QLineEdit;
 
     // Parameterize the fields
     m_boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
@@ -101,6 +105,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_colsInput->setRange(1, MAX_COLS);
     m_rowsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_colsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    connect(m_publish, SIGNAL(toggled(bool)), this, SLOT(toggleTopic(bool)));
 
     // Add the fields to the layout
     m_boxLayout->addRow(m_boxName);
@@ -108,6 +113,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_boxLayout->addRow(tr("Rows:"), m_rowsInput);
     m_boxLayout->addRow(tr("Cols:"), m_colsInput);
     m_boxLayout->addRow(m_saveActivity);
+    m_boxLayout->addRow(m_publish);
+    m_boxLayout->addRow(tr("Topic:"), m_topic);
 
     m_boxFrame->setLayout(m_boxLayout);
 
@@ -267,6 +274,13 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
     // Check the "save activity" box according to the box's flag
     m_saveActivity->setChecked(box->saveActivity());
 
+    // Check the "publish output" box according to the box's flag
+    m_publish->setChecked(box->publish());
+
+    // Get the topic name and enable / disable it based on the publish flag
+    m_topic->setText(box->topic());
+    m_topic->setEnabled(box->publish());
+
     OutputType oType = box->outputType();
 
     if (oType == MATRIX) {
@@ -387,6 +401,11 @@ void PropertiesPanel::convertTimeValues(int unit)
     }
 }
 
+void PropertiesPanel::toggleTopic(bool isChecked)
+{
+    m_topic->setEnabled(isChecked);
+}
+
 /**
  * @brief PropertiesPanel::updateBoxProperties is called when the user clicked "OK" after changing
  * some properties of the selected box. It updates the selected box's properties based on the
@@ -411,6 +430,14 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 
     // Set the box's "save activity" flag
     box->setSaveActivity(m_saveActivity->isChecked());
+
+    // Set the box's publish and topic name
+    box->setPublish(m_publish->isChecked());
+    QString topic = m_topic->text();
+    if (topic.isEmpty())
+        box->setTopic(box->uuid().toString());
+    else
+        box->setTopic(topic);
 }
 
 void PropertiesPanel::updateLinkProperties(Link *link)

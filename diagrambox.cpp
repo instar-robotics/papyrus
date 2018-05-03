@@ -33,7 +33,9 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_inputSlots(inputSlots),
                                                 m_rows(1),
                                                 m_cols(1),
-                                                m_saveActivity(false)
+                                                m_saveActivity(false),
+                                                m_publish(false),
+                                                m_topic(uuid.toString()) // the topic name defaults to the uuid
 {
     // Generate a UUID if there was not one while created
     if (m_uuid.isNull())
@@ -171,6 +173,26 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     }
 
     return QGraphicsItem::itemChange(change, value);
+}
+
+QString DiagramBox::topic() const
+{
+    return m_topic;
+}
+
+void DiagramBox::setTopic(const QString &topic)
+{
+    m_topic = topic;
+}
+
+bool DiagramBox::publish() const
+{
+    return m_publish;
+}
+
+void DiagramBox::setPublish(bool publish)
+{
+    m_publish = publish;
 }
 
 QGraphicsSvgItem *DiagramBox::sizeIcon() const

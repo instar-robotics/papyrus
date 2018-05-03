@@ -81,6 +81,8 @@ private:
     QSpinBox *m_rowsInput;     // Spin box to input number of rows in the output (if matrix)
     QSpinBox *m_colsInput;     // Spin box to input number of columns in the output (if matrix)
     QCheckBox *m_saveActivity; // To enable saving the activity of the box
+    QCheckBox *m_publish;      // To enable publish the output of the function
+    QLineEdit *m_topic;        // To input the topic name for publishing
 
 
     QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
@@ -97,6 +99,7 @@ public slots:
     void displayLinkProperties(Link *link);
     void displayScriptProperties(Script *script);
     void convertTimeValues(int unit);
+    void toggleTopic(bool isChecked);
 };
 
 #endif // PROPERTIESPANEL_H

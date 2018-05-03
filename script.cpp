@@ -184,6 +184,11 @@ void Script::save()
         stream.writeTextElement("name", name);
         stream.writeTextElement("save", item->saveActivity() ? "true" : "false");
 
+        stream.writeStartElement("publish");
+        stream.writeAttribute("topic", item->topic());
+        stream.writeCharacters(item->publish() ? "true" : "false");
+        stream.writeEndElement(); // publish
+
         // Save input slots
         stream.writeStartElement("inputs");
         foreach (InputSlot *inputSlot, inputSlots) {

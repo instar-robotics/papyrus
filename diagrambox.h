@@ -71,6 +71,12 @@ public:
     QGraphicsSvgItem *sizeIcon() const;
     void setSizeIcon(QGraphicsSvgItem *sizeIcon);
 
+    bool publish() const;
+    void setPublish(bool publish);
+
+    QString topic() const;
+    void setTopic(const QString &topic);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -99,6 +105,8 @@ private:
      * This should normally only be scalar values or small matrices
      */
     bool m_saveActivity;
+    bool m_publish;           // whether to publish this function's output on ROS
+    QString m_topic;          // name of the topic in which to publish the output
 
     QGraphicsSvgItem *m_sizeIcon; // Contains the svg that hints the box's size
 

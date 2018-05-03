@@ -752,7 +752,6 @@ void DiagramScene::onCancelBtnClicked(bool)
         } else {
             Link *selectedLink = dynamic_cast<Link *>(item);
             if (selectedLink != NULL) {
-                propPanel->linkOperation()->setCurrentIndex(selectedLink->to()->inputType());
                 propPanel->linkWeight()->setValue(selectedLink->weight());
             } else {
                 informUserAndCrash(tr("Unsupported element for restoring properties, only function "

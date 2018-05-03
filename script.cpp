@@ -206,7 +206,6 @@ void Script::save()
                 // Be careful to use the box's uuid and not the slot's
                 stream.writeTextElement("from", link->from()->box()->uuid().toString());
                 stream.writeTextElement("connectivity", "TODO");
-                stream.writeTextElement("operator", linkOperationToString(link->operation()));
                 stream.writeEndElement(); // link
             }
 

@@ -15,7 +15,6 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
                                     m_to(t),
                                     m_secondary(checkIfSecondary()),
                                     m_weight(1.0),
-                                    m_operation(OP_PRODUCT),
                                     m_isInvalid(false)
 {
     m_uuid = QUuid::createUuid();
@@ -199,16 +198,6 @@ bool Link::isInvalid() const
 void Link::setIsInvalid(bool isInvalid)
 {
     m_isInvalid = isInvalid;
-}
-
-LinkOperation Link::operation() const
-{
-    return m_operation;
-}
-
-void Link::setOperation(const LinkOperation &operation)
-{
-    m_operation = operation;
 }
 
 qreal Link::weight() const

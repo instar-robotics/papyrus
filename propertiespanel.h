@@ -54,8 +54,6 @@ public:
     QCheckBox *saveActivity() const;
     void setSaveActivity(QCheckBox *saveActivity);
 
-    QComboBox *linkOperation() const;
-
     QDoubleSpinBox *linkWeight() const;
 
     QLabel *scriptName() const;
@@ -88,7 +86,6 @@ private:
     QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
     QFrame *m_linkFrame;          // Container for link's properties
     QLabel *m_linkType;           // Display the type of the link
-    QComboBox *m_linkOperation;   // Chose the operation between inputs and weights
     QCheckBox *m_linkSecondary;   // Will display if the link is secondary or not
     QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
 

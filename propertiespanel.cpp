@@ -25,7 +25,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_linkLayout(NULL),
                                                     m_linkFrame(NULL),
                                                     m_linkType(NULL),
-                                                    m_linkOperation(NULL),
                                                     m_linkSecondary(NULL),
                                                     m_linkWeight(NULL),
                                                     m_okBtn(NULL),
@@ -119,13 +118,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     f = (m_linkType->font());
     f.setBold(true);
     m_linkType->setFont(f);
-    m_linkOperation = new QComboBox();
-    // WARNING: order must respect the order definition of the enum, because of the setCurrentIndex()
-    m_linkOperation->addItem(tr("Input * Weight"), OP_PRODUCT);
-    m_linkOperation->addItem(tr("Input + Weight"), OP_ADDITION);
-    m_linkOperation->addItem(tr("Input - Weight"), OP_SUBTRACTION);
-    m_linkOperation->addItem(tr("Input / Weight"), OP_DIVISION);
-    m_linkOperation->setFixedWidth(150);
 
     m_linkSecondary = new QCheckBox(tr("Secondary"));
     m_linkSecondary->setEnabled(false); // For the moment, only display the information
@@ -136,7 +128,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     m_linkLayout->addRow(m_linkType);
-    m_linkLayout->addRow(tr("Operator:"), m_linkOperation);
     m_linkLayout->addRow(tr("Weight:"), m_linkWeight);
     m_linkLayout->addRow(m_linkSecondary);
 
@@ -220,11 +211,6 @@ QCheckBox *PropertiesPanel::saveActivity() const
 void PropertiesPanel::setSaveActivity(QCheckBox *saveActivity)
 {
     m_saveActivity = saveActivity;
-}
-
-QComboBox *PropertiesPanel::linkOperation() const
-{
-    return m_linkOperation;
 }
 
 QDoubleSpinBox *PropertiesPanel::linkWeight() const
@@ -354,13 +340,6 @@ void PropertiesPanel::displayLinkProperties(Link *link)
         informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
     m_linkWeight->show();
 
-    if (fieldLabel = m_linkLayout->labelForField(m_linkOperation))
-        fieldLabel->show();
-    else
-        informUserAndCrash(tr("Failed to fetch label for field 'operation'"));
-    m_linkOperation->setCurrentIndex(link->operation()); // Careful of order (see enum definition)
-    m_linkOperation->show();
-
     // Show the link frame
     m_linkFrame->show();
     m_okBtn->show();
@@ -440,7 +419,6 @@ void PropertiesPanel::updateLinkProperties(Link *link)
         informUserAndCrash(tr("Cannot update link's properties: link is null!"));
 
     link->setWeight(m_linkWeight->value());
-    link->setOperation(m_linkOperation->currentData().value<LinkOperation>());
 }
 
 /**

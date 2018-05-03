@@ -206,7 +206,7 @@ void Script::save()
                 bool isSecondary = link->to()->box() == link->from()->box();
                 stream.writeAttribute("uuid", link->uuid().toString());
                 stream.writeAttribute("secondary", isSecondary ? "true" : "false");
-                stream.writeAttribute("sparse", "true/false");
+                stream.writeAttribute("sparse", "false"); // TEMPORARY
                 stream.writeTextElement("weight", QString::number(link->weight()));
                 // Be careful to use the box's uuid and not the slot's
                 stream.writeTextElement("from", link->from()->box()->uuid().toString());

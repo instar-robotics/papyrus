@@ -8,7 +8,6 @@
 
 #include <QGraphicsScene>
 #include <diagrambox.h>
-#include <arrow.h>
 #include <QUuid>
 
 // Forward declaration because of recursive include

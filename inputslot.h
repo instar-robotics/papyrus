@@ -7,7 +7,6 @@
 #include <set>
 #include <QGraphicsSimpleTextItem>
 
-// Forward declaration here because "arrow.h" includes "inputslot.h"
 class Link;
 
 class InputSlot : public Slot
@@ -43,7 +42,7 @@ public:
 
 private:
     bool m_multiple;
-    std::set<Link *> m_inputs; // The set of arrows connected to this slot
+    std::set<Link *> m_inputs; // The set of links connected to this slot
     InputType m_inputType;      // Indicate type and connectivity of this input
     bool m_canLink; // Indicate if this input can be linked to the current output when creating a Link
     QGraphicsSimpleTextItem *m_label;  // A label that contains this input's name

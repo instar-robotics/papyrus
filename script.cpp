@@ -233,15 +233,6 @@ void Script::save()
         stream.writeEndElement(); // position
         stream.writeTextElement("description", descriptionFile);
 
-        // If this function has its output connect with some other functions, insert them
-        // TODO : implement issue #2 and then check
-        /*
-        foreach (Arrow *link, item->startLines()) {
-            QUuid targetId = link->to()->uuid();
-            stream.writeTextElement("link", targetId.toString());
-        }
-        //*/
-
         stream.writeEndElement(); // function
     }
 

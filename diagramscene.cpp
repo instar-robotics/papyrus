@@ -6,11 +6,10 @@
 #include "slot.h"
 #include "helpers.h"
 #include "link.h"
+#include "diagrambox.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
-#include <diagrambox.h>
-#include <arrow.h>
 #include <iostream>
 #include <QKeyEvent>
 #include <QList>
@@ -272,7 +271,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
             m_displayLabels = m_prevDisplayLabels;
             update();
 
-            // Check if we have released on top of an input slot and create an Arrow if so
+            // Check if we have released on top of an input slot and create a Link if so
             InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));
 
             if (maybeSlot) {

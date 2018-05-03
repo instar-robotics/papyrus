@@ -27,7 +27,6 @@ SOURCES += main.cpp\
     diagramscene.cpp \
     diagramview.cpp \
     diagrambox.cpp \
-    arrow.cpp \
     librarypanel.cpp \
     library.cpp \
     category.cpp \
@@ -47,7 +46,6 @@ HEADERS  += papyruswindow.h \
     diagramscene.h \
     diagramview.h \
     diagrambox.h \
-    arrow.h \
     librarypanel.h \
     library.h \
     category.h \

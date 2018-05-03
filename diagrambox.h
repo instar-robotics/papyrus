@@ -1,7 +1,6 @@
 #ifndef DIAGRAMBOX_H
 #define DIAGRAMBOX_H
 
-#include "arrow.h"
 #include "slot.h"
 #include "outputslot.h"
 #include "inputslot.h"
@@ -19,7 +18,7 @@ class DiagramBox : public QObject, public QGraphicsItem
 
 public:
     static int getType();
-    // TODO: implement a copy constructor that should change the uuid and remove the connected arrows
+    // TODO: implement a copy constructor that should change the uuid and remove the connected links
     explicit DiagramBox(const QString &name,
                         const QIcon &icon,
                         OutputSlot *outputSlot,

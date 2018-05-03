@@ -8,7 +8,7 @@
         </input>
         <input multiple="false">
             <name>Second</name>
-            <type>simple_matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
+            <type>scalar_matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
         </input>
         <input multiple="false">
             <name>Third</name>

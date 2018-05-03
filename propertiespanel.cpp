@@ -345,39 +345,21 @@ void PropertiesPanel::displayLinkProperties(Link *link)
     // Populate the panels with the link's properties
     m_linkType->setText(inputTypeToString(linkType));
     m_linkSecondary->setChecked(link->secondary());
+    m_linkWeight->setValue(link->weight());
 
-    // Weight and operator are not applicable for SIMPLE_MATRIX type, so hide them
-    if (linkType == SIMPLE_MATRIX) {
-        QWidget *fieldLabel = NULL;
-        if (fieldLabel = m_linkLayout->labelForField(m_linkWeight))
-            fieldLabel->hide();
-        else
-            informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
-        m_linkWeight->hide();
+    QWidget *fieldLabel = NULL;
+    if (fieldLabel = m_linkLayout->labelForField(m_linkWeight))
+        fieldLabel->show();
+    else
+        informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
+    m_linkWeight->show();
 
-        if (fieldLabel = m_linkLayout->labelForField(m_linkOperation))
-            fieldLabel->hide();
-        else
-            informUserAndCrash(tr("Failed to fetch label for field 'operation'"));
-        m_linkOperation->hide();
-    } else {
-        // Re-enable the weights and operator since they are applicable
-        m_linkWeight->setValue(link->weight());
-
-        QWidget *fieldLabel = NULL;
-        if (fieldLabel = m_linkLayout->labelForField(m_linkWeight))
-            fieldLabel->show();
-        else
-            informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
-        m_linkWeight->show();
-
-        if (fieldLabel = m_linkLayout->labelForField(m_linkOperation))
-            fieldLabel->show();
-        else
-            informUserAndCrash(tr("Failed to fetch label for field 'operation'"));
-        m_linkOperation->setCurrentIndex(link->operation()); // Careful of order (see enum definition)
-        m_linkOperation->show();
-    }
+    if (fieldLabel = m_linkLayout->labelForField(m_linkOperation))
+        fieldLabel->show();
+    else
+        informUserAndCrash(tr("Failed to fetch label for field 'operation'"));
+    m_linkOperation->setCurrentIndex(link->operation()); // Careful of order (see enum definition)
+    m_linkOperation->show();
 
     // Show the link frame
     m_linkFrame->show();
@@ -457,11 +439,8 @@ void PropertiesPanel::updateLinkProperties(Link *link)
     if (link == NULL)
         informUserAndCrash(tr("Cannot update link's properties: link is null!"));
 
-    // If the link is not SIMPLE_MATRIX, set the weight and the operator
-    if (link->to()->inputType() != SIMPLE_MATRIX) {
-        link->setWeight(m_linkWeight->value());
-        link->setOperation(m_linkOperation->currentData().value<LinkOperation>());
-    }
+    link->setWeight(m_linkWeight->value());
+    link->setOperation(m_linkOperation->currentData().value<LinkOperation>());
 }
 
 /**

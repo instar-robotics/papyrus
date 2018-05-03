@@ -168,8 +168,6 @@ void XmlDescriptionReader::readParameterType(InputSlot *paramSlot)
     if (!paramName.isEmpty()) {
         if (paramName.toLower() == "scalar_scalar")
             paramSlot->setInputType(SCALAR_SCALAR);
-        else if (paramName.toLower() == "simple_matrix")
-            paramSlot->setInputType(SIMPLE_MATRIX);
         else if (paramName.toLower() == "scalar_matrix")
             paramSlot->setInputType(SCALAR_MATRIX);
         else if (paramName.toLower() == "matrix_matrix")

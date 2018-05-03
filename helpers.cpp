@@ -76,9 +76,6 @@ QString inputTypeToString(InputType inputType)
     case SCALAR_SCALAR:
         return QString("SCALAR_SCALAR");
         break;
-    case SIMPLE_MATRIX:
-        return QString("SIMPLE_MATRIX");
-        break;
     case SCALAR_MATRIX:
         return QString("SCALAR_MATRIX");
         break;
@@ -102,9 +99,6 @@ InputType stringToInputType(QString str)
 
     if (lower == "scalar_scalar")
         return SCALAR_SCALAR;
-
-    if (lower == "simple_matrix")
-        return SIMPLE_MATRIX;
 
     if (lower == "scalar_matrix")
         return SCALAR_MATRIX;
@@ -288,6 +282,7 @@ QString linkOperationToString(LinkOperation op)
         return "OP_DIVISION";
         break;
 
+    default:
         informUserAndCrash(QObject::tr("Unsupported LinkOperation while trying to convert to string. "
                               "Supported types are OP_PRODUCT, OP_ADDITION, OP_SUBTRACTION and "
                               "OP_DIVISION"));

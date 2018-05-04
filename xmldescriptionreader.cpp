@@ -193,9 +193,7 @@ void XmlDescriptionReader::readOutput(Function *function)
 
     OutputSlot *outputSlot = new OutputSlot;
     while (reader.readNextStartElement()) {
-        if (reader.name() == "name")
-            readParameterName(outputSlot);
-        else if (reader.name() == "type")
+        if (reader.name() == "type")
             readParameterType(outputSlot);
         else
             reader.skipCurrentElement();

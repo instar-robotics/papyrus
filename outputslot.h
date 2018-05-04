@@ -19,7 +19,6 @@ class OutputSlot : public Slot
     Q_OBJECT
 public:
     explicit OutputSlot();
-    explicit OutputSlot(QString &name);
 
     std::set<Link *> outputs() const;
 

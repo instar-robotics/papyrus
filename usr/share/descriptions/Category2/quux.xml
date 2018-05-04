@@ -16,7 +16,6 @@
         </input>
     </inputs>
     <output>
-        <name>Output</name>
         <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
     </output>
 </description>

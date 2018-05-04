@@ -8,7 +8,6 @@
         </input>
     </inputs>
     <output>
-        <name>vector</name>
         <type>Matrix</type> <!-- Can be 'Scalar', 'Vector' or 'Matrix' -->
     </output>
 </description>

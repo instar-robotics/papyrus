@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description>
+	<name>MSum</name>
+	<output>
+		<type>MATRIX</type>
+	</output>	
+	<inputs>
+		<input multiple="true">
+			<type>SCALAR_MATRIX</type>
+			<name>inMatrix</name>
+		</input>
+	</inputs>
+</description>

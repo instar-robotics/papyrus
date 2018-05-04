@@ -51,7 +51,6 @@ void LibraryPanel::startDrag(Qt::DropActions)
     QString descriptionFile = item->descriptionFile();
 
     OutputSlot *outputSlot = item->output();
-    QString outputName = outputSlot->name();
     OutputType outputType = outputSlot->outputType();
 
     std::vector<InputSlot *>inputSlots = item->inputs();
@@ -60,7 +59,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
 
-    dataStream << name << icon << descriptionFile << outputName << (qint32)outputType << nbInputs;
+    dataStream << name << icon << descriptionFile << (qint32)outputType << nbInputs;
 
     // Add all input slots' name, type and multiple
     foreach(InputSlot *i, inputSlots) {

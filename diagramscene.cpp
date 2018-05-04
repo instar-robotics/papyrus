@@ -364,14 +364,13 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
         QString name;
         QString descriptionFile;
-        QString outputName;
         OutputType outputType;
         qint32 outputType_;
         QIcon icon;
         int nbInputs;
 
         // Then proceed to retrieve the other elements
-        dataStream >> name >> icon >> descriptionFile >> outputName >> outputType_ >> nbInputs;
+        dataStream >> name >> icon >> descriptionFile >> outputType_ >> nbInputs;
 
         // Cast the integer to the Enum type (problem of operator '>>' with enums)
         outputType = static_cast<OutputType>(outputType_);
@@ -396,7 +395,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 //            inputNames.push_back(iName);
         }
 
-        OutputSlot *outputSlot = new OutputSlot(outputName);
+        OutputSlot *outputSlot = new OutputSlot;
         outputSlot->setOutputType(outputType);
 
         /*

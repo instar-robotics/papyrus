@@ -174,7 +174,6 @@ void Script::save()
         QPointF pos = item->scenePos();
         QUuid uuid = item->uuid();
         QString descriptionFile = item->descriptionFile();
-        OutputSlot *outputSlot = item->outputSlot();
         std::set<InputSlot *>inputSlots = item->inputSlots();
 
         Q_ASSERT(!name.isEmpty());
@@ -224,7 +223,6 @@ void Script::save()
         // Save output slot
         stream.writeStartElement("output");
         stream.writeAttribute("type", outputTypeToString(item->outputType()).toLower());
-        stream.writeTextElement("name", outputSlot->name());
         // If the function outputs a matrix, write the dimensions
         if (item->outputType() == MATRIX) {
             stream.writeTextElement("rows", QString::number(item->rows()));

@@ -19,11 +19,6 @@ OutputSlot::OutputSlot() : Slot(),
 
 }
 
-OutputSlot::OutputSlot(QString &name) : OutputSlot()
-{
-    setName(name);
-}
-
 std::set<Link *> OutputSlot::outputs() const
 {
     return m_outputs;

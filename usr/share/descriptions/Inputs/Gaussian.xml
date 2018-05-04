@@ -12,7 +12,6 @@
         </input>
     </inputs>
     <output>
-        <name>Output param</name>
         <type>Scalar</type>
     </output>
 </description>

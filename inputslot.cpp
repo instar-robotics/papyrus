@@ -15,6 +15,7 @@ InputSlot::InputSlot() : Slot(),
                          m_canLink(false),
                          m_label(NULL)
 {
+    m_uuid = QUuid::createUuid();
 }
 
 InputSlot::InputSlot(QString &name) : InputSlot()
@@ -193,5 +194,15 @@ QGraphicsSimpleTextItem *InputSlot::label() const
 void InputSlot::setLabel(QGraphicsSimpleTextItem *label)
 {
     m_label = label;
+}
+
+QUuid InputSlot::uuid() const
+{
+    return m_uuid;
+}
+
+void InputSlot::setUuid(const QUuid &uuid)
+{
+    m_uuid = uuid;
 }
 

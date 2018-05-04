@@ -274,8 +274,8 @@ void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots,
         if (reader.name() == "input") {
             QXmlStreamAttributes attributes = reader.attributes();
 
-            if (!attributes.hasAttribute("type") || !attributes.hasAttribute("multiple")) {
-                reader.raiseError(QObject::tr("Missing attributes 'multiple' or 'type' to '<input>'."));
+            if (!attributes.hasAttribute("type") || !attributes.hasAttribute("multiple") || !attributes.hasAttribute("uuid")) {
+                reader.raiseError(QObject::tr("Missing attributes 'multiple', 'type' or 'uuid' to '<input>'."));
                 reader.skipCurrentElement();
                 continue;
             }
@@ -294,6 +294,8 @@ void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots,
                 continue;
             }
 
+            QString strUuid = attributes.value("uuid").toString();
+
             // WARNING: this will segfault when <links> are before <name>
             InputSlot *inputSlot = NULL;
             while (reader.readNextStartElement()) {
@@ -302,6 +304,7 @@ void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots,
                     inputSlot = new InputSlot(inputName);
                     inputSlot->setMultiple(multiple);
                     inputSlot->setInputType(iType);
+                    inputSlot->setUuid(QUuid(strUuid));
                     inputSlots->insert(inputSlot);
                 } else if (reader.name() == "links") {
                     readLinks(inputSlot, allBoxes, incompleteLinks);

@@ -6,6 +6,7 @@
 #include <QString>
 #include <set>
 #include <QGraphicsSimpleTextItem>
+#include <QUuid>
 
 class Link;
 
@@ -40,12 +41,16 @@ public:
     QGraphicsSimpleTextItem *label() const;
     void setLabel(QGraphicsSimpleTextItem *label);
 
+    QUuid uuid() const;
+    void setUuid(const QUuid &uuid);
+
 private:
-    bool m_multiple;
+    QUuid m_uuid;              // Unid ID for the slot (used for kheops)
+    bool m_multiple;           // Whether this slot can receive several links
     std::set<Link *> m_inputs; // The set of links connected to this slot
-    InputType m_inputType;      // Indicate type and connectivity of this input
-    bool m_canLink; // Indicate if this input can be linked to the current output when creating a Link
-    QGraphicsSimpleTextItem *m_label;  // A label that contains this input's name
+    InputType m_inputType;     // Indicate type and connectivity of this input
+    bool m_canLink;            // Indicate if this input can be linked to the current output when creating a Link
+    QGraphicsSimpleTextItem *m_label; // A label that contains this input's name
 signals:
     void slotFull(); // Fired when trying to add a second input to a slot that doesn't allow multiple
 };

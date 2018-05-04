@@ -195,6 +195,7 @@ void Script::save()
             stream.writeStartElement("input");
             stream.writeAttribute("type", inputTypeToString(inputSlot->inputType()));
             stream.writeAttribute("multiple", inputSlot->multiple() ? "true" : "false");
+            stream.writeAttribute("uuid", inputSlot->uuid().toString());
 
             stream.writeTextElement("name", inputSlot->name());
 

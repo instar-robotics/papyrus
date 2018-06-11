@@ -22,6 +22,12 @@ DiagramView::DiagramView(QGraphicsScene *scene, QWidget *parent) : DiagramView(p
     setScene(scene);
 }
 
+// Destroy the associated scene
+DiagramView::~DiagramView()
+{
+    delete scene();
+}
+
 /**
  * @brief DiagramView::wheelEvent handles scrolling and zooming
  */

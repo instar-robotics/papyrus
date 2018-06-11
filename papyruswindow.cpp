@@ -778,3 +778,72 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
         ui->statusBar->showMessage(tr("Renaming cancelled. Nothing was done."));
     }
 }
+
+void PapyrusWindow::on_actionClose_Script_triggered()
+{
+    DiagramView *view = dynamic_cast<DiagramView *>(ui->tabWidget->currentWidget());
+    if (view == NULL) {
+        ui->statusBar->showMessage(tr("Could not close script: no script open!"));
+        return;
+    }
+
+    DiagramScene *scene = dynamic_cast<DiagramScene *>(view->scene());
+    if (scene == NULL) {
+        qFatal("Could not close script: failed to get the associated scene.");
+        return;
+    }
+
+    int currIdx = ui->tabWidget->currentIndex();
+    QString scriptName = scene->script()->name();
+
+    // Check if the script has unsaved modifications
+    if (scene->script()->modified()) {
+        switch (QMessageBox::question(this, tr("Save unsaved script?"),
+                                      tr("This script have unsaved changes that will be lost if you close it now.\n"
+                                         "Do you want to save them?"),
+                                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel)) {
+        case QMessageBox::Cancel:
+            ui->statusBar->showMessage(tr("Cancel closing."));
+            break;
+
+        case QMessageBox::Save:
+            // Save this script
+            scene->script()->save();
+
+            // Make another pass to check that the script was indeed saved
+            if (scene->script()->modified()) {
+                QMessageBox::warning(this, tr("Script still unsaved"),
+                                     tr("This script was still nto saved, exit aborted."));
+                break;
+            }
+
+            // Remove the tab containing this widget
+            ui->tabWidget->removeTab(currIdx);
+
+            // Destroy the view
+            delete view;
+            ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
+            break;
+
+        case QMessageBox::Discard:
+            // Remove the tab containing this widget
+            ui->tabWidget->removeTab(currIdx);
+
+            // Destroy the view
+            delete view;
+            ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed (changes discarded)"));
+            break;
+
+        default:
+            ui->statusBar->showMessage(tr("Cancel closing."));
+        }
+    } else {
+        // Close the script directly if it has no unsaved changes
+        // Remove the tab containing this widget
+        ui->tabWidget->removeTab(currIdx);
+
+        // Destroy the view
+        delete view;
+        ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
+    }
+}

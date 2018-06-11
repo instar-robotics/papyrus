@@ -104,6 +104,7 @@ private slots:
     void on_actionOpen_Script_triggered();
     void on_tabWidget_currentChanged(int index);
     void on_tabWidget_tabBarDoubleClicked(int index);
+    void on_actionClose_Script_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

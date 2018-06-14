@@ -4,10 +4,9 @@
 #include "script.h"
 #include "outputslot.h"
 #include "inputslot.h"
-//#include "papyruswindow.h"
+#include "diagrambox.h"
 
 #include <QGraphicsScene>
-#include <diagrambox.h>
 #include <QUuid>
 
 // Forward declaration because of recursive include
@@ -24,13 +23,7 @@ public:
     explicit DiagramScene(QObject *parent = 0);
     ~DiagramScene();
 
-    DiagramBox* addBox(const QPointF &position,
-                       const QString &name,
-                       const QIcon &icon,
-                       OutputSlot *outputSlot,
-                       std::set<InputSlot *> inputSlots,
-                       const QString &descriptionFile,
-                       QUuid uuid = 0);
+    void addBox(DiagramBox *newBox, const QPointF &position);
 
     bool checkForInvalidLinks();
 

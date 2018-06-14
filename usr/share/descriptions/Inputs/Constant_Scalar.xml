@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description>
+    <name>Constant Scalar</name>
+    <output>
+	    <type>Scalar</type>
+	    <constant>true</constant>
+    </output>
+</description>

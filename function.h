@@ -36,12 +36,16 @@ public:
 
     QString descriptionFile() const;
 
+    bool constant() const;
+    void setConstant(bool constant);
+
 private:
     QString m_name;
     QString m_descriptionFile;
 //    QIcon m_icon;
     std::vector<InputSlot *> m_inputs;
     OutputSlot *m_output;
+    bool m_constant; // Indicae whether this represents a constant input
 };
 
 #endif // FUNCTION_H

@@ -1,6 +1,6 @@
 #include "function.h"
 
-Function::Function(QString &path) : QTreeWidgetItem(), m_descriptionFile(path)
+Function::Function(QString &path) : QTreeWidgetItem(), m_descriptionFile(path), m_constant(false)
 {
 
 }
@@ -38,6 +38,16 @@ void Function::setOutput(OutputSlot *output)
 QString Function::descriptionFile() const
 {
     return m_descriptionFile;
+}
+
+bool Function::constant() const
+{
+    return m_constant;
+}
+
+void Function::setConstant(bool constant)
+{
+    m_constant = constant;
 }
 
 /*

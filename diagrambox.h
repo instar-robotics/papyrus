@@ -18,6 +18,8 @@ class DiagramBox : public QObject, public QGraphicsItem
 
 public:
     static int getType();
+
+
     // TODO: implement a copy constructor that should change the uuid and remove the connected links
     explicit DiagramBox(const QString &name,
                         const QIcon &icon,
@@ -77,6 +79,9 @@ public:
     QString topic() const;
     void setTopic(const QString &topic);
 
+    bool constant() const;
+    void setConstant(bool constant);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -96,6 +101,8 @@ private:
 
     int m_rows;              // Number of rows in the output (if matrix)
     int m_cols;              // Number of columns in the output (if matrix)
+
+    bool m_constant;         // Indicates whether this function is simply a constant input
 
     /*
      * Whether or not this function saves its activity in memory. It defaults to false. Saving the

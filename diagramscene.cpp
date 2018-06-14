@@ -46,25 +46,15 @@ DiagramScene::~DiagramScene()
     delete m_script;
 }
 
-// TODO: shouldn't this become addBox(DiagramBox *) rather?
-DiagramBox *DiagramScene::addBox(const QPointF &position,
-                                 const QString &name,
-                                 const QIcon &icon,
-                                 OutputSlot *outputSlot,
-                                 std::set<InputSlot *> inputSlots,
-                                 const QString &descriptionFile,
-                                 QUuid uuid)
+void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 {
-    Q_ASSERT(outputSlot != NULL);
+    Q_ASSERT(newBox->outputSlot() != NULL);
 
-    // Create the box itself, the body of the block
-    DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
     QPointF center = newBox->boundingRect().center();
     newBox->setPos(position - center);
-    newBox->setDescriptionFile(descriptionFile);
 
     // We add the Svg item here, as a child of the box, this way the box doesn't need to have knowledge of it
-    QString svgPath(descriptionFile);
+    QString svgPath(newBox->descriptionFile());
     svgPath.replace(".xml", ".svg");
     QGraphicsSvgItem *svg = new QGraphicsSvgItem(svgPath, newBox);
 
@@ -83,8 +73,6 @@ DiagramBox *DiagramScene::addBox(const QPointF &position,
                    QPointF(2 * newBox->bWidth() / 3, 1.5));
 
     addItem(newBox);
-
-    return newBox;
 }
 
 /**
@@ -368,9 +356,10 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         qint32 outputType_;
         QIcon icon;
         int nbInputs;
+        bool constant;
 
         // Then proceed to retrieve the other elements
-        dataStream >> name >> icon >> descriptionFile >> outputType_ >> nbInputs;
+        dataStream >> name >> icon >> descriptionFile >> outputType_ >> constant >> nbInputs;
 
         // Cast the integer to the Enum type (problem of operator '>>' with enums)
         outputType = static_cast<OutputType>(outputType_);
@@ -407,7 +396,11 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         }
         //*/
 
-        addBox(evt->scenePos(), name, icon, outputSlot, inputSlots, descriptionFile);
+        DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
+        newBox->setConstant(constant);
+        qDebug() << "Just set contant = " << constant;
+        newBox->setDescriptionFile(descriptionFile);
+        addBox(newBox, evt->scenePos());
         m_script->setStatusModified(true);
 
         setBackgroundBrush(QBrush(Qt::white));

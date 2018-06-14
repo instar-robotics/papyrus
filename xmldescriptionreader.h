@@ -30,6 +30,7 @@ private:
     void readParameterType(OutputSlot *paramSlot);
     void readParameterType(InputSlot *paramSlot);
     void readOutput(Function *function);
+    void readConstant(Function *function);
 };
 
 #endif // XMLDESCRIPTIONREADER_H

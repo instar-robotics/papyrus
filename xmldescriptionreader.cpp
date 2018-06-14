@@ -37,6 +37,7 @@ void XmlDescriptionReader::readDescription(QIcon &icon, QString &descriptionFile
 
     Function *function = new Function(descriptionFile);
 
+
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readName(function);
@@ -195,9 +196,25 @@ void XmlDescriptionReader::readOutput(Function *function)
     while (reader.readNextStartElement()) {
         if (reader.name() == "type")
             readParameterType(outputSlot);
+        else if (reader.name() == "constant")
+            readConstant(function);
         else
             reader.skipCurrentElement();
     }
     function->setOutput(outputSlot);
+}
+
+void XmlDescriptionReader::readConstant(Function *function)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "constant");
+
+    if (reader.readElementText().toLower() == "true")
+        function->setConstant(true);
+    else if (reader.readElementText().toLower() == "false")
+        function->setConstant(false);
+    else {
+        reader.raiseError(QObject::tr("Invalid value for field 'constant'"));
+        reader.skipCurrentElement();
+    }
 }
 

@@ -33,6 +33,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_inputSlots(inputSlots),
                                                 m_rows(1),
                                                 m_cols(1),
+                                                m_constant(false),
                                                 m_saveActivity(false),
                                                 m_publish(false),
                                                 m_topic(uuid.toString()) // the topic name defaults to the uuid
@@ -173,6 +174,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     }
 
     return QGraphicsItem::itemChange(change, value);
+}
+
+bool DiagramBox::constant() const
+{
+    return m_constant;
+}
+
+void DiagramBox::setConstant(bool constant)
+{
+    m_constant = constant;
 }
 
 QString DiagramBox::topic() const

@@ -175,10 +175,16 @@ void Script::save()
         QUuid uuid = item->uuid();
         QString descriptionFile = item->descriptionFile();
         std::set<InputSlot *>inputSlots = item->inputSlots();
+        bool constant = item->constant();
 
         Q_ASSERT(!name.isEmpty());
 
-        stream.writeStartElement("function");
+        // We need to distinguish functions and constants for Kehops
+        if (constant)
+            stream.writeStartElement("constant");
+        else
+            stream.writeStartElement("function");
+
         stream.writeAttribute("uuid", uuid.toString());
         stream.writeTextElement("name", name);
         stream.writeTextElement("save", item->saveActivity() ? "true" : "false");
@@ -204,6 +210,10 @@ void Script::save()
                 // Should loop for each connection
                 stream.writeStartElement("link");
                 bool isSecondary = link->to()->box() == link->from()->box();
+                // Write attribute "constant" when the originating box is constant
+                // We don't explicitly write "false" because this is rare and don't want to clutter
+                if (link->from()->box()->constant())
+                    stream.writeAttribute("constant", "true");
                 stream.writeAttribute("uuid", link->uuid().toString());
                 stream.writeAttribute("secondary", isSecondary ? "true" : "false");
                 stream.writeAttribute("sparse", "false"); // TEMPORARY

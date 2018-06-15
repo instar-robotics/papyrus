@@ -398,7 +398,6 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 
         DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
         newBox->setConstant(constant);
-        qDebug() << "Just set contant = " << constant;
         newBox->setDescriptionFile(descriptionFile);
         addBox(newBox, evt->scenePos());
         m_script->setStatusModified(true);

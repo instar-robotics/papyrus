@@ -32,6 +32,7 @@ private:
                       std::map<QUuid, Link *> *incompleteLinks);
     void readFunctionName(QString *name);
     void readFunctionSave(bool *save);
+    void readPublishTopic(QString *topic, bool *publish);
     void readInputSlots(std::set<InputSlot *> *inputSlots,
                         std::map<QUuid, DiagramBox *> *allBoxes,
                         std::map<QUuid, Link *> *incompleteLinks);

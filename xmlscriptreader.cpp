@@ -192,6 +192,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     int cols = 0;
     std::set<InputSlot *> inputSlots;
     QUuid uuid;
+    QString topic;
+    bool publish;
 
     readUUID(&uuid);
     while (reader.readNextStartElement()) {
@@ -199,6 +201,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
             readFunctionName(&name);
         else if (reader.name() == "save")
             readFunctionSave(&save);
+        else if (reader.name() == "publish")
+            readPublishTopic(&topic, &publish);
         else if (reader.name() == "inputs")
             readInputSlots(&inputSlots, allBoxes, incompleteLinks);
         else if (reader.name() == "output")
@@ -226,6 +230,10 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
     if (reader.name() == "constant")
         b->setConstant(true);
+
+    b->setPublish(publish);
+    if (!topic.isEmpty())
+        b->setTopic(topic);
 
     // Add this box to the dict
     allBoxes->insert(std::pair<QUuid, DiagramBox *>(uuid, b));
@@ -267,6 +275,29 @@ void XmlScriptReader::readFunctionSave(bool *save)
         reader.raiseError(QObject::tr("Empty function save."));
     } else {
         *save = (functionSave == "true") ? true : false;
+    }
+}
+
+void XmlScriptReader::readPublishTopic(QString *topic, bool *publish)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "publish");
+
+    // Warning: read the attributes *before* reading the element text, because
+    // it advances the parsing cursor and then you've lost the ability to read attributes
+    if (reader.attributes().hasAttribute("topic")) {
+        QString topicName = reader.attributes().value("topic").toString();
+        if (!topicName.isEmpty())
+            topic->setUnicode(topicName.unicode(), topicName.size());
+    }
+
+    QString shouldPublish = reader.readElementText().toLower();
+    if (shouldPublish == "true")
+        *publish = true;
+    else if (shouldPublish == "false")
+        *publish = false;
+    else {
+        reader.raiseError(QObject::tr("Unsupported value for <publish> field"));
+        reader.skipCurrentElement();
     }
 }
 

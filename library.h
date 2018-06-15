@@ -6,9 +6,9 @@
 #include <vector>
 
 /**
- * @brief The Library class holds the categories which in turn hold all the functions
- * that have a valid XML description file. These functions are then used as building blocks for
- * creating neural programs.
+ * @brief The Library class holds the @Categorie s which in turn hold all the @Function s
+ * that have a valid XML description file. These @Function are then used as building blocks for
+ * creating neural programs (by converting them to @DiagramBox es).
  */
 
 class Library

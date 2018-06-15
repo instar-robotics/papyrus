@@ -13,6 +13,10 @@
 class Script;
 class PapyrusWindow;
 
+/**
+ * @brief The DiagramScene class represents the canvas on which neural scripts are drawn.
+ * This is where @DiagramBox es are drag-n-dropped. There is one DiagramScene per script.
+ */
 class DiagramScene : public QGraphicsScene
 {
     Q_OBJECT

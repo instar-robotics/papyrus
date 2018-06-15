@@ -1,6 +1,10 @@
 #ifndef CONSTANTS
 #define CONSTANTS
 
+/**
+ * A set of project-wide constants
+ */
+
 // Define the name of the application
 #define APP_NAME "Papyrus"
 

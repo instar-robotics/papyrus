@@ -1,6 +1,5 @@
 #include "xmldescriptionreader.h"
 #include "constants.h"
-#include "types.h"
 #include "slot.h"
 
 #include <iostream>

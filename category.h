@@ -7,8 +7,11 @@
 #include <QTreeWidgetItem>
 
 /**
- * @brief The Category class holds a number of neural function's descriptions that are part of the
+ * @brief The Category class holds a number of neural @Function 's descriptions that are part of the
  * same category.
+ * This is used with the @Library and the @LibraryPanel. The idea is to group similar functions
+ * by themes. The categories are simply made by parsing the directory name in which the function's
+ * descriptions are saved.
  */
 
 class Category : public QTreeWidgetItem
@@ -16,11 +19,8 @@ class Category : public QTreeWidgetItem
 public:
     Category(QString &name);
 
-//    void addFunction(Function *function);
     QString name() const;
     void setName(const QString &name);
-
-//    std::vector<Function *> functions() const;
 
 private:
     QString m_name;

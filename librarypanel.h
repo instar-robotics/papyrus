@@ -3,6 +3,10 @@
 
 #include <QTreeWidget>
 
+/**
+ * @brief The LibraryPanel class is the widget that goes in the left toolbar. It will hold
+ * @Function s through the @Library.
+ */
 class LibraryPanel : public QTreeWidget
 {
     Q_OBJECT

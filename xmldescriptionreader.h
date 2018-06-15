@@ -7,8 +7,8 @@
 #include <QXmlStreamReader>
 
 /**
- * @brief The XmlDescriptionReader class is a XML file parser whose task is to populate a 'Library'
- * object with the categories and descriptions of neural functions, read from their XML description
+ * @brief The XmlDescriptionReader class is a XML file parser whose task is to populate a @Library
+ * object with the @Categorie  and descriptions of neural @Function s, read from their XML description
  * file.
  */
 

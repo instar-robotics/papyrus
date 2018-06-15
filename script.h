@@ -21,7 +21,7 @@ Q_DECLARE_METATYPE(TimeUnit) // This allows convertion from/to QVariant
 
 /**
  * @brief The Script class represents a neural scripts. An XML file is associated to it,
- * as well as the QGraphicsScene that contains its functions boxes
+ * as well as the @QGraphicsScene that contains its functions boxes
  */
 
 class Script : public QObject

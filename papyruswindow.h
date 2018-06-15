@@ -16,6 +16,11 @@ namespace Ui {
 class PapyrusWindow;
 }
 
+/**
+ * @brief The PapyrusWindow class is the main window of the application.
+ * It contains the list of open @Script s, the @Library of @Function s,
+ * the @DiagramView s, etc.
+ */
 class PapyrusWindow : public QMainWindow
 {
     Q_OBJECT

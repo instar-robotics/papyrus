@@ -3,6 +3,12 @@
 
 #include <QGraphicsView>
 
+/**
+ * @brief The DiagramView class is used to render a @DiagramScene (the @DiagramScene holds
+ * the data: the items added, their positions, etc.) and the DiagramView displays it. This
+ * separation by Qt allows several views to be attached to a single scene (we will use
+ * something like this when we implement the minimap).
+ */
 class DiagramView : public QGraphicsView
 {
     Q_OBJECT

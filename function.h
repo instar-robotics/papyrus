@@ -1,7 +1,6 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#include "types.h"
 #include "outputslot.h"
 #include "inputslot.h"
 
@@ -12,8 +11,12 @@
 #include <QTreeWidgetItem>
 
 /**
- * @brief The Function class describes a neural function and comes from parsing a valid XML
- * description file.
+ * @brief The Function class describes a neural function for the @Library and @LibraryPanel
+ * and comes from parsing a valid XML description file. Basically, the @Category class
+ * holds several @Function.
+ * The @Function class is only meant to be stored inside the @Library, but the actual neural
+ * function is created as a @DiagramBox from this lightweight @Function object when it is
+ * dropped on the @DiagramScene.
  */
 
 class Function : public QTreeWidgetItem

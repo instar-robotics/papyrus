@@ -10,8 +10,8 @@
 #include <QUuid>
 
 /**
- * @brief The XmlScriptReader class is an XML parser that reads an XML script file
- * to populate the GraphicsScene.
+ * @brief The XmlScriptReader class is an XML parser that reads an XML @Script file
+ * to populate the @GraphicsScene.
  */
 
 class XmlScriptReader

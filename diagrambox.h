@@ -12,6 +12,12 @@
 #include <QUuid>
 #include <QGraphicsSvgItem>
 
+/**
+ * @brief The DiagramBox class is the main class that represents a "box" or "neural function".
+ * This has a name, an icon, a type (scalar or matrix), etc.
+ * It can have @InputSlot s and @OutputSlot s attached.
+ */
+
 class DiagramBox : public QObject, public QGraphicsItem
 {
     Q_OBJECT

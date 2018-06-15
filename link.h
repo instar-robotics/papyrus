@@ -8,8 +8,10 @@
 #include <QGraphicsLineItem>
 
 /**
- * @brief The Link class represents a link between neural functions. More specifically, a Link is
- * between thee @OutputSlot of a @DiagramBox and the @InputSlot of (another or the same) @DiagramBox
+ * @brief The Link class represents a link between neural functions (more precisely between
+ * @DiagramBox es) Even more precisely, a Link is between a @DiagramBox 's @OutputSlot and
+ * another (or same) @DiagramBox 's @InputSlot.
+ * Depending on its type, it can have a weight.
  */
 
 class InputSlot;

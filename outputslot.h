@@ -8,6 +8,7 @@
 
 /**
  * @brief The specialized version of @Slot used for output.
+ * They contain @Link s that goes out of a @DiagramBox.
  * Outputs slots react to the mouse by growing sightly when the mouse comes nears them, in order
  * to facilitate the creation of a link.
  */

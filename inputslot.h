@@ -10,6 +10,12 @@
 
 class Link;
 
+/**
+ * @brief The InputSlot class is attached to a @DiagramBox. This is represented as the input
+ * little circle to a @DiagramBox. Its job is to keep track of all @Link s from other
+ * @Diagrambox es.
+ * There is one @InputSlot per <input> in the function's XML description file.
+ */
 class InputSlot : public Slot
 {
     Q_OBJECT

@@ -52,7 +52,6 @@ HEADERS  += papyruswindow.h \
     library.h \
     category.h \
     function.h \
-    types.h \
     xmldescriptionreader.h \
     script.h \
     xmlscriptreader.h \

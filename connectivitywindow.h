@@ -12,11 +12,13 @@ class ConnectivityWindow : public QTabWidget
     Q_OBJECT
 
 public:
-    explicit ConnectivityWindow(QWidget *parent = 0);
+    explicit ConnectivityWindow(QSize inputSize, QSize outputSize, QWidget *parent = 0);
     ~ConnectivityWindow();
 
 private:
     Ui::ConnectivityWindow *ui;
+    QSize m_inputSize;   // Size of the input matrix
+    QSize m_outputSize;  // Size of the output matrix
 };
 
 #endif // CONNECTIVITYWINDOW_H

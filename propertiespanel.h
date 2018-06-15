@@ -93,6 +93,10 @@ private:
     QPushButton *m_linkConnectivityBtn; // Button to launch the window that allows setting the connectivity
     QMetaObject::Connection m_conn;     // Contains the the Qt's connection object for the above button
 
+    // Will contain the sizes of connected matrix when the link is SPARSE_MATRIX
+    QSize m_inputSize;
+    QSize m_outputSize;
+
     QPushButton *m_okBtn;      // Button used to validate changes in parameters
     QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
 

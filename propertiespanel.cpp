@@ -370,6 +370,11 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 
     if (linkType == SPARSE_MATRIX) {
         m_linkConnectivityBtn->setVisible(true);
+        m_inputSize.setWidth(link->from()->box()->rows());
+        m_inputSize.setHeight(link->from()->box()->cols());
+        m_outputSize.setWidth(link->to()->box()->rows());
+        m_outputSize.setHeight(link->to()->box()->cols());
+
         m_conn = connect(m_linkConnectivityBtn, SIGNAL(clicked(bool)),
                 this, SLOT(showConnectivityWindow()));
     }
@@ -430,7 +435,7 @@ void PropertiesPanel::toggleTopic(bool isChecked)
 
 void PropertiesPanel::showConnectivityWindow()
 {
-    ConnectivityWindow *connWin = new ConnectivityWindow;
+    ConnectivityWindow *connWin = new ConnectivityWindow(m_inputSize, m_outputSize);
     connWin->setWindowFlag(Qt::Dialog);
     connWin->setWindowModality(Qt::ApplicationModal);
 

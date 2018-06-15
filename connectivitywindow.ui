@@ -6,33 +6,35 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>1066</width>
+    <height>654</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>TabWidget</string>
   </property>
   <property name="currentIndex">
-   <number>1</number>
+   <number>0</number>
   </property>
   <widget class="QWidget" name="tab">
    <attribute name="title">
     <string>Projection</string>
    </attribute>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>This is the projection screen</string>
+     <widget class="QGroupBox" name="fromGroup">
+      <property name="title">
+       <string>From</string>
       </property>
+      <layout class="QGridLayout" name="gridLayout"/>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Useless Button</string>
+     <widget class="QGroupBox" name="toGroup">
+      <property name="title">
+       <string>To</string>
       </property>
+      <layout class="QGridLayout" name="gridLayout_2"/>
      </widget>
     </item>
    </layout>

@@ -1,12 +1,14 @@
 #include "propertiespanel.h"
 #include "helpers.h"
 #include "constants.h"
+#include "connectivitywindow.h"
 
 #include <QVBoxLayout>
 #include <QDebug>
 #include <QLabel>
 #include <QMessageBox>
 #include <QToolButton>
+#include <QScreen>
 
 PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_panelLayout(NULL),
@@ -428,7 +430,16 @@ void PropertiesPanel::toggleTopic(bool isChecked)
 
 void PropertiesPanel::showConnectivityWindow()
 {
-    qDebug() << "Caught";
+    ConnectivityWindow *connWin = new ConnectivityWindow;
+    connWin->setWindowFlag(Qt::Dialog);
+    connWin->setWindowModality(Qt::ApplicationModal);
+
+    QScreen *primaryScreen = QGuiApplication::primaryScreen();
+    if (primaryScreen == NULL)
+        qFatal("No screen detected!");
+
+    connWin->resize(0.8 * primaryScreen->availableSize());
+    connWin->show();
 }
 
 /**

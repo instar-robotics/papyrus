@@ -14,8 +14,7 @@ int main(int argc, char *argv[])
     // Query the screen's (available) size to set the main window's size
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen == NULL) {
-        std::cerr << "No screen detected!" << std::endl;
-        return -1;
+        qFatal("No screen detected!");
     }
 
     QRect availableGeometry = screen->availableGeometry();

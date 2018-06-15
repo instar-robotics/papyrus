@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     outputslot.cpp \
     propertiespanel.cpp \
     helpers.cpp \
-    link.cpp
+    link.cpp \
+    connectivitywindow.cpp
 
 HEADERS  += papyruswindow.h \
     constants.h \
@@ -60,9 +61,11 @@ HEADERS  += papyruswindow.h \
     outputslot.h \
     propertiespanel.h \
     helpers.h \
-    link.h
+    link.h \
+    connectivitywindow.h
 
-FORMS    += papyruswindow.ui
+FORMS    += papyruswindow.ui \
+    connectivitywindow.ui
 
 RESOURCES += \
     icons.qrc

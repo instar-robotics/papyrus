@@ -130,7 +130,7 @@ void XmlScriptReader::readScript()
                     std::map<QUuid, DiagramBox *> allBoxes;
                     std::map<QUuid, Link *> incompleteLinks;
                     while (reader.readNextStartElement()) {
-                        if (reader.name() == "function")
+                        if (reader.name() == "function" || reader.name() == "constant")
                             readFunction(&allBoxes, &incompleteLinks);
                         else
                             reader.skipCurrentElement();
@@ -181,7 +181,7 @@ void XmlScriptReader::readScript()
 void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
                                    std::map<QUuid, Link *> *incompleteLinks)
 {
-    Q_ASSERT(reader.isStartElement() && reader.name() == "function");
+    Q_ASSERT(reader.isStartElement() && (reader.name() == "function" || reader.name() == "constant"));
 
     QPointF pos;
     QString name;
@@ -223,6 +223,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     b->setRows(rows);
     b->setCols(cols);
     m_script->scene()->addBox(b, pos);
+
+    if (reader.name() == "constant")
+        b->setConstant(true);
 
     // Add this box to the dict
     allBoxes->insert(std::pair<QUuid, DiagramBox *>(uuid, b));
@@ -346,7 +349,7 @@ void XmlScriptReader::readOutputSlot(OutputSlot *outputSlot, int *rows, int *col
 
 void XmlScriptReader::readUUID(QUuid *uuid)
 {
-    Q_ASSERT(reader.isStartElement() && reader.name() == "function"
+    Q_ASSERT(reader.isStartElement() && (reader.name() == "function" || reader.name() == "constant")
              && reader.attributes().hasAttribute("uuid"));
 
     QUuid id(reader.attributes().value("uuid").toString());

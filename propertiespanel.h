@@ -90,6 +90,8 @@ private:
     QLabel *m_linkType;           // Display the type of the link
     QCheckBox *m_linkSecondary;   // Will display if the link is secondary or not
     QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
+    QPushButton *m_linkConnectivityBtn; // Button to launch the window that allows setting the connectivity
+    QMetaObject::Connection m_conn;     // Contains the the Qt's connection object for the above button
 
     QPushButton *m_okBtn;      // Button used to validate changes in parameters
     QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
@@ -100,6 +102,9 @@ public slots:
     void displayScriptProperties(Script *script);
     void convertTimeValues(int unit);
     void toggleTopic(bool isChecked);
+
+private slots:
+    void showConnectivityWindow();
 };
 
 #endif // PROPERTIESPANEL_H

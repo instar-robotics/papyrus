@@ -29,6 +29,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_linkType(NULL),
                                                     m_linkSecondary(NULL),
                                                     m_linkWeight(NULL),
+                                                    m_linkConnectivityBtn(NULL),
                                                     m_okBtn(NULL),
                                                     m_cancelBtn(NULL)
 {
@@ -118,6 +119,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
     m_boxFrame->setLayout(m_boxLayout);
 
+    // Create layout for the Link
     m_linkLayout = new QFormLayout;
     m_linkLayout->setContentsMargins(0, 0, 0, 0);
     m_linkType = new QLabel;
@@ -132,10 +134,12 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_linkWeight->setDecimals(6);
     m_linkWeight->setFixedWidth(150);
     m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_linkConnectivityBtn = new QPushButton(tr("Edit Connectivity"));
 
     m_linkLayout->addRow(m_linkType);
     m_linkLayout->addRow(tr("Weight:"), m_linkWeight);
     m_linkLayout->addRow(m_linkSecondary);
+    m_linkLayout->addRow(m_linkConnectivityBtn);
 
     m_linkFrame->setLayout(m_linkLayout);
 
@@ -359,6 +363,17 @@ void PropertiesPanel::displayLinkProperties(Link *link)
     else
         m_linkSecondary->setEnabled(true);
 
+    // Display "Edit Connectivity" button is link is SPARSE_MATRIX
+    m_linkConnectivityBtn->disconnect(m_conn);
+
+    if (linkType == SPARSE_MATRIX) {
+        m_linkConnectivityBtn->setVisible(true);
+        m_conn = connect(m_linkConnectivityBtn, SIGNAL(clicked(bool)),
+                this, SLOT(showConnectivityWindow()));
+    }
+    else
+        m_linkConnectivityBtn->setVisible(false);
+
     // Show the link frame
     m_linkFrame->show();
     m_okBtn->show();
@@ -409,6 +424,11 @@ void PropertiesPanel::convertTimeValues(int unit)
 void PropertiesPanel::toggleTopic(bool isChecked)
 {
     m_topic->setEnabled(isChecked);
+}
+
+void PropertiesPanel::showConnectivityWindow()
+{
+    qDebug() << "Caught";
 }
 
 /**

@@ -82,6 +82,9 @@ QString inputTypeToString(InputType inputType)
     case MATRIX_MATRIX:
         return QString("MATRIX_MATRIX");
         break;
+    case SPARSE_MATRIX:
+        return QString("SPARSE_MATRIX");
+        break;
     default:
         qFatal("Unsupported InputType when converting to QString.");
         break;
@@ -105,6 +108,9 @@ InputType stringToInputType(QString str)
 
     if (lower == "matrix_matrix")
         return MATRIX_MATRIX;
+
+    if (lower == "sparse_matrix")
+        return SPARSE_MATRIX;
 
     qFatal("Failed to parse string to InputType");
 }

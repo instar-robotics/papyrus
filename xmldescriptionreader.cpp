@@ -172,6 +172,8 @@ void XmlDescriptionReader::readParameterType(InputSlot *paramSlot)
             paramSlot->setInputType(SCALAR_MATRIX);
         else if (paramName.toLower() == "matrix_matrix")
             paramSlot->setInputType(MATRIX_MATRIX);
+        else if (paramName.toLower() == "sparse_matrix")
+            paramSlot->setInputType(SPARSE_MATRIX);
         else {
             QString errStr = "Unknown input parameter type '";
             errStr += paramName;

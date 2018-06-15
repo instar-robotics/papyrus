@@ -18,7 +18,8 @@ class DiagramBox;
 enum InputType {
     SCALAR_SCALAR,
     SCALAR_MATRIX,
-    MATRIX_MATRIX
+    MATRIX_MATRIX,
+    SPARSE_MATRIX
 };
 
 enum OutputType {

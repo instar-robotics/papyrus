@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description>
+    <name>Sparse Output</name>
+    <inputs>
+        <input multiple="false">
+            <name>N/A</name>
+            <type>scalar_scalar</type>
+        </input>
+    </inputs>
+    <output>
+        <type>Matrix</type>
+    </output>
+</description>

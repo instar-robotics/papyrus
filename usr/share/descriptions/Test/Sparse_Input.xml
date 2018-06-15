@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description>
+    <name>Sparse Input</name>
+    <inputs>
+        <input multiple="false">
+            <name>Sparse Input</name>
+            <type>sparse_matrix</type>
+        </input>
+    </inputs>
+    <output>
+        <type>Matrix</type>
+    </output>
+</description>

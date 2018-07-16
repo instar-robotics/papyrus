@@ -13,7 +13,7 @@
 
 // Define the prefix in which to search for ressources
 // TEMPORARY: should be replaced by a global 'settings' file for Papyrus
-#define RESOURCE_DIR "/home/nschoe/workspace/qt/Papyrus/usr/share/"
+#define RESOURCE_DIR "/home/nschoe/workspace/Qt/papyrus/usr/share/"
 // #define RESOURCE_DIR "/usr/share/"
 
 // Define the size of the icons in the left 'Library' pane (in px)

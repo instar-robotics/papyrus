@@ -53,6 +53,18 @@ void RosNode::run()
     ros::NodeHandle n;
     m_sub = n.subscribe("chatter", 1000, cb1);
 
+    std::vector<std::string> nodes;
+    if (!ros::master::getNodes(nodes)) {
+        qDebug() << "Could not get nodes";
+    } else {
+        qDebug() << "Listing kheops nodes:";
+        foreach (std::string node_, nodes) {
+            QString node = QString::fromStdString(node_);
+            if (node.startsWith("/kheops_"))
+                qDebug() << "\t" << node;
+        }
+    }
+
     // And now enter the ROS loop
     while (ros::ok() && ros::master::check()) {
         ros::spinOnce();

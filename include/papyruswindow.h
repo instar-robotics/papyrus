@@ -6,6 +6,7 @@
 #include "script.h"
 #include "propertiespanel.h"
 #include "rosnode.h"
+#include "homepage.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -62,11 +63,14 @@ public:
 
     void spawnRosNode();
 
+    HomePage *homePage() const;
+    void setHomePage(HomePage *homePage);
+
 private:
     Ui::PapyrusWindow *ui;
     RosNode *m_rosnode;
     int m_argc;
-    char ** m_argv;
+    char **m_argv;
     QLabel *m_rosMasterStatus;
     LibraryPanel *libraryPanel_;
     QLineEdit *librarySearchField_;
@@ -76,6 +80,7 @@ private:
     std::set<Script *> m_scripts;
     Script *m_activeScript;
     PropertiesPanel *m_propertiesPanel;
+    HomePage *m_homePage;
 
 signals:
     void toggleDisplayGrid(bool);

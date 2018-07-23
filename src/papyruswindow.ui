@@ -37,15 +37,6 @@
        <property name="movable">
         <bool>true</bool>
        </property>
-       <widget class="QWidget" name="tab">
-        <attribute name="icon">
-         <iconset resource="../icons.qrc">
-          <normaloff>:/icons/icons/home.svg</normaloff>:/icons/icons/home.svg</iconset>
-        </attribute>
-        <attribute name="title">
-         <string>Home</string>
-        </attribute>
-       </widget>
       </widget>
      </widget>
     </item>

@@ -38,7 +38,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     m_argv(argv),
     m_rosMasterStatus(NULL),
     m_activeScript(NULL),
-    m_propertiesPanel(NULL)
+    m_propertiesPanel(NULL),
+    m_homePage(NULL)
 {
     bool libraryParsingError = false;
 
@@ -213,6 +214,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
 
     // Make tab's height a little smaller
     ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");
+    m_homePage = new HomePage;
+    ui->tabWidget->addTab(m_homePage, QIcon(":/icons/icons/home.svg"), "Home");
 
     // Create & initialize the RosNode
     spawnRosNode();
@@ -453,10 +456,20 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
         QIcon rosMasterIconON(":/icons/icons/ros-master-on.svg");
         m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
         ui->statusBar->showMessage(tr("The ROS master just went online"));
+
+        trayIcon->showMessage(tr("ROS Master just went back up!"),
+                                      tr("The ROS Master just went back online!\nSo connections with "
+                                         "services and topics should be available again."),
+                                      QSystemTrayIcon::Information);
     } else {
         QIcon rosMasterIconOFF(":/icons/icons/ros-master-off.svg");
         m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
         ui->statusBar->showMessage(tr("The ROS master just went offline"));
+
+        trayIcon->showMessage(tr("ROS Master just went down"),
+                              tr("The ROS Master just went offline, so connection with every ROS "
+                                 "topics or services are currently unavailable!"),
+                              QSystemTrayIcon::Warning);
 
         // Stop the current thread, and recreate one (to re-init ROS, etc.)
         delete m_rosnode;
@@ -570,7 +583,18 @@ void PapyrusWindow::spawnRosNode()
 {
     m_rosnode = new RosNode(m_argc, m_argv);
     connect(m_rosnode, SIGNAL(rosMasterChanged(bool)), this, SLOT(onROSMasterChange(bool)));
+    connect(m_rosnode, SIGNAL(rosMasterChanged(bool)), m_homePage, SLOT(onRosMasterChange(bool)));
     m_rosnode->init();
+}
+
+HomePage *PapyrusWindow::homePage() const
+{
+    return m_homePage;
+}
+
+void PapyrusWindow::setHomePage(HomePage *homePage)
+{
+    m_homePage = homePage;
 }
 
 void PapyrusWindow::on_actionSave_Script_triggered()

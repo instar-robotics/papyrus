@@ -20,7 +20,7 @@
    <string>PapyrusWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
+   <iconset resource="../icons.qrc">
     <normaloff>:/icons/icons/papyrus.svg</normaloff>:/icons/icons/papyrus.svg</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -39,7 +39,7 @@
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="icon">
-         <iconset resource="icons.qrc">
+         <iconset resource="../icons.qrc">
           <normaloff>:/icons/icons/home.svg</normaloff>:/icons/icons/home.svg</iconset>
         </attribute>
         <attribute name="title">
@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>1600</width>
-     <height>23</height>
+     <height>32</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -116,7 +116,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew_script">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/new-file.svg</normaloff>:/icons/icons/new-file.svg</iconset>
    </property>
    <property name="text">
@@ -128,7 +128,7 @@
   </action>
   <action name="actionOpen_Script">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/open-file.svg</normaloff>:/icons/icons/open-file.svg</iconset>
    </property>
    <property name="text">
@@ -140,7 +140,7 @@
   </action>
   <action name="actionSave_Script">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/save-file.svg</normaloff>:/icons/icons/save-file.svg</iconset>
    </property>
    <property name="text">
@@ -160,7 +160,7 @@
   </action>
   <action name="actionClose_Script">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/close.svg</normaloff>:/icons/icons/close.svg</iconset>
    </property>
    <property name="text">
@@ -172,7 +172,7 @@
   </action>
   <action name="actionAbout_Papyrus">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/about.svg</normaloff>:/icons/icons/about.svg</iconset>
    </property>
    <property name="text">
@@ -184,7 +184,7 @@
   </action>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/exit.svg</normaloff>:/icons/icons/exit.svg</iconset>
    </property>
    <property name="text">
@@ -213,7 +213,7 @@
   </action>
   <action name="actionZoom_In">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/zoom-in.svg</normaloff>:/icons/icons/zoom-in.svg</iconset>
    </property>
    <property name="text">
@@ -225,7 +225,7 @@
   </action>
   <action name="actionZoom_Out">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/zoom-out.svg</normaloff>:/icons/icons/zoom-out.svg</iconset>
    </property>
    <property name="text">
@@ -237,7 +237,7 @@
   </action>
   <action name="actionZoom_Fit">
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/zoom-fit.svg</normaloff>:/icons/icons/zoom-fit.svg</iconset>
    </property>
    <property name="text">
@@ -255,7 +255,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/grid.svg</normaloff>:/icons/icons/grid.svg</iconset>
    </property>
    <property name="text">
@@ -268,7 +268,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="../icons.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -17,6 +17,8 @@
         <file>icons/check.svg</file>
         <file>icons/cancel.svg</file>
         <file>icons/size-icon.svg</file>
+        <file>icons/ros-master-off.svg</file>
+        <file>icons/ros-master-on.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

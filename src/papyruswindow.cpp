@@ -31,10 +31,12 @@
 #include <QDialog>
 #include <QFileInfo>
 
-PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWindow(parent),
-                                                ui(new Ui::PapyrusWindow),
-                                                m_activeScript(NULL),
-                                                m_propertiesPanel(NULL)
+PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::PapyrusWindow),
+    m_rosMasterStatus(NULL),
+    m_activeScript(NULL),
+    m_propertiesPanel(NULL)
 {
     bool libraryParsingError = false;
 
@@ -171,6 +173,12 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
     initialMsg.append(tr("is ready"));
     ui->statusBar->showMessage(initialMsg);
 
+    // Add an icon to display the status of the ROS master
+    QIcon rosMasterIcon(":/icons/icons/ros-master-off.svg");
+    m_rosMasterStatus = new QLabel;
+    m_rosMasterStatus->setPixmap(rosMasterIcon.pixmap(QSize(30, 30)));
+    ui->statusBar->addPermanentWidget(m_rosMasterStatus);
+
     // Set initial panels size
     QList<int> sizes;
     int librarySize = 240;
@@ -203,6 +211,11 @@ PapyrusWindow::PapyrusWindow(QRect availableGeometry, QWidget *parent) : QMainWi
 
     // Make tab's height a little smaller
     ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");
+
+    // Create & initialize the RosNode
+    m_rosnode = new RosNode(argc, argv);
+    connect(m_rosnode, SIGNAL(rosMasterChanged(bool)), this, SLOT(onROSMasterChange(bool)));
+    m_rosnode->init();
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -210,6 +223,8 @@ PapyrusWindow::~PapyrusWindow()
     delete ui;
     delete trayIcon;
     delete m_library;
+    delete m_rosnode;
+    delete m_rosMasterStatus;
 }
 
 /*
@@ -427,6 +442,24 @@ void PapyrusWindow::displayStatusMessage(const QString &text)
     ui->statusBar->showMessage(text);
 }
 
+/**
+ * @brief PapyrusWindow::onROSMasterChange changed the status' bar ROS icon to reflect when the ROS
+ * master goes ON and OFF
+ * @param isOnline the new status of the ROS master
+ */
+void PapyrusWindow::onROSMasterChange(bool isOnline)
+{
+    if (isOnline) {
+        QIcon rosMasterIconON(":/icons/icons/ros-master-on.svg");
+        m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
+        ui->statusBar->showMessage(tr("The ROS master just went online"));
+    } else {
+        QIcon rosMasterIconOFF(":/icons/icons/ros-master-on.svg");
+        m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
+        ui->statusBar->showMessage(tr("The ROS master just went offline"));
+    }
+}
+
 void PapyrusWindow::on_actionNew_script_hovered()
 {
     ui->statusBar->showMessage(tr("Create a new neural script."));
@@ -517,6 +550,16 @@ void PapyrusWindow::setPropertiesPanel(PropertiesPanel *propertiesPanel)
 QSystemTrayIcon *PapyrusWindow::getTrayIcon() const
 {
     return trayIcon;
+}
+
+RosNode *PapyrusWindow::rosnode() const
+{
+    return m_rosnode;
+}
+
+void PapyrusWindow::setRosnode(RosNode *rosnode)
+{
+    m_rosnode = rosnode;
 }
 
 void PapyrusWindow::on_actionSave_Script_triggered()

@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     QRect availableGeometry = screen->availableGeometry();
 
-    PapyrusWindow mainWindow(availableGeometry);
+    PapyrusWindow mainWindow(argc, argv, availableGeometry);
     mainWindow.setWindowTitle(APP_NAME);
     mainWindow.setWindowIcon(QIcon(":/icons/icons/papyrus.svg"));
     mainWindow.show();

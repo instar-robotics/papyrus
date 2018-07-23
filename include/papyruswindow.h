@@ -5,12 +5,14 @@
 #include "library.h"
 #include "script.h"
 #include "propertiespanel.h"
+#include "rosnode.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QDir>
 #include <QSystemTrayIcon>
 #include <QLineEdit>
+#include <QLabel>
 
 namespace Ui {
 class PapyrusWindow;
@@ -26,7 +28,7 @@ class PapyrusWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PapyrusWindow(QRect availableGeometry = QRect(), QWidget *parent = 0);
+    explicit PapyrusWindow(int argc, char **argv, QRect availableGeometry = QRect(), QWidget *parent = 0);
     ~PapyrusWindow();
 
     Script *parseXmlScriptFile(const QString &scriptPath);
@@ -55,8 +57,13 @@ public:
 
     QSystemTrayIcon *getTrayIcon() const;
 
+    RosNode *rosnode() const;
+    void setRosnode(RosNode *rosnode);
+
 private:
     Ui::PapyrusWindow *ui;
+    RosNode *m_rosnode;
+    QLabel *m_rosMasterStatus;
     LibraryPanel *libraryPanel_;
     QLineEdit *librarySearchField_;
     QDir description_;
@@ -72,6 +79,7 @@ signals:
 private slots:
     void filterLibraryNames(const QString &text);
     void displayStatusMessage(const QString &text);
+    void onROSMasterChange(bool isOnline);
 
     void on_actionExit_triggered();
 

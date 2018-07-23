@@ -7,7 +7,6 @@
 
 RosNode::RosNode(int argc, char **argv) : m_argc(argc), m_argv(argv)
 {
-    qDebug() << "RosNode created";
 }
 
 RosNode::~RosNode()
@@ -55,6 +54,13 @@ void RosNode::run()
     m_sub = n.subscribe("chatter", 1000, cb1);
 
     // And now enter the ROS loop
-    ros::spin();
+    while (ros::ok() && ros::master::check()) {
+        ros::spinOnce();
+    }
+
+    emit rosMasterChanged(false);
+//    ros::spin();
+
+    qDebug() << "ROS SPIN OVER";
 }
 

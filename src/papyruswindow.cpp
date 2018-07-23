@@ -34,6 +34,8 @@
 PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::PapyrusWindow),
+    m_argc(argc),
+    m_argv(argv),
     m_rosMasterStatus(NULL),
     m_activeScript(NULL),
     m_propertiesPanel(NULL)
@@ -213,9 +215,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");
 
     // Create & initialize the RosNode
-    m_rosnode = new RosNode(argc, argv);
-    connect(m_rosnode, SIGNAL(rosMasterChanged(bool)), this, SLOT(onROSMasterChange(bool)));
-    m_rosnode->init();
+    spawnRosNode();
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -454,9 +454,13 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
         m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
         ui->statusBar->showMessage(tr("The ROS master just went online"));
     } else {
-        QIcon rosMasterIconOFF(":/icons/icons/ros-master-on.svg");
+        QIcon rosMasterIconOFF(":/icons/icons/ros-master-off.svg");
         m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
         ui->statusBar->showMessage(tr("The ROS master just went offline"));
+
+        // Stop the current thread, and recreate one (to re-init ROS, etc.)
+        delete m_rosnode;
+        spawnRosNode();
     }
 }
 
@@ -560,6 +564,13 @@ RosNode *PapyrusWindow::rosnode() const
 void PapyrusWindow::setRosnode(RosNode *rosnode)
 {
     m_rosnode = rosnode;
+}
+
+void PapyrusWindow::spawnRosNode()
+{
+    m_rosnode = new RosNode(m_argc, m_argv);
+    connect(m_rosnode, SIGNAL(rosMasterChanged(bool)), this, SLOT(onROSMasterChange(bool)));
+    m_rosnode->init();
 }
 
 void PapyrusWindow::on_actionSave_Script_triggered()

@@ -60,9 +60,13 @@ public:
     RosNode *rosnode() const;
     void setRosnode(RosNode *rosnode);
 
+    void spawnRosNode();
+
 private:
     Ui::PapyrusWindow *ui;
     RosNode *m_rosnode;
+    int m_argc;
+    char ** m_argv;
     QLabel *m_rosMasterStatus;
     LibraryPanel *libraryPanel_;
     QLineEdit *librarySearchField_;

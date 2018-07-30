@@ -232,7 +232,7 @@ void Script::save()
 
         // Save output slot
         stream.writeStartElement("output");
-        stream.writeAttribute("type", outputTypeToString(item->outputType()).toLower());
+        stream.writeAttribute("type", outputTypeToString(item->outputType()));
         // If the function outputs a matrix, write the dimensions
         if (item->outputType() == MATRIX) {
             stream.writeTextElement("rows", QString::number(item->rows()));

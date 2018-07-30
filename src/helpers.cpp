@@ -36,10 +36,10 @@ QString outputTypeToString(OutputType outputType)
 {
     switch (outputType) {
     case SCALAR:
-        return QString("Scalar");
+        return QString("SCALAR");
         break;
     case MATRIX:
-        return QString("Matrix");
+        return QString("MATRIX");
     default:
         qFatal("Unsupported OutputType when converting to QString.");
         break;

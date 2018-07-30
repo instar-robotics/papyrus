@@ -302,7 +302,7 @@ void Script::updateTextStyle()
     PapyrusWindow *mainWindow = getMainWindow();
 
     // Then get the tab widget and teh current index
-    QTabWidget *tabWidget = mainWindow->getUi()->tabWidget;
+    QTabWidget *tabWidget = mainWindow->ui()->tabWidget;
     if (tabWidget == NULL)
         informUserAndCrash(tr("Failed to fetch the main tabbed widget"));
     int index = tabWidget->currentIndex();

@@ -81,8 +81,19 @@
     <addaction name="actionAntialiasing"/>
     <addaction name="actionDisplay_Grid"/>
    </widget>
+   <widget class="QMenu" name="menuKheops">
+    <property name="title">
+     <string>Kheops</string>
+    </property>
+    <addaction name="actionConnect"/>
+    <addaction name="separator"/>
+    <addaction name="actionRun"/>
+    <addaction name="actionStop"/>
+    <addaction name="actionScope"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuKheops"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -103,6 +114,10 @@
    <addaction name="actionZoom_Out"/>
    <addaction name="actionZoom_Fit"/>
    <addaction name="actionDisplay_Grid"/>
+   <addaction name="separator"/>
+   <addaction name="actionRun"/>
+   <addaction name="actionStop"/>
+   <addaction name="actionScope"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew_script">
@@ -162,6 +177,9 @@
    </property>
   </action>
   <action name="actionAbout_Papyrus">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/about.svg</normaloff>:/icons/icons/about.svg</iconset>
@@ -254,6 +272,51 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+G</string>
+   </property>
+  </action>
+  <action name="actionConnect">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/connect.svg</normaloff>:/icons/icons/connect.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Connect...</string>
+   </property>
+  </action>
+  <action name="actionRun">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Run</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/stop.svg</normaloff>:/icons/icons/stop.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionScope">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/scope.svg</normaloff>:/icons/icons/scope.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Scope</string>
    </property>
   </action>
  </widget>

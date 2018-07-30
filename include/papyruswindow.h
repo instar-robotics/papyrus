@@ -43,7 +43,7 @@ public:
     QLineEdit *librarySearchField() const;
     void setLibrarySearchField(QLineEdit *librarySearchField);
 
-    Ui::PapyrusWindow *getUi() const;
+    Ui::PapyrusWindow *ui() const;
 
     Library *getLibrary() const;
     void setLibrary(Library *library);
@@ -67,7 +67,7 @@ public:
     void setHomePage(HomePage *homePage);
 
 private:
-    Ui::PapyrusWindow *ui;
+    Ui::PapyrusWindow *m_ui;
     RosNode *m_rosnode;
     int m_argc;
     char **m_argv;
@@ -81,6 +81,7 @@ private:
     Script *m_activeScript;
     PropertiesPanel *m_propertiesPanel;
     HomePage *m_homePage;
+    QLineEdit *m_runTimeDisplay;
 
 signals:
     void toggleDisplayGrid(bool);
@@ -114,7 +115,6 @@ private slots:
 
     void on_actionNew_script_triggered();
 
-
     void on_actionDisplay_Grid_hovered();
 
     void on_actionDisplay_Grid_toggled(bool arg1);
@@ -127,6 +127,10 @@ private slots:
     void on_tabWidget_currentChanged(int index);
     void on_tabWidget_tabBarDoubleClicked(int index);
     void on_actionClose_Script_triggered();
+    void on_actionConnect_triggered();
+    void on_actionRun_triggered();
+    void on_actionStop_triggered();
+    void on_actionScope_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

@@ -30,20 +30,22 @@
 #include <QDockWidget>
 #include <QDialog>
 #include <QFileInfo>
+#include <QSizePolicy>
 
 PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::PapyrusWindow),
+    m_ui(new Ui::PapyrusWindow),
     m_argc(argc),
     m_argv(argv),
     m_rosMasterStatus(NULL),
     m_activeScript(NULL),
     m_propertiesPanel(NULL),
-    m_homePage(NULL)
+    m_homePage(NULL),
+    m_runTimeDisplay(NULL)
 {
     bool libraryParsingError = false;
 
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 
     // Set the main window's geometry if given one
     if (!availableGeometry.isNull()) {
@@ -102,7 +104,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     leftSplitter->addWidget(libraryGroupBox);
     leftSplitter->addWidget(m_propertiesPanel);
 
-    ui->splitter->insertWidget(0, leftSplitter);
+    m_ui->splitter->insertWidget(0, leftSplitter);
 
     // Create one 'Tree Root' per category
     for (int i = 0; i < categories.size(); i += 1) {
@@ -174,20 +176,20 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     QString initialMsg = tr(APP_NAME);
     initialMsg.append(" ");
     initialMsg.append(tr("is ready"));
-    ui->statusBar->showMessage(initialMsg);
+    m_ui->statusBar->showMessage(initialMsg);
 
     // Add an icon to display the status of the ROS master
     QIcon rosMasterIcon(":/icons/icons/ros-master-off.svg");
     m_rosMasterStatus = new QLabel;
     m_rosMasterStatus->setPixmap(rosMasterIcon.pixmap(QSize(30, 30)));
-    ui->statusBar->addPermanentWidget(m_rosMasterStatus);
+    m_ui->statusBar->addPermanentWidget(m_rosMasterStatus);
 
     // Set initial panels size
     QList<int> sizes;
     int librarySize = 240;
     int tabWidgetSize = geometry().width() - librarySize;
     sizes << librarySize << tabWidgetSize;
-    ui->splitter->setSizes(sizes);
+    m_ui->splitter->setSizes(sizes);
     libraryPanel_->setDragEnabled(true);
 
     QList<int> leftSizes;
@@ -213,17 +215,27 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     //*/
 
     // Make tab's height a little smaller
-    ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");
+    m_ui->tabWidget->setStyleSheet("QTabBar:tab {height: 30px;}");
     m_homePage = new HomePage;
-    ui->tabWidget->addTab(m_homePage, QIcon(":/icons/icons/home.svg"), "Home");
+    m_ui->tabWidget->addTab(m_homePage, QIcon(":/icons/icons/home.svg"), "Home");
 
     // Create & initialize the RosNode
     spawnRosNode();
+
+    // Add a line edit showing the script's runtime (cannot be done from QtDesigner)
+    m_runTimeDisplay = new QLineEdit("00:00:00");
+    m_runTimeDisplay->setReadOnly(true);
+    m_runTimeDisplay->setEnabled(false);
+    m_runTimeDisplay->setMaximumWidth(128);
+    m_runTimeDisplay->setAlignment(Qt::AlignCenter);
+    m_runTimeDisplay->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    qDebug() << "\nSize hint:" << m_runTimeDisplay->sizeHint();
+    m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
 }
 
 PapyrusWindow::~PapyrusWindow()
 {
-    delete ui;
+    delete m_ui;
     delete trayIcon;
     delete m_library;
     delete m_rosnode;
@@ -280,7 +292,7 @@ void PapyrusWindow::on_actionExit_triggered()
                                  "Do you want to save them?"),
                                       QMessageBox::SaveAll | QMessageBox::NoAll | QMessageBox::Cancel)) {
             case QMessageBox::Cancel:
-                ui->statusBar->showMessage(tr("Cancel exit."));
+                m_ui->statusBar->showMessage(tr("Cancel exit."));
                 break;
             case QMessageBox::SaveAll:
                 // Make a pass to save all scripts
@@ -302,11 +314,11 @@ void PapyrusWindow::on_actionExit_triggered()
                 qApp->exit();
                 break;
             case QMessageBox::NoAll:
-                ui->statusBar->showMessage(tr("Discarding unsaved script."));
+                m_ui->statusBar->showMessage(tr("Discarding unsaved script."));
                 qApp->exit();
                 break;
             default:
-                ui->statusBar->showMessage(tr("Cancel exit."));
+                m_ui->statusBar->showMessage(tr("Cancel exit."));
         }
     } else {
         qApp->exit();
@@ -319,39 +331,39 @@ void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
      * ATTENTION: it only toggles the antialiasing for the current script
      * It should probably be done for all scripts
      */
-    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView)
         currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
     else
-        ui->statusBar->showMessage(tr("Cannot toggle antialiasing: no opened script!"));
+        m_ui->statusBar->showMessage(tr("Cannot toggle antialiasing: no opened script!"));
 }
 
 void PapyrusWindow::on_actionZoom_In_triggered()
 {
-    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView)
         currentView->scale(1.2 * SCALE_FACTOR, 1.2 * SCALE_FACTOR);
     else
-        ui->statusBar->showMessage(tr("Cannot zoom in: no opened script!"));
+        m_ui->statusBar->showMessage(tr("Cannot zoom in: no opened script!"));
 }
 
 void PapyrusWindow::on_actionZoom_Out_triggered()
 {
-    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView)
         currentView->scale(1 / (1.2 * SCALE_FACTOR), 1 / (1.2 * SCALE_FACTOR));
     else
-        ui->statusBar->showMessage(tr("Cannot zoom out: no opened script!"));
+        m_ui->statusBar->showMessage(tr("Cannot zoom out: no opened script!"));
 }
 
 void PapyrusWindow::on_actionZoom_Fit_triggered()
 {
-    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(ui->tabWidget->widget(ui->tabWidget->currentIndex()));
+    QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView) {
         QRectF wholeScene = currentView->scene()->itemsBoundingRect();
         currentView->fitInView(wholeScene, Qt::KeepAspectRatio);
     } else {
-        ui->statusBar->showMessage(tr("Cannot zoom fit: no opened script!"));
+        m_ui->statusBar->showMessage(tr("Cannot zoom fit: no opened script!"));
     }
 }
 
@@ -367,19 +379,19 @@ void PapyrusWindow::on_actionNew_script_triggered()
 
     // Don't do anything (just print status message) if user cancels the modal window
     if (!ok) {
-        ui->statusBar->showMessage(tr("New script creation cancelled."));
+        m_ui->statusBar->showMessage(tr("New script creation cancelled."));
         return;
     }
 
     // Make sure the script has a name
     if (newScriptName.length() == 0) {
         newScriptName = NEW_SCRIPT_DEFAULT_NAME;
-        ui->statusBar->showMessage(tr("Script without a name are not allowed, setting a default name."), 2e3);
+        m_ui->statusBar->showMessage(tr("Script without a name are not allowed, setting a default name."), 2e3);
     }
 
     // Create a new scene to contain the items for the new script
     DiagramScene *newScene = new DiagramScene;
-    QSizeF widgetSize = ui->tabWidget->size();
+    QSizeF widgetSize = m_ui->tabWidget->size();
     // Set the scene's initial rect based on the widget in which it is displayed (and centered)
     newScene->setSceneRect(QRectF(- widgetSize.width() / 2,
                                   - widgetSize.height() / 2,
@@ -398,7 +410,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
     addScript(newScript);
 
     // Add the new scene as a new tab and make it active
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
+    m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
                                                          QIcon(":/icons/icons/script.svg"),
                                                          newScriptName));
 
@@ -407,7 +419,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
     // Set the script as modified
     newScript->setStatusModified(true);
 
-    ui->statusBar->showMessage("New script '" + newScriptName + "' created.");
+    m_ui->statusBar->showMessage("New script '" + newScriptName + "' created.");
 }
 
 Library *PapyrusWindow::getLibrary() const
@@ -420,9 +432,9 @@ void PapyrusWindow::setLibrary(Library *library)
     m_library = library;
 }
 
-Ui::PapyrusWindow *PapyrusWindow::getUi() const
+Ui::PapyrusWindow *PapyrusWindow::ui() const
 {
-    return ui;
+    return m_ui;
 }
 
 QLineEdit *PapyrusWindow::librarySearchField() const
@@ -442,7 +454,7 @@ void PapyrusWindow::filterLibraryNames(const QString &text)
 
 void PapyrusWindow::displayStatusMessage(const QString &text)
 {
-    ui->statusBar->showMessage(text);
+    m_ui->statusBar->showMessage(text);
 }
 
 /**
@@ -455,7 +467,7 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
     if (isOnline) {
         QIcon rosMasterIconON(":/icons/icons/ros-master-on.svg");
         m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
-        ui->statusBar->showMessage(tr("The ROS master just went online"));
+        m_ui->statusBar->showMessage(tr("The ROS master just went online"));
 
         trayIcon->showMessage(tr("ROS Master just went back up!"),
                                       tr("The ROS Master just went back online!\nSo connections with "
@@ -464,7 +476,7 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
     } else {
         QIcon rosMasterIconOFF(":/icons/icons/ros-master-off.svg");
         m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
-        ui->statusBar->showMessage(tr("The ROS master just went offline"));
+        m_ui->statusBar->showMessage(tr("The ROS master just went offline"));
 
         trayIcon->showMessage(tr("ROS Master just went down"),
                               tr("The ROS Master just went offline, so connection with every ROS "
@@ -479,37 +491,37 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
 
 void PapyrusWindow::on_actionNew_script_hovered()
 {
-    ui->statusBar->showMessage(tr("Create a new neural script."));
+    m_ui->statusBar->showMessage(tr("Create a new neural script."));
 }
 
 void PapyrusWindow::on_actionOpen_Script_hovered()
 {
-    ui->statusBar->showMessage(tr("Open an existing neural script."));
+    m_ui->statusBar->showMessage(tr("Open an existing neural script."));
 }
 
 void PapyrusWindow::on_actionSave_Script_hovered()
 {
-    ui->statusBar->showMessage(tr("Save the current neural script."));
+    m_ui->statusBar->showMessage(tr("Save the current neural script."));
 }
 
 void PapyrusWindow::on_actionZoom_In_hovered()
 {
-    ui->statusBar->showMessage(tr("Zoom in on the current neural script."));
+    m_ui->statusBar->showMessage(tr("Zoom in on the current neural script."));
 }
 
 void PapyrusWindow::on_actionZoom_Out_hovered()
 {
-    ui->statusBar->showMessage(tr("Zoom out on the current neural script."));
+    m_ui->statusBar->showMessage(tr("Zoom out on the current neural script."));
 }
 
 void PapyrusWindow::on_actionZoom_Fit_hovered()
 {
-    ui->statusBar->showMessage(tr("Zoom to contain the entire script."));
+    m_ui->statusBar->showMessage(tr("Zoom to contain the entire script."));
 }
 
 void PapyrusWindow::on_actionDisplay_Grid_hovered()
 {
-    ui->statusBar->showMessage(tr("Toggle grid display."));
+    m_ui->statusBar->showMessage(tr("Toggle grid display."));
 }
 
 void PapyrusWindow::on_actionDisplay_Grid_toggled(bool shouldDisplay)
@@ -601,7 +613,7 @@ void PapyrusWindow::on_actionSave_Script_triggered()
 {
     // Call the 'Save' function of the current script
     if (m_activeScript == NULL) {
-        ui->statusBar->showMessage(tr("No open script to save."));
+        m_ui->statusBar->showMessage(tr("No open script to save."));
         QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
         return;
     }
@@ -713,7 +725,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
         return NULL;
     } else {
         QString msg(tr("Script '") + openScript->name() + tr("' loaded."));
-        ui->statusBar->showMessage(msg);
+        m_ui->statusBar->showMessage(msg);
 
         // Create a new view to display the new scene
         DiagramView *newView = new DiagramView(openScene);
@@ -729,7 +741,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
          * Set the scene's initial rect based on the widget in which it is displayed (and centered)
          * if it's smaller
          */
-        QSizeF widgetSize = ui->tabWidget->size();
+        QSizeF widgetSize = m_ui->tabWidget->size();
         QRectF currentSceneRect = openScene->sceneRect();
         QRectF minSceneRect(- widgetSize.width() / 2,
                             - widgetSize.height() / 2,
@@ -743,7 +755,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 
 
         // Add the new scene as a new tab and make it active
-        ui->tabWidget->setCurrentIndex(ui->tabWidget->addTab(newView,
+        m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
                                                              QIcon(":/icons/icons/script.svg"),
                                                              openScript->name()));
     }
@@ -761,10 +773,10 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
     Q_UNUSED(index);
 
     // Get the view that is displayed in the tab
-    DiagramView *currentView = dynamic_cast<DiagramView *>(ui->tabWidget->currentWidget());
+    DiagramView *currentView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
     if (currentView == NULL) {
         // TODO: _actually_ automatically report it instead of asking the user to do it.
-        ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
+        m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
                                       "(this is an internal error, you should report it."));
         m_activeScript = NULL;
         return;
@@ -774,7 +786,7 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
     DiagramScene *currentScene = dynamic_cast<DiagramScene *>(currentView->scene());
     if (currentScene == NULL) {
         // TODO: _actually_ automatically report it instead of asking the user to do it.
-        ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
+        m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
                                       "(this is an internal error, you should report it."));
         m_activeScript = NULL;
         return;
@@ -786,15 +798,15 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 
 void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
 {
-    DiagramView *view = dynamic_cast<DiagramView *>(ui->tabWidget->widget(index));
+    DiagramView *view = dynamic_cast<DiagramView *>(m_ui->tabWidget->widget(index));
     if (view == NULL) {
-        ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated view."));
+        m_ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated view."));
         return;
     }
 
     DiagramScene *scene = dynamic_cast<DiagramScene *>(view->scene());
     if (scene == NULL) {
-        ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated scene."));
+        m_ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated scene."));
         return;
     }
 
@@ -820,14 +832,14 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
     msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
 
-    ui->statusBar->showMessage(tr("Renaming \"") + currentName + "\"...");
+    m_ui->statusBar->showMessage(tr("Renaming \"") + currentName + "\"...");
 
     int ret = msgBox.exec();
     if (ret == QMessageBox::Ok) {
         QString newScriptName(newName->text());
         QString str(tr("\"") + currentName + "\" renamed to \"" + newScriptName + "\"");
         script->setName(newScriptName);
-        ui->tabWidget->tabBar()->setTabText(index, newScriptName);
+        m_ui->tabWidget->tabBar()->setTabText(index, newScriptName);
 
         if (cBox->isChecked() && !currentFilePath.isEmpty()) {
             QFileInfo fi(currentFilePath);
@@ -851,17 +863,17 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
             str += ".";
         }
 
-        ui->statusBar->showMessage(str);
+        m_ui->statusBar->showMessage(str);
     } else {
-        ui->statusBar->showMessage(tr("Renaming cancelled. Nothing was done."));
+        m_ui->statusBar->showMessage(tr("Renaming cancelled. Nothing was done."));
     }
 }
 
 void PapyrusWindow::on_actionClose_Script_triggered()
 {
-    DiagramView *view = dynamic_cast<DiagramView *>(ui->tabWidget->currentWidget());
+    DiagramView *view = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
     if (view == NULL) {
-        ui->statusBar->showMessage(tr("Could not close script: no script open!"));
+        m_ui->statusBar->showMessage(tr("Could not close script: no script open!"));
         return;
     }
 
@@ -871,7 +883,7 @@ void PapyrusWindow::on_actionClose_Script_triggered()
         return;
     }
 
-    int currIdx = ui->tabWidget->currentIndex();
+    int currIdx = m_ui->tabWidget->currentIndex();
     QString scriptName = scene->script()->name();
 
     // Check if the script has unsaved modifications
@@ -881,7 +893,7 @@ void PapyrusWindow::on_actionClose_Script_triggered()
                                          "Do you want to save them?"),
                                       QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel)) {
         case QMessageBox::Cancel:
-            ui->statusBar->showMessage(tr("Cancel closing."));
+            m_ui->statusBar->showMessage(tr("Cancel closing."));
             break;
 
         case QMessageBox::Save:
@@ -896,32 +908,52 @@ void PapyrusWindow::on_actionClose_Script_triggered()
             }
 
             // Remove the tab containing this widget
-            ui->tabWidget->removeTab(currIdx);
+            m_ui->tabWidget->removeTab(currIdx);
 
             // Destroy the view
             delete view;
-            ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
+            m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
             break;
 
         case QMessageBox::Discard:
             // Remove the tab containing this widget
-            ui->tabWidget->removeTab(currIdx);
+            m_ui->tabWidget->removeTab(currIdx);
 
             // Destroy the view
             delete view;
-            ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed (changes discarded)"));
+            m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed (changes discarded)"));
             break;
 
         default:
-            ui->statusBar->showMessage(tr("Cancel closing."));
+            m_ui->statusBar->showMessage(tr("Cancel closing."));
         }
     } else {
         // Close the script directly if it has no unsaved changes
         // Remove the tab containing this widget
-        ui->tabWidget->removeTab(currIdx);
+        m_ui->tabWidget->removeTab(currIdx);
 
         // Destroy the view
         delete view;
-        ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
+        m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
     }
+}
+
+void PapyrusWindow::on_actionConnect_triggered()
+{
+    qDebug() << "CONNECT";
+}
+
+void PapyrusWindow::on_actionRun_triggered()
+{
+    qDebug() << "RUN";
+}
+
+void PapyrusWindow::on_actionStop_triggered()
+{
+    qDebug() << "STOP";
+}
+
+void PapyrusWindow::on_actionScope_triggered()
+{
+    qDebug() << "SCOPE";
 }

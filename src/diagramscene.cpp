@@ -108,7 +108,7 @@ void DiagramScene::updateSceneRect()
 {
     if (m_mainWindow) {
         // Now get the tab widget's size: this will be the minimum size we want
-        QSize widgetSize = m_mainWindow->getUi()->tabWidget->size();
+        QSize widgetSize = m_mainWindow->ui()->tabWidget->size();
 
         // Get the bounding rect of all items
         QRectF bounds = itemsBoundingRect();

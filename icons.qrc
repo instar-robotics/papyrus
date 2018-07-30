@@ -19,6 +19,12 @@
         <file>icons/size-icon.svg</file>
         <file>icons/ros-master-off.svg</file>
         <file>icons/ros-master-on.svg</file>
+        <file>icons/connect.svg</file>
+        <file>icons/disconnect.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/pause.svg</file>
+        <file>icons/stop.svg</file>
+        <file>icons/scope.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

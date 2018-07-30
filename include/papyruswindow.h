@@ -7,6 +7,7 @@
 #include "propertiespanel.h"
 #include "rosnode.h"
 #include "homepage.h"
+#include "rossession.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -66,6 +67,9 @@ public:
     HomePage *homePage() const;
     void setHomePage(HomePage *homePage);
 
+    ROSSession *rosSession() const;
+    void setRosSession(ROSSession *rosSession);
+
 private:
     Ui::PapyrusWindow *m_ui;
     RosNode *m_rosnode;
@@ -82,6 +86,7 @@ private:
     PropertiesPanel *m_propertiesPanel;
     HomePage *m_homePage;
     QLineEdit *m_runTimeDisplay;
+    ROSSession *m_rosSession;
 
 signals:
     void toggleDisplayGrid(bool);

@@ -274,3 +274,24 @@ bool fileExists(const std::string &filename)
     struct stat buffer;
     return (stat (filename.c_str(), &buffer) == 0);
 }
+
+
+
+QList<QString> getKheopsNodes()
+{
+    std::vector<std::string> nodes;
+    QList<QString> ret;
+
+    if (!ros::master::getNodes(nodes)) {
+        qDebug() << "Could not get nodes";
+        } else {
+        foreach (std::string node_, nodes) {
+            QString node = QString::fromStdString(node_);
+
+            if (node.startsWith("/kheops_"))
+                ret.append(node);
+        }
+    }
+
+    return ret;
+}

@@ -115,6 +115,7 @@
    <addaction name="actionZoom_Fit"/>
    <addaction name="actionDisplay_Grid"/>
    <addaction name="separator"/>
+   <addaction name="actionConnect"/>
    <addaction name="actionRun"/>
    <addaction name="actionStop"/>
    <addaction name="actionScope"/>

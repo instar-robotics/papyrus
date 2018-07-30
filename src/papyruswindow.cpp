@@ -7,6 +7,7 @@
 #include "xmldescriptionreader.h"
 #include "xmlscriptreader.h"
 #include "helpers.h"
+#include "nodeschooser.h"
 
 #include <cryptopp/filters.h>
 #include <cryptopp/aes.h>
@@ -41,7 +42,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     m_activeScript(NULL),
     m_propertiesPanel(NULL),
     m_homePage(NULL),
-    m_runTimeDisplay(NULL)
+    m_runTimeDisplay(NULL),
+    m_rosSession(NULL)
 {
     bool libraryParsingError = false;
 
@@ -229,8 +231,10 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     m_runTimeDisplay->setMaximumWidth(128);
     m_runTimeDisplay->setAlignment(Qt::AlignCenter);
     m_runTimeDisplay->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    qDebug() << "\nSize hint:" << m_runTimeDisplay->sizeHint();
     m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
+
+    // Crease the empty ROS Session
+    m_rosSession = new ROSSession;
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -609,6 +613,16 @@ void PapyrusWindow::setHomePage(HomePage *homePage)
     m_homePage = homePage;
 }
 
+ROSSession *PapyrusWindow::rosSession() const
+{
+    return m_rosSession;
+}
+
+void PapyrusWindow::setRosSession(ROSSession *rosSession)
+{
+    m_rosSession = rosSession;
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
     // Call the 'Save' function of the current script
@@ -940,7 +954,38 @@ void PapyrusWindow::on_actionClose_Script_triggered()
 
 void PapyrusWindow::on_actionConnect_triggered()
 {
-    qDebug() << "CONNECT";
+    // CONNECT FUNCTION
+    if (!m_rosSession->isConnected()) {
+        // Create an instance of NodesChooser, and make it modal to the application
+        NodesChooser *nodesChooser = new NodesChooser;
+        nodesChooser->setWindowFlag(Qt::Dialog);
+        nodesChooser->setWindowModality(Qt::ApplicationModal);
+
+        // If we validated (and thus chose a node), transform the "connect" button into a "disconnect"
+        if (nodesChooser->exec()) {
+            QString selectedNode = nodesChooser->selectedNode();
+            m_rosSession->setNodeName(selectedNode);
+            m_rosSession->setIsConnected(true);
+            m_ui->actionConnect->setIcon(QIcon(":/icons/icons/disconnect.svg"));
+            m_ui->actionConnect->setToolTip(tr("Disconnect"));
+            m_ui->actionRun->setEnabled(true);
+            m_ui->actionStop->setEnabled(true);
+            m_ui->actionScope->setEnabled(true);
+            m_runTimeDisplay->setEnabled(true);
+        }
+    } else {
+        // DISCONNECT FUNCTION
+        m_rosSession->setIsConnected(false);
+        m_rosSession->setIsRunning(false);
+        m_rosSession->setIsPaused(false);
+        m_rosSession->setNodeName("");
+        m_ui->actionConnect->setIcon(QIcon(":/icons/icons/connect.svg"));
+        m_ui->actionConnect->setToolTip(tr("Connect"));
+        m_ui->actionRun->setEnabled(false);
+        m_ui->actionStop->setEnabled(false);
+        m_ui->actionScope->setEnabled(false);
+        m_runTimeDisplay->setEnabled(false);
+    }
 }
 
 void PapyrusWindow::on_actionRun_triggered()

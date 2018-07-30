@@ -4,9 +4,13 @@
 #include "papyruswindow.h"
 #include "slot.h"
 
+#include <ros/ros.h>
+
 #include <QApplication>
 #include <QString>
 #include <QGraphicsSvgItem>
+#include <QList>
+#include <QDebug>
 
 /**
  * This file provides a set of helpers that are used throughout this project.
@@ -33,5 +37,7 @@ void updateSizeIcon(DiagramBox *box);
 bool areLinked(OutputSlot *oSlot, InputSlot *iSlot);
 
 bool fileExists(const std::string& filename);
+
+QList<QString> getKheopsNodes();
 
 #endif // HELPERS_H

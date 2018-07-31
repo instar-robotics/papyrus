@@ -47,7 +47,6 @@ void ROSSession::runOrPause()
         run();
     else
         pause();
-
 }
 
 void ROSSession::run()
@@ -107,6 +106,42 @@ void ROSSession::pause()
         }
     } else {
         qDebug() << "Failed to call PAUSE";
+    }
+}
+
+void ROSSession::stop()
+{
+    // TODO: emit message for status bar
+    if (!m_isRunning)
+        return;
+
+    // TODO emit message for status bar
+    if (m_nodeName.isEmpty()) {
+        qWarning() << "No node name: cannot pause";
+        return;
+    }
+
+    QString srvName = m_nodeName + "/control";
+    ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+    hieroglyph::SimpleCmd srv;
+    srv.request.cmd = "quit";
+
+    // TODO: remove 'true', when kheops/#10 is solved
+    if (client.call(srv) || true) {
+        QString response = QString::fromStdString(srv.response.ret);;
+
+        // TODO: same here
+        if (true || response == "quit") {
+            m_isRunning = false;
+            m_isPaused = false;
+
+            // Reset the time offset
+            m_timeOffset = 0;
+
+            emit scriptStopped();
+        }
+    } else {
+        qDebug() << "Failed to call STOP";
     }
 }
 

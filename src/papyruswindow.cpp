@@ -237,6 +237,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     m_rosSession = new ROSSession;
     connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
     connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+    connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
     connect(m_rosSession, SIGNAL(timeElapsed(int,int,int,int)), this, SLOT(updateStopWatch(int,int,int,int)));
 }
 
@@ -507,8 +508,6 @@ void PapyrusWindow::onScriptResumed()
     m_ui->actionRun->setToolTip(tr("Pause script"));
     m_ui->actionRun->setEnabled(true);
 
-    // TODO : resume timer
-
     // Enable the stop button
     m_ui->actionStop->setEnabled(true);
 
@@ -530,8 +529,6 @@ void PapyrusWindow::onScriptPaused()
     m_ui->actionRun->setToolTip(tr("Resume script"));
     m_ui->actionRun->setEnabled(true);
 
-    // TODO: stop timer
-
     // Enable the stop button
     m_ui->actionStop->setEnabled(true);
 
@@ -541,6 +538,30 @@ void PapyrusWindow::onScriptPaused()
 
     // Display a message in the status bar
     m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" paused"));
+}
+
+/**
+ * @brief PapyrusWindow::onScriptStopped is called when the @ROSSession confirms the script was
+ * stopped
+ */
+void PapyrusWindow::onScriptStopped()
+{
+    // Make the play/pause button into its "play" configuration
+    m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+    m_ui->actionRun->setToolTip(tr("Start script"));             // Note here "start" vs "resume" :)
+    m_ui->actionRun->setEnabled(true);
+
+    // Disable the stop button
+    m_ui->actionStop->setEnabled(false);
+
+    // disable scope button
+    m_ui->actionScope->setEnabled(false);
+
+    // Reset stopwatch
+    updateStopWatch(0, 0, 0, 0);
+
+    // Display a message in the status bar
+    m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" stopped"));
 }
 
 void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
@@ -1061,7 +1082,7 @@ void PapyrusWindow::on_actionRun_triggered()
 
 void PapyrusWindow::on_actionStop_triggered()
 {
-    qDebug() << "STOP";
+    m_rosSession->stop();
 }
 
 void PapyrusWindow::on_actionScope_triggered()

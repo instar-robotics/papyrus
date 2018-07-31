@@ -97,6 +97,7 @@ private slots:
     void onROSMasterChange(bool isOnline);
     void onScriptResumed();
     void onScriptPaused();
+    void onScriptStopped();
     void updateStopWatch(int h, int m, int s, int ms);
 
     void on_actionExit_triggered();

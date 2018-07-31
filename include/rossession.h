@@ -24,6 +24,7 @@ public:
     void runOrPause();
     void run();
     void pause();
+    void stop();
 
     QString nodeName() const;
     void setNodeName(const QString &nodeName);
@@ -49,6 +50,7 @@ private:
 signals:
     void scriptResumed();     // emited when "play" action succeeded
     void scriptPaused();      // emited when "pause" action succeeded
+    void scriptStopped();     // emitted when "stop" action succeeded
     void timeElapsed(int h, int m, int s, int ms); // emited regularly with the new run time
 };
 

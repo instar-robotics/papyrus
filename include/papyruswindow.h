@@ -95,6 +95,8 @@ private slots:
     void filterLibraryNames(const QString &text);
     void displayStatusMessage(const QString &text);
     void onROSMasterChange(bool isOnline);
+    void onScriptResumed();
+    void onScriptPaused();
 
     void on_actionExit_triggered();
 

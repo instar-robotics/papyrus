@@ -10,6 +10,7 @@ project(papyrus)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  hieroglyph
 )
 
 ## System dependencies are found with CMake's conventions

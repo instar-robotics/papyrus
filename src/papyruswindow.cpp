@@ -233,8 +233,10 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     m_runTimeDisplay->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
 
-    // Crease the empty ROS Session
+    // Create the empty ROS Session and bind to its events
     m_rosSession = new ROSSession;
+    connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
+    connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -491,6 +493,53 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
         delete m_rosnode;
         spawnRosNode();
     }
+}
+
+/**
+ * @brief PapyrusWindow::onScriptResumed is called when the @ROSSession confirms the script was
+ * resumed
+ */
+void PapyrusWindow::onScriptResumed()
+{
+    // Make the play/pause button into its "pause" configuration
+    m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
+    m_ui->actionRun->setToolTip(tr("Pause script"));
+    m_ui->actionRun->setEnabled(true);
+
+    // TODO : resume timer
+
+    // Enable the stop button
+    m_ui->actionStop->setEnabled(true);
+
+    // Enable the scope button
+    m_ui->actionScope->setEnabled(true);
+
+    // Display a message in the status bar
+    m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" resumed"));
+}
+
+/**
+ * @brief PapyrusWindow::onScriptPaused is called when the @ROSSession confirms the script was
+ * paused
+ */
+void PapyrusWindow::onScriptPaused()
+{
+    // Make the play/pause button into its "play" configuration
+    m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+    m_ui->actionRun->setToolTip(tr("Resume script"));
+    m_ui->actionRun->setEnabled(true);
+
+    // TODO: stop timer
+
+    // Enable the stop button
+    m_ui->actionStop->setEnabled(true);
+
+    // Enable the scope button
+    // TODO: does it make sense to have scope when paused ?
+    m_ui->actionScope->setEnabled(true);
+
+    // Display a message in the status bar
+    m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" paused"));
 }
 
 void PapyrusWindow::on_actionNew_script_hovered()
@@ -968,10 +1017,14 @@ void PapyrusWindow::on_actionConnect_triggered()
             m_rosSession->setIsConnected(true);
             m_ui->actionConnect->setIcon(QIcon(":/icons/icons/disconnect.svg"));
             m_ui->actionConnect->setToolTip(tr("Disconnect"));
+//            m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
+            m_ui->actionRun->setToolTip(tr("Pause"));
             m_ui->actionRun->setEnabled(true);
-            m_ui->actionStop->setEnabled(true);
-            m_ui->actionScope->setEnabled(true);
             m_runTimeDisplay->setEnabled(true);
+
+            // TEMP
+            m_rosSession->setIsRunning(true);
+            m_rosSession->setIsPaused(true);
         }
     } else {
         // DISCONNECT FUNCTION
@@ -990,7 +1043,7 @@ void PapyrusWindow::on_actionConnect_triggered()
 
 void PapyrusWindow::on_actionRun_triggered()
 {
-    qDebug() << "RUN";
+    m_rosSession->runOrPause();
 }
 
 void PapyrusWindow::on_actionStop_triggered()

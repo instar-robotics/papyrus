@@ -8,14 +8,33 @@ ROSSession::ROSSession(QObject *parent) : QObject(parent),
                            m_nodeName(QString()),
                            m_isConnected(false),
                            m_isRunning(false),
-                           m_isPaused(false)
+                           m_isPaused(false),
+                           m_timeOffset(0),
+                           m_startTime()
 {
-
+    startTimer(83); // Not a round number so that the hundresth of a second digit doesn't stay the same
 }
 
 ROSSession::~ROSSession()
 {
 
+}
+
+/**
+ * @brief ROSSession::timerEvent is used to increment the run time clock of the script, if it is
+ * running and not paused
+ * @param evt
+ */
+void ROSSession::timerEvent(QTimerEvent *evt)
+{
+    if (m_isRunning && !m_isPaused) {
+        qint64 ms = m_timeOffset +  m_startTime.msecsTo(QDateTime::currentDateTime());
+        int h = ms / 1000 / 60 / 60;
+        int m = (ms / 1000 / 60) - (h * 60);
+        int s = (ms / 1000) - (m * 60);
+        ms = ms - (s * 1000);
+        emit timeElapsed(h, m, s, ms);
+    }
 }
 
 void ROSSession::runOrPause()
@@ -50,6 +69,10 @@ void ROSSession::run()
         if (response == "resume") {
             m_isRunning = true;
             m_isPaused = false;
+
+            // Record a new starting time for the run
+            m_startTime = QDateTime::currentDateTime();
+
             emit scriptResumed();
         }
     } else {
@@ -76,6 +99,10 @@ void ROSSession::pause()
         if (response == "pause") {
             m_isRunning = true;
             m_isPaused = true;
+
+            // Update the time offset
+            m_timeOffset += m_startTime.msecsTo(QDateTime::currentDateTime());
+
             emit scriptPaused();
         }
     } else {

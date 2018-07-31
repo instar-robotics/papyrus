@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QDateTime>
 
 /**
  * @brief The ROSSession class contains parameters related to the current ROS session (connection
@@ -17,6 +18,8 @@ class ROSSession : public QObject
 public:
     ROSSession(QObject *parent = nullptr);
     ~ROSSession();
+
+    void timerEvent(QTimerEvent *evt);
 
     void runOrPause();
     void run();
@@ -40,10 +43,13 @@ private:
     bool m_isConnected;       // indicates whether we are connected to a kheops node
     bool m_isRunning;         // indicates whether the associated kheops script is currently running
     bool m_isPaused;          // indicated whether the associated kheops script is paused
+    qint64 m_timeOffset;      // time accumulator to keep track of elapsed time when script is paused
+    QDateTime m_startTime;    // start time of the last "run"
 
 signals:
     void scriptResumed();     // emited when "play" action succeeded
     void scriptPaused();      // emited when "pause" action succeeded
+    void timeElapsed(int h, int m, int s, int ms); // emited regularly with the new run time
 };
 
 #endif // ROSSESSION_H

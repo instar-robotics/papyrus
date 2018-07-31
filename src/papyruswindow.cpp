@@ -225,10 +225,10 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     spawnRosNode();
 
     // Add a line edit showing the script's runtime (cannot be done from QtDesigner)
-    m_runTimeDisplay = new QLineEdit("00:00:00");
+    m_runTimeDisplay = new QLineEdit("00:00:00:00");
     m_runTimeDisplay->setReadOnly(true);
     m_runTimeDisplay->setEnabled(false);
-    m_runTimeDisplay->setMaximumWidth(128);
+    m_runTimeDisplay->setMaximumWidth(160);
     m_runTimeDisplay->setAlignment(Qt::AlignCenter);
     m_runTimeDisplay->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
@@ -237,6 +237,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     m_rosSession = new ROSSession;
     connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
     connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+    connect(m_rosSession, SIGNAL(timeElapsed(int,int,int,int)), this, SLOT(updateStopWatch(int,int,int,int)));
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -540,6 +541,18 @@ void PapyrusWindow::onScriptPaused()
 
     // Display a message in the status bar
     m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" paused"));
+}
+
+void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
+{
+//    m_runTimeDisplay->setText(QString("%1:%2:%3:%4").arg(QString::number(h), QString::number(m), QString::number(s), QString::number(ms)));
+    QChar pad = QChar('0');
+    int hundreths = ms / 10; // We don't want to display ms precision, only hundredth
+    m_runTimeDisplay->setText(QString("%1:%2:%3:%4")
+                              .arg(h, 2, 10, pad)
+                              .arg(m, 2, 10, pad)
+                              .arg(s, 2, 10, pad)
+                              .arg(hundreths, 2, 10, pad));
 }
 
 void PapyrusWindow::on_actionNew_script_hovered()

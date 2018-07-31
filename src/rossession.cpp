@@ -1,16 +1,20 @@
 #include "rossession.h"
 
 #include <QDebug>
+#include <QFileDialog>
+#include <QProcessEnvironment>
+#include <QProcess>
 
 #include "hieroglyph/SimpleCmd.h"
 
-ROSSession::ROSSession(QObject *parent) : QObject(parent),
+ROSSession::ROSSession(QObject *parent, Script *script) : QObject(parent),
                            m_nodeName(QString()),
                            m_isConnected(false),
                            m_isRunning(false),
                            m_isPaused(false),
                            m_timeOffset(0),
-                           m_startTime()
+                           m_startTime(),
+                           m_script(script)
 {
     startTimer(83); // Not a round number so that the hundresth of a second digit doesn't stay the same
 }
@@ -39,14 +43,10 @@ void ROSSession::timerEvent(QTimerEvent *evt)
 
 void ROSSession::runOrPause()
 {
-    // TODO: emit message for status bar
-    if (!m_isRunning)
-        return;
-
-    if (m_isPaused)
-        run();
-    else
+    if (m_isRunning && !m_isPaused)
         pause();
+    else
+        run();
 }
 
 void ROSSession::run()
@@ -57,25 +57,60 @@ void ROSSession::run()
         return;
     }
 
-    QString srvName = m_nodeName + "/control";
-    ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
-    hieroglyph::SimpleCmd srv;
-    srv.request.cmd = "resume";
+    // if the name is not running (was stopped), we need to get its name. Either because we have an
+    // associated Script, or else we ask the user to provide the path to the file
+    // this is TEMPORARY, waiting for kheops/#11 to be solved
+    if (!m_isRunning) {
+        QString home = QProcessEnvironment::systemEnvironment().value("HOME", "/home");
+        QString scriptPath = QFileDialog::getOpenFileName(NULL, tr("Script file"), home, tr("XML script files (*.xml, *.XML)"));
 
-    if (client.call(srv)) {
-        QString response = QString::fromStdString(srv.response.ret);;
+        if (!scriptPath.isEmpty()) {
+            QProcess *kheopsNode = new QProcess(this);
+            QString prog = "rosrun";
+            QStringList args;
+            args << "kheops";
+            args << "kheops";
+            args << "-r"; // we start the node directly in run mode
+            args << "-s";
+            args << scriptPath;
+            kheopsNode->start(prog, args);
 
-        if (response == "resume") {
-            m_isRunning = true;
-            m_isPaused = false;
+            // Note that it just means the program was started, but it may as well crash jsut after launch
+            if (kheopsNode->waitForStarted(2000)) {
+                m_isRunning = true;
+                m_isPaused = false;
 
-            // Record a new starting time for the run
-            m_startTime = QDateTime::currentDateTime();
+                // Record a new starting time for the run
+                m_startTime = QDateTime::currentDateTime();
 
-            emit scriptResumed();
+                emit scriptResumed();
+            } else {
+                qWarning() << "Failed to re-launch with cmd \"" << prog << args << "\"";
+            }
+        } else {
+            qWarning() << "Empty script path: cannot re-launch";
         }
     } else {
-        qDebug() << "Failed to call RUN";
+        QString srvName = m_nodeName + "/control";
+        ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+        hieroglyph::SimpleCmd srv;
+        srv.request.cmd = "resume";
+
+        if (client.call(srv)) {
+            QString response = QString::fromStdString(srv.response.ret);;
+
+            if (response == "resume") {
+                m_isRunning = true;
+                m_isPaused = false;
+
+                // Record a new starting time for the run
+                m_startTime = QDateTime::currentDateTime();
+
+                emit scriptResumed();
+            }
+        } else {
+            qDebug() << "Failed to call RUN";
+        }
     }
 }
 

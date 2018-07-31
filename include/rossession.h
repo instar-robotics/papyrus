@@ -3,9 +3,14 @@
 
 #include <ros/ros.h>
 
+#include "script.h"
+
 #include <QObject>
 #include <QString>
 #include <QDateTime>
+
+// Forward definition of the Script class
+class Script;
 
 /**
  * @brief The ROSSession class contains parameters related to the current ROS session (connection
@@ -16,7 +21,7 @@ class ROSSession : public QObject
     Q_OBJECT
 
 public:
-    ROSSession(QObject *parent = nullptr);
+    ROSSession(QObject *parent = nullptr, Script *script = NULL);
     ~ROSSession();
 
     void timerEvent(QTimerEvent *evt);
@@ -46,6 +51,7 @@ private:
     bool m_isPaused;          // indicated whether the associated kheops script is paused
     qint64 m_timeOffset;      // time accumulator to keep track of elapsed time when script is paused
     QDateTime m_startTime;    // start time of the last "run"
+    Script *m_script;         // the script to which this session is asscoiated
 
 signals:
     void scriptResumed();     // emited when "play" action succeeded

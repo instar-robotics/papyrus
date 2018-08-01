@@ -7,6 +7,7 @@
 #include "helpers.h"
 #include "link.h"
 #include "diagrambox.h"
+#include "script.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>

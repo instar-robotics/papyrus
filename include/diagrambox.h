@@ -1,6 +1,7 @@
 #ifndef DIAGRAMBOX_H
 #define DIAGRAMBOX_H
 
+#include "types.h"
 #include "slot.h"
 #include "outputslot.h"
 #include "inputslot.h"

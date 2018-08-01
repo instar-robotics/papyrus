@@ -15,6 +15,7 @@ class DiagramBox;
  * This class is meant to be subclassed (see @InputSlot and @OutputSlot).
  */
 
+/*
 enum InputType {
     SCALAR_SCALAR,
     SCALAR_MATRIX,
@@ -26,6 +27,7 @@ enum OutputType {
     SCALAR,
     MATRIX
 };
+*/
 
 class Slot : public QObject, public QGraphicsItem
 {

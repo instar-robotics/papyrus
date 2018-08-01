@@ -2,6 +2,7 @@
 #define SCRIPT_H
 
 #include "diagramscene.h"
+#include "types.h"
 
 #include <QString>
 #include <QFile>
@@ -12,10 +13,10 @@
 class DiagramScene;
 
 // Defines whether the time value is a frequency in Hz or a period in ms
-enum TimeUnit {
-    HZ,
-    MS
-};
+//enum TimeUnit {
+//    HZ,
+//    MS
+//};
 
 Q_DECLARE_METATYPE(TimeUnit) // This allows convertion from/to QVariant
 

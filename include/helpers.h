@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#include "types.h"
 #include "papyruswindow.h"
 #include "slot.h"
 

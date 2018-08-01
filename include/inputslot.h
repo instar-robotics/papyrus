@@ -2,6 +2,7 @@
 #define INPUTSLOT_H
 
 #include "slot.h"
+#include "types.h"
 
 #include <QString>
 #include <set>

@@ -198,6 +198,7 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+set(CMAKE_CXX_FLAGS "-std=c++17 -O2")
 
 ###############
 #  Qt related #

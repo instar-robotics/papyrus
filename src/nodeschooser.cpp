@@ -38,7 +38,6 @@ void NodesChooser::populateKheopsNodes()
 
 void NodesChooser::on_pushButton_clicked()
 {
-    qDebug() << "Populating";
     ui->pushButton->setDisabled(true);
     populateKheopsNodes();
     ui->pushButton->setDisabled(false);

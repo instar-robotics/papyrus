@@ -54,6 +54,7 @@ private:
     Script *m_script;         // the script to which this session is asscoiated
 
 signals:
+    void displayStatusMessage(const QString &text);
     void scriptResumed();     // emited when "play" action succeeded
     void scriptPaused();      // emited when "pause" action succeeded
     void scriptStopped();     // emitted when "stop" action succeeded

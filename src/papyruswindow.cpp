@@ -235,6 +235,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
 
     // Create the empty ROS Session and bind to its events
     m_rosSession = new ROSSession;
+    connect(m_rosSession, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
     connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
     connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
     connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));

@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 
 #include "script.h"
+#include "types.h"
 
 #include <QObject>
 #include <QString>
@@ -54,7 +55,7 @@ private:
     Script *m_script;         // the script to which this session is asscoiated
 
 signals:
-    void displayStatusMessage(const QString &text);
+    void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
     void scriptResumed();     // emited when "play" action succeeded
     void scriptPaused();      // emited when "pause" action succeeded
     void scriptStopped();     // emitted when "stop" action succeeded

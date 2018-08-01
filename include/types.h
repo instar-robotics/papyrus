@@ -19,10 +19,17 @@ enum OutputType{
     MATRIX
 };
 
-// Defines whether the time value is a frequency in Hz or a period in ms for a @Script
+// Define whether the time value is a frequency in Hz or a period in ms for a @Script
 enum TimeUnit{
     HZ,
     MS
+};
+
+// Define the urgency of a message that will be shown on the status bar (and then its color)
+enum MessageUrgency {
+    MSG_INFO,
+    MSG_WARNING,
+    MSG_ERROR
 };
 
 #endif // TYPES_H

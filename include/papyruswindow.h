@@ -8,6 +8,7 @@
 #include "rosnode.h"
 #include "homepage.h"
 #include "rossession.h"
+#include "types.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -93,7 +94,7 @@ signals:
 
 private slots:
     void filterLibraryNames(const QString &text);
-    void displayStatusMessage(const QString &text);
+    void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
     void onROSMasterChange(bool isOnline);
     void onScriptResumed();
     void onScriptPaused();

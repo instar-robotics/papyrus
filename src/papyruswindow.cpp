@@ -235,7 +235,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
 
     // Create the empty ROS Session and bind to its events
     m_rosSession = new ROSSession;
-    connect(m_rosSession, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+//    connect(m_rosSession, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+    connect(m_rosSession, SIGNAL(displayStatusMessage(QString,MessageUrgency)),this, SLOT(displayStatusMessage(QString,MessageUrgency)));
     connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
     connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
     connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
@@ -461,8 +462,22 @@ void PapyrusWindow::filterLibraryNames(const QString &text)
     std::cout << "Should filter on '" << qPrintable(text) << "'" << std::endl;
 }
 
-void PapyrusWindow::displayStatusMessage(const QString &text)
+void PapyrusWindow::displayStatusMessage(const QString &text, MessageUrgency urgency)
 {
+    switch (urgency) {
+    case MSG_INFO:
+        m_ui->statusBar->setStyleSheet("color: black");
+        break;
+
+    case MSG_WARNING:
+        m_ui->statusBar->setStyleSheet("color: orange");
+        break;
+
+    case MSG_ERROR:
+        m_ui->statusBar->setStyleSheet("color: red");
+        break;
+    }
+
     m_ui->statusBar->showMessage(text);
 }
 
@@ -516,7 +531,10 @@ void PapyrusWindow::onScriptResumed()
     m_ui->actionScope->setEnabled(true);
 
     // Display a message in the status bar
-    m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" resumed"));
+    if (m_rosSession->nodeName() == "Current Script")
+            m_ui->statusBar->showMessage(tr("Current script resumed"));
+        else
+            m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" resumed"));
 }
 
 /**
@@ -538,7 +556,10 @@ void PapyrusWindow::onScriptPaused()
     m_ui->actionScope->setEnabled(true);
 
     // Display a message in the status bar
-    m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" paused"));
+    if (m_rosSession->nodeName() == "Current Script")
+        m_ui->statusBar->showMessage(tr("Current script paused"));
+    else
+        m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" paused"));
 }
 
 /**
@@ -562,7 +583,10 @@ void PapyrusWindow::onScriptStopped()
     updateStopWatch(0, 0, 0, 0);
 
     // Display a message in the status bar
-    m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" stopped"));
+    if (m_rosSession->nodeName() == "Current Script")
+        m_ui->statusBar->showMessage(tr("Current script stopped"));
+    else
+        m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" stopped"));
 }
 
 void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
@@ -1057,9 +1081,17 @@ void PapyrusWindow::on_actionConnect_triggered()
             m_ui->actionRun->setEnabled(true);
             m_runTimeDisplay->setEnabled(true);
 
-            // TEMP
-            m_rosSession->setIsRunning(true);
-            m_rosSession->setIsPaused(true);
+            // If the node is the current script, then it's not running
+            if (selectedNode == "Current Script") {
+                m_rosSession->setIsRunning(false);
+            }
+            // Otherwise, we should ask the node its status (when kheops/#12 is solved)
+            else {
+                // TEMPORARY: set it to running and paused
+                m_rosSession->setIsRunning(true);
+                m_rosSession->setIsPaused(true);
+
+            }
         }
     } else {
         // DISCONNECT FUNCTION
@@ -1078,6 +1110,7 @@ void PapyrusWindow::on_actionConnect_triggered()
 
 void PapyrusWindow::on_actionRun_triggered()
 {
+    qDebug() << "[ACTION RUN]";
     m_rosSession->runOrPause();
 }
 

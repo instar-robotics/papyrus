@@ -13,6 +13,11 @@
 // Forward definition of the Script class
 class Script;
 
+enum ScriptStatus {
+    SCRIPT_RUNNING,
+    SCRIPT_PAUSED
+};
+
 /**
  * @brief The ROSSession class contains parameters related to the current ROS session (connection
  * with a Kheops node
@@ -31,6 +36,7 @@ public:
     void run();
     void pause();
     void stop();
+    ScriptStatus queryScriptStatus();
 
     QString nodeName() const;
     void setNodeName(const QString &nodeName);

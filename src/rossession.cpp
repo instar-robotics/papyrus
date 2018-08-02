@@ -45,14 +45,10 @@ void ROSSession::timerEvent(QTimerEvent *evt)
 
 void ROSSession::runOrPause()
 {
-    if (m_isRunning && !m_isPaused) {
-        qDebug() << "[-> PAUSE]";
+    if (m_isRunning && !m_isPaused)
         pause();
-    }
-    else {
-        qDebug() << "[-> RUN]";
+    else
         run();
-    }
 }
 
 void ROSSession::run()
@@ -297,6 +293,47 @@ void ROSSession::stop()
     } else {
         emit displayStatusMessage(tr("The STOP command failed."), MSG_ERROR);
         qDebug() << "Failed to call STOP";
+    }
+}
+
+/**
+ * @brief ROSSession::queryScriptStatus makes a ROS service call to the "control" endpoint, with the
+ * "status" parameters to actually query the script for its status.
+ * @return
+ */
+ScriptStatus ROSSession::queryScriptStatus()
+{
+    if (!m_isConnected)
+        informUserAndCrash(tr("Cannot query for script's status because not connected to a script."),
+                           tr("Not connected to a script"));
+
+    if (m_nodeName.isEmpty())
+        informUserAndCrash(tr("Cannot query for script's status because no node name was specified."),
+                           tr("No node name specified"));
+
+    if (m_nodeName == "Current Script")
+        informUserAndCrash(tr("Cannot query a \"Current Script\" for its status."));
+
+    QString srvName = m_nodeName + "/control";
+
+    ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+    hieroglyph::SimpleCmd srv;
+    srv.request.cmd = "status";
+
+    if (client.call(srv)) {
+        QString response = QString::fromStdString(srv.response.ret);;
+
+        if (response == "run")
+            return SCRIPT_RUNNING;
+        else if (response == "pause")
+            return SCRIPT_PAUSED;
+        else
+            informUserAndCrash(tr("Invalid data \"") + response + tr(" returned from /control status.\n"
+                                                                     "it might be due to an API change or a malfunction"),
+                               tr("Invalid return data type"));
+    } else {
+        informUserAndCrash(tr("The command STATUS failed when the node was queried."),
+                           tr("Failed STATUS command"));
     }
 }
 

@@ -1071,26 +1071,53 @@ void PapyrusWindow::on_actionConnect_triggered()
 
         // If we validated (and thus chose a node), transform the "connect" button into a "disconnect"
         if (nodesChooser->exec()) {
+            // Update node name and connected status
             QString selectedNode = nodesChooser->selectedNode();
             m_rosSession->setNodeName(selectedNode);
             m_rosSession->setIsConnected(true);
+
+            // Change the "connect" button into a "disconnect"
             m_ui->actionConnect->setIcon(QIcon(":/icons/icons/disconnect.svg"));
             m_ui->actionConnect->setToolTip(tr("Disconnect"));
-//            m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
-            m_ui->actionRun->setToolTip(tr("Pause"));
-            m_ui->actionRun->setEnabled(true);
-            m_runTimeDisplay->setEnabled(true);
 
             // If the node is the current script, then it's not running
             if (selectedNode == "Current Script") {
                 m_rosSession->setIsRunning(false);
+                m_rosSession->setIsPaused(false);
+
+                m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+                m_ui->actionRun->setToolTip(tr("Resume script"));
+                m_ui->actionRun->setEnabled(true);
+                m_runTimeDisplay->setEnabled(true);
             }
             // Otherwise, we should ask the node its status (when kheops/#12 is solved)
             else {
-                // TEMPORARY: set it to running and paused
-                m_rosSession->setIsRunning(true);
-                m_rosSession->setIsPaused(true);
+                // Ask the script its status (paused or running)
+                switch (m_rosSession->queryScriptStatus()) {
+                case SCRIPT_RUNNING:
+                    // Mark the script as running and not paused
+                    m_rosSession->setIsRunning(true);
+                    m_rosSession->setIsPaused(false);
 
+                    // Make the play button into a "pause" one
+                    m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
+                    m_ui->actionRun->setToolTip(tr("Pause script"));
+                    m_ui->actionRun->setEnabled(true);
+                    m_runTimeDisplay->setEnabled(true);
+                    break;
+
+                case SCRIPT_PAUSED:
+                    //Mark the script as running and paused
+                    m_rosSession->setIsRunning(true);
+                    m_rosSession->setIsPaused(true);
+
+                    // Make the play button into a "play" one
+                    m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+                    m_ui->actionRun->setToolTip(tr("Resume script"));
+                    m_ui->actionRun->setEnabled(true);
+                    m_runTimeDisplay->setEnabled(true);
+                    break;
+                }
             }
         }
     } else {
@@ -1110,7 +1137,6 @@ void PapyrusWindow::on_actionConnect_triggered()
 
 void PapyrusWindow::on_actionRun_triggered()
 {
-    qDebug() << "[ACTION RUN]";
     m_rosSession->runOrPause();
 }
 

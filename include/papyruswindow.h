@@ -46,8 +46,8 @@ public:
 
     void readSettings();
     void writeSettings();
-
     Script *parseXmlScriptFile(const QString &scriptPath);
+    void askLibraryPath(bool displayWarning = false);
 
     QDir description() const {return description_;}
     void setDescription(QDir description) {description_ = description;}

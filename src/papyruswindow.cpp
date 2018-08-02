@@ -73,38 +73,29 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     // Then read the QSettings (make sure to call AFTER the above, because we need these actions)
     readSettings();
 
+    // Before trying to parse the function descriptions, check if we have the path to it, otherwise
+    // ask it
 
-    // Parse the description directory
-    QDir description(QString(RESOURCE_DIR) + "descriptions");
+    QString searchPath;
 
-    // Check that the description directory exists
-    if (!description.exists()) {
-        QMessageBox msgBox;
-        msgBox.setText(QObject::tr("<strong>Failed to load neural boxes' description files.</strong>"));
+    if (m_developmentType == RELEASE) {
+        if (m_releasePath.isEmpty())
+            askLibraryPath(true);
 
-        QString str("The path ");
-        str += "<em>";
-        str += RESOURCE_DIR;
-        str += "descriptions";
-        str += "</em>";
-        str += " doesn't exist. Since there is not minimal subset (as of now), the application is "
-               "going to exit.";
+        searchPath = m_releasePath;
+    } else if (m_developmentType == DEBUG) {
+        if (m_debugPath.isEmpty())
+            askLibraryPath(true);
 
-        msgBox.setInformativeText(QObject::tr(qPrintable(str)));
-        msgBox.setIcon(QMessageBox::Critical);
-
-        msgBox.exec();
-        close();
+        searchPath = m_debugPath;
+    } else {
+        informUserAndCrash(tr("Unsupported development type."),
+                           tr("Supported development types are either \"DEBUG\" or \"RELEASE\"."
+                              "The current specified development type is not. This is probably due "
+                              "to an API change that was not implemented."));
     }
 
-    m_library = new Library;
-
-    description_ = description;
-
-    // Parse the description directory
-    description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-    QStringList categories = description_.entryList();
-
+    // Temporary create those here, because I have made the parsing dependent on this (which is stupid)
     libraryPanel_ = new LibraryPanel;
 
     librarySearchField_ = new QLineEdit;
@@ -128,64 +119,124 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
     m_ui->splitter->insertWidget(0, leftSplitter);
 
-    // Create one 'Tree Root' per category
-    for (int i = 0; i < categories.size(); i += 1) {
-        // Add the category in the Tree Widget
-//        QTreeWidgetItem *newCategory = addTreeRoot(categories[i]);
-        Category *newCategory = addTreeRoot(categories[i]);
+    QDir description(searchPath);
 
-        // Parse the corresponding directory to find the functions
-        QDir category(description.canonicalPath() + "/" + categories[i]);
-        category.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
-        QStringList neuralBoxes = category.entryList();
+    // Make a last check in order to see if the user simply cancelled
+    if (searchPath.isEmpty()) {
+        QMessageBox::warning(this, tr("Library path not specified"),
+        tr("You did not specify a path for the library files.\nIt is needed as ")
+        + QString(APP_NAME) + tr(" needs to know where to search for those files.\nThe application "
+        "will still load, but you won't be able to create scripts."));
+    } else if (!description.exists()) {
+        QMessageBox msgBox;
+        msgBox.setText(QObject::tr("<strong>Failed to load neural boxes' description files.</strong>"));
 
-        // Create one entry in the category per neural box
-        for (int j = 0; j < neuralBoxes.size(); j += 1) {
-            // Derive icon path name from XML file name
-            QString iconFilename = neuralBoxes[j];
-            iconFilename.replace(".xml", ".svg");
+        QString str("The path ");
+        str += "<em>";
+        str += description.absolutePath();
+        str += "</em>";
+        str += " doesn't exist, so function description files could not be loaded.\nThe application"
+               " will still load, but you won't be able to create scripts.";
 
-            QString iconPath(category.absoluteFilePath(iconFilename));
-            QFile f(iconPath);
+        msgBox.setInformativeText(QObject::tr(qPrintable(str)));
+        msgBox.setIcon(QMessageBox::Critical);
 
-            QFile xmlFile(category.absoluteFilePath(neuralBoxes[j]));
-            if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
-                std::cerr << "Could not open file " << qPrintable(neuralBoxes[j]) << " for parsing" << std::endl;
-                libraryParsingError = true;
-                break;
+        msgBox.exec();
+    }
+    // Parse the description directory
+    else {
+        m_library = new Library;
+
+        description_ = description;
+
+        description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+        QStringList categories = description_.entryList();
+
+        /*
+        libraryPanel_ = new LibraryPanel;
+
+        librarySearchField_ = new QLineEdit;
+        librarySearchField_->setPlaceholderText(tr("Filter..."));
+        librarySearchField_->setClearButtonEnabled(true);
+        librarySearchField_->setFrame(false);
+        connect(librarySearchField_, SIGNAL(textChanged(QString)), this, SLOT(filterLibraryNames(QString)));
+
+        QVBoxLayout *vbox = new QVBoxLayout;
+        vbox->addWidget(librarySearchField_);
+        vbox->addWidget(libraryPanel_);
+
+        QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
+        libraryGroupBox->setLayout(vbox);
+
+        m_propertiesPanel = new PropertiesPanel;
+
+        QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
+        leftSplitter->addWidget(libraryGroupBox);
+        leftSplitter->addWidget(m_propertiesPanel);
+
+        m_ui->splitter->insertWidget(0, leftSplitter);
+        */
+
+        // Create one 'Tree Root' per category
+        for (int i = 0; i < categories.size(); i += 1) {
+            // Add the category in the Tree Widget
+    //        QTreeWidgetItem *newCategory = addTreeRoot(categories[i]);
+            Category *newCategory = addTreeRoot(categories[i]);
+
+            // Parse the corresponding directory to find the functions
+            QDir category(description.canonicalPath() + "/" + categories[i]);
+            category.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
+            QStringList neuralBoxes = category.entryList();
+
+            // Create one entry in the category per neural box
+            for (int j = 0; j < neuralBoxes.size(); j += 1) {
+                // Derive icon path name from XML file name
+                QString iconFilename = neuralBoxes[j];
+                iconFilename.replace(".xml", ".svg");
+
+                QString iconPath(category.absoluteFilePath(iconFilename));
+                QFile f(iconPath);
+
+                QFile xmlFile(category.absoluteFilePath(neuralBoxes[j]));
+                if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
+                    std::cerr << "Could not open file " << qPrintable(neuralBoxes[j]) << " for parsing" << std::endl;
+                    libraryParsingError = true;
+                    break;
+                }
+
+                // Load icon from icon path if it exists, set missing icon otherwise
+                QIcon neuralIcon;
+                if (f.exists())
+                    neuralIcon = QIcon(iconPath);
+                else
+                    neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
+
+                XmlDescriptionReader xmlReader(newCategory);
+                QString descriptionFile = category.absoluteFilePath(neuralBoxes[j]);
+                // TODO: check return value to decide whether to add in library or not
+                if (!xmlReader.read(&xmlFile, neuralIcon, descriptionFile)) {
+                    QMessageBox::warning(this, tr("Problems while parsing the description files"),
+                                         tr("There was some issues while trying to parse the XML "
+                                            "description files. Only the functions with a valid XML "
+                                            "file were added to the library."));
+                }
             }
 
-            // Load icon from icon path if it exists, set missing icon otherwise
-            QIcon neuralIcon;
-            if (f.exists())
-                neuralIcon = QIcon(iconPath);
-            else
-                neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
-
-            XmlDescriptionReader xmlReader(newCategory);
-            QString descriptionFile = category.absoluteFilePath(neuralBoxes[j]);
-            // TODO: check return value to decide whether to add in library or not
-            if (!xmlReader.read(&xmlFile, neuralIcon, descriptionFile)) {
-                QMessageBox::warning(this, tr("Problems while parsing the description files"),
-                                     tr("There was some issues while trying to parse the XML "
-                                        "description files. Only the functions with a valid XML "
-                                        "file were added to the library."));
-            }
+            m_library->addCategory(newCategory);
         }
 
-        m_library->addCategory(newCategory);
+        // Display a warning box if some library description files could not be read
+        // TODO: display a message in the system tray instead!
+        // TODO: keep a list of the XML files that failed
+        if (libraryParsingError)
+            std::cout << "Could not open XML file" << std::endl;
+            /*
+            QMessageBox::warning(this, "Problem in parsing some XML description files",
+                                 QString("There was a problem while parsing at least one XML library description file.\n") +
+                                 QString("Make sure the files in the list have the correct format according to the template"));
+                                 */
     }
 
-    // Display a warning box if some library description files could not be read
-    // TODO: display a message in the system tray instead!
-    // TODO: keep a list of the XML files that failed
-    if (libraryParsingError)
-        std::cout << "Could not open XML file" << std::endl;
-        /*
-        QMessageBox::warning(this, "Problem in parsing some XML description files",
-                             QString("There was a problem while parsing at least one XML library description file.\n") +
-                             QString("Make sure the files in the list have the correct format according to the template"));
-                             */
 
     // Display a system tray if it is available
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
@@ -1009,6 +1060,34 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
     }
 
     return openScript;
+}
+
+/**
+ * @brief PapyrusWindow::askLibraryPath fires a modal window used to ask the user for the path
+ * of the library files (either in debug of release mode)
+ * @return
+ */
+void PapyrusWindow::askLibraryPath(bool displayWarning)
+{
+    if (displayWarning) {
+        QString mode = m_developmentType == DEBUG ? "DEBUG" : "RELEASE";
+        QMessageBox::warning(this, tr("No ") + mode + tr(" mode library path"),
+                             tr("This is likely the first time you use Papyrus in ") + mode + tr(" mode,"
+                             " and you need to specify the path to alexandria's libs.\nA window will display"
+                             ", allowing you to specify the directory."));
+    }
+
+    if (m_developmentType == DEBUG) {
+        m_debugPath = QFileDialog::getExistingDirectory(this,
+                                                        tr("Provide library path for DEBUG mode"),
+                                                        "/home",
+                                                        QFileDialog::ShowDirsOnly);
+    } else {
+        m_releasePath = QFileDialog::getExistingDirectory(this,
+                                                        tr("Provide library path for RELEASE mode"),
+                                                        "/home",
+                                                        QFileDialog::ShowDirsOnly);
+    }
 }
 
 /**

@@ -53,7 +53,6 @@ void ROSSession::runOrPause()
 
 void ROSSession::run()
 {
-    // TODO emit message for status bar
     if (m_nodeName.isEmpty()) {
         emit displayStatusMessage(tr("No script name: cannot run"), MSG_ERROR);
         return;
@@ -173,8 +172,8 @@ void ROSSession::run()
 
 void ROSSession::pause()
 {
-    // TODO emit message for status bar
     if (m_nodeName.isEmpty()) {
+        emit displayStatusMessage(tr("No script name: cannot pause"), MSG_ERROR);
         qWarning() << "No node name: cannot pause";
         return;
     }
@@ -232,9 +231,11 @@ void ROSSession::pause()
 
 void ROSSession::stop()
 {
-    // TODO: emit message for status bar
-    if (!m_isRunning)
+    if (!m_isRunning) {
+        emit displayStatusMessage(tr("No script name: cannot stop"), MSG_ERROR);
+        qDebug() << "No node name: cannot stop";
         return;
+    }
 
     // TODO emit message for status bar
     if (m_nodeName.isEmpty()) {

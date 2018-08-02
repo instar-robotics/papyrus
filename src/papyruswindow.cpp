@@ -1085,10 +1085,14 @@ void PapyrusWindow::on_actionConnect_triggered()
                 m_rosSession->setIsRunning(false);
                 m_rosSession->setIsPaused(false);
 
+                // Make the play/pause button a "play" one
                 m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
                 m_ui->actionRun->setToolTip(tr("Resume script"));
                 m_ui->actionRun->setEnabled(true);
                 m_runTimeDisplay->setEnabled(true);
+
+                // Disable the stop button
+                m_ui->actionStop->setEnabled(false);
             }
             // Otherwise, we should ask the node its status (when kheops/#12 is solved)
             else {
@@ -1104,6 +1108,9 @@ void PapyrusWindow::on_actionConnect_triggered()
                     m_ui->actionRun->setToolTip(tr("Pause script"));
                     m_ui->actionRun->setEnabled(true);
                     m_runTimeDisplay->setEnabled(true);
+
+                    // Enable the stop button
+                    m_ui->actionStop->setEnabled(true);
                     break;
 
                 case SCRIPT_PAUSED:
@@ -1116,6 +1123,9 @@ void PapyrusWindow::on_actionConnect_triggered()
                     m_ui->actionRun->setToolTip(tr("Resume script"));
                     m_ui->actionRun->setEnabled(true);
                     m_runTimeDisplay->setEnabled(true);
+
+                    // Enable the stop button
+                    m_ui->actionStop->setEnabled(true);
                     break;
                 }
             }

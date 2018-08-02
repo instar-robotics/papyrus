@@ -34,6 +34,8 @@ public:
     explicit PapyrusWindow(int argc, char **argv, QRect availableGeometry = QRect(), QWidget *parent = 0);
     ~PapyrusWindow();
 
+    void closeEvent(QCloseEvent *evt);
+
     Script *parseXmlScriptFile(const QString &scriptPath);
 
     QDir description() const {return description_;}

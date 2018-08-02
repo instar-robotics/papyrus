@@ -74,7 +74,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
         msgBox.setIcon(QMessageBox::Critical);
 
         msgBox.exec();
-        qApp->exit();
+        close();
     }
 
     m_library = new Library;
@@ -252,6 +252,11 @@ PapyrusWindow::~PapyrusWindow()
     delete m_rosMasterStatus;
 }
 
+void PapyrusWindow::closeEvent(QCloseEvent *evt)
+{
+    evt->accept();
+}
+
 /*
  * Add a category in the Library view
  * A category contains a number of items which are neural boxes
@@ -321,17 +326,18 @@ void PapyrusWindow::on_actionExit_triggered()
                     }
                 }
 
-                qApp->exit();
+                close();
                 break;
             case QMessageBox::NoAll:
                 m_ui->statusBar->showMessage(tr("Discarding unsaved script."));
-                qApp->exit();
+                close();
                 break;
             default:
                 m_ui->statusBar->showMessage(tr("Cancel exit."));
         }
     } else {
-        qApp->exit();
+        // Closing the main window will make the application exit
+        close();
     }
 }
 

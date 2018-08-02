@@ -276,12 +276,10 @@ void ROSSession::stop()
     hieroglyph::SimpleCmd srv;
     srv.request.cmd = "quit";
 
-    // TODO: remove 'true', when kheops/#10 is solved
-    if (client.call(srv) || true) {
+    if (client.call(srv)) {
         QString response = QString::fromStdString(srv.response.ret);;
 
-        // TODO: same here
-        if (true || response == "quit") {
+        if (response == "quit") {
             m_isRunning = false;
             m_isPaused = false;
 

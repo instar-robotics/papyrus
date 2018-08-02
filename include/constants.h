@@ -52,5 +52,9 @@
 // Define the time (in minutes) after which the user is notified about modified, unsaved scripts
 #define TIME_WARN_MODIFIED 10
 
+// Define the organisation name, and domain for use with QSettings
+#define ORGA "INSTAR Robotics"
+#define DOMAIN "instar-robotics.com"
+
 #endif // CONSTANTS
 

@@ -91,7 +91,20 @@
     <addaction name="actionStop"/>
     <addaction name="actionScope"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <widget class="QMenu" name="menuDevelopment">
+     <property name="title">
+      <string>Development</string>
+     </property>
+     <addaction name="actionEdit_paths"/>
+    </widget>
+    <addaction name="menuDevelopment"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuOptions"/>
    <addaction name="menuView"/>
    <addaction name="menuKheops"/>
    <addaction name="menuHelp"/>
@@ -318,6 +331,19 @@
    </property>
    <property name="text">
     <string>Scope</string>
+   </property>
+  </action>
+  <action name="actionTest">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Development type</string>
+   </property>
+  </action>
+  <action name="actionEdit_paths">
+   <property name="text">
+    <string>Edit paths</string>
    </property>
   </action>
  </widget>

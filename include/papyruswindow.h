@@ -16,10 +16,18 @@
 #include <QSystemTrayIcon>
 #include <QLineEdit>
 #include <QLabel>
+#include <QAction>
 
 namespace Ui {
 class PapyrusWindow;
 }
+
+// Define the type of development environment (and where to go look for libraries)
+enum DevelopmentType {
+    RELEASE,
+    DEBUG
+};
+Q_DECLARE_METATYPE(DevelopmentType) // This allows convertion from/to QVariant
 
 /**
  * @brief The PapyrusWindow class is the main window of the application.
@@ -31,10 +39,13 @@ class PapyrusWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PapyrusWindow(int argc, char **argv, QRect availableGeometry = QRect(), QWidget *parent = 0);
+    explicit PapyrusWindow(int argc, char **argv, QWidget *parent = 0);
     ~PapyrusWindow();
 
     void closeEvent(QCloseEvent *evt);
+
+    void readSettings();
+    void writeSettings();
 
     Script *parseXmlScriptFile(const QString &scriptPath);
 
@@ -73,6 +84,12 @@ public:
     ROSSession *rosSession() const;
     void setRosSession(ROSSession *rosSession);
 
+    DevelopmentType developmentType() const;
+
+    QString debugPath() const;
+
+    QString releasePath() const;
+
 private:
     Ui::PapyrusWindow *m_ui;
     RosNode *m_rosnode;
@@ -90,6 +107,11 @@ private:
     HomePage *m_homePage;
     QLineEdit *m_runTimeDisplay;
     ROSSession *m_rosSession;
+    DevelopmentType m_developmentType;
+    QAction *m_actionRelease;
+    QAction *m_actionDebug;
+    QString m_debugPath;              // Path where to search for description files in DEBUG mode
+    QString m_releasePath;            // Path where to search for description files in RELEASE mode
 
 signals:
     void toggleDisplayGrid(bool);
@@ -102,6 +124,7 @@ private slots:
     void onScriptPaused();
     void onScriptStopped();
     void updateStopWatch(int h, int m, int s, int ms);
+    void updateDevelopmentEnvironment(QAction *action);
 
     void on_actionExit_triggered();
 
@@ -143,6 +166,7 @@ private slots:
     void on_actionRun_triggered();
     void on_actionStop_triggered();
     void on_actionScope_triggered();
+    void on_actionEdit_paths_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

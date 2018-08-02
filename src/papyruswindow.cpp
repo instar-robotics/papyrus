@@ -32,8 +32,11 @@
 #include <QDialog>
 #include <QFileInfo>
 #include <QSizePolicy>
+#include <QSettings>
+#include <QScreen>
+#include <QActionGroup>
 
-PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWidget *parent) :
+PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::PapyrusWindow),
     m_argc(argc),
@@ -43,16 +46,33 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     m_propertiesPanel(NULL),
     m_homePage(NULL),
     m_runTimeDisplay(NULL),
-    m_rosSession(NULL)
+    m_rosSession(NULL),
+    m_actionDebug(NULL),
+    m_actionRelease(NULL)
 {
     bool libraryParsingError = false;
 
+    // First of all set the UI according to the UI file (MUST be called before the rest)
     m_ui->setupUi(this);
 
-    // Set the main window's geometry if given one
-    if (!availableGeometry.isNull()) {
-        setGeometry(0, 0, availableGeometry.width(), availableGeometry.height());
-    }
+    // Add the actions that can't be added via the qtcreator
+    QActionGroup *devTypeGroup = new QActionGroup(this);
+    m_actionRelease = new QAction("Release", devTypeGroup);
+    m_actionRelease->setCheckable(true);
+    m_actionDebug = new QAction("Debug", devTypeGroup);
+    m_actionDebug->setCheckable(true);
+
+    QAction *editPath = m_ui->actionEdit_paths;
+    m_ui->menuDevelopment->insertSeparator(editPath)->setText(tr("Type"));
+    m_ui->menuDevelopment->insertAction(editPath, m_actionRelease);
+    m_ui->menuDevelopment->insertAction(editPath, m_actionDebug);
+    m_ui->menuDevelopment->insertSeparator(editPath);
+
+    connect(devTypeGroup, SIGNAL(triggered(QAction*)), this, SLOT(updateDevelopmentEnvironment(QAction*)));
+
+    // Then read the QSettings (make sure to call AFTER the above, because we need these actions)
+    readSettings();
+
 
     // Parse the description directory
     QDir description(QString(RESOURCE_DIR) + "descriptions");
@@ -241,6 +261,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QRect availableGeometry, QWi
     connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
     connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
     connect(m_rosSession, SIGNAL(timeElapsed(int,int,int,int)), this, SLOT(updateStopWatch(int,int,int,int)));
+
+
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -252,9 +274,79 @@ PapyrusWindow::~PapyrusWindow()
     delete m_rosMasterStatus;
 }
 
+/**
+ * @brief PapyrusWindow::closeEvent is the event received when asked to close the main window.
+ * We use it to save the application settings
+ * @param evt
+ */
 void PapyrusWindow::closeEvent(QCloseEvent *evt)
 {
+    writeSettings();
     evt->accept();
+}
+
+/**
+ * @brief PapyrusWindow::readSettings reads the application settings and apply them (restore state, preferences, etc.)
+ */
+void PapyrusWindow::readSettings()
+{
+    QSettings settings(ORGA, APP_NAME);
+
+    // Query the screen's (available) size to set the main window's size
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen == NULL) {
+        qFatal("No screen detected!");
+    }
+    QSize availableSize = screen->availableSize();
+
+    // Restore the state of the main window
+    settings.beginGroup("MainWindow");
+    resize(settings.value("size", availableSize).toSize());
+    move(settings.value("pos", QPoint(33, 33)).toPoint());
+    settings.endGroup(); // MainWindow
+
+    // View settings regarding the scripts (grid toggled, antialiasing, etc.)
+    settings.beginGroup("View");
+    m_ui->actionAntialiasing->setChecked(settings.value("antialiasing", true).toBool());
+    m_ui->actionDisplay_Grid->setChecked(settings.value("displayGrid", true).toBool());
+    settings.endGroup(); // View
+
+    // Development environment settings
+    settings.beginGroup("Development");
+    m_developmentType = settings.value("type", RELEASE).value<DevelopmentType>();
+    m_actionDebug->setChecked(m_developmentType == DEBUG);
+    m_actionRelease->setChecked(m_developmentType == RELEASE);
+    m_debugPath = settings.value("debugPath", "").toString();
+    m_releasePath = settings.value("releasePath", "").toString();
+    settings.endGroup(); // Development
+}
+
+/**
+ * @brief PapyrusWindow::writeSettings is called when the main window is closed, and saves all
+ * settings, to be re-loaded next time the application is launched
+ */
+void PapyrusWindow::writeSettings()
+{
+    QSettings settings(ORGA, APP_NAME);
+
+    // Save the main window's state
+    settings.beginGroup("MainWindow");
+    settings.setValue("size", size());
+    settings.setValue("pos", pos());
+    settings.endGroup(); // MainWindow
+
+    // Save the view settings
+    settings.beginGroup("View");
+    settings.setValue("antialiasing", m_ui->actionAntialiasing->isChecked());
+    settings.setValue("displayGrid", m_ui->actionDisplay_Grid->isChecked());
+    settings.endGroup(); // View
+
+    // Development environment settings
+    settings.beginGroup("Development");
+    settings.setValue("type", m_developmentType);
+    settings.setValue("debugPath", m_debugPath);
+    settings.setValue("releasePath", m_releasePath);
+    settings.endGroup(); // Development
 }
 
 /*
@@ -607,6 +699,19 @@ void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
                               .arg(hundreths, 2, 10, pad));
 }
 
+/**
+ * @brief PapyrusWindow::updateDevelopmentEnvironment is used to toggle the development environment
+ * when selected from the menu
+ * @param action
+ */
+void PapyrusWindow::updateDevelopmentEnvironment(QAction *action)
+{
+    if (action == m_actionDebug)
+        m_developmentType = DEBUG;
+    else if (action == m_actionRelease)
+        m_developmentType = RELEASE;
+}
+
 void PapyrusWindow::on_actionNew_script_hovered()
 {
     m_ui->statusBar->showMessage(tr("Create a new neural script."));
@@ -735,6 +840,21 @@ ROSSession *PapyrusWindow::rosSession() const
 void PapyrusWindow::setRosSession(ROSSession *rosSession)
 {
     m_rosSession = rosSession;
+}
+
+DevelopmentType PapyrusWindow::developmentType() const
+{
+    return m_developmentType;
+}
+
+QString PapyrusWindow::debugPath() const
+{
+    return m_debugPath;
+}
+
+QString PapyrusWindow::releasePath() const
+{
+    return m_releasePath;
 }
 
 void PapyrusWindow::on_actionSave_Script_triggered()
@@ -1164,4 +1284,9 @@ void PapyrusWindow::on_actionStop_triggered()
 void PapyrusWindow::on_actionScope_triggered()
 {
     qDebug() << "SCOPE";
+}
+
+void PapyrusWindow::on_actionEdit_paths_triggered()
+{
+    qDebug() << "Should edit path";
 }

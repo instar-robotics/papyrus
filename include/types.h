@@ -10,13 +10,15 @@ enum InputType{
     SCALAR_SCALAR,
     SCALAR_MATRIX,
     MATRIX_MATRIX,
-    SPARSE_MATRIX
+    SPARSE_MATRIX,
+    STRING_INPUT
 };
 
 // Define the type that an @OutputSlot (hence a function, really) outputs
 enum OutputType{
     SCALAR,
-    MATRIX
+    MATRIX,
+    STRING
 };
 
 // Define whether the time value is a frequency in Hz or a period in ms for a @Script

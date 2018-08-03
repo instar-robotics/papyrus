@@ -24,13 +24,14 @@ private:
     QXmlStreamReader reader;
 
     void readDescription(QIcon &icon, const QString &descriptionFile);
+    void readAllFunctions(const QString &libName, QIcon &icon, const QString &descriptionFile);
+    void readOneFunction(const QString &libName, QIcon &icon, const QString &descriptionFile);
     void readName(Function *function);
     void readInputs(Function *function);
     void readParameterName(Slot *paramSlot);
     void readParameterType(OutputSlot *paramSlot);
     void readParameterType(InputSlot *paramSlot);
     void readOutput(Function *function);
-    void readConstant(Function *function);
 };
 
 #endif // XMLDESCRIPTIONREADER_H

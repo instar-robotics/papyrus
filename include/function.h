@@ -42,13 +42,17 @@ public:
     bool constant() const;
     void setConstant(bool constant);
 
+    QString libName() const;
+    void setLibName(const QString &libName);
+
 private:
     QString m_name;
     QString m_descriptionFile;
-//    QIcon m_icon;
+    //    QIcon m_icon;
     std::vector<InputSlot *> m_inputs;
     OutputSlot *m_output;
-    bool m_constant; // Indicae whether this represents a constant input
+    bool m_constant;   // Indicate whether this represents a constant input
+    QString m_libName; // The name of the lib it belongs to, used for kheops to know where to look
 };
 
 #endif // FUNCTION_H

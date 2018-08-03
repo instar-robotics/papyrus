@@ -50,6 +50,16 @@ void Function::setConstant(bool constant)
     m_constant = constant;
 }
 
+QString Function::libName() const
+{
+    return m_libName;
+}
+
+void Function::setLibName(const QString &libName)
+{
+    m_libName = libName;
+}
+
 /*
 QIcon Function::icon() const
 {

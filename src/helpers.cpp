@@ -40,6 +40,10 @@ QString outputTypeToString(OutputType outputType)
         break;
     case MATRIX:
         return QString("MATRIX");
+        break;
+    case STRING:
+        return QString("STRING");
+        break;
     default:
         qFatal("Unsupported OutputType when converting to QString.");
         break;
@@ -60,6 +64,10 @@ OutputType stringToOutputType(QString str)
 
     if (lower == "matrix")
         return MATRIX;
+
+    // WARNING: both InputType and OutputType are written as "STRING" the XML files
+    if (lower == "string")
+        return STRING;
 
     qFatal("Failed to parse string into OutputType");
 }
@@ -84,6 +92,9 @@ QString inputTypeToString(InputType inputType)
         break;
     case SPARSE_MATRIX:
         return QString("SPARSE_MATRIX");
+        break;
+    case STRING_INPUT:
+        return QString("STRING");
         break;
     default:
         qFatal("Unsupported InputType when converting to QString.");
@@ -111,6 +122,10 @@ InputType stringToInputType(QString str)
 
     if (lower == "sparse_matrix")
         return SPARSE_MATRIX;
+
+    // WARNING: both Input and Output types are written as "STRING" in XML files
+    if (lower == "string")
+        return STRING_INPUT;
 
     qFatal("Failed to parse string to InputType");
 }

@@ -1,6 +1,7 @@
 #include "xmldescriptionreader.h"
 #include "constants.h"
 #include "slot.h"
+#include "helpers.h"
 
 #include <iostream>
 #include <QDebug>
@@ -34,17 +35,59 @@ void XmlDescriptionReader::readDescription(QIcon &icon, const QString &descripti
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == XML_ROOT_ELEM);
 
-    Function *function = new Function(descriptionFile);
+    if (!reader.readNextStartElement()) {
+        reader.raiseError(QObject::tr("Empty description"));
+        qWarning() << "Empty description";
+        return;
+    }
 
+    // Read the <libname>
+    if (reader.name() != "libname") {
+        reader.raiseError(QObject::tr("Missing <libname> tag"));
+        qWarning() << "Missing <libname> tag";
+        return;
+    }
+
+    QString libName = reader.readElementText();
+
+    // Read the <functions>
+    if (!reader.readNextStartElement() || reader.name() != "functions") {
+        reader.raiseError(QObject::tr("Missing <functions> tag"));
+        qWarning() << "Missing <functions> tag";
+        return;
+    }
+
+    readAllFunctions(libName, icon, descriptionFile);
+}
+
+void XmlDescriptionReader::readAllFunctions(const QString &libName, QIcon &icon, const QString &descriptionFile)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "functions");
 
     while (reader.readNextStartElement()) {
-        if (reader.name() == "name")
+        if (reader.name() == "function")
+            readOneFunction(libName, icon, descriptionFile);
+        else
+            reader.skipCurrentElement();
+    }
+}
+
+void XmlDescriptionReader::readOneFunction(const QString &libName, QIcon &icon, const QString &descriptionFile)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "function");
+
+    Function *function = new Function(descriptionFile);
+    function->setLibName(libName);
+
+    while (reader.readNextStartElement()) {
+        if (reader.name() == "name") {
             readName(function);
-        else if (reader.name() == "inputs")
+        } else if (reader.name() == "inputs") {
             readInputs(function);
-        else if (reader.name() == "output")
+        } else if (reader.name() == "output") {
             readOutput(function);
-        else {
+        } else {
+            qWarning() << "Skipping unsupported tag <" << reader.name() << ">";
             reader.skipCurrentElement();
         }
     }
@@ -89,34 +132,44 @@ void XmlDescriptionReader::readInputs(Function *function)
             InputSlot *inputSlot = new InputSlot;
             QXmlStreamAttributes attributes = reader.attributes();
 
+            // Read the 'multiple' attribute
             if (!attributes.hasAttribute("multiple")) {
+                qWarning() << "Missing boolean attribute 'multiple'";
                 reader.raiseError(QObject::tr("Missing boolean attribute 'multiple'."));
                 continue;
             }
 
             if (attributes.value("multiple").toString() == "true")
                 inputSlot->setMultiple(true);
-            else
+            else if (attributes.value("multiple").toString() == "false")
                 inputSlot->setMultiple(false);
+            else {
+                qWarning() << "Invalid attribute value 'multiple'";
+                reader.raiseError(QObject::tr("Invalid attribute value 'multiple'"));
+            }
 
+            // Read the 'type' attribute
+            if (!attributes.hasAttribute("type")) {
+                qWarning() << "Missing attribute 'type'";
+                reader.raiseError(QObject::tr("Missing attribute 'type'"));
+                continue;
+            }
+
+            inputSlot->setInputType(stringToInputType(attributes.value("type").toString()));
+
+            // Read the <name> tag
             while (reader.readNextStartElement()) {
                 if (reader.name() == "name")
                     readParameterName(inputSlot);
-                else if (reader.name() == "type")
-                    readParameterType(inputSlot);
-                else {
+                else
                     reader.skipCurrentElement();
-                }
             }
 
-//            inputs.push_back(inputSlot);
             function->addInputSlot(inputSlot);
         } else {
             reader.skipCurrentElement();
         }
     }
-
-//    function->setInputs(inputs);
 }
 
 void XmlDescriptionReader::readParameterName(Slot *paramSlot)
@@ -128,94 +181,29 @@ void XmlDescriptionReader::readParameterName(Slot *paramSlot)
     if (!paramName.isEmpty()) {
         paramSlot->setName(paramName);
     } else {
-        reader.raiseError("Empty parameter name are now allowed");
+        qWarning() << "Empty parameter name are not allowed";
+        reader.raiseError("Empty parameter name are not allowed");
         reader.skipCurrentElement();
     }
 }
-
-//*
-void XmlDescriptionReader::readParameterType(OutputSlot *paramSlot)
-{
-    Q_ASSERT(reader.isStartElement() && reader.name() == "type");
-
-    QString paramName = reader.readElementText();
-
-    if (!paramName.isEmpty()) {
-        if (paramName.toLower() == "scalar")
-            paramSlot->setOutputType(SCALAR);
-        else if (paramName.toLower() == "matrix")
-            paramSlot->setOutputType(MATRIX);
-        else {
-            QString errStr = "Unknown ouput parameter type '";
-            errStr += paramName;
-            errStr += "'";
-
-            reader.raiseError(errStr);
-            reader.skipCurrentElement();
-        }
-    } else {
-        reader.raiseError("Empty parameter type are now allowed");
-        reader.skipCurrentElement();
-    }
-}
-
-void XmlDescriptionReader::readParameterType(InputSlot *paramSlot)
-{
-    Q_ASSERT(reader.isStartElement() && reader.name() == "type");
-
-    QString paramName = reader.readElementText();
-
-    if (!paramName.isEmpty()) {
-        if (paramName.toLower() == "scalar_scalar")
-            paramSlot->setInputType(SCALAR_SCALAR);
-        else if (paramName.toLower() == "scalar_matrix")
-            paramSlot->setInputType(SCALAR_MATRIX);
-        else if (paramName.toLower() == "matrix_matrix")
-            paramSlot->setInputType(MATRIX_MATRIX);
-        else if (paramName.toLower() == "sparse_matrix")
-            paramSlot->setInputType(SPARSE_MATRIX);
-        else {
-            QString errStr = "Unknown input parameter type '";
-            errStr += paramName;
-            errStr += "'";
-
-            reader.raiseError(errStr);
-            reader.skipCurrentElement();
-        }
-    } else {
-        reader.raiseError("Empty parameter type are now allowed");
-        reader.skipCurrentElement();
-    }
-}
-//*/
 
 void XmlDescriptionReader::readOutput(Function *function)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "output");
 
     OutputSlot *outputSlot = new OutputSlot;
-    while (reader.readNextStartElement()) {
-        if (reader.name() == "type")
-            readParameterType(outputSlot);
-        else if (reader.name() == "constant")
-            readConstant(function);
-        else
-            reader.skipCurrentElement();
+
+    QXmlStreamAttributes attributes = reader.attributes();
+    if (!attributes.hasAttribute("type")) {
+        qWarning() << "<output> tag is missing its 'type' attribute";
+        reader.raiseError();
+        return;
     }
+
+    outputSlot->setOutputType(stringToOutputType(attributes.value("type").toString()));
     function->setOutput(outputSlot);
-}
 
-void XmlDescriptionReader::readConstant(Function *function)
-{
-    Q_ASSERT(reader.isStartElement() && reader.name() == "constant");
-
-    if (reader.readElementText().toLower() == "true")
-        function->setConstant(true);
-    else if (reader.readElementText().toLower() == "false")
-        function->setConstant(false);
-    else {
-        reader.raiseError(QObject::tr("Invalid value for field 'constant'"));
-        reader.skipCurrentElement();
-    }
+    // Nothing to read, but it's just to consume the <output> element
+    while (reader.readNextStartElement());
 }
 

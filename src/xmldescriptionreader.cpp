@@ -15,7 +15,7 @@ XmlDescriptionReader::XmlDescriptionReader(Category* category) : m_category(cate
  * @param device: the IO device from which to read the XML data
  * @return whether there was an error parsing the XMl data
  */
-bool XmlDescriptionReader::read(QIODevice *device, QIcon &icon, QString &descriptionFile)
+bool XmlDescriptionReader::read(QIODevice *device, QIcon &icon, const QString &descriptionFile)
 {
     reader.setDevice(device);
 
@@ -30,7 +30,7 @@ bool XmlDescriptionReader::read(QIODevice *device, QIcon &icon, QString &descrip
     return !reader.error();
 }
 
-void XmlDescriptionReader::readDescription(QIcon &icon, QString &descriptionFile)
+void XmlDescriptionReader::readDescription(QIcon &icon, const QString &descriptionFile)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == XML_ROOT_ELEM);
 

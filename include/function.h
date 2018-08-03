@@ -22,7 +22,7 @@
 class Function : public QTreeWidgetItem
 {
 public:
-    Function(QString &path);
+    Function(const QString &path);
 
     QString name() const;
     void setName(const QString &name);

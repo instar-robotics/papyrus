@@ -1,6 +1,6 @@
 #include "function.h"
 
-Function::Function(QString &path) : QTreeWidgetItem(), m_descriptionFile(path), m_constant(false)
+Function::Function(const QString &path) : QTreeWidgetItem(), m_descriptionFile(path), m_constant(false)
 {
 
 }

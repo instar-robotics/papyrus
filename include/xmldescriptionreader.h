@@ -17,13 +17,13 @@ class XmlDescriptionReader
 public:
     XmlDescriptionReader(Category *category );
 
-    bool read(QIODevice *device, QIcon &icon, QString &descriptionFile);
+    bool read(QIODevice *device, QIcon &icon, const QString &descriptionFile);
 private:
 //    Library *m_library;
     Category *m_category;
     QXmlStreamReader reader;
 
-    void readDescription(QIcon &icon, QString &descriptionFile);
+    void readDescription(QIcon &icon, const QString &descriptionFile);
     void readName(Function *function);
     void readInputs(Function *function);
     void readParameterName(Slot *paramSlot);

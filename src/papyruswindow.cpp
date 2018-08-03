@@ -50,9 +50,6 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_actionDebug(NULL),
     m_actionRelease(NULL)
 {
-//    bool libraryParsingError = false;
-    int libraryParsingErrors = 0;
-
     // First of all set the UI according to the UI file (MUST be called before the rest)
     m_ui->setupUi(this);
 
@@ -234,11 +231,12 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
         // Display a warning box if some library description files could not be read
         // TODO: display a message in the system tray instead!
         // TODO: keep a list of the XML files that failed
-        if (libraryParsingErrors > 0)
+        if (m_libraryParsingErrors > 0)
             QMessageBox::warning(this, tr("Problems while parsing the description files"),
-                                 tr("There was some issues while trying to parse the XML "
-                                    "description files. Only the functions with a valid XML "
-                                    "file were added to the library."));
+            QString::number(m_libraryParsingErrors) + tr(" issues happened where parsing XML"
+            " description files.\nOnly the functions with a valid XML "
+            "file were added to the library.\nPlease fix the syntax errors in order to have the full"
+            " library of functions loaded."));
     }
 
 

@@ -4,7 +4,6 @@
 #include "diagramscene.h"
 #include "diagramview.h"
 #include "diagrambox.h"
-#include "xmldescriptionreader.h"
 #include "xmlscriptreader.h"
 #include "helpers.h"
 #include "nodeschooser.h"
@@ -42,6 +41,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_argc(argc),
     m_argv(argv),
     m_rosMasterStatus(NULL),
+    m_libraryParsingErrors(0),
     m_activeScript(NULL),
     m_propertiesPanel(NULL),
     m_homePage(NULL),
@@ -50,7 +50,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_actionDebug(NULL),
     m_actionRelease(NULL)
 {
-    bool libraryParsingError = false;
+//    bool libraryParsingError = false;
+    int libraryParsingErrors = 0;
 
     // First of all set the UI according to the UI file (MUST be called before the rest)
     m_ui->setupUi(this);
@@ -180,12 +181,19 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
         // Create one 'Tree Root' per category
         for (int i = 0; i < categories.size(); i += 1) {
             // Add the category in the Tree Widget
-    //        QTreeWidgetItem *newCategory = addTreeRoot(categories[i]);
-            Category *newCategory = addTreeRoot(categories[i]);
+            Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));
+//            XmlDescriptionReader xmlReader(newCategory);
+            XmlDescriptionReader *xmlReader = new XmlDescriptionReader(newCategory);
 
-            // Parse the corresponding directory to find the functions
+            parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
+
+            /*
+            // First, parse descriptions files at the root of the category
             QDir category(description.canonicalPath() + "/" + categories[i]);
             category.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
+
+//            category.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+            // First, parse the description files that are at the top level
             QStringList neuralBoxes = category.entryList();
 
             // Create one entry in the category per neural box
@@ -199,8 +207,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
                 QFile xmlFile(category.absoluteFilePath(neuralBoxes[j]));
                 if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
-                    std::cerr << "Could not open file " << qPrintable(neuralBoxes[j]) << " for parsing" << std::endl;
-                    libraryParsingError = true;
+                    qDebug() << "Could not open file" << neuralBoxes[j] << "for parsing";
+                    libraryParsingErrors += 1;
                     break;
                 }
 
@@ -211,16 +219,14 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
                 else
                     neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
 
-                XmlDescriptionReader xmlReader(newCategory);
+//                XmlDescriptionReader xmlReader(newCategory);
                 QString descriptionFile = category.absoluteFilePath(neuralBoxes[j]);
                 // TODO: check return value to decide whether to add in library or not
                 if (!xmlReader.read(&xmlFile, neuralIcon, descriptionFile)) {
-                    QMessageBox::warning(this, tr("Problems while parsing the description files"),
-                                         tr("There was some issues while trying to parse the XML "
-                                            "description files. Only the functions with a valid XML "
-                                            "file were added to the library."));
+                    libraryParsingErrors += 1;
                 }
             }
+            */
 
             m_library->addCategory(newCategory);
         }
@@ -228,13 +234,11 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
         // Display a warning box if some library description files could not be read
         // TODO: display a message in the system tray instead!
         // TODO: keep a list of the XML files that failed
-        if (libraryParsingError)
-            std::cout << "Could not open XML file" << std::endl;
-            /*
-            QMessageBox::warning(this, "Problem in parsing some XML description files",
-                                 QString("There was a problem while parsing at least one XML library description file.\n") +
-                                 QString("Make sure the files in the list have the correct format according to the template"));
-                                 */
+        if (libraryParsingErrors > 0)
+            QMessageBox::warning(this, tr("Problems while parsing the description files"),
+                                 tr("There was some issues while trying to parse the XML "
+                                    "description files. Only the functions with a valid XML "
+                                    "file were added to the library."));
     }
 
 
@@ -1087,6 +1091,47 @@ void PapyrusWindow::askLibraryPath(bool displayWarning)
                                                         tr("Provide library path for RELEASE mode"),
                                                         "/home",
                                                         QFileDialog::ShowDirsOnly);
+    }
+}
+
+/**
+ * @brief PapyrusWindow::parseOneLevel parses all .xml description files at this level, and
+ * recursively calls itself for all directories, looking again ofr .xml description files
+ * @param dir
+ */
+void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
+{
+    qDebug() << "Processing" << dir.absolutePath();
+
+    // First, parse descriptions files at the root of the category
+    dir.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
+
+    QStringList descriptionFiles = dir.entryList();
+    foreach (QString descFile, descriptionFiles) {
+        QFile xmlFile(dir.absoluteFilePath(descFile));
+        if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
+            qDebug() << "\t[X] Could not open file" << descFile << "for parsing";
+            m_libraryParsingErrors += 1;
+            break;
+        }
+
+        // TEMPORARY set the missing icon
+        QIcon functionIcon(":/icons/icons/missing-icon.svg");
+
+        // Read the XML file
+        if (!xmlReader->read(&xmlFile, functionIcon, xmlFile.fileName())) {
+            m_libraryParsingErrors += 1;
+            qDebug() << "\t[X] Failed to parse " << xmlFile.fileName();
+        } else {
+            qDebug() << "\t-" << xmlFile.fileName() << " parsed successfully";
+        }
+    }
+
+    // Then, recurse in every directory
+    dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+    QStringList subdirs = dir.entryList();
+    foreach (QString subdir, subdirs) {
+        parseOneLevel(QDir(dir.canonicalPath() + "/" + subdir), xmlReader);
     }
 }
 

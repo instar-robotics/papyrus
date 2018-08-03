@@ -9,6 +9,7 @@
 #include "homepage.h"
 #include "rossession.h"
 #include "types.h"
+#include "xmldescriptionreader.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -48,6 +49,7 @@ public:
     void writeSettings();
     Script *parseXmlScriptFile(const QString &scriptPath);
     void askLibraryPath(bool displayWarning = false);
+    void parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader);
 
     QDir description() const {return description_;}
     void setDescription(QDir description) {description_ = description;}
@@ -98,6 +100,7 @@ private:
     QLabel *m_rosMasterStatus;
     LibraryPanel *libraryPanel_;
     QLineEdit *librarySearchField_;
+    int m_libraryParsingErrors;
     QDir description_;
     QSystemTrayIcon *trayIcon;
     Library *m_library;

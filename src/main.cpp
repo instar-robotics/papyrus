@@ -1,5 +1,6 @@
 #include "papyruswindow.h"
 #include "constants.h"
+#include "messagehandler.h"
 
 #include <QApplication>
 #include <QWindow>
@@ -9,6 +10,7 @@
 
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(coloredMessageHandler);
     QApplication app(argc, argv);
 
     PapyrusWindow mainWindow(argc, argv);

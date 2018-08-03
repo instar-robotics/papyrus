@@ -24,7 +24,6 @@ public:
 
 private:
     QString m_name;
-//    std::vector<Function *> m_functions;
 };
 
 #endif // CATEGORY_H

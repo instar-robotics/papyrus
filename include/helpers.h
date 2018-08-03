@@ -41,4 +41,6 @@ bool fileExists(const std::string& filename);
 
 QList<QString> getKheopsNodes();
 
+QString snakeCaseToPretty(QString str);
+
 #endif // HELPERS_H

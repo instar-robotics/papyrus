@@ -295,3 +295,20 @@ QList<QString> getKheopsNodes()
 
     return ret;
 }
+
+/**
+ * @brief snakeCaseToPretty takes a snake_case_string and pretty print it to "Snake Case String"
+ * @param str the snake case string to pretty print
+ * @return the pretty print string
+ */
+QString snakeCaseToPretty(QString str)
+{
+    QStringList words = str.split('_', QString::SkipEmptyParts);
+    QStringList capitalized;
+
+    foreach (QString s, words) {
+        capitalized << s[0].toUpper() + s.mid(1).toLower();
+    }
+
+    return capitalized.join(" ");
+}

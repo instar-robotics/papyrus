@@ -92,13 +92,17 @@ public:
     QString iconFilepath() const;
     void setIconFilepath(const QString &value);
 
+    QString libname() const;
+    void setLibname(const QString &libname);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
-    QUuid m_uuid;   // Unique ID of the function's box (to identify links for instance)
-    QString m_name; // Name of the function
-    QIcon m_icon;   // Icon representing the function
+    QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
+    QString m_name;    // Name of the function
+    QString m_libname; // Name of the library this function belongs to (for kheops's linking)
+    QIcon m_icon;      // Icon representing the function
 
     qreal m_bWidth;  // Overall width of the function's box
     qreal m_bHeight; // Overall height of the function's box

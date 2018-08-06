@@ -185,6 +185,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
     QPointF pos;
     QString name;
+    QString libname;
     bool save = false;
     QString descriptionFile;
     QString iconFilepath;
@@ -200,6 +201,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readFunctionName(name);
+        else if (reader.name() == "libname")
+            readFunctionLibname(libname);
         else if (reader.name() == "save")
             readFunctionSave(&save);
         else if (reader.name() == "publish")
@@ -225,6 +228,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     QIcon icon(descriptionFile);
 //    DiagramBox *b = m_script->scene()->addBox(pos, name, icon, outputSlot, inputSlots, descriptionFile, uuid);
     DiagramBox *b = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
+    b->setLibname(libname);
     b->setDescriptionFile(descriptionFile);
     b->setSaveActivity(save);
     b->setRows(rows);
@@ -266,6 +270,19 @@ void XmlScriptReader::readFunctionName(QString &name)
         reader.raiseError(QObject::tr("Empty function name."));
     } else {
         name = functionName;
+    }
+}
+
+void XmlScriptReader::readFunctionLibname(QString &libname)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "libname");
+
+    QString lib = reader.readElementText();
+
+    if (lib.isEmpty()) {
+        reader.raiseError(QObject::tr("Empty libname."));
+    } else {
+        libname = lib;
     }
 }
 

@@ -179,6 +179,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+QString DiagramBox::libname() const
+{
+    return m_libname;
+}
+
+void DiagramBox::setLibname(const QString &libname)
+{
+    m_libname = libname;
+}
+
 QString DiagramBox::iconFilepath() const
 {
     return m_iconFilepath;

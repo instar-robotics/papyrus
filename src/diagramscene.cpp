@@ -357,9 +357,10 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QIcon icon;
         int nbInputs;
         bool constant;
+        QString libname;
 
         // Then proceed to retrieve the other elements
-        dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_ >> constant >> nbInputs;
+        dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_ >> constant >> nbInputs >> libname;
 
         // Cast the integer to the Enum type (problem of operator '>>' with enums)
         outputType = static_cast<OutputType>(outputType_);
@@ -400,6 +401,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         newBox->setConstant(constant);
         newBox->setDescriptionFile(descriptionFile);
         newBox->setIconFilepath(iconFilepath);
+        newBox->setLibname(libname);
         addBox(newBox, evt->scenePos());
         m_script->setStatusModified(true);
         setBackgroundBrush(QBrush(Qt::white));

@@ -188,6 +188,7 @@ void Script::save()
 
         stream.writeAttribute("uuid", uuid.toString());
         stream.writeTextElement("name", name);
+        stream.writeTextElement("libname", item->libname());
         stream.writeTextElement("save", item->saveActivity() ? "true" : "false");
 
         stream.writeStartElement("publish");

@@ -179,6 +179,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
     return QGraphicsItem::itemChange(change, value);
 }
 
+QString DiagramBox::iconFilepath() const
+{
+    return m_iconFilepath;
+}
+
+void DiagramBox::setIconFilepath(const QString &value)
+{
+    m_iconFilepath = value;
+}
+
 bool DiagramBox::constant() const
 {
     return m_constant;

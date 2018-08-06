@@ -89,6 +89,9 @@ public:
     bool constant() const;
     void setConstant(bool constant);
 
+    QString iconFilepath() const;
+    void setIconFilepath(const QString &value);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -122,6 +125,7 @@ private:
     bool m_publish;           // whether to publish this function's output on ROS
     QString m_topic;          // name of the topic in which to publish the output
 
+    QString m_iconFilepath;         // Filepath of the icon used (needed to create the svg)
     QGraphicsSvgItem *m_sizeIcon; // Contains the svg that hints the box's size
 
 signals:

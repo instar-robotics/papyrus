@@ -45,6 +45,9 @@ public:
     QString libName() const;
     void setLibName(const QString &libName);
 
+    QString iconFilepath() const;
+    void setIconFilepath(const QString &value);
+
 private:
     QString m_name;
     QString m_descriptionFile;
@@ -53,6 +56,7 @@ private:
     OutputSlot *m_output;
     bool m_constant;   // Indicate whether this represents a constant input
     QString m_libName; // The name of the lib it belongs to, used for kheops to know where to look
+    QString m_iconFilepath; // Filepath for the SVG icon, used when dropping the box on scene
 };
 
 #endif // FUNCTION_H

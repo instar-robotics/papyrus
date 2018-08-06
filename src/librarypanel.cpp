@@ -46,6 +46,7 @@ void LibraryPanel::dropEvent(QDropEvent *evt)
 void LibraryPanel::startDrag(Qt::DropActions)
 {
     Function *item = static_cast<Function *>(currentItem());
+    QString iconFilepath = item->iconFilepath();
     QIcon icon = item->icon(0);
     QString name = item->name();
     QString descriptionFile = item->descriptionFile();
@@ -60,7 +61,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
 
-    dataStream << name << icon << descriptionFile << (qint32)outputType << constant << nbInputs;
+    dataStream << name << iconFilepath << icon << descriptionFile << (qint32)outputType << constant << nbInputs;
 
     // Add all input slots' name, type and multiple
     foreach(InputSlot *i, inputSlots) {

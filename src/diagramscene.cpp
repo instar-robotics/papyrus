@@ -55,16 +55,14 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
     newBox->setPos(position - center);
 
     // We add the Svg item here, as a child of the box, this way the box doesn't need to have knowledge of it
-    QString svgPath(newBox->descriptionFile());
-    svgPath.replace(".xml", ".svg");
-    QGraphicsSvgItem *svg = new QGraphicsSvgItem(svgPath, newBox);
+    QGraphicsSvgItem *svg = new QGraphicsSvgItem(newBox->iconFilepath(), newBox);
 
     rescaleSvgItem(svg,
                    QSizeF(newBox->bWidth() / 3 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
                    QPointF(newBox->bWidth() / 3, 1.5));
 
     // Add an SVG element to display to hint the size of the function
-    svgPath = ":/icons/icons/size-icon.svg";
+    QString svgPath = ":/icons/icons/size-icon.svg";
     QGraphicsSvgItem *s = new QGraphicsSvgItem(svgPath, newBox);
     newBox->setSizeIcon(s);
     updateSizeIcon(newBox);
@@ -355,12 +353,13 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         QString descriptionFile;
         OutputType outputType;
         qint32 outputType_;
+        QString iconFilepath;
         QIcon icon;
         int nbInputs;
         bool constant;
 
         // Then proceed to retrieve the other elements
-        dataStream >> name >> icon >> descriptionFile >> outputType_ >> constant >> nbInputs;
+        dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_ >> constant >> nbInputs;
 
         // Cast the integer to the Enum type (problem of operator '>>' with enums)
         outputType = static_cast<OutputType>(outputType_);
@@ -400,9 +399,9 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
         newBox->setConstant(constant);
         newBox->setDescriptionFile(descriptionFile);
+        newBox->setIconFilepath(iconFilepath);
         addBox(newBox, evt->scenePos());
         m_script->setStatusModified(true);
-
         setBackgroundBrush(QBrush(Qt::white));
         QString str(tr("Function '%1' added in script").arg(name));
         emit(displayStatusMessage(str));

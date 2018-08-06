@@ -1,6 +1,9 @@
 #include "function.h"
 
-Function::Function(const QString &path) : QTreeWidgetItem(), m_descriptionFile(path), m_constant(false)
+Function::Function(const QString &path) : QTreeWidgetItem(),
+                                          m_descriptionFile(path),
+                                          m_constant(false)
+
 {
 
 }
@@ -58,6 +61,16 @@ QString Function::libName() const
 void Function::setLibName(const QString &libName)
 {
     m_libName = libName;
+}
+
+QString Function::iconFilepath() const
+{
+    return m_iconFilepath;
+}
+
+void Function::setIconFilepath(const QString &value)
+{
+    m_iconFilepath = value;
 }
 
 /*

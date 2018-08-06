@@ -100,8 +100,10 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, const QString
 
     // After we're done parsing the function, we check if we found an icon, and if it exists,
     // otherwise we replace it with the missnig-icon function
-    if (iconFilename.isEmpty())
+    if (iconFilename.isEmpty()) {
         function->setIcon(0, QIcon(":/icons/icons/missing-icon.svg"));
+        function->setIconFilepath(":/icons/icons/missing-icon.svg");
+    }
     else {
         // Get the current directory from the description file, and search an 'icons/' directory
         QFileInfo info(descriptionFile);
@@ -112,9 +114,11 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, const QString
         QFileInfo iconInfo(iconsDir + "/" + iconFilename);
         if (iconInfo.exists()) {
             function->setIcon(0, QIcon(iconsDir + "/" + iconFilename));
+            function->setIconFilepath(iconsDir + "/" + iconFilename);
         } else {
             qWarning() << "Missing icon " << iconInfo.absoluteFilePath() << ", setting missing icons instead";
             function->setIcon(0, QIcon(":/icons/icons/missing-icon.svg"));
+            function->setIconFilepath(":/icons/icons/missing-icon.svg");
         }
     }
 

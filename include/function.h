@@ -48,7 +48,7 @@ public:
     QString iconFilepath() const;
     void setIconFilepath(const QString &value);
 
-private:
+protected:
     QString m_name;
     QString m_descriptionFile;
     //    QIcon m_icon;

@@ -7,6 +7,7 @@
 #include "xmlscriptreader.h"
 #include "helpers.h"
 #include "nodeschooser.h"
+#include "constantfunction.h"
 
 #include <cryptopp/filters.h>
 #include <cryptopp/aes.h>
@@ -227,6 +228,15 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
             m_library->addCategory(newCategory);
         }
+
+        // Create one "built-in" category for the constant inputs (created at the end so that it
+        // appears first)
+        Category *constants = addTreeRoot("Constants");
+        ConstantFunction *constantScalar = new ConstantFunction("Constant Scalar",
+                                                                ":/icons/icons/constant-scalar.svg",
+                                                                QIcon(":/icons/icons/constant-scalar.svg"),
+                                                                SCALAR);
+        constants->addChild(constantScalar);
 
         // Display a warning box if some library description files could not be read
         // TODO: display a message in the system tray instead!

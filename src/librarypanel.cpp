@@ -4,6 +4,7 @@
 #include "outputslot.h"
 #include "inputslot.h"
 #include "slot.h"
+#include "constantfunction.h"
 
 #include <iostream>
 #include <QDragEnterEvent>
@@ -46,6 +47,7 @@ void LibraryPanel::dropEvent(QDropEvent *evt)
 void LibraryPanel::startDrag(Qt::DropActions)
 {
     Function *item = static_cast<Function *>(currentItem());
+    ConstantFunction *constantItem = dynamic_cast<ConstantFunction *>(item);
     QString iconFilepath = item->iconFilepath();
     QIcon icon = item->icon(0);
     QString name = item->name();
@@ -54,7 +56,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
 
     OutputSlot *outputSlot = item->output();
     OutputType outputType = outputSlot->outputType();
-    bool constant = item->constant();
+    bool constant = (constantItem != NULL);
 
     std::vector<InputSlot *>inputSlots = item->inputs();
     int nbInputs = inputSlots.size();

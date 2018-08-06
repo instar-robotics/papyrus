@@ -26,6 +26,7 @@
         <file>icons/stop.svg</file>
         <file>icons/scope.svg</file>
         <file>icons/refresh.svg</file>
+        <file>icons/constant-scalar.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -1,6 +1,7 @@
 #include "xmlscriptreader.h"
 #include "helpers.h"
 #include "constants.h"
+#include "constantdiagrambox.h"
 
 #include <QDebug>
 #include <iostream>
@@ -224,41 +225,35 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     }
 
     // We should check (somehow) that the parsing for this box was okay before adding it
-    // The Icon is not yet passed in the XML, so add a temporary default icon
-    // Try to find
-    QIcon icon(descriptionFile);
-//    DiagramBox *b = m_script->scene()->addBox(pos, name, icon, outputSlot, inputSlots, descriptionFile, uuid);
-    DiagramBox *b = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
-    b->setLibname(libname);
-    b->setDescriptionFile(descriptionFile);
-    b->setSaveActivity(save);
+    QIcon icon;
+    QFile f(iconFilepath);
+    if (f.exists())
+        icon = QIcon(iconFilepath);
+    else
+        icon = QIcon(":/icons/icons/missing-icon.svg");
+
+    DiagramBox *b;
+    if (reader.name() == "constant")
+        b = new ConstantDiagramBox(name, icon, outputSlot, uuid);
+    else {
+        b = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
+
+        b->setLibname(libname);
+        b->setDescriptionFile(descriptionFile);
+        b->setSaveActivity(save);
+        b->setPublish(publish);
+        if (!topic.isEmpty())
+            b->setTopic(topic);
+    }
+
     b->setRows(rows);
     b->setCols(cols);
     b->setIconFilepath(iconFilepath);
+
     m_script->scene()->addBox(b, pos);
-
-    if (reader.name() == "constant")
-        b->setConstant(true);
-
-    b->setPublish(publish);
-    if (!topic.isEmpty())
-        b->setTopic(topic);
 
     // Add this box to the dict
     allBoxes->insert(std::pair<QUuid, DiagramBox *>(uuid, b));
-
-    QString iconPath(descriptionFile);
-    iconPath.replace(".xml", ".svg");
-    QFile f(iconPath);
-
-    // Load icon from icon path if it exists, set missing icon otherwise
-    QIcon neuralIcon;
-    if (f.exists())
-        neuralIcon = QIcon(iconPath);
-    else
-        neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
-
-    b->setIcon(neuralIcon);
 }
 
 void XmlScriptReader::readFunctionName(QString &name)

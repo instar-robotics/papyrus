@@ -8,6 +8,7 @@
 #include "link.h"
 #include "diagrambox.h"
 #include "script.h"
+#include "constantdiagrambox.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -397,8 +398,14 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
         }
         //*/
 
-        DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
-        newBox->setConstant(constant);
+//        DiagramBox *newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
+        DiagramBox *newBox;
+
+        if (constant)
+            newBox = new ConstantDiagramBox(name, icon, outputSlot);
+        else
+            newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
+
         newBox->setDescriptionFile(descriptionFile);
         newBox->setIconFilepath(iconFilepath);
         newBox->setLibname(libname);

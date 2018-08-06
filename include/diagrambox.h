@@ -86,9 +86,6 @@ public:
     QString topic() const;
     void setTopic(const QString &topic);
 
-    bool constant() const;
-    void setConstant(bool constant);
-
     QString iconFilepath() const;
     void setIconFilepath(const QString &value);
 
@@ -116,12 +113,10 @@ private:
     int m_rows;              // Number of rows in the output (if matrix)
     int m_cols;              // Number of columns in the output (if matrix)
 
-    bool m_constant;         // Indicates whether this function is simply a constant input
-
     /*
      * Whether or not this function saves its activity in memory. It defaults to false. Saving the
      * activity is not free and should only be done for activities that you need to recover if
-     * the script crashes and the robot cannot rebuild from its environement.
+     * the script crashes and the robot cannot rebuild from its environment.
      * For instance the path integration, or a counter, or smth.
      * This should normally only be scalar values or small matrices
      */

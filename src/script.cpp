@@ -4,6 +4,7 @@
 #include "outputslot.h"
 #include "helpers.h"
 #include "constants.h"
+#include "constantdiagrambox.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -172,13 +173,15 @@ void Script::save(const QString &descriptionPath)
             continue;
         }
 
+        ConstantDiagramBox *constantItem = dynamic_cast<ConstantDiagramBox *>(item);
+
         QString name = item->name();
         QPointF pos = item->scenePos();
         QUuid uuid = item->uuid();
         QString descriptionFile = item->descriptionFile();
         QString iconFilepath = item->iconFilepath();
         std::set<InputSlot *>inputSlots = item->inputSlots();
-        bool constant = item->constant();
+        bool constant = (constantItem != NULL);
 
         // Strip the description path prefix from paths, to make it relative, unless this is a
         // resource (and begins with ":")
@@ -205,49 +208,55 @@ void Script::save(const QString &descriptionPath)
 
         stream.writeAttribute("uuid", uuid.toString());
         stream.writeTextElement("name", name);
-        stream.writeTextElement("libname", item->libname());
-        stream.writeTextElement("save", item->saveActivity() ? "true" : "false");
 
-        stream.writeStartElement("publish");
-        stream.writeAttribute("topic", item->topic());
-        stream.writeCharacters(item->publish() ? "true" : "false");
-        stream.writeEndElement(); // publish
+        // Skip irrelevant information for constant objects
+        if (!constant) {
+            stream.writeTextElement("libname", item->libname());
+            stream.writeTextElement("save", item->saveActivity() ? "true" : "false");
 
-        // Save input slots
-        stream.writeStartElement("inputs");
-        foreach (InputSlot *inputSlot, inputSlots) {
-            stream.writeStartElement("input");
-            stream.writeAttribute("type", inputTypeToString(inputSlot->inputType()));
-            stream.writeAttribute("multiple", inputSlot->multiple() ? "true" : "false");
-            stream.writeAttribute("uuid", inputSlot->uuid().toString());
+            stream.writeStartElement("publish");
+            stream.writeAttribute("topic", item->topic());
+            stream.writeCharacters(item->publish() ? "true" : "false");
+            stream.writeEndElement(); // publish
 
-            stream.writeTextElement("name", inputSlot->name());
+            // Save input slots
+            stream.writeStartElement("inputs");
+            foreach (InputSlot *inputSlot, inputSlots) {
+                stream.writeStartElement("input");
+                stream.writeAttribute("type", inputTypeToString(inputSlot->inputType()));
+                stream.writeAttribute("multiple", inputSlot->multiple() ? "true" : "false");
+                stream.writeAttribute("uuid", inputSlot->uuid().toString());
 
-            stream.writeStartElement("links");
+                stream.writeTextElement("name", inputSlot->name());
 
-            foreach (Link* link, inputSlot->inputs()) {
-                // Should loop for each connection
-                stream.writeStartElement("link");
-                bool isSecondary = link->to()->box() == link->from()->box();
-                // Write attribute "constant" when the originating box is constant
-                // We don't explicitly write "false" because this is rare and don't want to clutter
-                if (link->from()->box()->constant())
-                    stream.writeAttribute("constant", "true");
-                stream.writeAttribute("uuid", link->uuid().toString());
-                stream.writeAttribute("secondary", isSecondary ? "true" : "false");
-                stream.writeAttribute("sparse", "false"); // TEMPORARY
-                stream.writeTextElement("weight", QString::number(link->weight()));
-                // Be careful to use the box's uuid and not the slot's
-                stream.writeTextElement("from", link->from()->box()->uuid().toString());
-                stream.writeTextElement("connectivity", "TODO");
-                stream.writeEndElement(); // link
+                stream.writeStartElement("links");
+
+                foreach (Link* link, inputSlot->inputs()) {
+                    // Should loop for each connection
+                    stream.writeStartElement("link");
+                    bool isSecondary = link->to()->box() == link->from()->box();
+
+                    // Write attribute "constant" when the originating box is constant
+                    // We don't explicitly write "false" because this is rare and don't want to clutter
+                    if (dynamic_cast<ConstantDiagramBox *>(link->from()->box()) != NULL)
+                    //                if (link->from()->box()->constant())
+                                        stream.writeAttribute("constant", "true");
+                    stream.writeAttribute("uuid", link->uuid().toString());
+                    stream.writeAttribute("secondary", isSecondary ? "true" : "false");
+                    stream.writeAttribute("sparse", "false"); // TEMPORARY
+                    stream.writeTextElement("weight", QString::number(link->weight()));
+                    // Be careful to use the box's uuid and not the slot's
+                    stream.writeTextElement("from", link->from()->box()->uuid().toString());
+                    stream.writeTextElement("connectivity", "TODO");
+                    stream.writeEndElement(); // link
+                }
+
+                stream.writeEndElement(); // links
+                stream.writeEndElement(); // input
             }
 
-            stream.writeEndElement(); // links
-            stream.writeEndElement(); // input
+            stream.writeEndElement(); // inputs
         }
-
-        stream.writeEndElement(); // inputs
 
         // Save output slot
         stream.writeStartElement("output");
@@ -263,7 +272,9 @@ void Script::save(const QString &descriptionPath)
         stream.writeTextElement("x", QString::number(pos.x()));
         stream.writeTextElement("y", QString::number(pos.y()));
         stream.writeEndElement(); // position
-        stream.writeTextElement("description", descriptionFile);
+
+        if (!constant)
+            stream.writeTextElement("description", descriptionFile);
         stream.writeTextElement("icon", iconFilepath);
 
         stream.writeEndElement(); // function

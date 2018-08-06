@@ -70,5 +70,4 @@ void Function::setIcon(const QIcon &value)
 {
     m_icon = value;
 }
-
-//*/
+*/

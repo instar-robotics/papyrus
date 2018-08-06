@@ -5,6 +5,8 @@
 
 #include <iostream>
 #include <QDebug>
+#include <QFileInfo>
+#include <QDir>
 
 XmlDescriptionReader::XmlDescriptionReader(Category* category) : m_category(category)
 {
@@ -16,13 +18,13 @@ XmlDescriptionReader::XmlDescriptionReader(Category* category) : m_category(cate
  * @param device: the IO device from which to read the XML data
  * @return whether there was an error parsing the XMl data
  */
-bool XmlDescriptionReader::read(QIODevice *device, QIcon &icon, const QString &descriptionFile)
+bool XmlDescriptionReader::read(QIODevice *device, const QString &descriptionFile)
 {
     reader.setDevice(device);
 
     if (reader.readNextStartElement()) {
         if (reader.name() == XML_ROOT_ELEM) {
-            readDescription(icon, descriptionFile);
+            readDescription(descriptionFile);
         } else {
             reader.raiseError(QObject::tr("Invalid description file"));
         }
@@ -31,7 +33,7 @@ bool XmlDescriptionReader::read(QIODevice *device, QIcon &icon, const QString &d
     return !reader.error();
 }
 
-void XmlDescriptionReader::readDescription(QIcon &icon, const QString &descriptionFile)
+void XmlDescriptionReader::readDescription(const QString &descriptionFile)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == XML_ROOT_ELEM);
 
@@ -57,27 +59,29 @@ void XmlDescriptionReader::readDescription(QIcon &icon, const QString &descripti
         return;
     }
 
-    readAllFunctions(libName, icon, descriptionFile);
+    readAllFunctions(libName, descriptionFile);
 }
 
-void XmlDescriptionReader::readAllFunctions(const QString &libName, QIcon &icon, const QString &descriptionFile)
+void XmlDescriptionReader::readAllFunctions(const QString &libName, const QString &descriptionFile)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "functions");
 
     while (reader.readNextStartElement()) {
         if (reader.name() == "function")
-            readOneFunction(libName, icon, descriptionFile);
+            readOneFunction(libName, descriptionFile);
         else
             reader.skipCurrentElement();
     }
 }
 
-void XmlDescriptionReader::readOneFunction(const QString &libName, QIcon &icon, const QString &descriptionFile)
+void XmlDescriptionReader::readOneFunction(const QString &libName, const QString &descriptionFile)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "function");
 
     Function *function = new Function(descriptionFile);
     function->setLibName(libName);
+    QString iconFilename;
+
 
     while (reader.readNextStartElement()) {
         if (reader.name() == "name") {
@@ -86,13 +90,34 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, QIcon &icon, 
             readInputs(function);
         } else if (reader.name() == "output") {
             readOutput(function);
+        } else if (reader.name() == "icon") {
+            iconFilename = readIcon();
         } else {
             qWarning() << "Skipping unsupported tag <" << reader.name() << ">";
             reader.skipCurrentElement();
         }
     }
 
-    function->setIcon(0, icon);
+    // After we're done parsing the function, we check if we found an icon, and if it exists,
+    // otherwise we replace it with the missnig-icon function
+    if (iconFilename.isEmpty())
+        function->setIcon(0, QIcon(":/icons/icons/missing-icon.svg"));
+    else {
+        // Get the current directory from the description file, and search an 'icons/' directory
+        QFileInfo info(descriptionFile);
+        QDir dir(info.absoluteDir());
+        QString iconsDir = dir.absoluteFilePath("icons");
+
+        // Check if the designated icon exists
+        QFileInfo iconInfo(iconsDir + "/" + iconFilename);
+        if (iconInfo.exists()) {
+            function->setIcon(0, QIcon(iconsDir + "/" + iconFilename));
+        } else {
+            qWarning() << "Missing icon " << iconInfo.absoluteFilePath() << ", setting missing icons instead";
+            function->setIcon(0, QIcon(":/icons/icons/missing-icon.svg"));
+        }
+    }
+
     function->setText(0, function->name());
     function->setSizeHint(0, QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
 
@@ -170,6 +195,13 @@ void XmlDescriptionReader::readInputs(Function *function)
             reader.skipCurrentElement();
         }
     }
+}
+
+QString XmlDescriptionReader::readIcon()
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "icon");
+
+    return reader.readElementText();
 }
 
 void XmlDescriptionReader::readParameterName(Slot *paramSlot)

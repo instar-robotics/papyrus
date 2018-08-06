@@ -1099,8 +1099,6 @@ void PapyrusWindow::askLibraryPath(bool displayWarning)
  */
 void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
 {
-    qDebug() << "Processing" << dir.absolutePath();
-
     // First, parse descriptions files at the root of the category
     dir.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
 
@@ -1113,11 +1111,8 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
             break;
         }
 
-        // TEMPORARY set the missing icon
-        QIcon functionIcon(":/icons/icons/missing-icon.svg");
-
         // Read the XML file
-        if (!xmlReader->read(&xmlFile, functionIcon, xmlFile.fileName())) {
+        if (!xmlReader->read(&xmlFile, xmlFile.fileName())) {
             m_libraryParsingErrors += 1;
             qWarning() << "\t[X] Failed to parse " << xmlFile.fileName();
         } else {

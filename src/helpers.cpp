@@ -131,7 +131,7 @@ InputType stringToInputType(QString str)
 }
 
 /**
- * @brief canLink retursn whether the output type 'from' is compatible with input type 'to' in order
+ * @brief canLink returns whether the output type 'from' is compatible with input type 'to' in order
  * to create a link
  * @param from the @OutputType that we want to connect
  * @param to the @InputType we want to connect to
@@ -145,7 +145,11 @@ bool canLink(OutputType from, InputType to)
 
     // If the input slot expects a matrix with any kind of connectivity, then only a matrix can
     // be connected
-    if (from == MATRIX && to != SCALAR_SCALAR)
+    if (from == MATRIX && to != SCALAR_SCALAR && to != STRING_INPUT)
+        return true;
+
+    // Match strings together
+    if (from == STRING && to == STRING_INPUT)
         return true;
 
     // other cases are invalid

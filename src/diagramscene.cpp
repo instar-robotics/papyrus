@@ -188,7 +188,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
     // At the moment, for simplicity, we suppose there is only one view (that will change when
     // we introduce the minimap
     if (vs.count() != 1)
-        qFatal("Only one view is supported at this moment (DiagramScene::mouseMoveEvent");
+        informUserAndCrash(tr("Only one view is supported at this moment (DiagramScene::mouseMoveEvent"));
 
     QWidget *viewport = vs[0]->viewport();
     QRect viewportRect(0, 0, viewport->width(), viewport->height());

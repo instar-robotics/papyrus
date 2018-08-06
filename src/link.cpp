@@ -107,6 +107,21 @@ QPainterPath Link::shape() const
 }
 
 /**
+ * @brief Link::isStringLink tells whether this link is between a STRING and STRING_INPUT type.
+ * This is a convenience function used to quicken the condition when one wants to access the link's
+ * value
+ * @return
+ */
+bool Link::isStringLink()
+{
+    if (m_from == NULL || m_to == NULL)
+        informUserAndCrash(tr("Trying to check whether a Link is a string link, but it is missing "
+                              "either its from or to box!"));
+
+    return m_from->outputType() == STRING && m_to->inputType() == STRING_INPUT;
+}
+
+/**
  * @brief Link::addLinesToScene adds the segments that constitutes this Link to the scene.
  * Unfortunately we need to have a separate function: it cannot be done in the constructor, because
  * when we call new Link(from, to), the Link object is not yet added to the scene, so it cannot do
@@ -190,6 +205,16 @@ bool Link::checkIfSelfLoop()
     else {
         return false;
     }
+}
+
+QString Link::value() const
+{
+    return m_value;
+}
+
+void Link::setValue(const QString &value)
+{
+    m_value = value;
 }
 
 bool Link::selfLoop() const

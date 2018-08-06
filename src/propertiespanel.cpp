@@ -31,6 +31,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_linkType(NULL),
                                                     m_linkSecondary(NULL),
                                                     m_linkWeight(NULL),
+                                                    m_linkValue(NULL),
                                                     m_linkConnectivityBtn(NULL),
                                                     m_okBtn(NULL),
                                                     m_cancelBtn(NULL)
@@ -136,10 +137,12 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_linkWeight->setDecimals(6);
     m_linkWeight->setFixedWidth(150);
     m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_linkValue = new QLineEdit;
     m_linkConnectivityBtn = new QPushButton(tr("Edit Connectivity"));
 
     m_linkLayout->addRow(m_linkType);
     m_linkLayout->addRow(tr("Weight:"), m_linkWeight);
+    m_linkLayout->addRow(tr("Value:"), m_linkValue);
     m_linkLayout->addRow(m_linkSecondary);
     m_linkLayout->addRow(m_linkConnectivityBtn);
 
@@ -260,6 +263,16 @@ void PropertiesPanel::setTimeUnit(QComboBox *timeUnit)
     m_timeUnit = timeUnit;
 }
 
+QLineEdit *PropertiesPanel::linkValue() const
+{
+    return m_linkValue;
+}
+
+void PropertiesPanel::setLinkValue(QLineEdit *linkValue)
+{
+    m_linkValue = linkValue;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -366,14 +379,32 @@ void PropertiesPanel::displayLinkProperties(Link *link)
     // Populate the panels with the link's properties
     m_linkType->setText(inputTypeToString(linkType));
     m_linkSecondary->setChecked(link->secondary());
-    m_linkWeight->setValue(link->weight());
 
-    QWidget *fieldLabel = NULL;
-    if (fieldLabel = m_linkLayout->labelForField(m_linkWeight))
-        fieldLabel->show();
-    else
+    QWidget *weightFieldLabel = m_linkLayout->labelForField(m_linkWeight);
+    QWidget *valueFieldLabel = m_linkLayout->labelForField(m_linkValue);
+
+    if (weightFieldLabel == NULL)
         informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
-    m_linkWeight->show();
+
+    if (valueFieldLabel == NULL)
+        informUserAndCrash(tr("Failed to fetch label for field 'value'"));
+
+    // If the link is not a string field, display the weight input
+    if (!link->isStringLink()) {
+        m_linkValue->hide();
+        valueFieldLabel->hide();
+        m_linkWeight->setValue(link->weight());
+        weightFieldLabel->show();
+        m_linkWeight->show();
+    }
+    // If the link is a string link, then display its value instead
+    else {
+        m_linkWeight->hide();
+        weightFieldLabel->hide();
+        m_linkValue->setText(link->value());
+        valueFieldLabel->show();
+        m_linkValue->show();
+    }
 
     // Disable secondary if the link is self-looping (necessary a secondary link)
     if (link->selfLoop())
@@ -502,7 +533,11 @@ void PropertiesPanel::updateLinkProperties(Link *link)
     if (link == NULL)
         informUserAndCrash(tr("Cannot update link's properties: link is null!"));
 
-    link->setWeight(m_linkWeight->value());
+    // Update either the weight or the value based on the link being a string link or not
+    if (link->isStringLink())
+        link->setValue(m_linkValue->text());
+    else
+        link->setWeight(m_linkWeight->value());
     link->setSecondary(m_linkSecondary->isChecked());
 }
 

@@ -244,7 +244,12 @@ void Script::save(const QString &descriptionPath)
                     stream.writeAttribute("uuid", link->uuid().toString());
                     stream.writeAttribute("secondary", isSecondary ? "true" : "false");
                     stream.writeAttribute("sparse", "false"); // TEMPORARY
-                    stream.writeTextElement("weight", QString::number(link->weight()));
+
+                    // Write the weight or value based on the link being a string link or not
+                    if (link->isStringLink())
+                        stream.writeTextElement("value", link->value());
+                    else
+                        stream.writeTextElement("weight", QString::number(link->weight()));
                     // Be careful to use the box's uuid and not the slot's
                     stream.writeTextElement("from", link->from()->box()->uuid().toString());
                     stream.writeTextElement("connectivity", "TODO");

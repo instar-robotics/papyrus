@@ -6,6 +6,7 @@
 #include <QUuid>
 #include <QPainterPath>
 #include <QGraphicsLineItem>
+#include <QString>
 
 /**
  * @brief The Link class represents a link between neural functions (more precisely between
@@ -24,9 +25,10 @@ class Link : public QObject, public QGraphicsItem
 public:
     explicit Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent = 0);
 
-    QRectF boundingRect() const override;
+    QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
     QPainterPath shape() const;
+    bool isStringLink();
 
     void addLinesToScene();
 
@@ -54,6 +56,9 @@ public:
 
     bool selfLoop() const;
 
+    QString value() const;
+    void setValue(const QString &value);
+
 private:
     bool checkIfSelfLoop();
 
@@ -68,6 +73,7 @@ private:
     QGraphicsLineItem m_leftSegment;   // Left segment (for secondary links)
 
     qreal m_weight;            // The weight associated to this link
+    QString m_value;           // The string value associated to this link (when between strings)
 
     bool m_isInvalid; // Tells that this link is currently not valid (error in type, in sizes, etc.)
 };

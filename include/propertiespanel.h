@@ -65,6 +65,9 @@ public:
     QComboBox *timeUnit() const;
     void setTimeUnit(QComboBox *timeUnit);
 
+    QLineEdit *linkValue() const;
+    void setLinkValue(QLineEdit *linkValue);
+
 private:
     QVBoxLayout *m_panelLayout;  // The properties panel's main layout
     QFrame *m_scriptFrame;       // Container for script's properties
@@ -84,12 +87,12 @@ private:
     QCheckBox *m_publish;      // To enable publish the output of the function
     QLineEdit *m_topic;        // To input the topic name for publishing
 
-
     QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
     QFrame *m_linkFrame;          // Container for link's properties
     QLabel *m_linkType;           // Display the type of the link
     QCheckBox *m_linkSecondary;   // Will display if the link is secondary or not
     QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
+    QLineEdit *m_linkValue;       // Text field to enter the link's value (for string links)
     QPushButton *m_linkConnectivityBtn; // Button to launch the window that allows setting the connectivity
     QMetaObject::Connection m_conn;     // Contains the the Qt's connection object for the above button
 

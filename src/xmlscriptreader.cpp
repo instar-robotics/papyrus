@@ -459,6 +459,8 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
             } else {
                 reader.raiseError(QObject::tr("Invalid weight for a type."));
             }
+        } else if (reader.name() == "value") {
+            link->setValue(reader.readElementText());
         } else if (reader.name() == "from") {
             QUuid fromUuid(reader.readElementText());
 

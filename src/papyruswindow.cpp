@@ -232,11 +232,16 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
         // Create one "built-in" category for the constant inputs (created at the end so that it
         // appears first)
         Category *constants = addTreeRoot("Constants");
-        ConstantFunction *constantScalar = new ConstantFunction("Constant Scalar",
+        ConstantFunction *constantScalar = new ConstantFunction("SCALAR",
                                                                 ":/icons/icons/constant-scalar.svg",
                                                                 QIcon(":/icons/icons/constant-scalar.svg"),
                                                                 SCALAR);
+        ConstantFunction *constantString = new ConstantFunction("STRING",
+                                                                ":icons/icons/constant-string.svg",
+                                                                QIcon(":/icons/icons/constant-string.svg"),
+                                                                STRING);
         constants->addChild(constantScalar);
+        constants->addChild(constantString);
 
         // Display a warning box if some library description files could not be read
         // TODO: display a message in the system tray instead!

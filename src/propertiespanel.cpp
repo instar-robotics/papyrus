@@ -322,6 +322,22 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
         else
             informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
         dimLabel->hide();
+    } else if (oType == STRING) {
+        m_boxOutputType->setText(tr("string"));
+
+        // Hide input for rows and columns since it's not a matrix
+        QWidget *dimLabel = NULL;
+        if (dimLabel = m_boxLayout->labelForField(m_colsInput))
+            dimLabel->hide();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
+        m_colsInput->hide();
+
+        if (dimLabel = m_boxLayout->labelForField(m_rowsInput))
+            m_rowsInput->hide();
+        else
+            informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
+        dimLabel->hide();
     } else {
         informUserAndCrash(tr("Unsupported output type for a box. Supported types are MATRIX and SCALAR"));
     }

@@ -241,6 +241,8 @@ void updateSizeIcon(DiagramBox *box)
             sizeIcon->setElementId("column");
         else
             sizeIcon->setElementId("matrix");
+    } else if (oType == STRING ){
+        sizeIcon->setElementId("string");
     } else {
         informUserAndCrash(QObject::tr("Unsupported output type when trying to update a box's icon size. "
                               "Supported types are SCALAR and MATRIX."));

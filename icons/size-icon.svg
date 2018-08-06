@@ -10,12 +10,12 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="397.14435mm"
+   height="370.30798mm"
+   viewBox="0 0 397.14435 370.30798"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="size-icon.svg">
   <defs
      id="defs2">
@@ -562,8 +562,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="105.68182"
-     inkscape:cy="578.10039"
+     inkscape:cx="755.11939"
+     inkscape:cy="813.25211"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -572,7 +572,11 @@
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:snap-text-baseline="false" />
+     inkscape:snap-text-baseline="false"
+     fit-margin-top="50"
+     fit-margin-left="50"
+     fit-margin-right="50"
+     fit-margin-bottom="50" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -581,14 +585,15 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(38.971727,43.218738)">
     <g
        id="column"
        inkscape:label="#g5125"
@@ -845,6 +850,29 @@
          width="151.19049"
          id="rect5791"
          style="opacity:0;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+    <g
+       id="string"
+       inkscape:label="#g1125">
+      <rect
+         ry="0"
+         y="49.047619"
+         x="206.375"
+         height="101.29762"
+         width="101.29762"
+         id="rect5769-5"
+         style="opacity:0;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         id="text1201"
+         y="109.98104"
+         x="227.65785"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:37.27038574px;line-height:125%;font-family:'Open Sans';-inkscape-font-specification:'Open Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.58234978px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:37.27038574px;font-family:'Open Sans';-inkscape-font-specification:'Open Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.58234978px"
+           y="109.98104"
+           x="227.65785"
+           id="tspan1199"
+           sodipodi:role="line">&quot;...&quot;</tspan></text>
     </g>
   </g>
 </svg>

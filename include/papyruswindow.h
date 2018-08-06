@@ -50,6 +50,7 @@ public:
     Script *parseXmlScriptFile(const QString &scriptPath);
     void askLibraryPath(bool displayWarning = false);
     void parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader);
+    QString getDescriptionPath();
 
     QDir description() const {return description_;}
     void setDescription(QDir description) {description_ = description;}

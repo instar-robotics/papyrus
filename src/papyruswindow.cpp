@@ -458,7 +458,7 @@ void PapyrusWindow::on_actionExit_triggered()
                 // Make a pass to save all scripts
                 foreach (Script *script, m_scripts) {
                     if (script->modified()) {
-                        script->save();
+                        script->save(getDescriptionPath());
                     }
                 }
 
@@ -919,7 +919,7 @@ void PapyrusWindow::on_actionSave_Script_triggered()
         return;
     }
 
-    m_activeScript->save();
+    m_activeScript->save(getDescriptionPath());
 }
 
 void PapyrusWindow::on_actionOpen_Script_triggered()
@@ -1129,6 +1129,26 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
 }
 
 /**
+ * @brief PapyrusWindow::getDescriptionPath returns either the debug or release description path,
+ * bassed on the development type. this is simply a way to save keystrokes (we need the path at
+ * several places, and makign the comparison each time is stupid)
+ * @return
+ */
+QString PapyrusWindow::getDescriptionPath()
+{
+    if (m_developmentType == DEBUG)
+        return m_debugPath;
+
+    if (m_developmentType == RELEASE)
+        return m_releasePath;
+
+    informUserAndCrash(tr("Unsupported development type"),
+                       tr("We could not parse the development type while trying to get the "
+                          "description path. Currently supported is DEBUG or RELEASE. This is most"
+                          " likely due to an API change that was not backported."));
+}
+
+/**
  * @brief Fires when the current tab changes. Used to update the pointer to the current active
  *        script.
  * @param index: the newly active tab index
@@ -1263,7 +1283,7 @@ void PapyrusWindow::on_actionClose_Script_triggered()
 
         case QMessageBox::Save:
             // Save this script
-            scene->script()->save();
+            scene->script()->save(getDescriptionPath());
 
             // Make another pass to check that the script was indeed saved
             if (scene->script()->modified()) {

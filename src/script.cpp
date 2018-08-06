@@ -44,8 +44,10 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 /**
  * @brief Save the script in its file, this means serializing the contents of the scene to the
  * XML file.
+ * @param descriptionPath: the path to the (release or debug) description path, so that we can
+ * strip it off of paths to save everything in relative.
  */
-void Script::save()
+void Script::save(const QString &descriptionPath)
 {
     // Prevent saving when the script is in invalid state
     if (m_isInvalid || m_name == NEW_SCRIPT_DEFAULT_NAME) {
@@ -177,6 +179,19 @@ void Script::save()
         QString iconFilepath = item->iconFilepath();
         std::set<InputSlot *>inputSlots = item->inputSlots();
         bool constant = item->constant();
+
+        // Strip the description path prefix from paths, to make it relative
+        if (!descriptionFile.startsWith(descriptionPath + "/")) {
+            qWarning() << "Description file" << descriptionFile << "cannot be made relative "
+            "(for function" << name << "). Saving as absolute, but this will NOT be portable.";
+        } else
+            descriptionFile.remove(descriptionPath + "/");
+
+        if (!iconFilepath.startsWith(descriptionPath + "/")) {
+            qWarning() << "Icon file" << iconFilepath << "cannot be made relative "
+            "(for function" << name << "). Saving as absolute, but this will NOT be portable.";
+        } else
+            iconFilepath.remove(descriptionPath + "/");
 
         Q_ASSERT(!name.isEmpty());
 

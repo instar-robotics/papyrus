@@ -31,7 +31,7 @@ class Script : public QObject
 public:
     Script(DiagramScene *scene, const QString &name = "");
 
-    void save();
+    void save(const QString &descriptionPath);
     void autoSave();
 
     void updateTextStyle();

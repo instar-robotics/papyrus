@@ -40,6 +40,7 @@ private:
     void readUUID(QUuid *uuid);
     void readPosition(QPointF *pos);
     void readDescription(QString *descriptionPath);
+    void readIcon(QString *iconFilepath);
     void readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
                    std::map<QUuid, Link *> *incompleteLinks);
     void readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

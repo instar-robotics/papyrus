@@ -187,6 +187,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     QString name;
     bool save = false;
     QString descriptionFile;
+    QString iconFilepath;
     OutputSlot *outputSlot = new OutputSlot;
     int rows = 0;
     int cols = 0;
@@ -211,6 +212,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
             readPosition(&pos);
         else if (reader.name() == "description")
             readDescription(&descriptionFile);
+        else if (reader.name() == "icon")
+            readIcon(&iconFilepath);
         else {
             reader.skipCurrentElement();
         }
@@ -226,6 +229,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     b->setSaveActivity(save);
     b->setRows(rows);
     b->setCols(cols);
+    b->setIconFilepath(iconFilepath);
     m_script->scene()->addBox(b, pos);
 
     if (reader.name() == "constant")
@@ -491,6 +495,21 @@ void XmlScriptReader::readDescription(QString *descriptionFile)
         reader.raiseError(QObject::tr("Empty description file."));
     } else {
         descriptionFile->setUnicode(description.unicode(), description.size());
+    }
+}
+
+void XmlScriptReader::readIcon(QString *iconFilepath)
+{
+    Q_ASSERT(reader.isStartElement() && reader.name() == "icon");
+
+    QString icon = reader.readElementText();
+
+    if (icon.isEmpty()) {
+        reader.raiseError(QObject::tr("Empty icon, setting missing icon."));
+        QString missing = ":/icons/icons/missing-icon.svg";
+        iconFilepath->setUnicode(missing.unicode(), missing.size());
+    } else {
+        iconFilepath->setUnicode(icon.unicode(), icon.size());
     }
 }
 

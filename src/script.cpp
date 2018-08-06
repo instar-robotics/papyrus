@@ -174,6 +174,7 @@ void Script::save()
         QPointF pos = item->scenePos();
         QUuid uuid = item->uuid();
         QString descriptionFile = item->descriptionFile();
+        QString iconFilepath = item->iconFilepath();
         std::set<InputSlot *>inputSlots = item->inputSlots();
         bool constant = item->constant();
 
@@ -245,6 +246,7 @@ void Script::save()
         stream.writeTextElement("y", QString::number(pos.y()));
         stream.writeEndElement(); // position
         stream.writeTextElement("description", descriptionFile);
+        stream.writeTextElement("icon", iconFilepath);
 
         stream.writeEndElement(); // function
     }

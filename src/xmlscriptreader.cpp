@@ -130,7 +130,8 @@ void XmlScriptReader::readScript()
                      * complete them.
                      */
                     std::map<QUuid, DiagramBox *> allBoxes;
-                    std::map<QUuid, Link *> incompleteLinks;
+//                    std::map<QUuid, Link *> incompleteLinks;
+                    std::set<std::pair<QUuid, Link *>> incompleteLinks;
                     while (reader.readNextStartElement()) {
                         if (reader.name() == "function" || reader.name() == "constant")
                             readFunction(&allBoxes, &incompleteLinks);
@@ -155,7 +156,8 @@ void XmlScriptReader::readScript()
                                 if (link->checkIfInvalid())
                                     m_script->setIsInvalid(true);
                                 link->setZValue(LINKS_Z_VALUE);
-                                incompleteLinks.erase(fromUuid);
+                                // TODO: empty the set as we go?
+//                                incompleteLinks.erase(fromUuid);
                             } else {
                                 informUserAndCrash(QObject::tr("One incomplete link could not be "
                                                                "completed: did not find its "
@@ -181,7 +183,7 @@ void XmlScriptReader::readScript()
 }
 
 void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
-                                   std::map<QUuid, Link *> *incompleteLinks)
+                                   std::set<std::pair<QUuid, Link *>> *incompleteLinks)
 {
     Q_ASSERT(reader.isStartElement() && (reader.name() == "function" || reader.name() == "constant"));
 
@@ -200,6 +202,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     bool publish;
 
     readUUID(&uuid);
+
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
             readFunctionName(name);
@@ -220,6 +223,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
         else if (reader.name() == "icon")
             readIcon(iconFilepath);
         else {
+            qWarning() << "Unsupported tag <" << reader.name() << ">, skipping";
             reader.skipCurrentElement();
         }
     }
@@ -320,7 +324,7 @@ void XmlScriptReader::readPublishTopic(QString &topic, bool *publish)
 
 void XmlScriptReader::readInputSlots(std::set<InputSlot *> *inputSlots,
                                      std::map<QUuid, DiagramBox *> *allBoxes,
-                                     std::map<QUuid, Link *> *incompleteLinks)
+                                     std::set<std::pair<QUuid, Link *>> *incompleteLinks)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "inputs");
 
@@ -422,7 +426,7 @@ void XmlScriptReader::readPosition(QPointF *pos)
 }
 
 void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
-                               std::map<QUuid, Link *> *incompleteLinks)
+                               std::set<std::pair<QUuid, Link *>> *incompleteLinks)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "link");
 
@@ -467,14 +471,15 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
             if (!fromUuid.isNull()) {
                 std::map<QUuid, DiagramBox *>::iterator it = allBoxes->find(fromUuid);
                 // Now we check if the box with this UUID was already created (and so we can create
-                // the link now) or not (in which case we store the link in the imcomplete dict)
+                // the link now) or not (in which case we store the link in the incomplete dict)
                 if (it != allBoxes->end()) {
                     DiagramBox *fromBox = it->second;
                     OutputSlot *fromSlot = fromBox->outputSlot();
                     if (fromSlot != NULL) {
                         link->setFrom(fromSlot);
                         fromSlot->addOutput(link);
-                        // Should add to scene here
+
+                        // Add the link to the scene
                         m_script->scene()->addItem(link);
                         link->addLinesToScene();
                         if (link->checkIfInvalid())
@@ -540,7 +545,7 @@ void XmlScriptReader::readIcon(QString &iconFilepath)
 }
 
 void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
-                                std::map<QUuid, Link *> *incompleteLinks)
+                                std::set<std::pair<QUuid, Link *>> *incompleteLinks)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "links");
 

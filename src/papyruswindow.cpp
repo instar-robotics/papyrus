@@ -240,8 +240,13 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
                                                                 ":icons/icons/constant-string.svg",
                                                                 QIcon(":/icons/icons/constant-string.svg"),
                                                                 STRING);
+        ConstantFunction *constantMatrix = new ConstantFunction("MATRIX",
+                                                                ":/icons/icons/constant-matrix.svg",
+                                                                QIcon(":/icons/icons/constant-matrix.svg"),
+                                                                MATRIX);
         constants->addChild(constantScalar);
         constants->addChild(constantString);
+        constants->addChild(constantMatrix);
 
         // Display a warning box if some library description files could not be read
         // TODO: display a message in the system tray instead!

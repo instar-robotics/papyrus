@@ -28,6 +28,7 @@
         <file>icons/refresh.svg</file>
         <file>icons/constant-scalar.svg</file>
         <file>icons/constant-string.svg</file>
+        <file>icons/constant-matrix.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

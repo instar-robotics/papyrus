@@ -199,11 +199,11 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     readUUID(&uuid);
     while (reader.readNextStartElement()) {
         if (reader.name() == "name")
-            readFunctionName(&name);
+            readFunctionName(name);
         else if (reader.name() == "save")
             readFunctionSave(&save);
         else if (reader.name() == "publish")
-            readPublishTopic(&topic, &publish);
+            readPublishTopic(topic, &publish);
         else if (reader.name() == "inputs")
             readInputSlots(&inputSlots, allBoxes, incompleteLinks);
         else if (reader.name() == "output")
@@ -211,9 +211,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
         else if (reader.name() == "position")
             readPosition(&pos);
         else if (reader.name() == "description")
-            readDescription(&descriptionFile);
+            readDescription(descriptionFile);
         else if (reader.name() == "icon")
-            readIcon(&iconFilepath);
+            readIcon(iconFilepath);
         else {
             reader.skipCurrentElement();
         }
@@ -256,7 +256,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     b->setIcon(neuralIcon);
 }
 
-void XmlScriptReader::readFunctionName(QString *name)
+void XmlScriptReader::readFunctionName(QString &name)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "name");
 
@@ -265,7 +265,7 @@ void XmlScriptReader::readFunctionName(QString *name)
     if (functionName.isEmpty()) {
         reader.raiseError(QObject::tr("Empty function name."));
     } else {
-        name->setUnicode(functionName.unicode(), functionName.size());
+        name = functionName;
     }
 }
 
@@ -282,7 +282,7 @@ void XmlScriptReader::readFunctionSave(bool *save)
     }
 }
 
-void XmlScriptReader::readPublishTopic(QString *topic, bool *publish)
+void XmlScriptReader::readPublishTopic(QString &topic, bool *publish)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "publish");
 
@@ -291,7 +291,7 @@ void XmlScriptReader::readPublishTopic(QString *topic, bool *publish)
     if (reader.attributes().hasAttribute("topic")) {
         QString topicName = reader.attributes().value("topic").toString();
         if (!topicName.isEmpty())
-            topic->setUnicode(topicName.unicode(), topicName.size());
+            topic = topicName;
     }
 
     QString shouldPublish = reader.readElementText().toLower();
@@ -485,7 +485,7 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 }
 
 
-void XmlScriptReader::readDescription(QString *descriptionFile)
+void XmlScriptReader::readDescription(QString &descriptionFile)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "description");
 
@@ -494,11 +494,11 @@ void XmlScriptReader::readDescription(QString *descriptionFile)
     if (description.isEmpty()) {
         reader.raiseError(QObject::tr("Empty description file."));
     } else {
-        descriptionFile->setUnicode(description.unicode(), description.size());
+        descriptionFile = description;
     }
 }
 
-void XmlScriptReader::readIcon(QString *iconFilepath)
+void XmlScriptReader::readIcon(QString &iconFilepath)
 {
     Q_ASSERT(reader.isStartElement() && reader.name() == "icon");
 
@@ -507,9 +507,11 @@ void XmlScriptReader::readIcon(QString *iconFilepath)
     if (icon.isEmpty()) {
         reader.raiseError(QObject::tr("Empty icon, setting missing icon."));
         QString missing = ":/icons/icons/missing-icon.svg";
-        iconFilepath->setUnicode(missing.unicode(), missing.size());
+        iconFilepath = ":/icons/icons/missing-icon.svg";
+//        iconFilepath->setUnicode(missing.unicode(), missing.size());
     } else {
-        iconFilepath->setUnicode(icon.unicode(), icon.size());
+        iconFilepath = icon;
+//        iconFilepath->setUnicode(icon.unicode(), icon.size());
     }
 }
 

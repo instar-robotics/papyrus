@@ -1115,8 +1115,6 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
         if (!xmlReader->read(&xmlFile, xmlFile.fileName())) {
             m_libraryParsingErrors += 1;
             qWarning() << "\t[X] Failed to parse " << xmlFile.fileName();
-        } else {
-            qInfo() << "\t-" << xmlFile.fileName() << " parsed successfully";
         }
     }
 

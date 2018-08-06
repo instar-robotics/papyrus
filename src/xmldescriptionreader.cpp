@@ -116,7 +116,8 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, const QString
             function->setIcon(0, QIcon(iconsDir + "/" + iconFilename));
             function->setIconFilepath(iconsDir + "/" + iconFilename);
         } else {
-            qWarning() << "Missing icon " << iconInfo.absoluteFilePath() << ", setting missing icons instead";
+            qWarning() << "Missing icon " << iconInfo.absoluteFilePath() << ", setting missing icon"
+                                                                            " instead";
             function->setIcon(0, QIcon(":/icons/icons/missing-icon.svg"));
             function->setIconFilepath(":/icons/icons/missing-icon.svg");
         }

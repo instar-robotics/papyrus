@@ -39,7 +39,7 @@ void RosNode::run()
 {
     // Wait for the master node to come online
     while (!ros::master::check()) {
-        qDebug() << "Waiting for ROS master to spawn...";
+        qInfo() << "Waiting for ROS master to spawn...";
         sleep(1);
     }
 
@@ -55,9 +55,8 @@ void RosNode::run()
 
     std::vector<std::string> nodes;
     if (!ros::master::getNodes(nodes)) {
-        qDebug() << "Could not get nodes";
+        qWarning() << "Could not get nodes";
     } else {
-        qDebug() << "Listing kheops nodes:";
         foreach (std::string node_, nodes) {
             QString node = QString::fromStdString(node_);
             if (node.startsWith("/kheops_"))

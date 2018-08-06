@@ -1016,7 +1016,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
     openScript->setFilePath(scriptPath);
 
     // Parse the script XML file
-    XmlScriptReader xmlReader(openScript);
+    XmlScriptReader xmlReader(openScript, getDescriptionPath());
     if (!xmlReader.read(&scriptFile)) {
         QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
         str += xmlReader.errorString();

@@ -180,18 +180,20 @@ void Script::save(const QString &descriptionPath)
         std::set<InputSlot *>inputSlots = item->inputSlots();
         bool constant = item->constant();
 
-        // Strip the description path prefix from paths, to make it relative
-        if (!descriptionFile.startsWith(descriptionPath + "/")) {
+        // Strip the description path prefix from paths, to make it relative, unless this is a
+        // resource (and begins with ":")
+        if (descriptionFile.startsWith(descriptionPath + "/"))
+            descriptionFile.remove(descriptionPath + "/");
+        else if (!descriptionFile.startsWith(":"))
             qWarning() << "Description file" << descriptionFile << "cannot be made relative "
             "(for function" << name << "). Saving as absolute, but this will NOT be portable.";
-        } else
-            descriptionFile.remove(descriptionPath + "/");
 
-        if (!iconFilepath.startsWith(descriptionPath + "/")) {
+
+        if (iconFilepath.startsWith(descriptionPath + "/"))
+            iconFilepath.remove(descriptionPath + "/");
+        else if (!iconFilepath.startsWith(":"))
             qWarning() << "Icon file" << iconFilepath << "cannot be made relative "
             "(for function" << name << "). Saving as absolute, but this will NOT be portable.";
-        } else
-            iconFilepath.remove(descriptionPath + "/");
 
         Q_ASSERT(!name.isEmpty());
 

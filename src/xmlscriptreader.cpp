@@ -5,7 +5,8 @@
 #include <QDebug>
 #include <iostream>
 
-XmlScriptReader::XmlScriptReader(Script *script) : m_script(script)
+XmlScriptReader::XmlScriptReader(Script *script, const QString &descriptionPath) : m_script(script),
+    m_descriptionPath(descriptionPath)
 {
 
 }
@@ -511,7 +512,13 @@ void XmlScriptReader::readDescription(QString &descriptionFile)
     if (description.isEmpty()) {
         reader.raiseError(QObject::tr("Empty description file."));
     } else {
-        descriptionFile = description;
+        // Preprend the description path to make it from relative (in the file) to absolute
+        // Make sure NOT to prepend if path is already absolute or begins with ":" (this is a
+        // resource in this case
+        if (description.startsWith("/") || description.startsWith(":"))
+            descriptionFile = description;
+        else
+            descriptionFile = m_descriptionPath + "/" + description;
     }
 }
 
@@ -523,12 +530,15 @@ void XmlScriptReader::readIcon(QString &iconFilepath)
 
     if (icon.isEmpty()) {
         reader.raiseError(QObject::tr("Empty icon, setting missing icon."));
-        QString missing = ":/icons/icons/missing-icon.svg";
         iconFilepath = ":/icons/icons/missing-icon.svg";
-//        iconFilepath->setUnicode(missing.unicode(), missing.size());
     } else {
-        iconFilepath = icon;
-//        iconFilepath->setUnicode(icon.unicode(), icon.size());
+        // Preprend the description path to make it from relative (in the file) to absolute
+        // Make sure NOT to prepend if path is already absolute or begins with ":" (this is a
+        // resource in this case
+        if (icon.startsWith("/") || icon.startsWith(":"))
+            iconFilepath = icon;
+        else
+            iconFilepath = m_descriptionPath + "/" + icon;
     }
 }
 

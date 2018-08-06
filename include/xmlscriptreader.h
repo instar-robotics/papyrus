@@ -17,7 +17,7 @@
 class XmlScriptReader
 {
 public:
-    explicit XmlScriptReader(Script *script);
+    explicit XmlScriptReader(Script *script, const QString &descriptionPath);
     bool read(QIODevice *device);
 
     QString errorString() const;
@@ -26,6 +26,7 @@ private:
     QXmlStreamReader reader;
     QString m_errorString;
     Script *m_script;
+    QString m_descriptionPath;
 
     void readScript();
     void readFunction(std::map<QUuid, DiagramBox *> *allBoxes,

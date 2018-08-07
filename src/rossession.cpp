@@ -90,14 +90,16 @@ void ROSSession::run()
         }
 
         if (!scriptPath.isEmpty()) {
+            PapyrusWindow *mainWin = getMainWindow();
             QProcess *kheopsNode = new QProcess(this);
             QString prog = "rosrun";
             QStringList args;
             args << "kheops";
             args << "kheops";
-            args << "-r"; // we start the node directly in run mode
             args << "-s";
             args << scriptPath;
+            args << "-l";
+            args << mainWin->getLibPath() + "/";
             kheopsNode->start(prog, args);
 
             // Note that it just means the program was started, but it may as well crash just after launch

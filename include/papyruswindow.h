@@ -30,6 +30,13 @@ enum DevelopmentType {
 };
 Q_DECLARE_METATYPE(DevelopmentType) // This allows convertion from/to QVariant
 
+// Define if we are asking the user for the DESCRIPTION or the LIBRARY path
+enum PathType {
+    PATH_DESC,
+    PATH_LIB
+};
+Q_DECLARE_METATYPE(PathType);
+
 /**
  * @brief The PapyrusWindow class is the main window of the application.
  * It contains the list of open @Script s, the @Library of @Function s,
@@ -48,9 +55,10 @@ public:
     void readSettings();
     void writeSettings();
     Script *parseXmlScriptFile(const QString &scriptPath);
-    void askLibraryPath(bool displayWarning = false);
+    void askForPath(bool displayWarning, PathType pathType);
     void parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader);
     QString getDescriptionPath();
+    QString getLibPath();
 
     QDir description() const {return description_;}
     void setDescription(QDir description) {description_ = description;}
@@ -93,6 +101,10 @@ public:
 
     QString releasePath() const;
 
+    QString debugLibPath() const;
+
+    QString releaseLibPath() const;
+
 private:
     Ui::PapyrusWindow *m_ui;
     RosNode *m_rosnode;
@@ -116,6 +128,8 @@ private:
     QAction *m_actionDebug;
     QString m_debugPath;              // Path where to search for description files in DEBUG mode
     QString m_releasePath;            // Path where to search for description files in RELEASE mode
+    QString m_debugLibPath;           // Path where to search for library files in DEBUG mode
+    QString m_releaseLibPath;         // Path where to search for library files in RELEASE mode
 
 signals:
     void toggleDisplayGrid(bool);

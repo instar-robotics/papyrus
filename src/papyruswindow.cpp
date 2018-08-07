@@ -79,12 +79,12 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
     if (m_developmentType == RELEASE) {
         if (m_releasePath.isEmpty())
-            askLibraryPath(true);
+            askForPath(true, PATH_DESC);
 
         searchPath = m_releasePath;
     } else if (m_developmentType == DEBUG) {
         if (m_debugPath.isEmpty())
-            askLibraryPath(true);
+            askForPath(true, PATH_DESC);
 
         searchPath = m_debugPath;
     } else {
@@ -391,6 +391,8 @@ void PapyrusWindow::readSettings()
     m_actionRelease->setChecked(m_developmentType == RELEASE);
     m_debugPath = settings.value("debugPath", "").toString();
     m_releasePath = settings.value("releasePath", "").toString();
+    m_debugLibPath = settings.value("debugLibPath", "").toString();
+    m_releaseLibPath = settings.value("releaseLibPath", "").toString();
     settings.endGroup(); // Development
 }
 
@@ -419,6 +421,8 @@ void PapyrusWindow::writeSettings()
     settings.setValue("type", m_developmentType);
     settings.setValue("debugPath", m_debugPath);
     settings.setValue("releasePath", m_releasePath);
+    settings.setValue("debugLibPath", m_debugLibPath);
+    settings.setValue("releaseLibPath", m_releaseLibPath);
     settings.endGroup(); // Development
 }
 
@@ -930,6 +934,16 @@ QString PapyrusWindow::releasePath() const
     return m_releasePath;
 }
 
+QString PapyrusWindow::debugLibPath() const
+{
+    return m_debugLibPath;
+}
+
+QString PapyrusWindow::releaseLibPath() const
+{
+    return m_releaseLibPath;
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
     // Call the 'Save' function of the current script
@@ -1089,26 +1103,59 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
  * of the library files (either in debug of release mode)
  * @return
  */
-void PapyrusWindow::askLibraryPath(bool displayWarning)
+void PapyrusWindow::askForPath(bool displayWarning, PathType pathType)
 {
     if (displayWarning) {
         QString mode = m_developmentType == DEBUG ? "DEBUG" : "RELEASE";
+
+        if (pathType == PATH_LIB)
         QMessageBox::warning(this, tr("No ") + mode + tr(" mode library path"),
                              tr("This is likely the first time you use Papyrus in ") + mode + tr(" mode,"
                              " and you need to specify the path to alexandria's libs.\nA window will display"
                              ", allowing you to specify the directory."));
+        else if (pathType == PATH_DESC)
+            QMessageBox::warning(this, tr("No ") + mode + tr(" mode description path"),
+                                         tr("This is likely the first time you use Papyrus in ") + mode + tr(" mode,"
+                                         " and you need to specify the path to alexandria's description files.\n"
+                                         "A window will display, allowing you to specify the directory."));
+        else
+            informUserAndCrash(tr("unsupported PathType when asking for path.\nSupported PathType "
+                                  "are PATH_LIB and PATH_DESC"));
     }
 
+    QString type;
+    if (pathType == PATH_LIB)
+        type = "library";
+    else if (pathType == PATH_DESC)
+        type = "description";
+    else
+        informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
+                              "are PATH_LIB and PATH_DESC"));
+
     if (m_developmentType == DEBUG) {
-        m_debugPath = QFileDialog::getExistingDirectory(this,
-                                                        tr("Provide library path for DEBUG mode"),
+        QString ret = QFileDialog::getExistingDirectory(this,
+                                                        tr("Provide ") + type + tr(" path for DEBUG mode"),
                                                         "/home",
                                                         QFileDialog::ShowDirsOnly);
+        if (pathType == PATH_LIB)
+            m_debugLibPath = ret;
+        else if (pathType == PATH_DESC)
+            m_debugPath = ret;
+        else
+            informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
+                                  "are PATH_LIB and PATH_DESC"));
     } else {
-        m_releasePath = QFileDialog::getExistingDirectory(this,
-                                                        tr("Provide library path for RELEASE mode"),
+        QString ret = QFileDialog::getExistingDirectory(this,
+                                                        tr("Provide ") + type + tr(" path for RELEASE mode"),
                                                         "/home",
                                                         QFileDialog::ShowDirsOnly);
+        if (pathType == PATH_LIB)
+            m_releaseLibPath = ret;
+        else if (pathType == PATH_DESC)
+            m_releasePath = ret;
+        else
+            informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
+                                  "are PATH_LIB and PATH_DESC"));
     }
 }
 
@@ -1163,6 +1210,20 @@ QString PapyrusWindow::getDescriptionPath()
     informUserAndCrash(tr("Unsupported development type"),
                        tr("We could not parse the development type while trying to get the "
                           "description path. Currently supported is DEBUG or RELEASE. This is most"
+                          " likely due to an API change that was not backported."));
+}
+
+QString PapyrusWindow::getLibPath()
+{
+    if (m_developmentType == DEBUG)
+        return m_debugLibPath;
+
+    if (m_developmentType == RELEASE)
+        return m_releaseLibPath;
+
+    informUserAndCrash(tr("Unsupported development type"),
+                       tr("We could not parse the development type while trying to get the "
+                          "library path. Currently supported is DEBUG or RELEASE. This is most"
                           " likely due to an API change that was not backported."));
 }
 
@@ -1428,6 +1489,27 @@ void PapyrusWindow::on_actionConnect_triggered()
 
 void PapyrusWindow::on_actionRun_triggered()
 {
+    // Before launching the script, check that we have the lib path were filled in if we need it
+    if (m_rosSession->nodeName() == "Current Script") {
+        if (m_developmentType == RELEASE && m_releaseLibPath.isEmpty()) {
+            askForPath(true, PATH_LIB);
+            // Check that the user did specify a path and not cancelled
+            if (m_releaseLibPath.isEmpty()) {
+                displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
+                                     MSG_ERROR);
+            }
+
+        }
+        else if (m_developmentType == DEBUG && m_debugLibPath.isEmpty()) {
+            askForPath(true, PATH_LIB);
+            // Check that the user did specify a path and not cancelled
+            if (m_debugLibPath.isEmpty()) {
+                displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
+                                     MSG_ERROR);
+            }
+        }
+
+    }
     m_rosSession->runOrPause();
 }
 

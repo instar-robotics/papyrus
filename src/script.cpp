@@ -243,7 +243,6 @@ void Script::save(const QString &descriptionPath)
                                         stream.writeAttribute("constant", "true");
                     stream.writeAttribute("uuid", link->uuid().toString());
                     stream.writeAttribute("secondary", isSecondary ? "true" : "false");
-                    stream.writeAttribute("sparse", "false"); // TEMPORARY
 
                     // Write the weight or value based on the link being a string link or not
                     if (link->isStringLink())

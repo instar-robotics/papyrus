@@ -130,7 +130,6 @@ void XmlScriptReader::readScript()
                      * complete them.
                      */
                     std::map<QUuid, DiagramBox *> allBoxes;
-//                    std::map<QUuid, Link *> incompleteLinks;
                     std::set<std::pair<QUuid, Link *>> incompleteLinks;
                     while (reader.readNextStartElement()) {
                         if (reader.name() == "function" || reader.name() == "constant")
@@ -153,8 +152,6 @@ void XmlScriptReader::readScript()
                                 m_script->scene()->addItem(link);
                                 link->addLinesToScene();
 
-                                if (link->checkIfInvalid())
-                                    m_script->setIsInvalid(true);
                                 link->setZValue(LINKS_Z_VALUE);
                                 // TODO: empty the set as we go?
 //                                incompleteLinks.erase(fromUuid);
@@ -255,6 +252,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
     b->setIconFilepath(iconFilepath);
 
     m_script->scene()->addBox(b, pos);
+
+    // TODO: check all links for invalidity and set script's invalidity
 
     // Add this box to the dict
     allBoxes->insert(std::pair<QUuid, DiagramBox *>(uuid, b));
@@ -474,7 +473,11 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
                 // the link now) or not (in which case we store the link in the incomplete dict)
                 if (it != allBoxes->end()) {
                     DiagramBox *fromBox = it->second;
+                    if (fromBox == NULL)
+                        informUserAndCrash(QObject::tr("Got a null pointer stored in the 'allBoxes' map"));
+
                     OutputSlot *fromSlot = fromBox->outputSlot();
+
                     if (fromSlot != NULL) {
                         link->setFrom(fromSlot);
                         fromSlot->addOutput(link);
@@ -482,8 +485,6 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
                         // Add the link to the scene
                         m_script->scene()->addItem(link);
                         link->addLinesToScene();
-                        if (link->checkIfInvalid())
-                            m_script->setIsInvalid(true);
                         link->setZValue(LINKS_Z_VALUE);
                         link->updateLines();
                         m_script->scene()->update();

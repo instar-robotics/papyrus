@@ -1,6 +1,6 @@
 #include "slot.h"
 
-Slot::Slot(QGraphicsItem *parent) : QGraphicsItem(parent), m_dist(0)
+Slot::Slot(QGraphicsItem *parent) : QGraphicsItem(parent), m_dist(0), m_box(NULL)
 {
     m_name.clear();
 }

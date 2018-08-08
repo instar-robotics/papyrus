@@ -289,9 +289,13 @@ bool Link::checkIfInvalid()
         informUserAndCrash(tr("Can't check if Link is invalid: no OutputSlot"));
 
     if (m_to->inputType() == SCALAR_MATRIX) {
-        DiagramBox *box = m_to->box();
-        if (box == NULL)
-            informUserAndCrash(tr("Can't check if Link is invalid: no destination box"));
+                DiagramBox *box = m_to->box();
+        if (box == NULL) {
+            qDebug() << "\t\tdestination box is null";
+            informUserAndCrash(tr("Link with UUID %1 cannot be checked for invalidity: it has no "
+                                  "destination box").arg(m_uuid.toString()));
+        }
+
         int toRows = box->rows();
         int toCols = box->cols();
 

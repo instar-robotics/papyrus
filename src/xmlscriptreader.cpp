@@ -499,6 +499,8 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
             } else {
                 reader.raiseError(QObject::tr("Invalid UUID in from field for a link."));
             }
+        } else if (reader.name() == "connectivity") {
+            link->setConnectivity(stringToConnectivity(reader.readElementText()));
         } else {
             reader.skipCurrentElement();
         }

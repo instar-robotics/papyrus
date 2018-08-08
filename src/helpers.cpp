@@ -333,3 +333,35 @@ QString snakeCaseToPretty(QString str)
 
     return capitalized.join(" ");
 }
+
+QString connectivityToString(Connectivity conn)
+{
+    if (conn == ONE_TO_ALL)
+        return "ONE_TO_ALL";
+
+    if (conn == ONE_TO_ONE)
+        return "ONE_TO_ONE";
+
+    if (conn == ONE_TO_NEI)
+        return "ONE_TO_NEI";
+
+    informUserAndCrash(QObject::tr("Unsupported Connectivity when trying to convert to string. Supported "
+                          "types are ONE_TO_ALL, ONE_TO_ONE and ONE_TO_NEI"));
+}
+
+
+Connectivity stringToConnectivity(QString str)
+{
+    QString lower = str.toLower();
+
+    if (lower == "one_to_one")
+        return ONE_TO_ONE;
+
+    if (lower == "one_to_all")
+        return ONE_TO_ALL;
+
+    if (lower == "one_to_nei")
+        return ONE_TO_NEI;
+
+    informUserAndCrash(QObject::tr("Unsupported string to convert to Connectivity"));
+}

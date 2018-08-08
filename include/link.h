@@ -1,6 +1,8 @@
 #ifndef LINK_H
 #define LINK_H
+
 #include "script.h"
+#include "types.h"
 
 #include <QGraphicsItem>
 #include <QUuid>
@@ -17,6 +19,8 @@
 
 class InputSlot;
 class OutputSlot;
+
+Q_DECLARE_METATYPE(Connectivity);
 
 class Link : public QObject, public QGraphicsItem
 {
@@ -59,6 +63,9 @@ public:
     QString value() const;
     void setValue(const QString &value);
 
+    Connectivity connectivity() const;
+    void setConnectivity(const Connectivity &connectivity);
+
 private:
     bool checkIfSelfLoop();
 
@@ -76,6 +83,8 @@ private:
     QString m_value;           // The string value associated to this link (when between strings)
 
     bool m_isInvalid; // Tells that this link is currently not valid (error in type, in sizes, etc.)
+
+    Connectivity m_connectivity; // Only viable for MATRIX_MATRIX
 };
 
 #endif // LINK_H

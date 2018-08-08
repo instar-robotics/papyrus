@@ -43,4 +43,8 @@ QList<QString> getKheopsNodes();
 
 QString snakeCaseToPretty(QString str);
 
+QString connectivityToString(Connectivity conn);
+
+Connectivity stringToConnectivity(QString str);
+
 #endif // HELPERS_H

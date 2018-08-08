@@ -251,7 +251,11 @@ void Script::save(const QString &descriptionPath)
                         stream.writeTextElement("weight", QString::number(link->weight()));
                     // Be careful to use the box's uuid and not the slot's
                     stream.writeTextElement("from", link->from()->box()->uuid().toString());
-                    stream.writeTextElement("connectivity", "TODO");
+
+                    // Write the connecvitity if the link is of type MATRIX_MATRIX
+                    if (link->to()->inputType() == MATRIX_MATRIX)
+                        stream.writeTextElement("connectivity", connectivityToString(link->connectivity()));
+
                     stream.writeEndElement(); // link
                 }
 

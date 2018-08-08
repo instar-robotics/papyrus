@@ -94,6 +94,8 @@ private:
     QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
     QLineEdit *m_linkValue;       // Text field to enter the link's value (for string links)
     QPushButton *m_linkConnectivityBtn; // Button to launch the window that allows setting the connectivity
+    QLabel *m_linkConnectivityLabel;
+    QComboBox *m_linkConnectivity;
     QMetaObject::Connection m_conn;     // Contains the the Qt's connection object for the above button
 
     // Will contain the sizes of connected matrix when the link is SPARSE_MATRIX

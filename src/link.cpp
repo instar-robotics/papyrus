@@ -207,6 +207,16 @@ bool Link::checkIfSelfLoop()
     }
 }
 
+Connectivity Link::connectivity() const
+{
+    return m_connectivity;
+}
+
+void Link::setConnectivity(const Connectivity &connectivity)
+{
+    m_connectivity = connectivity;
+}
+
 QString Link::value() const
 {
     return m_value;

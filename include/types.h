@@ -34,4 +34,11 @@ enum MessageUrgency {
     MSG_ERROR
 };
 
+// Define the type of connectivity for MATRIX_MATRIX links
+enum Connectivity {
+    ONE_TO_ONE,
+    ONE_TO_ALL,
+    ONE_TO_NEI
+};
+
 #endif // TYPES_H

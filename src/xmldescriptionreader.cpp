@@ -126,6 +126,10 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, const QString
     function->setText(0, function->name());
     function->setSizeHint(0, QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
 
+    // Add a background color to functions whose output are MATRIX
+    if (function->output()->outputType() == MATRIX)
+        function->setBackground(0, QBrush(QColor(0xffeeee)));
+
     // Only add the function to the library (category) if there was no error while parsing it.
     if (!reader.error())
         m_category->addChild(function);

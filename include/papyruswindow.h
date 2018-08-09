@@ -105,6 +105,12 @@ public:
 
     QString releaseLibPath() const;
 
+    QString keyFile() const;
+    void setKeyFile(const QString &keyFile);
+
+    QString ivFile() const;
+    void setIvFile(const QString &ivFile);
+
 private:
     Ui::PapyrusWindow *m_ui;
     RosNode *m_rosnode;
@@ -130,6 +136,8 @@ private:
     QString m_releasePath;            // Path where to search for description files in RELEASE mode
     QString m_debugLibPath;           // Path where to search for library files in DEBUG mode
     QString m_releaseLibPath;         // Path where to search for library files in RELEASE mode
+    QString m_keyFile;                // Path of the key file to crypt / decrypt scrip files
+    QString m_ivFile;                 // Path of the IV
 
 signals:
     void toggleDisplayGrid(bool);

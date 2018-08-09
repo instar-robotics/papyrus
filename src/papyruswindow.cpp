@@ -394,6 +394,12 @@ void PapyrusWindow::readSettings()
     m_debugLibPath = settings.value("debugLibPath", "").toString();
     m_releaseLibPath = settings.value("releaseLibPath", "").toString();
     settings.endGroup(); // Development
+
+    // Cipher sections for crypting / decrypting script files
+    settings.beginGroup("Cipher");
+    m_keyFile = settings.value("keyFile", "").toString();
+    m_ivFile = settings.value("ivFile", "").toString();
+    settings.endGroup(); // Cipher
 }
 
 /**
@@ -424,6 +430,12 @@ void PapyrusWindow::writeSettings()
     settings.setValue("debugLibPath", m_debugLibPath);
     settings.setValue("releaseLibPath", m_releaseLibPath);
     settings.endGroup(); // Development
+
+    // Cipher section to crypt / decrypt script files
+    settings.beginGroup("Cipher");
+    settings.setValue("keyFile", m_keyFile);
+    settings.setValue("ivFile", m_ivFile);
+    settings.endGroup(); // Cipher
 }
 
 /*
@@ -944,6 +956,26 @@ QString PapyrusWindow::releaseLibPath() const
     return m_releaseLibPath;
 }
 
+QString PapyrusWindow::keyFile() const
+{
+    return m_keyFile;
+}
+
+void PapyrusWindow::setKeyFile(const QString &keyFile)
+{
+    m_keyFile = keyFile;
+}
+
+QString PapyrusWindow::ivFile() const
+{
+    return m_ivFile;
+}
+
+void PapyrusWindow::setIvFile(const QString &ivFile)
+{
+    m_ivFile = ivFile;
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
     // Call the 'Save' function of the current script
@@ -971,11 +1003,38 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
     // Check if the file is an encrypted file, and if yes, decrypt it
     QFileInfo fi(scriptPath);
     if (fi.completeSuffix() == "xml.crypted") {
-        // Check that we can read the key and IV
-        std::string keyFile("/home/nschoe/workspace/qt/papyrus/key");
-        std::string ivFile("/home/nschoe/workspace/qt/papyrus/iv");
+        // Check that the user has filled in a key and iv path
+        if (m_keyFile.isEmpty() || m_ivFile.isEmpty()) {
+            QMessageBox::warning(NULL, tr("Missing crypto information"),
+                                 tr("You are trying to decrypt an encrypted script file, for "
+                                    "this, we need a decryption key and IV.\nWe "
+                                    "detected that at least one is missing. You will be prompted for"
+                                    " paths in the next window, read the dialog's titles in order to"
+                                    " provide either the key or the IV (don't get them mixed!)."));
+        }
 
-        if (!fileExists(keyFile) || !fileExists(ivFile)) {
+        if (m_keyFile.isEmpty()) {
+            m_keyFile = QFileDialog::getOpenFileName(this, tr("Please provide the KEY file"),
+                                                     tr("/home"),
+                                                     "Key files (*)");
+        }
+
+        if (m_ivFile.isEmpty()) {
+            m_ivFile = QFileDialog::getOpenFileName(this, tr("Please provide the IV file"),
+                                                    tr("/home"),
+                                                    "IV files (*)");
+        }
+
+        // Make another check to be sure the user did not cancel
+        if (m_keyFile.isEmpty() || m_ivFile.isEmpty()) {
+            QMessageBox::warning(NULL, tr("Loading aborted"),
+                                 tr("The script was not loaded because you failed to provide either "
+                                    "the key or the IV file for decryption."));
+            return;
+        }
+
+        // Check that we can read the key and IV
+        if (!fileExists(m_keyFile.toStdString()) || !fileExists(m_ivFile.toStdString())) {
             QMessageBox::warning(NULL, tr("Encryption key and IV not found"),
                                  tr("We could not open this encrypted script file because either the"
                                     " key of the IV file could not be found."));
@@ -984,13 +1043,13 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
 
         // Read and store key
         std::string key;
-        CryptoPP::FileSource fkey(keyFile.c_str(), true,
+        CryptoPP::FileSource fkey(m_keyFile.toStdString().c_str(), true,
                                   new CryptoPP::HexDecoder(
                                       new CryptoPP::StringSink(key)));
 
         // Read and store iv
         std::string iv;
-        CryptoPP::FileSource fiv(ivFile.c_str(), true,
+        CryptoPP::FileSource fiv(m_ivFile.toStdString().c_str(), true,
                                  new CryptoPP::HexDecoder(
                                      new CryptoPP::StringSink(iv)));
 

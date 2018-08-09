@@ -67,8 +67,40 @@ void Script::save(const QString &descriptionPath)
 
     // Read keys if the script is specified to be encrypted
     if (m_encrypt) {
-        std::string keyFile("/home/nschoe/workspace/qt/papyrus/key");
-        std::string ivFile("/home/nschoe/workspace/qt/papyrus/iv");
+        PapyrusWindow *mainWin = getMainWindow();
+
+        // Check that the user has filled in a key and iv path
+        if (mainWin->keyFile().isEmpty() || mainWin->ivFile().isEmpty()) {
+            QMessageBox::warning(NULL, tr("Missing crypto information"),
+                                 tr("You are trying to encrypt and save a script file, for "
+                                    "this, we need an encryption key and IV.\nWe "
+                                    "detected that at least one is missing. You will be prompted for"
+                                    " paths in the next window, read the dialog's titles in order to"
+                                    " provide either the key or the IV (don't get them mixed!)."));
+        }
+
+        if (mainWin->keyFile().isEmpty()) {
+            mainWin->setKeyFile(QFileDialog::getOpenFileName(mainWin, tr("Please provide the KEY file"),
+                                                             tr("/home"),
+                                                             "Key files (*.*)"));
+        }
+
+        if (mainWin->ivFile().isEmpty()) {
+            mainWin->setIvFile(QFileDialog::getOpenFileName(mainWin, tr("Please provide the IV file"),
+                                                            tr("/home"),
+                                                            "IV files (*.*)"));
+        }
+
+        // Make another check to be sure the user did not cancel
+        if (mainWin->keyFile().isEmpty() || mainWin->ivFile().isEmpty()) {
+            QMessageBox::warning(NULL, tr("Saving aborted"),
+                                 tr("The script was not saved because you failed to provide either "
+                                    "the key or the IV file for encryption."));
+            return;
+        }
+
+        std::string keyFile = mainWin->keyFile().toStdString();
+        std::string ivFile = mainWin->ivFile().toStdString();
 
         // Prevent saving if the script should be encrypted but no key/iv could be found
         if (!fileExists(keyFile) || !fileExists(ivFile)) {
@@ -99,7 +131,7 @@ void Script::save(const QString &descriptionPath)
         QString savePath = QFileDialog::getSaveFileName(NULL,
                                      QObject::tr("Save as..."),
                                      QDir::homePath(),
-                                     QObject::tr("XML Files (*.xml)"));
+                                     QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
         // Abort if it's empty
         if (savePath.isEmpty()) {

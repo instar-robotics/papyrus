@@ -156,9 +156,10 @@ void XmlScriptReader::readScript()
                                 // TODO: empty the set as we go?
 //                                incompleteLinks.erase(fromUuid);
                             } else {
-                                informUserAndCrash(QObject::tr("One incomplete link could not be "
-                                                               "completed: did not find its "
-                                                               "originating box."));
+                                informUserAndCrash(QObject::tr(
+                                "Link with UUID %1 could not be completed, because it did not find "
+                                "its originating box (with UUID %2)").arg(link->uuid().toString())
+                                        .arg(fromUuid.toString()));
                             }
                         }
                     }
@@ -500,7 +501,13 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
                 reader.raiseError(QObject::tr("Invalid UUID in from field for a link."));
             }
         } else if (reader.name() == "connectivity") {
-            link->setConnectivity(stringToConnectivity(reader.readElementText()));
+            if (reader.attributes().hasAttribute("type")) {
+                link->setConnectivity(stringToConnectivity(reader.attributes().value("type").toString()));
+                reader.skipCurrentElement(); // To consume the tag!
+            } else {
+                qWarning() << "Missing attribute 'type' for <connectivity>";
+                reader.raiseError(QObject::tr("Missing attribute 'type' for <connectivity>"));
+            }
         } else {
             reader.skipCurrentElement();
         }

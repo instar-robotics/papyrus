@@ -239,10 +239,9 @@ void ROSSession::stop()
         return;
     }
 
-    // TODO emit message for status bar
     if (m_nodeName.isEmpty()) {
         emit displayStatusMessage(tr("No node name for this script: cannot stop"), MSG_ERROR);
-        qWarning() << "No node name: cannot pause";
+        qWarning() << "No node name: cannot stop";
         return;
     }
 
@@ -275,6 +274,7 @@ void ROSSession::stop()
     }
 
     QString srvName = nodeName + "/control";
+
     ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
     hieroglyph::SimpleCmd srv;
     srv.request.cmd = "quit";

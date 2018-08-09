@@ -253,8 +253,11 @@ void Script::save(const QString &descriptionPath)
                     stream.writeTextElement("from", link->from()->box()->uuid().toString());
 
                     // Write the connecvitity if the link is of type MATRIX_MATRIX
-                    if (link->to()->inputType() == MATRIX_MATRIX)
-                        stream.writeTextElement("connectivity", connectivityToString(link->connectivity()));
+                    if (link->to()->inputType() == MATRIX_MATRIX) {
+                        stream.writeStartElement("connectivity");
+                        stream.writeAttribute("type", connectivityToString(link->connectivity()));
+                        stream.writeEndElement(); // connectivity
+                    }
 
                     stream.writeEndElement(); // link
                 }

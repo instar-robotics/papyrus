@@ -42,6 +42,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_argc(argc),
     m_argv(argv),
     m_rosMasterStatus(NULL),
+    librarySearchField_(NULL),
+    m_lastExpandedCategory("Constants"),
     m_libraryParsingErrors(0),
     m_activeScript(NULL),
     m_propertiesPanel(NULL),
@@ -417,6 +419,7 @@ Category *PapyrusWindow::addTreeRoot(QString name)
     return treeItem;
 }
 
+/*
 void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, const QString &name)
 {
     QTreeWidgetItem *treeItem = new QTreeWidgetItem;
@@ -426,7 +429,7 @@ void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, con
 
     parent->addChild(treeItem);
 }
-
+*/
 /*
  * Action executed when the user wants to exit the application
  * Check for unsaved changes before exiting
@@ -606,7 +609,48 @@ void PapyrusWindow::setLibrarySearchField(QLineEdit *librarySearchField)
 
 void PapyrusWindow::filterLibraryNames(const QString &text)
 {
-    std::cout << "Should filter on '" << qPrintable(text) << "'" << std::endl;
+    bool exp = !text.isEmpty();
+
+    int n = libraryPanel_->topLevelItemCount();
+    for (int i = 0; i < n; i += 1) {
+        libraryPanel_->topLevelItem(i)->setExpanded(exp);
+    }
+
+    for (int i = 0; i < n; i += 1) {
+        Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
+        if (cat == NULL) {
+            qDebug() << "Failed to cast Cat";
+            continue;
+        }
+
+        int m = cat->childCount();
+        for (int j = 0; j < m; j += 1) {
+            Function *f = dynamic_cast<Function *>(cat->child(j));
+            if (f == NULL) {
+                qDebug() << "Failed to cast Func";
+                continue;
+            }
+
+            // If we have some text to filter, check the matching
+            if (exp) {
+                if (f->name().toLower().contains(text.toLower())) {
+                    f->setHidden(false);
+                } else {
+                    f->setHidden(true);
+                }
+            }
+            // Otherwise, restore all hidden states
+            else {
+                f->setHidden(false);
+            }
+        }
+
+        // If we don't have text to filter, expand back the last category (as well as Constants)
+        if (!exp && (cat->name() == m_lastExpandedCategory || cat->name() == "Constants")) {
+            cat->setExpanded(true);
+        }
+    }
+
 }
 
 void PapyrusWindow::displayStatusMessage(const QString &text, MessageUrgency urgency)
@@ -1254,15 +1298,31 @@ QString PapyrusWindow::getLibPath()
  */
 void PapyrusWindow::categoryExpanded(QTreeWidgetItem *item)
 {
+    // Don't do anything if the library search field is not empty (this is important because the
+    // handler hides some categories, which would call this event)
+    if (!librarySearchField_->text().isEmpty())
+        return;
+
+    Category *expandedCategory = dynamic_cast<Category *>(item);
+    if (expandedCategory == NULL)
+        return;
+
+    // Don't do anything when expanding the "Constants" category
+    if (expandedCategory->name() == "Constants")
+        return;
+
     int n = libraryPanel_->topLevelItemCount();
     for (int i = 0; i < n; i += 1) {
         Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
         if (cat == NULL)
             continue;
 
-        if (cat != item && cat->name() != "Constants")
+        if (cat != expandedCategory && cat->name() != "Constants")
             cat->setExpanded(false);
     }
+
+    // Save the last category that was expanded
+    m_lastExpandedCategory = expandedCategory->name();
 }
 
 /**

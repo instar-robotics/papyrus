@@ -64,7 +64,7 @@ public:
     void setDescription(QDir description) {description_ = description;}
 
     Category *addTreeRoot(QString name);
-    void addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, const QString &name);
+//    void addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, const QString &name);
 
     QLineEdit *librarySearchField() const;
     void setLibrarySearchField(QLineEdit *librarySearchField);
@@ -119,6 +119,7 @@ private:
     QLabel *m_rosMasterStatus;
     LibraryPanel *libraryPanel_;
     QLineEdit *librarySearchField_;
+    QString m_lastExpandedCategory;  // Name of the last category that was expanded before filtering
     int m_libraryParsingErrors;
     QDir description_;
     QSystemTrayIcon *trayIcon;

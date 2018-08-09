@@ -1,6 +1,6 @@
 #include "category.h"
 
-Category::Category(QString &name) : QTreeWidgetItem(), m_name(name)
+Category::Category(const QString &name) : QTreeWidgetItem(), m_name(name)
 {
 
 }

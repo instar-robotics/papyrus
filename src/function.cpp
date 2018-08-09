@@ -72,15 +72,3 @@ void Function::setIconFilepath(const QString &value)
 {
     m_iconFilepath = value;
 }
-
-/*
-QIcon Function::icon() const
-{
-    return m_icon;
-}
-
-void Function::setIcon(const QIcon &value)
-{
-    m_icon = value;
-}
-*/

@@ -19,19 +19,19 @@
 
 PapyrusWindow *getMainWindow();
 
-QString outputTypeToString(OutputType outputType);
-OutputType stringToOutputType(QString str);
+QString outputTypeToString(const OutputType &outputType);
+OutputType stringToOutputType(const QString &str);
 
-QString inputTypeToString(InputType inputType);
-InputType stringToInputType(QString str);
+QString inputTypeToString(const InputType &inputType);
+InputType stringToInputType(const QString &str);
 
-QString timeUnitToString(TimeUnit unit);
+QString timeUnitToString(const TimeUnit &unit);
 
-bool canLink(OutputType from, InputType to);
+bool canLink(const OutputType &from, const InputType &to);
 
 void informUserAndCrash(const QString &text, const QString &title = QObject::tr("Papyrus is about to crash!"));
 
-void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF size, const QPointF pos, bool center = true);
+void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF &size, const QPointF &pos, bool center = true);
 
 void updateSizeIcon(DiagramBox *box);
 
@@ -41,10 +41,10 @@ bool fileExists(const std::string& filename);
 
 QList<QString> getKheopsNodes();
 
-QString snakeCaseToPretty(QString str);
+QString snakeCaseToPretty(const QString &str);
 
-QString connectivityToString(Connectivity conn);
+QString connectivityToString(const Connectivity &conn);
 
-Connectivity stringToConnectivity(QString str);
+Connectivity stringToConnectivity(const QString &str);
 
 #endif // HELPERS_H

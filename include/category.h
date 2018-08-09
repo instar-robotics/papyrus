@@ -17,7 +17,7 @@
 class Category : public QTreeWidgetItem
 {
 public:
-    Category(QString &name);
+    Category(const QString &name);
 
     QString name() const;
     void setName(const QString &name);

@@ -17,7 +17,7 @@ public:
     explicit ConstantDiagramBox(const QString &name,
                                 const QIcon &icon,
                                 OutputSlot *outputSlot,
-                                QUuid uuid = 0,
+                                const QUuid &uuid = 0,
                                 QGraphicsItem *parent = 0);
 };
 

@@ -32,7 +32,7 @@ PapyrusWindow *getMainWindow()
  * @param outputType the value to convert
  * @return
  */
-QString outputTypeToString(OutputType outputType)
+QString outputTypeToString(const OutputType &outputType)
 {
     switch (outputType) {
     case SCALAR:
@@ -55,7 +55,7 @@ QString outputTypeToString(OutputType outputType)
  * @param str the string to convert
  * @return
  */
-OutputType stringToOutputType(QString str)
+OutputType stringToOutputType(const QString &str)
 {
     QString lower = str.toLower();
 
@@ -78,7 +78,7 @@ OutputType stringToOutputType(QString str)
  * @param inputType the value to convert
  * @return
  */
-QString inputTypeToString(InputType inputType)
+QString inputTypeToString(const InputType &inputType)
 {
     switch (inputType) {
     case SCALAR_SCALAR:
@@ -107,7 +107,7 @@ QString inputTypeToString(InputType inputType)
  * @param str the string to convert
  * @return
  */
-InputType stringToInputType(QString str)
+InputType stringToInputType(const QString &str)
 {
     QString lower = str.toLower();
 
@@ -137,7 +137,7 @@ InputType stringToInputType(QString str)
  * @param to the @InputType we want to connect to
  * @return whether the connection is valid or not
  */
-bool canLink(OutputType from, InputType to)
+bool canLink(const OutputType &from, const InputType &to)
 {
     // If the input slot expects a scalar, only a scalar can be connected to it
     if (from == SCALAR && to == SCALAR_SCALAR)
@@ -184,7 +184,7 @@ void informUserAndCrash(const QString &text, const QString &title)
  * @param xOffset pointer to qreal to save xoffset
  * @param yOffset pointer to qreal to save yoffset
  */
-void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF size, const QPointF pos, bool center)
+void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF &size, const QPointF &pos, bool center)
 {
     QSizeF svgSize = svg->boundingRect().size();
     qreal targetWidth = size.width();
@@ -254,7 +254,7 @@ void updateSizeIcon(DiagramBox *box)
 
 }
 
-QString timeUnitToString(TimeUnit unit)
+QString timeUnitToString(const TimeUnit &unit)
 {
     if (unit == HZ)
         return "Hz";
@@ -322,7 +322,7 @@ QList<QString> getKheopsNodes()
  * @param str the snake case string to pretty print
  * @return the pretty print string
  */
-QString snakeCaseToPretty(QString str)
+QString snakeCaseToPretty(const QString &str)
 {
     QStringList words = str.split('_', QString::SkipEmptyParts);
     QStringList capitalized;
@@ -334,7 +334,7 @@ QString snakeCaseToPretty(QString str)
     return capitalized.join(" ");
 }
 
-QString connectivityToString(Connectivity conn)
+QString connectivityToString(const Connectivity &conn)
 {
     if (conn == ONE_TO_ALL)
         return "ONE_TO_ALL";
@@ -350,7 +350,7 @@ QString connectivityToString(Connectivity conn)
 }
 
 
-Connectivity stringToConnectivity(QString str)
+Connectivity stringToConnectivity(const QString &str)
 {
     QString lower = str.toLower();
 

@@ -34,9 +34,6 @@ public:
     OutputSlot *output() const;
     void setOutput(OutputSlot *output);
 
-//    QIcon icon() const;
-//    void setIcon(const QIcon &value);
-
     QString descriptionFile() const;
 
     bool constant() const;

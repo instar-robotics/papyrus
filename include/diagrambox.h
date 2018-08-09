@@ -32,7 +32,7 @@ public:
                         const QIcon &icon,
                         OutputSlot *outputSlot,
                         std::set<InputSlot *> inputSlots,
-                        QUuid uuid = 0,
+                        const QUuid &uuid = 0,
                         QGraphicsItem *parent = 0);
     ~DiagramBox();
 
@@ -128,7 +128,7 @@ private:
     QGraphicsSvgItem *m_sizeIcon; // Contains the svg that hints the box's size
 
 signals:
-    void boxSelected(DiagramBox *); // Fired when the box is clicked on (used ot signal PropertiesPanel)
+    void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)
 };
 
 #endif // DIAGRAMBOX_H

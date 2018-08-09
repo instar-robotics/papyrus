@@ -445,7 +445,7 @@ Category *PapyrusWindow::addTreeRoot(QString name)
     return treeItem;
 }
 
-void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString name)
+void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, const QString &name)
 {
     QTreeWidgetItem *treeItem = new QTreeWidgetItem;
     treeItem->setIcon(0, icon);
@@ -1103,7 +1103,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
  * of the library files (either in debug of release mode)
  * @return
  */
-void PapyrusWindow::askForPath(bool displayWarning, PathType pathType)
+void PapyrusWindow::askForPath(bool displayWarning, const PathType &pathType)
 {
     if (displayWarning) {
         QString mode = m_developmentType == DEBUG ? "DEBUG" : "RELEASE";

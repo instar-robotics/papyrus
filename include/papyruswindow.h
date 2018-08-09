@@ -55,7 +55,7 @@ public:
     void readSettings();
     void writeSettings();
     Script *parseXmlScriptFile(const QString &scriptPath);
-    void askForPath(bool displayWarning, PathType pathType);
+    void askForPath(bool displayWarning, const PathType &pathType);
     void parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader);
     QString getDescriptionPath();
     QString getLibPath();
@@ -64,7 +64,7 @@ public:
     void setDescription(QDir description) {description_ = description;}
 
     Category *addTreeRoot(QString name);
-    void addTreeChild(QTreeWidgetItem *parent, QIcon icon, QString name);
+    void addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, const QString &name);
 
     QLineEdit *librarySearchField() const;
     void setLibrarySearchField(QLineEdit *librarySearchField);

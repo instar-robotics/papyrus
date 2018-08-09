@@ -18,7 +18,7 @@ InputSlot::InputSlot() : Slot(),
     m_uuid = QUuid::createUuid();
 }
 
-InputSlot::InputSlot(QString &name) : InputSlot()
+InputSlot::InputSlot(const QString &name) : InputSlot()
 {
     // All of this should actuall be in a 'setName()' function I suppose.
     setName(name);

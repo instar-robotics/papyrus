@@ -23,7 +23,7 @@ class InputSlot : public Slot
 
 public:
     explicit InputSlot();
-    explicit InputSlot(QString &name);
+    explicit InputSlot(const QString &name);
     ~InputSlot();
 
     bool multiple() const;

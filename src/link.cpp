@@ -16,7 +16,8 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
                                     m_secondary(checkIfSelfLoop()), // valable for initialisation
                                     m_selfLoop(checkIfSelfLoop()),
                                     m_weight(1.0),
-                                    m_isInvalid(false)
+                                    m_isInvalid(false),
+                                    m_connectivity(ONE_TO_ONE) // chose one by default
 {
     m_uuid = QUuid::createUuid();
 

@@ -151,6 +151,7 @@ private slots:
     void onScriptStopped();
     void updateStopWatch(int h, int m, int s, int ms);
     void updateDevelopmentEnvironment(QAction *action);
+    void categoryExpanded(QTreeWidgetItem *item);
 
     void on_actionExit_triggered();
 

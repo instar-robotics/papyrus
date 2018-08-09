@@ -97,6 +97,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     // Temporary create those here, because I have made the parsing dependent on this (which is stupid)
     libraryPanel_ = new LibraryPanel;
 
+    connect(libraryPanel_, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(categoryExpanded(QTreeWidgetItem*)));
+
     librarySearchField_ = new QLineEdit;
     librarySearchField_->setPlaceholderText(tr("Filter..."));
     librarySearchField_->setClearButtonEnabled(true);
@@ -179,52 +181,10 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
         // Create one 'Tree Root' per category
         for (int i = 0; i < categories.size(); i += 1) {
             // Add the category in the Tree Widget
-            Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));
-//            XmlDescriptionReader xmlReader(newCategory);
+            Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));\
             XmlDescriptionReader *xmlReader = new XmlDescriptionReader(newCategory);
 
             parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
-
-            /*
-            // First, parse descriptions files at the root of the category
-            QDir category(description.canonicalPath() + "/" + categories[i]);
-            category.setNameFilters(QStringList() << "*.xml"); // Match on XML files only
-
-//            category.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-            // First, parse the description files that are at the top level
-            QStringList neuralBoxes = category.entryList();
-
-            // Create one entry in the category per neural box
-            for (int j = 0; j < neuralBoxes.size(); j += 1) {
-                // Derive icon path name from XML file name
-                QString iconFilename = neuralBoxes[j];
-                iconFilename.replace(".xml", ".svg");
-
-                QString iconPath(category.absoluteFilePath(iconFilename));
-                QFile f(iconPath);
-
-                QFile xmlFile(category.absoluteFilePath(neuralBoxes[j]));
-                if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
-                    qDebug() << "Could not open file" << neuralBoxes[j] << "for parsing";
-                    libraryParsingErrors += 1;
-                    break;
-                }
-
-                // Load icon from icon path if it exists, set missing icon otherwise
-                QIcon neuralIcon;
-                if (f.exists())
-                    neuralIcon = QIcon(iconPath);
-                else
-                    neuralIcon = QIcon(":/icons/icons/missing-icon.svg");
-
-//                XmlDescriptionReader xmlReader(newCategory);
-                QString descriptionFile = category.absoluteFilePath(neuralBoxes[j]);
-                // TODO: check return value to decide whether to add in library or not
-                if (!xmlReader.read(&xmlFile, neuralIcon, descriptionFile)) {
-                    libraryParsingErrors += 1;
-                }
-            }
-            */
 
             m_library->addCategory(newCategory);
         }
@@ -232,6 +192,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
         // Create one "built-in" category for the constant inputs (created at the end so that it
         // appears first)
         Category *constants = addTreeRoot("Constants");
+        constants->setExpanded(true); // By default, keep "Constants" expanded
         ConstantFunction *constantScalar = new ConstantFunction("SCALAR",
                                                                 ":/icons/icons/constant-scalar.svg",
                                                                 QIcon(":/icons/icons/constant-scalar.svg"),
@@ -444,13 +405,12 @@ void PapyrusWindow::writeSettings()
  */
 Category *PapyrusWindow::addTreeRoot(QString name)
 {
-//    QTreeWidgetItem *treeItem = new QTreeWidgetItem();
     Category *treeItem = new Category(name);
     libraryPanel_->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
 
     treeItem->setText(0, name);
-    treeItem->setBackground(0, QBrush(Qt::lightGray));
-    treeItem->setExpanded(true);
+//    treeItem->setBackground(0, QBrush(Qt::lightGray));
+    treeItem->setBackground(0, QBrush(QColor(0xc7ebff)));
     treeItem->setTextAlignment(0, Qt::AlignCenter);
     treeItem->setFlags(treeItem->flags() & ~Qt::ItemIsSelectable); // Make categories unselectable
 
@@ -1284,6 +1244,25 @@ QString PapyrusWindow::getLibPath()
                        tr("We could not parse the development type while trying to get the "
                           "library path. Currently supported is DEBUG or RELEASE. This is most"
                           " likely due to an API change that was not backported."));
+}
+
+/**
+ * @brief PapyrusWindow::categoryExpanded is called when a user double clicks on a category to
+ * expand it, we use this event to collapse all other categories (expect "Constants") so that only
+ * one category is active at a time (for improved readability)
+ * @param item
+ */
+void PapyrusWindow::categoryExpanded(QTreeWidgetItem *item)
+{
+    int n = libraryPanel_->topLevelItemCount();
+    for (int i = 0; i < n; i += 1) {
+        Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
+        if (cat == NULL)
+            continue;
+
+        if (cat != item && cat->name() != "Constants")
+            cat->setExpanded(false);
+    }
 }
 
 /**

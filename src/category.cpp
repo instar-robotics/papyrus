@@ -2,15 +2,8 @@
 
 Category::Category(const QString &name) : QTreeWidgetItem(), m_name(name)
 {
-
+    setExpanded(false); // By default, collapse all categories
 }
-
-/*
-void Category::addFunction(Function *function)
-{
-    m_functions.push_back(function);
-}
-//*/
 
 QString Category::name() const
 {
@@ -22,9 +15,3 @@ void Category::setName(const QString &name)
     m_name = name;
 }
 
-/*
-std::vector<Function *> Category::functions() const
-{
-    return m_functions;
-}
-//*/

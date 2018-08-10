@@ -27,9 +27,8 @@ void NodesChooser::populateKheopsNodes()
     // Populate the list of nodes upon creation
     QList<QString> kheopsNodes = getKheopsNodes();
 
-    // Clear the list, add the "Current Script" first and populate
+    // Clear the list, and populate it with the nodes we just found
     ui->comboBox->clear();
-    ui->comboBox->addItem(tr("Current Script"), tr("Current Script"));
 
     foreach (QString kheopsNode, kheopsNodes) {
         ui->comboBox->addItem(kheopsNode, kheopsNode);

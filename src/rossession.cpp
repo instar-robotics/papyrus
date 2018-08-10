@@ -11,7 +11,6 @@
 
 ROSSession::ROSSession(QObject *parent, Script *script) : QObject(parent),
                            m_nodeName(QString()),
-                           m_isConnected(false),
                            m_isRunning(false),
                            m_isPaused(false),
                            m_timeOffset(0),
@@ -54,14 +53,56 @@ void ROSSession::runOrPause()
 void ROSSession::run()
 {
     if (m_nodeName.isEmpty()) {
-        emit displayStatusMessage(tr("No script name: cannot run"), MSG_ERROR);
+        emit displayStatusMessage(tr("No node name: cannot run"), MSG_ERROR);
         return;
     }
 
-    // if the name is not running (was stopped), we need to get its name. Either because we have an
+    // [DELETE]
+    // If the node is not running (was stopped), we need to get its name. Either because we have an
     // associated Script, or else we ask the user to provide the path to the file
     // this is TEMPORARY, waiting for kheops/#11 to be solved
+    // [/DELETE]
+
+    // Save the node before launching it
+    PapyrusWindow *mainWin = getMainWindow();
+    m_script->save(mainWin->getDescriptionPath());
+
+    // Check if the save worked
+    if (m_script->modified()) {
+        emit displayStatusMessage(tr("You need to provide a file to save the script in order to run it"),
+                                  MSG_WARNING);
+        return;
+    }
+
+    // If the node is not running, we need to launch a kheops instance
     if (!m_isRunning) {
+        QProcess *kheopsNode = new QProcess(this);
+        QString prog = "rosrun";
+        QStringList args;
+        args << "kheops";
+        args << "kheops";
+        args << "-s";
+        args << m_script->filePath();
+        args << "-l";
+        args << mainWin->getLibPath() + "/";
+        kheopsNode->start(prog, args);
+
+        // Note that it just means the program was started, but it may as well crash just after launch
+        if (kheopsNode->waitForStarted(2000)) {
+            m_isRunning = true;
+            m_isPaused = false;
+
+            // Record a new starting time for the run
+            m_startTime = QDateTime::currentDateTime();
+
+            emit scriptResumed();
+        } else {
+            m_isRunning = false;
+            emit displayStatusMessage(tr("Failed to launch script."), MSG_ERROR);
+            qWarning() << "Failed to re-launch with cmd \"" << prog << args << "\"";
+        }
+
+        /*
         QString scriptPath;
 
         // If we are connected to the current script (and there's one), fetch its script path from
@@ -119,7 +160,11 @@ void ROSSession::run()
             emit displayStatusMessage(tr("No script path: cannot launch."), MSG_WARNING);
             qWarning() << "Empty script path: cannot re-launch";
         }
-    } else {
+        //*/
+    }
+    // Otherwise, if the node is already running, we just have to ask it to resume execution
+    else {
+        /*
         QString nodeName;
 
         // If the node is the current script, we have to craft its name from the Script's attribute
@@ -147,8 +192,8 @@ void ROSSession::run()
         else {
             nodeName = m_nodeName;
         }
-
-        QString srvName = nodeName + "/control";
+        //*/
+        QString srvName = m_nodeName + "/control";
         ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
         hieroglyph::SimpleCmd srv;
         srv.request.cmd = "resume";
@@ -175,11 +220,12 @@ void ROSSession::run()
 void ROSSession::pause()
 {
     if (m_nodeName.isEmpty()) {
-        emit displayStatusMessage(tr("No script name: cannot pause"), MSG_ERROR);
+        emit displayStatusMessage(tr("No node name: cannot pause"), MSG_ERROR);
         qWarning() << "No node name: cannot pause";
         return;
     }
 
+    /*
     QString nodeName;
 
     // If the node is the current script, we have to craft its name from the Script's attribute
@@ -207,8 +253,9 @@ void ROSSession::pause()
     else {
         nodeName = m_nodeName;
     }
+    //*/
 
-    QString srvName = nodeName + "/control";
+    QString srvName = m_nodeName + "/control";
     ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
     hieroglyph::SimpleCmd srv;
     srv.request.cmd = "pause";
@@ -233,18 +280,13 @@ void ROSSession::pause()
 
 void ROSSession::stop()
 {
-    if (!m_isRunning) {
-        emit displayStatusMessage(tr("No script name: cannot stop"), MSG_ERROR);
-        qDebug() << "No node name: cannot stop";
-        return;
-    }
-
     if (m_nodeName.isEmpty()) {
         emit displayStatusMessage(tr("No node name for this script: cannot stop"), MSG_ERROR);
         qWarning() << "No node name: cannot stop";
         return;
     }
 
+    /*
     QString nodeName;
 
     // If the node is the current script, we have to craft its name from the Script's attribute
@@ -272,8 +314,9 @@ void ROSSession::stop()
     else {
         nodeName = m_nodeName;
     }
+    //*/
 
-    QString srvName = nodeName + "/control";
+    QString srvName = m_nodeName + "/control";
 
     ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
     hieroglyph::SimpleCmd srv;
@@ -304,16 +347,9 @@ void ROSSession::stop()
  */
 ScriptStatus ROSSession::queryScriptStatus()
 {
-    if (!m_isConnected)
-        informUserAndCrash(tr("Cannot query for script's status because not connected to a script."),
-                           tr("Not connected to a script"));
-
     if (m_nodeName.isEmpty())
         informUserAndCrash(tr("Cannot query for script's status because no node name was specified."),
                            tr("No node name specified"));
-
-    if (m_nodeName == "Current Script")
-        informUserAndCrash(tr("Cannot query a \"Current Script\" for its status."));
 
     QString srvName = m_nodeName + "/control";
 
@@ -336,16 +372,6 @@ ScriptStatus ROSSession::queryScriptStatus()
         informUserAndCrash(tr("The command STATUS failed when the node was queried."),
                            tr("Failed STATUS command"));
     }
-}
-
-bool ROSSession::isConnected() const
-{
-    return m_isConnected;
-}
-
-void ROSSession::setIsConnected(bool isConnected)
-{
-    m_isConnected = isConnected;
 }
 
 bool ROSSession::isRunning() const

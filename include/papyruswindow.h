@@ -59,6 +59,7 @@ public:
     void parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader);
     QString getDescriptionPath();
     QString getLibPath();
+    void updateButtonsState();
 
     QDir description() const {return description_;}
     void setDescription(QDir description) {description_ = description;}
@@ -91,9 +92,6 @@ public:
 
     HomePage *homePage() const;
     void setHomePage(HomePage *homePage);
-
-    ROSSession *rosSession() const;
-    void setRosSession(ROSSession *rosSession);
 
     DevelopmentType developmentType() const;
 
@@ -129,7 +127,6 @@ private:
     PropertiesPanel *m_propertiesPanel;
     HomePage *m_homePage;
     QLineEdit *m_runTimeDisplay;
-    ROSSession *m_rosSession;
     DevelopmentType m_developmentType;
     QAction *m_actionRelease;
     QAction *m_actionDebug;

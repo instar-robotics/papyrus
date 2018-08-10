@@ -30,7 +30,8 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_isInvalid(false),
                                                            m_timeValue(10.0),
                                                            m_timeUnit(HZ),
-                                                           m_encrypt(false)
+                                                           m_encrypt(false),
+                                                           m_isActiveScript(false)
 {
     if (scene != NULL) {
         scene->setScript(this);
@@ -40,6 +41,15 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 
     m_modifiedNotifTimer = new QTimer(this);
     connect(m_modifiedNotifTimer, SIGNAL(timeout()), this, SLOT(warnAboutModifiedScript()));
+
+    // Create an associated ROS Session for this script and connect signals
+    m_rosSession = new ROSSession(NULL, this);
+    m_rosSession->setNodeName(QString("/kheops_%1").arg(m_name));
+    connect(m_rosSession, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
+            SLOT(onROSSessionMessage(QString,MessageUrgency)));
+    connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
+    connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+    connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
 }
 
 /**
@@ -63,7 +73,7 @@ void Script::save(const QString &descriptionPath)
         return;
     }
 
-    emit displayStatusMessage(tr("Saving \"") + m_name + "\"...");
+    emit displayStatusMessage(tr("Saving \"") + m_name + "\"...", MSG_INFO);
 
     // Read keys if the script is specified to be encrypted
     if (m_encrypt) {
@@ -126,7 +136,7 @@ void Script::save(const QString &descriptionPath)
 
     // First check if we have a filepath in which to save the script
     if (m_filePath.isEmpty()) {
-        emit displayStatusMessage(QObject::tr("No file for ") + m_name + tr(", please select one..."));
+        emit displayStatusMessage(QObject::tr("No file for ") + m_name + tr(", please select one..."), MSG_WARNING);
 
         QString savePath = QFileDialog::getSaveFileName(NULL,
                                      QObject::tr("Save as..."),
@@ -137,7 +147,7 @@ void Script::save(const QString &descriptionPath)
         if (savePath.isEmpty()) {
             QString text(tr("Cancelled saving "));
             text += name();
-            emit displayStatusMessage(text);
+            emit displayStatusMessage(text, MSG_INFO);
             return;
         }
 
@@ -352,7 +362,7 @@ void Script::save(const QString &descriptionPath)
 
     // Set the status as not modified
     setStatusModified(false);
-    emit displayStatusMessage(msg);
+    emit displayStatusMessage(msg, MSG_INFO);
 }
 
 void Script::autoSave()
@@ -407,6 +417,10 @@ QString Script::name() const
 void Script::setName(const QString &name)
 {
     m_name = name;
+
+    // Also set the ROS node name
+    if (m_rosSession != NULL)
+        m_rosSession->setNodeName(QString("/kheops_%1").arg(m_name));
 }
 
 QString Script::filePath() const
@@ -499,6 +513,61 @@ void Script::warnAboutModifiedScript()
     QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
     QString msg(tr("You should save it to prevent data loss."));
     m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
+}
+
+bool Script::isActiveScript() const
+{
+    return m_isActiveScript;
+}
+
+void Script::setIsActiveScript(bool isActiveScript)
+{
+    m_isActiveScript = isActiveScript;
+}
+
+void Script::onROSSessionMessage(const QString &msg, MessageUrgency urgency)
+{
+    // We only re-emit the event if we are the active script
+    if (m_isActiveScript)
+        emit displayStatusMessage(msg, urgency);
+}
+
+void Script::onScriptResumed()
+{
+    // We only re-emit the event if we are the active script
+    if (m_isActiveScript)
+        emit scriptResumed();
+}
+
+void Script::onScriptPaused()
+{
+    // We only re-emit the event if we are the active script
+    if (m_isActiveScript)
+        emit scriptPaused();
+}
+
+void Script::onScriptStopped()
+{
+    // We only re-emit the event if we are the active script
+    if (m_isActiveScript)
+        emit scriptStopped();
+}
+
+void Script::onTimeElapsed(int h, int m, int s, int ms)
+{
+    // We only re-emit the event if we are the active script
+    if (m_isActiveScript)
+        emit timeElapsed(h, m, s, ms);
+}
+
+ROSSession *Script::rosSession() const
+{
+    return m_rosSession;
+}
+
+void Script::setRosSession(ROSSession *rosSession)
+{
+    m_rosSession = rosSession;
 }
 
 bool Script::encrypt() const

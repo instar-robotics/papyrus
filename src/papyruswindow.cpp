@@ -49,7 +49,6 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_propertiesPanel(NULL),
     m_homePage(NULL),
     m_runTimeDisplay(NULL),
-    m_rosSession(NULL),
     m_actionDebug(NULL),
     m_actionRelease(NULL)
 {
@@ -290,15 +289,14 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
 
     // Create the empty ROS Session and bind to its events
+    /*
     m_rosSession = new ROSSession;
-//    connect(m_rosSession, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
     connect(m_rosSession, SIGNAL(displayStatusMessage(QString,MessageUrgency)),this, SLOT(displayStatusMessage(QString,MessageUrgency)));
     connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
     connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
     connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
     connect(m_rosSession, SIGNAL(timeElapsed(int,int,int,int)), this, SLOT(updateStopWatch(int,int,int,int)));
-
-
+    */
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -566,7 +564,13 @@ void PapyrusWindow::on_actionNew_script_triggered()
 
     // Create the new script and add it to the set of scripts
     Script *newScript = new Script(newScene, newScriptName);
-    connect(newScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+    connect(newScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
+            SLOT(displayStatusMessage(QString,MessageUrgency)));
+    connect(newScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+    connect(newScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
+    connect(newScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+//    connect(newScript, SIGNAL(timeElapsed(int,int,int,int)), this,
+//            SLOT(updateStopWatch(int,int,int,int)));
     addScript(newScript);
 
     // Add the new scene as a new tab and make it active
@@ -722,10 +726,7 @@ void PapyrusWindow::onScriptResumed()
     m_ui->actionScope->setEnabled(true);
 
     // Display a message in the status bar
-    if (m_rosSession->nodeName() == "Current Script")
-            m_ui->statusBar->showMessage(tr("Current script resumed"));
-        else
-            m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" resumed"));
+    displayStatusMessage(tr("Script \"%1\" resumed").arg(m_activeScript->rosSession()->nodeName()));
 }
 
 /**
@@ -747,10 +748,7 @@ void PapyrusWindow::onScriptPaused()
     m_ui->actionScope->setEnabled(true);
 
     // Display a message in the status bar
-    if (m_rosSession->nodeName() == "Current Script")
-        m_ui->statusBar->showMessage(tr("Current script paused"));
-    else
-        m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" paused"));
+    displayStatusMessage(tr("Script \"%1\" paused").arg(m_activeScript->rosSession()->nodeName()));
 }
 
 /**
@@ -774,10 +772,7 @@ void PapyrusWindow::onScriptStopped()
     updateStopWatch(0, 0, 0, 0);
 
     // Display a message in the status bar
-    if (m_rosSession->nodeName() == "Current Script")
-        m_ui->statusBar->showMessage(tr("Current script stopped"));
-    else
-        m_ui->statusBar->showMessage(tr("Script \"") + m_rosSession->nodeName() + tr("\" stopped"));
+    displayStatusMessage(tr("Script \"%1\" stopped").arg(m_activeScript->rosSession()->nodeName()));
 }
 
 void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
@@ -923,16 +918,6 @@ HomePage *PapyrusWindow::homePage() const
 void PapyrusWindow::setHomePage(HomePage *homePage)
 {
     m_homePage = homePage;
-}
-
-ROSSession *PapyrusWindow::rosSession() const
-{
-    return m_rosSession;
-}
-
-void PapyrusWindow::setRosSession(ROSSession *rosSession)
-{
-    m_rosSession = rosSession;
 }
 
 DevelopmentType PapyrusWindow::developmentType() const
@@ -1107,6 +1092,13 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
     // Create the scene and script objets, which will be used by the XmlReader
     DiagramScene *openScene = new DiagramScene;
     Script *openScript = new Script(openScene);
+    connect(openScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
+            SLOT(displayStatusMessage(QString,MessageUrgency)));
+    connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+    connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
+    connect(openScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+    //    connect(openScript, SIGNAL(timeElapsed(int,int,int,int)), this,
+    //            SLOT(updateStopWatch(int,int,int,int)));
 
     Q_ASSERT(openScene->script() != NULL);
 
@@ -1291,6 +1283,44 @@ QString PapyrusWindow::getLibPath()
 }
 
 /**
+ * @brief PapyrusWindow::updateButtonsState is called when the user changes the active script. It
+ * is used to display the buttons' (play, pause, connect, etc.) state accordingly to the new active
+ * state. (One script might be launched and running, the other, not).
+ */
+void PapyrusWindow::updateButtonsState()
+{
+    // Make sure we have an active script
+    if (m_activeScript == NULL)
+        return;
+
+    m_ui->actionRun->setEnabled(true);
+
+    ROSSession *session = m_activeScript->rosSession();
+    if (session == NULL) {
+        displayStatusMessage(tr("Not ROS Session for script \"%1\"").arg(m_activeScript->name()), MSG_ERROR);
+        return;
+    }
+
+    if (session->isRunning()) {
+        m_ui->actionStop->setEnabled(true);
+        m_ui->actionScope->setEnabled(true);
+
+        if (!session->isPaused()) {
+            m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
+            m_ui->actionRun->setToolTip(tr("Pause script"));
+        } else {
+            m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+            m_ui->actionRun->setToolTip(tr("Resume script"));
+        }
+    } else {
+        m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+        m_ui->actionRun->setToolTip(tr("Launch script"));
+        m_ui->actionStop->setEnabled(false);
+        m_ui->actionScope->setEnabled(false);
+    }
+}
+
+/**
  * @brief PapyrusWindow::categoryExpanded is called when a user double clicks on a category to
  * expand it, we use this event to collapse all other categories (expect "Constants") so that only
  * one category is active at a time (for improved readability)
@@ -1334,14 +1364,28 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 {
     Q_UNUSED(index);
 
-    // Get the view that is displayed in the tab
-    DiagramView *currentView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
-    if (currentView == NULL) {
-        // TODO: _actually_ automatically report it instead of asking the user to do it.
-        m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
-                                      "(this is an internal error, you should report it."));
+    // Check we have switched to the Home Page
+    HomePage *homePage = dynamic_cast<HomePage *>(m_ui->tabWidget->currentWidget());
+    // If we have, disable all buttons (and restore the "play" icon to the play/pause button)
+    if (homePage != NULL) {
+        m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+        m_ui->actionRun->setEnabled(false);
+        m_ui->actionStop->setEnabled(false);
+        m_ui->actionScope->setEnabled(false);
+        if (m_runTimeDisplay != NULL) // this is null the first time, because its' not created yet
+            m_runTimeDisplay->setEnabled(false);
         m_activeScript = NULL;
         return;
+    }
+
+    // Otherwise, try to get a DiagramView
+    DiagramView *currentView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
+    // If there is none, there's an issue
+    if (currentView == NULL) {
+            m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
+                                            "(this is an internal error, you should report it.)"));
+            m_activeScript = NULL;
+            return;
     }
 
     // Get the scene associated with the view
@@ -1349,13 +1393,21 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
     if (currentScene == NULL) {
         // TODO: _actually_ automatically report it instead of asking the user to do it.
         m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
-                                      "(this is an internal error, you should report it."));
+                                        "(this is an internal error, you should report it.)"));
         m_activeScript = NULL;
         return;
     }
 
+    // De-active current script (is any)
+    if (m_activeScript != NULL)
+        m_activeScript->setIsActiveScript(false);
+
     // Get the script associated with the scene and set it as the active script
     m_activeScript = currentScene->script();
+    m_activeScript->setIsActiveScript(true);
+
+    // Update the buttons state to match the new script's status)
+    updateButtonsState();
 }
 
 void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
@@ -1500,10 +1552,42 @@ void PapyrusWindow::on_actionClose_Script_triggered()
     }
 }
 
+/**
+ * @brief PapyrusWindow::on_actionConnect_triggered shows a list of running kheops nodes and allow
+ * the user to select one.
+ * When a node is selected, it is asked for its script file, then it is opened and the ROS Session
+ * can now be used to interact with the node.
+ */
 void PapyrusWindow::on_actionConnect_triggered()
 {
+    // Create an instance of NodesChooser, and make it modal to the application
+    NodesChooser *nodesChooser = new NodesChooser;
+    nodesChooser->setWindowFlag(Qt::Dialog);
+    nodesChooser->setWindowModality(Qt::ApplicationModal);
+    if (nodesChooser->exec()) {
+        QString selectedNode = nodesChooser->selectedNode();
+
+        if (!selectedNode.isEmpty()) {
+            qDebug() << "Selected node:" << selectedNode;
+            qDebug() << "Should create script now";
+        }
+    }
+
+    /*
+    // Make sure we do have an active script and its associated ROS Session
+    if (m_activeScript == NULL) {
+        displayStatusMessage(tr("No active script: cannot connect/disconnect"), MSG_ERROR);
+        return;
+    }
+
+    if (m_activeScript->rosSession() == NULL) {
+        displayStatusMessage(tr("No ROS session for the active script: cannot connect/disconnect"),
+                             MSG_ERROR);
+        return;
+    }
+
     // CONNECT FUNCTION
-    if (!m_rosSession->isConnected()) {
+    if (!m_activeScript->rosSession()->isConnected()) {
         // Create an instance of NodesChooser, and make it modal to the application
         NodesChooser *nodesChooser = new NodesChooser;
         nodesChooser->setWindowFlag(Qt::Dialog);
@@ -1513,8 +1597,8 @@ void PapyrusWindow::on_actionConnect_triggered()
         if (nodesChooser->exec()) {
             // Update node name and connected status
             QString selectedNode = nodesChooser->selectedNode();
-            m_rosSession->setNodeName(selectedNode);
-            m_rosSession->setIsConnected(true);
+            m_activeScript->rosSession()->setNodeName(selectedNode);
+            m_activeScript->rosSession()->setIsConnected(true);
 
             // Change the "connect" button into a "disconnect"
             m_ui->actionConnect->setIcon(QIcon(":/icons/icons/disconnect.svg"));
@@ -1583,18 +1667,33 @@ void PapyrusWindow::on_actionConnect_triggered()
         m_ui->actionScope->setEnabled(false);
         m_runTimeDisplay->setEnabled(false);
     }
+    //*/
 }
 
 void PapyrusWindow::on_actionRun_triggered()
 {
-    // Before launching the script, check that we have the lib path were filled in if we need it
-    if (m_rosSession->nodeName() == "Current Script") {
+    // Make sure we do have an active script and its associated ROS Session
+    if (m_activeScript == NULL) {
+        displayStatusMessage(tr("No active script: cannot play/pause"), MSG_ERROR);
+        return;
+    }
+
+    if (m_activeScript->rosSession() == NULL) {
+        displayStatusMessage(tr("No ROS session for the active script: cannot play/pause"),
+                             MSG_ERROR);
+        return;
+    }
+
+    // If the node is not already running (meaning it was not one we connected to), we need to have
+    // the path of the library in order to launch a kheops instance
+    if (!m_activeScript->rosSession()->isRunning()) {
         if (m_developmentType == RELEASE && m_releaseLibPath.isEmpty()) {
             askForPath(true, PATH_LIB);
             // Check that the user did specify a path and not cancelled
             if (m_releaseLibPath.isEmpty()) {
                 displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
                                      MSG_ERROR);
+                return;
             }
 
         }
@@ -1604,21 +1703,45 @@ void PapyrusWindow::on_actionRun_triggered()
             if (m_debugLibPath.isEmpty()) {
                 displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
                                      MSG_ERROR);
+                return;
             }
         }
 
     }
-    m_rosSession->runOrPause();
+    m_activeScript->rosSession()->runOrPause();
 }
 
 void PapyrusWindow::on_actionStop_triggered()
 {
-    m_rosSession->stop();
+    // Make sure we do have an active script and its associated ROS Session
+    if (m_activeScript == NULL) {
+        displayStatusMessage(tr("No active script: cannot stop"), MSG_ERROR);
+        return;
+    }
+
+    if (m_activeScript->rosSession() == NULL) {
+        displayStatusMessage(tr("No ROS session for the active script: cannot stop"),
+                             MSG_ERROR);
+        return;
+    }
+    m_activeScript->rosSession()->stop();
 }
 
 void PapyrusWindow::on_actionScope_triggered()
 {
-    qDebug() << "SCOPE";
+    // Make sure we do have an active script and its associated ROS Session
+    if (m_activeScript == NULL) {
+        displayStatusMessage(tr("No active script: cannot scope"), MSG_ERROR);
+        return;
+    }
+
+    if (m_activeScript->rosSession() == NULL) {
+        displayStatusMessage(tr("No ROS session for the active script: cannot scope"),
+                             MSG_ERROR);
+        return;
+    }
+
+    displayStatusMessage(tr("Action scope not implemented yet"), MSG_WARNING);
 }
 
 void PapyrusWindow::on_actionEdit_paths_triggered()

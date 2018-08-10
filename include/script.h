@@ -3,6 +3,7 @@
 
 #include "diagramscene.h"
 #include "types.h"
+#include "rossession.h"
 
 #include <QString>
 #include <QFile>
@@ -57,11 +58,18 @@ public:
     bool encrypt() const;
     void setEncrypt(bool encrypt);
 
+    ROSSession *rosSession() const;
+    void setRosSession(ROSSession *rosSession);
+
+    bool isActiveScript() const;
+    void setIsActiveScript(bool isActiveScript);
+
 public slots:
     void warnAboutModifiedScript();
 
 private:
     DiagramScene *m_scene; // The associated scene for this script
+    ROSSession *m_rosSession; // The associated ROS Session for this script
     QString m_name;        // Pretty name of the script (to display in tabs for instance)
     QString m_filePath;    // Path of the (XML) file in which to save this script
     bool m_modified;       // Whether there was some changes since last save
@@ -73,9 +81,21 @@ private:
     bool m_encrypt;        // Whether the XML script should be encrypted on save (to protect IP)
     std::string m_key;     // AES Key used to encrypt the file
     std::string m_iv;      // AES IV used to encrypt the file
+    bool m_isActiveScript; // Tells this script if it's the currently active one
+
+private slots:
+    void onROSSessionMessage(const QString &msg, MessageUrgency urgency = MSG_INFO);
+    void onScriptResumed();
+    void onScriptPaused();
+    void onScriptStopped();
+    void onTimeElapsed(int h, int m, int s, int ms);
 
 signals:
-    void displayStatusMessage(const QString &text);
+    void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
+    void scriptResumed();
+    void scriptPaused();
+    void scriptStopped();
+    void timeElapsed(int h, int m, int s, int ms);
 };
 
 #endif // SCRIPT_H

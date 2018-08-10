@@ -296,6 +296,9 @@
    <property name="text">
     <string>Connect...</string>
    </property>
+   <property name="toolTip">
+    <string>Connect to kheops script</string>
+   </property>
   </action>
   <action name="actionRun">
    <property name="enabled">

@@ -1567,9 +1567,49 @@ void PapyrusWindow::on_actionConnect_triggered()
     if (nodesChooser->exec()) {
         QString selectedNode = nodesChooser->selectedNode();
 
+        // If we have selected a kheops node, make sure we don't already have it running in another
+        // tab
         if (!selectedNode.isEmpty()) {
-            qDebug() << "Selected node:" << selectedNode;
-            qDebug() << "Should create script now";
+            bool found = false;
+            foreach (Script *script, m_scripts) {
+                if (script == NULL || script->rosSession() == NULL)
+                    continue;
+
+                if (script->rosSession()->nodeName() == selectedNode) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found) {
+                displayStatusMessage(tr("Node \"%1\" is already opened in another tab!"), MSG_WARNING);
+                return;
+            }
+
+
+            // When kheops/#11 is solved, we can ask the script for its path
+            // In the mean time, we ask the user to manually specify the file path
+
+            // TODO: factor out this code, because it's the same as Open File
+            on_actionOpen_Script_triggered();
+            if (m_activeScript == NULL || m_activeScript->rosSession() == NULL) {
+                displayStatusMessage(tr("Failed to open the script."), MSG_ERROR);
+                return;
+            }
+
+            // Set the session as running, obviouly becasue we have just connected to a running script
+            m_activeScript->rosSession()->setIsRunning(true);
+
+            switch (m_activeScript->rosSession()->queryScriptStatus()) {
+            case SCRIPT_RUNNING:
+                m_activeScript->rosSession()->setIsPaused(false);
+                break;
+
+            case SCRIPT_PAUSED:
+                m_activeScript->rosSession()->setIsPaused(true);
+                break;
+            }
+            updateButtonsState();
         }
     }
 

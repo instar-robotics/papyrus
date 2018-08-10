@@ -57,12 +57,6 @@ void ROSSession::run()
         return;
     }
 
-    // [DELETE]
-    // If the node is not running (was stopped), we need to get its name. Either because we have an
-    // associated Script, or else we ask the user to provide the path to the file
-    // this is TEMPORARY, waiting for kheops/#11 to be solved
-    // [/DELETE]
-
     // Save the node before launching it
     PapyrusWindow *mainWin = getMainWindow();
     m_script->save(mainWin->getDescriptionPath());
@@ -101,98 +95,9 @@ void ROSSession::run()
             emit displayStatusMessage(tr("Failed to launch script."), MSG_ERROR);
             qWarning() << "Failed to re-launch with cmd \"" << prog << args << "\"";
         }
-
-        /*
-        QString scriptPath;
-
-        // If we are connected to the current script (and there's one), fetch its script path from
-        // its 'Script' object
-        if (m_nodeName == "Current Script") {
-            // First check that we have at least one script opened and active (this is temporary
-            // because later, a ROSSession will be attached to a Script)
-            PapyrusWindow *mainWin = getMainWindow();
-
-            if (mainWin->activeScript() != NULL) {
-                scriptPath = mainWin->activeScript()->filePath();
-
-                if (scriptPath.isEmpty()) {
-                    emit displayStatusMessage(tr("No filepath for the current script yet, please "
-                                                 "save at least once and retry!"), MSG_WARNING);
-                    return;
-                }
-            } else {
-                emit displayStatusMessage(tr("No current script active!"), MSG_WARNING);
-                return;
-            }
-
-        } else {
-            QString home = QProcessEnvironment::systemEnvironment().value("HOME", "/home");
-            scriptPath = QFileDialog::getOpenFileName(NULL, tr("Script file"), home, tr("XML script files (*.xml, *.XML)"));
-        }
-
-        if (!scriptPath.isEmpty()) {
-            PapyrusWindow *mainWin = getMainWindow();
-            QProcess *kheopsNode = new QProcess(this);
-            QString prog = "rosrun";
-            QStringList args;
-            args << "kheops";
-            args << "kheops";
-            args << "-s";
-            args << scriptPath;
-            args << "-l";
-            args << mainWin->getLibPath() + "/";
-            kheopsNode->start(prog, args);
-
-            // Note that it just means the program was started, but it may as well crash just after launch
-            if (kheopsNode->waitForStarted(2000)) {
-                m_isRunning = true;
-                m_isPaused = false;
-
-                // Record a new starting time for the run
-                m_startTime = QDateTime::currentDateTime();
-
-                emit scriptResumed();
-            } else {
-                emit displayStatusMessage(tr("Failed to launch script."), MSG_ERROR);
-                qWarning() << "Failed to re-launch with cmd \"" << prog << args << "\"";
-            }
-        } else {
-            emit displayStatusMessage(tr("No script path: cannot launch."), MSG_WARNING);
-            qWarning() << "Empty script path: cannot re-launch";
-        }
-        //*/
     }
     // Otherwise, if the node is already running, we just have to ask it to resume execution
     else {
-        /*
-        QString nodeName;
-
-        // If the node is the current script, we have to craft its name from the Script's attribute
-        if (m_nodeName == "Current Script") {
-            // First check that we have at least one script opened and active (this is temporary
-            // because later, a ROSSession will be attached to a Script)
-            PapyrusWindow *mainWin = getMainWindow();
-
-            if (mainWin->activeScript() != NULL) {
-                QString scriptName = mainWin->activeScript()->name();
-
-                if (scriptName.isEmpty()) {
-                    emit displayStatusMessage(tr("Script has no name yet, please save it with a name and retry."), MSG_WARNING);
-                    return;
-                }
-
-                nodeName = "/kheops_" + scriptName;
-            } else {
-                emit displayStatusMessage(tr("No current script active!"), MSG_WARNING);
-                return;
-            }
-
-        }
-        // Otherwise just use the saved node name
-        else {
-            nodeName = m_nodeName;
-        }
-        //*/
         QString srvName = m_nodeName + "/control";
         ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
         hieroglyph::SimpleCmd srv;
@@ -225,36 +130,6 @@ void ROSSession::pause()
         return;
     }
 
-    /*
-    QString nodeName;
-
-    // If the node is the current script, we have to craft its name from the Script's attribute
-    if (m_nodeName == "Current Script") {
-        // First check that we have at least one script opened and active (this is temporary
-        // because later, a ROSSession will be attached to a Script)
-        PapyrusWindow *mainWin = getMainWindow();
-
-        if (mainWin->activeScript() != NULL) {
-            QString scriptName = mainWin->activeScript()->name();
-
-            if (scriptName.isEmpty()) {
-                emit displayStatusMessage(tr("Script has no name yet, please save it with a name and retry."), MSG_WARNING);
-                return;
-            }
-
-            nodeName = "/kheops_" + scriptName;
-        } else {
-            emit displayStatusMessage(tr("No current script active!"), MSG_WARNING);
-            return;
-        }
-
-    }
-    // Otherwise just use the saved node name
-    else {
-        nodeName = m_nodeName;
-    }
-    //*/
-
     QString srvName = m_nodeName + "/control";
     ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
     hieroglyph::SimpleCmd srv;
@@ -285,36 +160,6 @@ void ROSSession::stop()
         qWarning() << "No node name: cannot stop";
         return;
     }
-
-    /*
-    QString nodeName;
-
-    // If the node is the current script, we have to craft its name from the Script's attribute
-    if (m_nodeName == "Current Script") {
-        // First check that we have at least one script opened and active (this is temporary
-        // because later, a ROSSession will be attached to a Script)
-        PapyrusWindow *mainWin = getMainWindow();
-
-        if (mainWin->activeScript() != NULL) {
-            QString scriptName = mainWin->activeScript()->name();
-
-            if (scriptName.isEmpty()) {
-                emit displayStatusMessage(tr("Script has no name yet, please save it with a name and retry."), MSG_WARNING);
-                return;
-            }
-
-            nodeName = "/kheops_" + scriptName;
-        } else {
-            emit displayStatusMessage(tr("No current script active!"), MSG_WARNING);
-            return;
-        }
-
-    }
-    // Otherwise just use the saved node name
-    else {
-        nodeName = m_nodeName;
-    }
-    //*/
 
     QString srvName = m_nodeName + "/control";
 

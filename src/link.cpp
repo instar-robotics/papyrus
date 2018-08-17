@@ -77,6 +77,28 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         m_line.setPen(pen);
 
         m_line.paint(painter, &newOption, widget);
+
+        // Paint the weight
+        if (!isStringLink() && (m_to->inputType() == SCALAR_SCALAR || m_to->inputType() == SCALAR_MATRIX)) {
+            QPen currPen = painter->pen();
+
+            // Paint the weight a different color when it's negative
+            if (m_weight < 0) {
+                painter->setPen(QColor(198, 65, 242));
+            }
+
+            // Compute normal vector to slightly translate the line's bounding rect so that the
+            // weight is not written *on* the line (less readable), but slightly above it
+            QLineF nV = m_line.line().normalVector();
+            nV.translate(mapToScene((m_line.line().p2() - m_line.line().p1()) / 2));
+
+            QRectF offsetRect = boundingRect().translated((nV.p2() - nV.p1()) / 20);
+            painter->drawText(offsetRect, Qt::AlignCenter | Qt::TextDontClip, QString::number(m_weight));
+
+            // Restore the previous brush
+            if (m_weight < 0)
+                painter->setPen(currPen);
+        }
     } else {
         m_line.setPen(pen);
         m_leftSegment.setPen(pen);
@@ -85,6 +107,25 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         m_leftSegment.paint(painter, &newOption, widget);
         m_line.paint(painter, &newOption, widget);
         m_rightSegment.paint(painter, &newOption, widget);
+
+        QPen currPen = painter->pen();
+
+        // Paint the weight a different color when it's negative
+        if (m_weight < 0) {
+            painter->setPen(QColor(198, 65, 242));
+        }
+
+        // Paint the weight
+        if (!isStringLink() && (m_to->inputType() == SCALAR_SCALAR || m_to->inputType() == SCALAR_MATRIX)) {
+            QRectF r = m_line.boundingRect();
+            r.setTop(r.top() - 30);
+            painter->drawText(r, Qt::AlignCenter, QString::number(m_weight));
+
+        }
+
+        // Restore the previous brush
+        if (m_weight < 0)
+            painter->setPen(currPen);
     }
 }
 

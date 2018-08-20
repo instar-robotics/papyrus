@@ -306,13 +306,17 @@ PapyrusWindow::~PapyrusWindow()
     delete m_ui;
     delete trayIcon;
     delete m_library;
-    m_rosnode->quit();
-    // TODO: fix this: we need to signal the thread to exit instead of killing it bluntly
+
+    // Signalling the thread it should terminate
+    m_rosnode->setShouldQuit(true);
+
+    // Waiting for the thread to terminate, with 1s max wait time
     m_rosnode->wait(1000);
-    if(ros::isStarted()) {
-    qDebug() << "Papyrus terminating ROS";
-    ros::shutdown();
-    ros::waitForShutdown();
+
+    // If ROS was not stopped, stop it here and now
+    if (ros::isStarted()) {
+        ros::shutdown();
+        ros::waitForShutdown();
     }
     delete m_rosnode;
     delete m_rosMasterStatus;

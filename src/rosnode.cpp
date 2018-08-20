@@ -5,7 +5,7 @@
 #include "std_msgs/String.h"
 
 
-RosNode::RosNode(int argc, char **argv) : m_argc(argc), m_argv(argv)
+RosNode::RosNode(int argc, char **argv) : m_argc(argc), m_argv(argv), m_shouldQuit(false)
 {
 }
 
@@ -36,7 +36,6 @@ void RosNode::run()
 {
     // Wait for the master node to come online
     while (!ros::master::check()) {
-        qInfo() << "Waiting for ROS master to spawn...";
         sleep(1);
     }
 
@@ -50,25 +49,26 @@ void RosNode::run()
     ros::NodeHandle n;
     m_sub = n.subscribe("chatter", 1000, cb1);
 
-    std::vector<std::string> nodes;
-    if (!ros::master::getNodes(nodes)) {
-        qWarning() << "Could not get nodes";
-    } else {
-        foreach (std::string node_, nodes) {
-            QString node = QString::fromStdString(node_);
-            if (node.startsWith("/kheops_"))
-                qDebug() << "\t" << node;
-        }
-    }
-
     // And now enter the ROS loop
     while (ros::ok() && ros::master::check()) {
+        if (m_shouldQuit) {
+            quit();
+            return;
+        }
+
         ros::spinOnce();
     }
 
     emit rosMasterChanged(false);
-//    ros::spin();
+}
 
-    qDebug() << "ROS SPIN OVER";
+bool RosNode::shouldQuit() const
+{
+    return m_shouldQuit;
+}
+
+void RosNode::setShouldQuit(bool value)
+{
+    m_shouldQuit = value;
 }
 

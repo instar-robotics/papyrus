@@ -67,7 +67,6 @@ public:
     void setDescription(QDir description) {description_ = description;}
 
     Category *addTreeRoot(QString name);
-//    void addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, const QString &name);
 
     QLineEdit *librarySearchField() const;
     void setLibrarySearchField(QLineEdit *librarySearchField);

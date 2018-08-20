@@ -156,31 +156,6 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
     QStringList categories = description_.entryList();
 
-    /*
-    libraryPanel_ = new LibraryPanel;
-
-    librarySearchField_ = new QLineEdit;
-    librarySearchField_->setPlaceholderText(tr("Filter..."));
-    librarySearchField_->setClearButtonEnabled(true);
-    librarySearchField_->setFrame(false);
-    connect(librarySearchField_, SIGNAL(textChanged(QString)), this, SLOT(filterLibraryNames(QString)));
-
-    QVBoxLayout *vbox = new QVBoxLayout;
-    vbox->addWidget(librarySearchField_);
-    vbox->addWidget(libraryPanel_);
-
-    QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
-    libraryGroupBox->setLayout(vbox);
-
-    m_propertiesPanel = new PropertiesPanel;
-
-    QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
-    leftSplitter->addWidget(libraryGroupBox);
-    leftSplitter->addWidget(m_propertiesPanel);
-
-    m_ui->splitter->insertWidget(0, leftSplitter);
-    */
-
     // Create one 'Tree Root' per category
     for (int i = 0; i < categories.size(); i += 1) {
         // Add the category in the Tree Widget
@@ -289,16 +264,6 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_runTimeDisplay->setAlignment(Qt::AlignCenter);
     m_runTimeDisplay->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
-
-    // Create the empty ROS Session and bind to its events
-    /*
-    m_rosSession = new ROSSession;
-    connect(m_rosSession, SIGNAL(displayStatusMessage(QString,MessageUrgency)),this, SLOT(displayStatusMessage(QString,MessageUrgency)));
-    connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
-    connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
-    connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
-    connect(m_rosSession, SIGNAL(timeElapsed(int,int,int,int)), this, SLOT(updateStopWatch(int,int,int,int)));
-    */
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -431,17 +396,6 @@ Category *PapyrusWindow::addTreeRoot(QString name)
     return treeItem;
 }
 
-/*
-void PapyrusWindow::addTreeChild(QTreeWidgetItem *parent, const QIcon &icon, const QString &name)
-{
-    QTreeWidgetItem *treeItem = new QTreeWidgetItem;
-    treeItem->setIcon(0, icon);
-    treeItem->setText(0, name);
-    treeItem->setSizeHint(0, QSize(LIBRARY_ICON_SIZE, LIBRARY_ICON_SIZE));
-
-    parent->addChild(treeItem);
-}
-*/
 /*
  * Action executed when the user wants to exit the application
  * Check for unsaved changes before exiting
@@ -1658,102 +1612,6 @@ void PapyrusWindow::on_actionConnect_triggered()
             updateButtonsState();
         }
     }
-
-    /*
-    // Make sure we do have an active script and its associated ROS Session
-    if (m_activeScript == NULL) {
-    displayStatusMessage(tr("No active script: cannot connect/disconnect"), MSG_ERROR);
-    return;
-    }
-
-    if (m_activeScript->rosSession() == NULL) {
-    displayStatusMessage(tr("No ROS session for the active script: cannot connect/disconnect"),
-                 MSG_ERROR);
-    return;
-    }
-
-    // CONNECT FUNCTION
-    if (!m_activeScript->rosSession()->isConnected()) {
-    // Create an instance of NodesChooser, and make it modal to the application
-    NodesChooser *nodesChooser = new NodesChooser;
-    nodesChooser->setWindowFlag(Qt::Dialog);
-    nodesChooser->setWindowModality(Qt::ApplicationModal);
-
-    // If we validated (and thus chose a node), transform the "connect" button into a "disconnect"
-    if (nodesChooser->exec()) {
-        // Update node name and connected status
-        QString selectedNode = nodesChooser->selectedNode();
-        m_activeScript->rosSession()->setNodeName(selectedNode);
-        m_activeScript->rosSession()->setIsConnected(true);
-
-        // Change the "connect" button into a "disconnect"
-        m_ui->actionConnect->setIcon(QIcon(":/icons/icons/disconnect.svg"));
-        m_ui->actionConnect->setToolTip(tr("Disconnect"));
-
-        // If the node is the current script, then it's not running
-        if (selectedNode == "Current Script") {
-        m_rosSession->setIsRunning(false);
-        m_rosSession->setIsPaused(false);
-
-        // Make the play/pause button a "play" one
-        m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-        m_ui->actionRun->setToolTip(tr("Resume script"));
-        m_ui->actionRun->setEnabled(true);
-        m_runTimeDisplay->setEnabled(true);
-
-        // Disable the stop button
-        m_ui->actionStop->setEnabled(false);
-        }
-        // Otherwise, we should ask the node its status (when kheops/#12 is solved)
-        else {
-        // Ask the script its status (paused or running)
-        switch (m_rosSession->queryScriptStatus()) {
-        case SCRIPT_RUNNING:
-            // Mark the script as running and not paused
-            m_rosSession->setIsRunning(true);
-            m_rosSession->setIsPaused(false);
-
-            // Make the play button into a "pause" one
-            m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
-            m_ui->actionRun->setToolTip(tr("Pause script"));
-            m_ui->actionRun->setEnabled(true);
-            m_runTimeDisplay->setEnabled(true);
-
-            // Enable the stop button
-            m_ui->actionStop->setEnabled(true);
-            break;
-
-        case SCRIPT_PAUSED:
-            //Mark the script as running and paused
-            m_rosSession->setIsRunning(true);
-            m_rosSession->setIsPaused(true);
-
-            // Make the play button into a "play" one
-            m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-            m_ui->actionRun->setToolTip(tr("Resume script"));
-            m_ui->actionRun->setEnabled(true);
-            m_runTimeDisplay->setEnabled(true);
-
-            // Enable the stop button
-            m_ui->actionStop->setEnabled(true);
-            break;
-        }
-        }
-    }
-    } else {
-    // DISCONNECT FUNCTION
-    m_rosSession->setIsConnected(false);
-    m_rosSession->setIsRunning(false);
-    m_rosSession->setIsPaused(false);
-    m_rosSession->setNodeName("");
-    m_ui->actionConnect->setIcon(QIcon(":/icons/icons/connect.svg"));
-    m_ui->actionConnect->setToolTip(tr("Connect"));
-    m_ui->actionRun->setEnabled(false);
-    m_ui->actionStop->setEnabled(false);
-    m_ui->actionScope->setEnabled(false);
-    m_runTimeDisplay->setEnabled(false);
-    }
-    //*/
 }
 
 void PapyrusWindow::on_actionRun_triggered()

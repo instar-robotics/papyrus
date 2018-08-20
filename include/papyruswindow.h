@@ -19,6 +19,8 @@
 #include <QLabel>
 #include <QAction>
 
+#include <ros/ros.h>
+
 namespace Ui {
 class PapyrusWindow;
 }
@@ -136,6 +138,7 @@ private:
     QString m_releaseLibPath;         // Path where to search for library files in RELEASE mode
     QString m_keyFile;                // Path of the key file to crypt / decrypt scrip files
     QString m_ivFile;                 // Path of the IV
+    ros::NodeHandle m_n;      // The ROS handle through which we will issue commands
 
 signals:
     void toggleDisplayGrid(bool);

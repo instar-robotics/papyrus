@@ -36,6 +36,8 @@
 #include <QScreen>
 #include <QActionGroup>
 
+#include "hieroglyph/SimpleCmd.h"
+
 PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::PapyrusWindow),
@@ -79,20 +81,20 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     QString searchPath;
 
     if (m_developmentType == RELEASE) {
-        if (m_releasePath.isEmpty())
-            askForPath(true, PATH_DESC);
+    if (m_releasePath.isEmpty())
+        askForPath(true, PATH_DESC);
 
-        searchPath = m_releasePath;
+    searchPath = m_releasePath;
     } else if (m_developmentType == DEBUG) {
-        if (m_debugPath.isEmpty())
-            askForPath(true, PATH_DESC);
+    if (m_debugPath.isEmpty())
+        askForPath(true, PATH_DESC);
 
-        searchPath = m_debugPath;
+    searchPath = m_debugPath;
     } else {
-        informUserAndCrash(tr("Unsupported development type."),
-                           tr("Supported development types are either \"DEBUG\" or \"RELEASE\"."
-                              "The current specified development type is not. This is probably due "
-                              "to an API change that was not implemented."));
+    informUserAndCrash(tr("Unsupported development type."),
+                       tr("Supported development types are either \"DEBUG\" or \"RELEASE\"."
+                          "The current specified development type is not. This is probably due "
+                          "to an API change that was not implemented."));
     }
 
     // Temporary create those here, because I have made the parsing dependent on this (which is stupid)
@@ -125,108 +127,108 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
     // Make a last check in order to see if the user simply cancelled
     if (searchPath.isEmpty()) {
-        QMessageBox::warning(this, tr("Library path not specified"),
-        tr("You did not specify a path for the library files.\nIt is needed as ")
-        + QString(APP_NAME) + tr(" needs to know where to search for those files.\nThe application "
-        "will still load, but you won't be able to create scripts."));
+    QMessageBox::warning(this, tr("Library path not specified"),
+    tr("You did not specify a path for the library files.\nIt is needed as ")
+    + QString(APP_NAME) + tr(" needs to know where to search for those files.\nThe application "
+    "will still load, but you won't be able to create scripts."));
     } else if (!description.exists()) {
-        QMessageBox msgBox;
-        msgBox.setText(QObject::tr("<strong>Failed to load neural boxes' description files.</strong>"));
+    QMessageBox msgBox;
+    msgBox.setText(QObject::tr("<strong>Failed to load neural boxes' description files.</strong>"));
 
-        QString str("The path ");
-        str += "<em>";
-        str += description.absolutePath();
-        str += "</em>";
-        str += " doesn't exist, so function description files could not be loaded.\nThe application"
-               " will still load, but you won't be able to create scripts.";
+    QString str("The path ");
+    str += "<em>";
+    str += description.absolutePath();
+    str += "</em>";
+    str += " doesn't exist, so function description files could not be loaded.\nThe application"
+           " will still load, but you won't be able to create scripts.";
 
-        msgBox.setInformativeText(QObject::tr(qPrintable(str)));
-        msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setInformativeText(QObject::tr(qPrintable(str)));
+    msgBox.setIcon(QMessageBox::Critical);
 
-        msgBox.exec();
+    msgBox.exec();
     }
     // Parse the description directory
     else {
-        m_library = new Library;
+    m_library = new Library;
 
-        description_ = description;
+    description_ = description;
 
-        description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-        QStringList categories = description_.entryList();
+    description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+    QStringList categories = description_.entryList();
 
-        /*
-        libraryPanel_ = new LibraryPanel;
+    /*
+    libraryPanel_ = new LibraryPanel;
 
-        librarySearchField_ = new QLineEdit;
-        librarySearchField_->setPlaceholderText(tr("Filter..."));
-        librarySearchField_->setClearButtonEnabled(true);
-        librarySearchField_->setFrame(false);
-        connect(librarySearchField_, SIGNAL(textChanged(QString)), this, SLOT(filterLibraryNames(QString)));
+    librarySearchField_ = new QLineEdit;
+    librarySearchField_->setPlaceholderText(tr("Filter..."));
+    librarySearchField_->setClearButtonEnabled(true);
+    librarySearchField_->setFrame(false);
+    connect(librarySearchField_, SIGNAL(textChanged(QString)), this, SLOT(filterLibraryNames(QString)));
 
-        QVBoxLayout *vbox = new QVBoxLayout;
-        vbox->addWidget(librarySearchField_);
-        vbox->addWidget(libraryPanel_);
+    QVBoxLayout *vbox = new QVBoxLayout;
+    vbox->addWidget(librarySearchField_);
+    vbox->addWidget(libraryPanel_);
 
-        QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
-        libraryGroupBox->setLayout(vbox);
+    QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
+    libraryGroupBox->setLayout(vbox);
 
-        m_propertiesPanel = new PropertiesPanel;
+    m_propertiesPanel = new PropertiesPanel;
 
-        QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
-        leftSplitter->addWidget(libraryGroupBox);
-        leftSplitter->addWidget(m_propertiesPanel);
+    QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
+    leftSplitter->addWidget(libraryGroupBox);
+    leftSplitter->addWidget(m_propertiesPanel);
 
-        m_ui->splitter->insertWidget(0, leftSplitter);
-        */
+    m_ui->splitter->insertWidget(0, leftSplitter);
+    */
 
-        // Create one 'Tree Root' per category
-        for (int i = 0; i < categories.size(); i += 1) {
-            // Add the category in the Tree Widget
-            Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));\
-            XmlDescriptionReader *xmlReader = new XmlDescriptionReader(newCategory);
+    // Create one 'Tree Root' per category
+    for (int i = 0; i < categories.size(); i += 1) {
+        // Add the category in the Tree Widget
+        Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));\
+        XmlDescriptionReader *xmlReader = new XmlDescriptionReader(newCategory);
 
-            parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
+        parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
 
-            m_library->addCategory(newCategory);
-        }
+        m_library->addCategory(newCategory);
+    }
 
-        // Create one "built-in" category for the constant inputs (created at the end so that it
-        // appears first)
-        Category *constants = addTreeRoot("Constants");
-        constants->setExpanded(true); // By default, keep "Constants" expanded
-        ConstantFunction *constantScalar = new ConstantFunction("SCALAR",
-                                                                ":/icons/icons/constant-scalar.svg",
-                                                                QIcon(":/icons/icons/constant-scalar.svg"),
-                                                                SCALAR);
-        ConstantFunction *constantString = new ConstantFunction("STRING",
-                                                                ":icons/icons/constant-string.svg",
-                                                                QIcon(":/icons/icons/constant-string.svg"),
-                                                                STRING);
-        ConstantFunction *constantMatrix = new ConstantFunction("MATRIX",
-                                                                ":/icons/icons/constant-matrix.svg",
-                                                                QIcon(":/icons/icons/constant-matrix.svg"),
-                                                                MATRIX);
-        constants->addChild(constantScalar);
-        constants->addChild(constantString);
-        constants->addChild(constantMatrix);
+    // Create one "built-in" category for the constant inputs (created at the end so that it
+    // appears first)
+    Category *constants = addTreeRoot("Constants");
+    constants->setExpanded(true); // By default, keep "Constants" expanded
+    ConstantFunction *constantScalar = new ConstantFunction("SCALAR",
+                                                            ":/icons/icons/constant-scalar.svg",
+                                                            QIcon(":/icons/icons/constant-scalar.svg"),
+                                                            SCALAR);
+    ConstantFunction *constantString = new ConstantFunction("STRING",
+                                                            ":icons/icons/constant-string.svg",
+                                                            QIcon(":/icons/icons/constant-string.svg"),
+                                                            STRING);
+    ConstantFunction *constantMatrix = new ConstantFunction("MATRIX",
+                                                            ":/icons/icons/constant-matrix.svg",
+                                                            QIcon(":/icons/icons/constant-matrix.svg"),
+                                                            MATRIX);
+    constants->addChild(constantScalar);
+    constants->addChild(constantString);
+    constants->addChild(constantMatrix);
 
-        // Display a warning box if some library description files could not be read
-        // TODO: display a message in the system tray instead!
-        // TODO: keep a list of the XML files that failed
-        if (m_libraryParsingErrors > 0)
-            QMessageBox::warning(this, tr("Problems while parsing the description files"),
-            QString::number(m_libraryParsingErrors) + tr(" issues happened where parsing XML"
-            " description files.\nOnly the functions with a valid XML "
-            "file were added to the library.\nPlease fix the syntax errors in order to have the full"
-            " library of functions loaded."));
+    // Display a warning box if some library description files could not be read
+    // TODO: display a message in the system tray instead!
+    // TODO: keep a list of the XML files that failed
+    if (m_libraryParsingErrors > 0)
+        QMessageBox::warning(this, tr("Problems while parsing the description files"),
+        QString::number(m_libraryParsingErrors) + tr(" issues happened where parsing XML"
+        " description files.\nOnly the functions with a valid XML "
+        "file were added to the library.\nPlease fix the syntax errors in order to have the full"
+        " library of functions loaded."));
     }
 
 
     // Display a system tray if it is available
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
-        trayIcon = new QSystemTrayIcon(this);
-        trayIcon->setIcon(QIcon(":/icons/icons/papyrus.svg"));
-        trayIcon->show();
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(QIcon(":/icons/icons/papyrus.svg"));
+    trayIcon->show();
     }
 
     // Show a normal status message on application startup
@@ -304,6 +306,14 @@ PapyrusWindow::~PapyrusWindow()
     delete m_ui;
     delete trayIcon;
     delete m_library;
+    m_rosnode->quit();
+    // TODO: fix this: we need to signal the thread to exit instead of killing it bluntly
+    m_rosnode->wait(1000);
+    if(ros::isStarted()) {
+    qDebug() << "Papyrus terminating ROS";
+    ros::shutdown();
+    ros::waitForShutdown();
+    }
     delete m_rosnode;
     delete m_rosMasterStatus;
 }
@@ -329,7 +339,7 @@ void PapyrusWindow::readSettings()
     // Query the screen's (available) size to set the main window's size
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen == NULL) {
-        qFatal("No screen detected!");
+    qFatal("No screen detected!");
     }
     QSize availableSize = screen->availableSize();
 
@@ -437,49 +447,49 @@ void PapyrusWindow::on_actionExit_triggered()
     // Check if there are unsaved scripts and warn user before quitting
     bool unsavedScripts = false;
     foreach (Script *script, m_scripts) {
-        if (script->modified()) {
-            unsavedScripts = true;
-            break;
-        }
+    if (script->modified()) {
+        unsavedScripts = true;
+        break;
+    }
     }
 
     if (unsavedScripts) {
-        switch (QMessageBox::question(this, tr("Save unsaved scripts?"),
-                              tr("Some scripts have unsaved changes that will be lost if you exit now.\n"
-                                 "Do you want to save them?"),
-                                      QMessageBox::SaveAll | QMessageBox::NoAll | QMessageBox::Cancel)) {
-            case QMessageBox::Cancel:
-                m_ui->statusBar->showMessage(tr("Cancel exit."));
-                break;
-            case QMessageBox::SaveAll:
-                // Make a pass to save all scripts
-                foreach (Script *script, m_scripts) {
-                    if (script->modified()) {
-                        script->save(getDescriptionPath());
-                    }
-                }
-
-                // Make another pass to check no scripts have been ignored ('save()' should return the status
-                foreach (Script *script, m_scripts) {
-                    if (script->modified()) {
-                        QMessageBox::warning(this, tr("There are still some unsaved scripts"),
-                                             tr("Some scripts are still unsaved, abort exit."));
-                        return;
-                    }
-                }
-
-                close();
-                break;
-            case QMessageBox::NoAll:
-                m_ui->statusBar->showMessage(tr("Discarding unsaved script."));
-                close();
-                break;
-            default:
-                m_ui->statusBar->showMessage(tr("Cancel exit."));
+    switch (QMessageBox::question(this, tr("Save unsaved scripts?"),
+                          tr("Some scripts have unsaved changes that will be lost if you exit now.\n"
+                             "Do you want to save them?"),
+                                  QMessageBox::SaveAll | QMessageBox::NoAll | QMessageBox::Cancel)) {
+        case QMessageBox::Cancel:
+            m_ui->statusBar->showMessage(tr("Cancel exit."));
+            break;
+        case QMessageBox::SaveAll:
+            // Make a pass to save all scripts
+            foreach (Script *script, m_scripts) {
+            if (script->modified()) {
+            script->save(getDescriptionPath());
+            }
         }
-    } else {
-        // Closing the main window will make the application exit
+
+        // Make another pass to check no scripts have been ignored ('save()' should return the status
+        foreach (Script *script, m_scripts) {
+            if (script->modified()) {
+            QMessageBox::warning(this, tr("There are still some unsaved scripts"),
+                                 tr("Some scripts are still unsaved, abort exit."));
+            return;
+            }
+        }
+
         close();
+            break;
+        case QMessageBox::NoAll:
+            m_ui->statusBar->showMessage(tr("Discarding unsaved script."));
+        close();
+            break;
+        default:
+            m_ui->statusBar->showMessage(tr("Cancel exit."));
+    }
+    } else {
+    // Closing the main window will make the application exit
+    close();
     }
 }
 
@@ -491,37 +501,37 @@ void PapyrusWindow::on_actionAntialiasing_toggled(bool antialiasing)
      */
     QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView)
-        currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
+    currentView->setRenderHint(QPainter::Antialiasing, antialiasing);
     else
-        m_ui->statusBar->showMessage(tr("Cannot toggle antialiasing: no opened script!"));
+    m_ui->statusBar->showMessage(tr("Cannot toggle antialiasing: no opened script!"));
 }
 
 void PapyrusWindow::on_actionZoom_In_triggered()
 {
     QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView)
-        currentView->scale(1.2 * SCALE_FACTOR, 1.2 * SCALE_FACTOR);
+    currentView->scale(1.2 * SCALE_FACTOR, 1.2 * SCALE_FACTOR);
     else
-        m_ui->statusBar->showMessage(tr("Cannot zoom in: no opened script!"));
+    m_ui->statusBar->showMessage(tr("Cannot zoom in: no opened script!"));
 }
 
 void PapyrusWindow::on_actionZoom_Out_triggered()
 {
     QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView)
-        currentView->scale(1 / (1.2 * SCALE_FACTOR), 1 / (1.2 * SCALE_FACTOR));
+    currentView->scale(1 / (1.2 * SCALE_FACTOR), 1 / (1.2 * SCALE_FACTOR));
     else
-        m_ui->statusBar->showMessage(tr("Cannot zoom out: no opened script!"));
+    m_ui->statusBar->showMessage(tr("Cannot zoom out: no opened script!"));
 }
 
 void PapyrusWindow::on_actionZoom_Fit_triggered()
 {
     QGraphicsView *currentView = dynamic_cast<QGraphicsView *>(m_ui->tabWidget->widget(m_ui->tabWidget->currentIndex()));
     if (currentView) {
-        QRectF wholeScene = currentView->scene()->itemsBoundingRect();
-        currentView->fitInView(wholeScene, Qt::KeepAspectRatio);
+    QRectF wholeScene = currentView->scene()->itemsBoundingRect();
+    currentView->fitInView(wholeScene, Qt::KeepAspectRatio);
     } else {
-        m_ui->statusBar->showMessage(tr("Cannot zoom fit: no opened script!"));
+    m_ui->statusBar->showMessage(tr("Cannot zoom fit: no opened script!"));
     }
 }
 
@@ -537,14 +547,14 @@ void PapyrusWindow::on_actionNew_script_triggered()
 
     // Don't do anything (just print status message) if user cancels the modal window
     if (!ok) {
-        m_ui->statusBar->showMessage(tr("New script creation cancelled."));
-        return;
+    m_ui->statusBar->showMessage(tr("New script creation cancelled."));
+    return;
     }
 
     // Make sure the script has a name
     if (newScriptName.length() == 0) {
-        newScriptName = NEW_SCRIPT_DEFAULT_NAME;
-        m_ui->statusBar->showMessage(tr("Script without a name are not allowed, setting a default name."), 2e3);
+    newScriptName = NEW_SCRIPT_DEFAULT_NAME;
+    m_ui->statusBar->showMessage(tr("Script without a name are not allowed, setting a default name."), 2e3);
     }
 
     // Create a new scene to contain the items for the new script
@@ -617,42 +627,42 @@ void PapyrusWindow::filterLibraryNames(const QString &text)
 
     int n = libraryPanel_->topLevelItemCount();
     for (int i = 0; i < n; i += 1) {
-        libraryPanel_->topLevelItem(i)->setExpanded(exp);
+    libraryPanel_->topLevelItem(i)->setExpanded(exp);
     }
 
     for (int i = 0; i < n; i += 1) {
-        Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
-        if (cat == NULL) {
-            qDebug() << "Failed to cast Cat";
-            continue;
+    Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
+    if (cat == NULL) {
+        qDebug() << "Failed to cast Cat";
+        continue;
+    }
+
+    int m = cat->childCount();
+    for (int j = 0; j < m; j += 1) {
+        Function *f = dynamic_cast<Function *>(cat->child(j));
+        if (f == NULL) {
+        qDebug() << "Failed to cast Func";
+        continue;
         }
 
-        int m = cat->childCount();
-        for (int j = 0; j < m; j += 1) {
-            Function *f = dynamic_cast<Function *>(cat->child(j));
-            if (f == NULL) {
-                qDebug() << "Failed to cast Func";
-                continue;
-            }
-
-            // If we have some text to filter, check the matching
-            if (exp) {
-                if (f->name().toLower().contains(text.toLower())) {
-                    f->setHidden(false);
-                } else {
-                    f->setHidden(true);
-                }
-            }
-            // Otherwise, restore all hidden states
-            else {
-                f->setHidden(false);
-            }
+        // If we have some text to filter, check the matching
+        if (exp) {
+        if (f->name().toLower().contains(text.toLower())) {
+            f->setHidden(false);
+        } else {
+            f->setHidden(true);
         }
-
-        // If we don't have text to filter, expand back the last category (as well as Constants)
-        if (!exp && (cat->name() == m_lastExpandedCategory || cat->name() == "Constants")) {
-            cat->setExpanded(true);
         }
+        // Otherwise, restore all hidden states
+        else {
+        f->setHidden(false);
+        }
+    }
+
+    // If we don't have text to filter, expand back the last category (as well as Constants)
+    if (!exp && (cat->name() == m_lastExpandedCategory || cat->name() == "Constants")) {
+        cat->setExpanded(true);
+    }
     }
 
 }
@@ -661,16 +671,16 @@ void PapyrusWindow::displayStatusMessage(const QString &text, MessageUrgency urg
 {
     switch (urgency) {
     case MSG_INFO:
-        m_ui->statusBar->setStyleSheet("color: black");
-        break;
+    m_ui->statusBar->setStyleSheet("color: black");
+    break;
 
     case MSG_WARNING:
-        m_ui->statusBar->setStyleSheet("color: orange");
-        break;
+    m_ui->statusBar->setStyleSheet("color: orange");
+    break;
 
     case MSG_ERROR:
-        m_ui->statusBar->setStyleSheet("color: red");
-        break;
+    m_ui->statusBar->setStyleSheet("color: red");
+    break;
     }
 
     m_ui->statusBar->showMessage(text);
@@ -684,27 +694,27 @@ void PapyrusWindow::displayStatusMessage(const QString &text, MessageUrgency urg
 void PapyrusWindow::onROSMasterChange(bool isOnline)
 {
     if (isOnline) {
-        QIcon rosMasterIconON(":/icons/icons/ros-master-on.svg");
-        m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
-        m_ui->statusBar->showMessage(tr("The ROS master just went online"));
+    QIcon rosMasterIconON(":/icons/icons/ros-master-on.svg");
+    m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
+    m_ui->statusBar->showMessage(tr("The ROS master just went online"));
 
-        trayIcon->showMessage(tr("ROS Master just went back up!"),
-                                      tr("The ROS Master just went back online!\nSo connections with "
-                                         "services and topics should be available again."),
-                                      QSystemTrayIcon::Information);
+    trayIcon->showMessage(tr("ROS Master just went back up!"),
+                                  tr("The ROS Master just went back online!\nSo connections with "
+                                     "services and topics should be available again."),
+                                  QSystemTrayIcon::Information);
     } else {
-        QIcon rosMasterIconOFF(":/icons/icons/ros-master-off.svg");
-        m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
-        m_ui->statusBar->showMessage(tr("The ROS master just went offline"));
+    QIcon rosMasterIconOFF(":/icons/icons/ros-master-off.svg");
+    m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
+    m_ui->statusBar->showMessage(tr("The ROS master just went offline"));
 
-        trayIcon->showMessage(tr("ROS Master just went down"),
-                              tr("The ROS Master just went offline, so connection with every ROS "
-                                 "topics or services are currently unavailable!"),
-                              QSystemTrayIcon::Warning);
+    trayIcon->showMessage(tr("ROS Master just went down"),
+                          tr("The ROS Master just went offline, so connection with every ROS "
+                             "topics or services are currently unavailable!"),
+                          QSystemTrayIcon::Warning);
 
-        // Stop the current thread, and recreate one (to re-init ROS, etc.)
-        delete m_rosnode;
-        spawnRosNode();
+    // Stop the current thread, and recreate one (to re-init ROS, etc.)
+    delete m_rosnode;
+    spawnRosNode();
     }
 }
 
@@ -795,9 +805,9 @@ void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
 void PapyrusWindow::updateDevelopmentEnvironment(QAction *action)
 {
     if (action == m_actionDebug)
-        m_developmentType = DEBUG;
+    m_developmentType = DEBUG;
     else if (action == m_actionRelease)
-        m_developmentType = RELEASE;
+    m_developmentType = RELEASE;
 }
 
 void PapyrusWindow::on_actionNew_script_hovered()
@@ -969,9 +979,9 @@ void PapyrusWindow::on_actionSave_Script_triggered()
 {
     // Call the 'Save' function of the current script
     if (m_activeScript == NULL) {
-        m_ui->statusBar->showMessage(tr("No open script to save."));
-        QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
-        return;
+    m_ui->statusBar->showMessage(tr("No open script to save."));
+    QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
+    return;
     }
 
     m_activeScript->save(getDescriptionPath());
@@ -980,8 +990,8 @@ void PapyrusWindow::on_actionSave_Script_triggered()
 void PapyrusWindow::on_actionOpen_Script_triggered()
 {
     QString scriptPath = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
-                                 QDir::homePath(),
-                                 tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
+                                                      QDir::homePath(),
+                                                      tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
     // Make sure the user selected a file
     if (scriptPath.isEmpty()) {
@@ -1057,7 +1067,7 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
         // Decrypt the file
         CryptoPP::FileSource f(scriptPath.toStdString().c_str(), true,
                                new CryptoPP::StreamTransformationFilter(dec,
-                                   new CryptoPP::FileSink(tmpDestFile.toStdString().c_str())));
+                                                                        new CryptoPP::FileSink(tmpDestFile.toStdString().c_str())));
 
         Script *newScript = parseXmlScriptFile(tmpDestFile);
 
@@ -1081,12 +1091,12 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
     // Open the file for reading
     QFile scriptFile(scriptPath);
     if (!scriptFile.open(QIODevice::ReadOnly)) {
-        emit displayStatusMessage(tr("Could not open script file."));
+    emit displayStatusMessage(tr("Could not open script file."));
 
-        QMessageBox::warning(NULL, tr("Could not open script file"),
-                             tr("We failed to open the script file for reading.\nMake sure you have "
-                                "the correct permissions for this file."));
-        return NULL;
+    QMessageBox::warning(NULL, tr("Could not open script file"),
+                         tr("We failed to open the script file for reading.\nMake sure you have "
+                            "the correct permissions for this file."));
+    return NULL;
     }
 
     // Create the scene and script objets, which will be used by the XmlReader
@@ -1107,47 +1117,47 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
     // Parse the script XML file
     XmlScriptReader xmlReader(openScript, getDescriptionPath());
     if (!xmlReader.read(&scriptFile)) {
-        QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
-        str += xmlReader.errorString();
+    QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
+    str += xmlReader.errorString();
 
-        QMessageBox::warning(NULL, tr("Failed to load script."), str);
+    QMessageBox::warning(NULL, tr("Failed to load script."), str);
 
-        return NULL;
+    return NULL;
     } else {
-        QString msg(tr("Script '") + openScript->name() + tr("' loaded."));
-        m_ui->statusBar->showMessage(msg);
+    QString msg(tr("Script '") + openScript->name() + tr("' loaded."));
+    m_ui->statusBar->showMessage(msg);
 
-        // Create a new view to display the new scene
-        DiagramView *newView = new DiagramView(openScene);
+    // Create a new view to display the new scene
+    DiagramView *newView = new DiagramView(openScene);
 
-        // Connect the necessary events for the scene and the script
-        connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
-        connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
+    // Connect the necessary events for the scene and the script
+    connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+    connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
 
-        // Add the script in the set of opened scripts
-        addScript(openScript);
+    // Add the script in the set of opened scripts
+    addScript(openScript);
 
-        /*
-         * Set the scene's initial rect based on the widget in which it is displayed (and centered)
-         * if it's smaller
-         */
-        QSizeF widgetSize = m_ui->tabWidget->size();
-        QRectF currentSceneRect = openScene->sceneRect();
-        QRectF minSceneRect(- widgetSize.width() / 2,
-                            - widgetSize.height() / 2,
-                            widgetSize.width(),
-                            widgetSize.height());
+    /*
+     * Set the scene's initial rect based on the widget in which it is displayed (and centered)
+     * if it's smaller
+     */
+    QSizeF widgetSize = m_ui->tabWidget->size();
+    QRectF currentSceneRect = openScene->sceneRect();
+    QRectF minSceneRect(- widgetSize.width() / 2,
+                        - widgetSize.height() / 2,
+                        widgetSize.width(),
+                        widgetSize.height());
 
-        if (currentSceneRect.width() < minSceneRect.width()
-           || currentSceneRect.height() < minSceneRect.height()) {
-            openScene->setSceneRect(minSceneRect);
-        }
+    if (currentSceneRect.width() < minSceneRect.width()
+       || currentSceneRect.height() < minSceneRect.height()) {
+        openScene->setSceneRect(minSceneRect);
+    }
 
 
-        // Add the new scene as a new tab and make it active
-        m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
-                                                             QIcon(":/icons/icons/script.svg"),
-                                                             openScript->name()));
+    // Add the new scene as a new tab and make it active
+    m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
+                                                         QIcon(":/icons/icons/script.svg"),
+                                                         openScript->name()));
     }
 
     return openScript;
@@ -1161,56 +1171,56 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 void PapyrusWindow::askForPath(bool displayWarning, const PathType &pathType)
 {
     if (displayWarning) {
-        QString mode = m_developmentType == DEBUG ? "DEBUG" : "RELEASE";
+    QString mode = m_developmentType == DEBUG ? "DEBUG" : "RELEASE";
 
-        if (pathType == PATH_LIB)
-        QMessageBox::warning(this, tr("No ") + mode + tr(" mode library path"),
-                             tr("This is likely the first time you use Papyrus in ") + mode + tr(" mode,"
-                             " and you need to specify the path to alexandria's libs.\nA window will display"
-                             ", allowing you to specify the directory."));
-        else if (pathType == PATH_DESC)
-            QMessageBox::warning(this, tr("No ") + mode + tr(" mode description path"),
-                                         tr("This is likely the first time you use Papyrus in ") + mode + tr(" mode,"
-                                         " and you need to specify the path to alexandria's description files.\n"
-                                         "A window will display, allowing you to specify the directory."));
-        else
-            informUserAndCrash(tr("unsupported PathType when asking for path.\nSupported PathType "
-                                  "are PATH_LIB and PATH_DESC"));
+    if (pathType == PATH_LIB)
+    QMessageBox::warning(this, tr("No ") + mode + tr(" mode library path"),
+                         tr("This is likely the first time you use Papyrus in ") + mode + tr(" mode,"
+                         " and you need to specify the path to alexandria's libs.\nA window will display"
+                         ", allowing you to specify the directory."));
+    else if (pathType == PATH_DESC)
+        QMessageBox::warning(this, tr("No ") + mode + tr(" mode description path"),
+                                     tr("This is likely the first time you use Papyrus in ") + mode + tr(" mode,"
+                                     " and you need to specify the path to alexandria's description files.\n"
+                                     "A window will display, allowing you to specify the directory."));
+    else
+        informUserAndCrash(tr("unsupported PathType when asking for path.\nSupported PathType "
+                              "are PATH_LIB and PATH_DESC"));
     }
 
     QString type;
     if (pathType == PATH_LIB)
-        type = "library";
+    type = "library";
     else if (pathType == PATH_DESC)
-        type = "description";
+    type = "description";
+    else
+    informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
+                          "are PATH_LIB and PATH_DESC"));
+
+    if (m_developmentType == DEBUG) {
+    QString ret = QFileDialog::getExistingDirectory(this,
+                                                    tr("Provide ") + type + tr(" path for DEBUG mode"),
+                                                    "/home",
+                                                    QFileDialog::ShowDirsOnly);
+    if (pathType == PATH_LIB)
+        m_debugLibPath = ret;
+    else if (pathType == PATH_DESC)
+        m_debugPath = ret;
     else
         informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
                               "are PATH_LIB and PATH_DESC"));
-
-    if (m_developmentType == DEBUG) {
-        QString ret = QFileDialog::getExistingDirectory(this,
-                                                        tr("Provide ") + type + tr(" path for DEBUG mode"),
-                                                        "/home",
-                                                        QFileDialog::ShowDirsOnly);
-        if (pathType == PATH_LIB)
-            m_debugLibPath = ret;
-        else if (pathType == PATH_DESC)
-            m_debugPath = ret;
-        else
-            informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
-                                  "are PATH_LIB and PATH_DESC"));
     } else {
-        QString ret = QFileDialog::getExistingDirectory(this,
-                                                        tr("Provide ") + type + tr(" path for RELEASE mode"),
-                                                        "/home",
-                                                        QFileDialog::ShowDirsOnly);
-        if (pathType == PATH_LIB)
-            m_releaseLibPath = ret;
-        else if (pathType == PATH_DESC)
-            m_releasePath = ret;
-        else
-            informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
-                                  "are PATH_LIB and PATH_DESC"));
+    QString ret = QFileDialog::getExistingDirectory(this,
+                                                    tr("Provide ") + type + tr(" path for RELEASE mode"),
+                                                    "/home",
+                                                    QFileDialog::ShowDirsOnly);
+    if (pathType == PATH_LIB)
+        m_releaseLibPath = ret;
+    else if (pathType == PATH_DESC)
+        m_releasePath = ret;
+    else
+        informUserAndCrash(tr("Unsupported PathType when asking for path.\nSupported PathType "
+                              "are PATH_LIB and PATH_DESC"));
     }
 }
 
@@ -1226,25 +1236,25 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
 
     QStringList descriptionFiles = dir.entryList();
     foreach (QString descFile, descriptionFiles) {
-        QFile xmlFile(dir.absoluteFilePath(descFile));
-        if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
-            qDebug() << "\t[X] Could not open file" << descFile << "for parsing";
-            m_libraryParsingErrors += 1;
-            break;
-        }
+    QFile xmlFile(dir.absoluteFilePath(descFile));
+    if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
+        qDebug() << "\t[X] Could not open file" << descFile << "for parsing";
+        m_libraryParsingErrors += 1;
+        break;
+    }
 
-        // Read the XML file
-        if (!xmlReader->read(&xmlFile, xmlFile.fileName())) {
-            m_libraryParsingErrors += 1;
-            qWarning() << "\t[X] Failed to parse " << xmlFile.fileName();
-        }
+    // Read the XML file
+    if (!xmlReader->read(&xmlFile, xmlFile.fileName())) {
+        m_libraryParsingErrors += 1;
+        qWarning() << "\t[X] Failed to parse " << xmlFile.fileName();
+    }
     }
 
     // Then, recurse in every directory
     dir.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
     QStringList subdirs = dir.entryList();
     foreach (QString subdir, subdirs) {
-        parseOneLevel(QDir(dir.canonicalPath() + "/" + subdir), xmlReader);
+    parseOneLevel(QDir(dir.canonicalPath() + "/" + subdir), xmlReader);
     }
 }
 
@@ -1257,10 +1267,10 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
 QString PapyrusWindow::getDescriptionPath()
 {
     if (m_developmentType == DEBUG)
-        return m_debugPath;
+    return m_debugPath;
 
     if (m_developmentType == RELEASE)
-        return m_releasePath;
+    return m_releasePath;
 
     informUserAndCrash(tr("Unsupported development type"),
                        tr("We could not parse the development type while trying to get the "
@@ -1271,10 +1281,10 @@ QString PapyrusWindow::getDescriptionPath()
 QString PapyrusWindow::getLibPath()
 {
     if (m_developmentType == DEBUG)
-        return m_debugLibPath;
+    return m_debugLibPath;
 
     if (m_developmentType == RELEASE)
-        return m_releaseLibPath;
+    return m_releaseLibPath;
 
     informUserAndCrash(tr("Unsupported development type"),
                        tr("We could not parse the development type while trying to get the "
@@ -1291,32 +1301,32 @@ void PapyrusWindow::updateButtonsState()
 {
     // Make sure we have an active script
     if (m_activeScript == NULL)
-        return;
+    return;
 
     m_ui->actionRun->setEnabled(true);
 
     ROSSession *session = m_activeScript->rosSession();
     if (session == NULL) {
-        displayStatusMessage(tr("Not ROS Session for script \"%1\"").arg(m_activeScript->name()), MSG_ERROR);
-        return;
+    displayStatusMessage(tr("Not ROS Session for script \"%1\"").arg(m_activeScript->name()), MSG_ERROR);
+    return;
     }
 
     if (session->isRunning()) {
-        m_ui->actionStop->setEnabled(true);
-        m_ui->actionScope->setEnabled(true);
+    m_ui->actionStop->setEnabled(true);
+    m_ui->actionScope->setEnabled(true);
 
-        if (!session->isPaused()) {
-            m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
-            m_ui->actionRun->setToolTip(tr("Pause script"));
-        } else {
-            m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-            m_ui->actionRun->setToolTip(tr("Resume script"));
-        }
+    if (!session->isPaused()) {
+        m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
+        m_ui->actionRun->setToolTip(tr("Pause script"));
     } else {
         m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-        m_ui->actionRun->setToolTip(tr("Launch script"));
-        m_ui->actionStop->setEnabled(false);
-        m_ui->actionScope->setEnabled(false);
+        m_ui->actionRun->setToolTip(tr("Resume script"));
+    }
+    } else {
+    m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+    m_ui->actionRun->setToolTip(tr("Launch script"));
+    m_ui->actionStop->setEnabled(false);
+    m_ui->actionScope->setEnabled(false);
     }
 }
 
@@ -1331,24 +1341,24 @@ void PapyrusWindow::categoryExpanded(QTreeWidgetItem *item)
     // Don't do anything if the library search field is not empty (this is important because the
     // handler hides some categories, which would call this event)
     if (!librarySearchField_->text().isEmpty())
-        return;
+    return;
 
     Category *expandedCategory = dynamic_cast<Category *>(item);
     if (expandedCategory == NULL)
-        return;
+    return;
 
     // Don't do anything when expanding the "Constants" category
     if (expandedCategory->name() == "Constants")
-        return;
+    return;
 
     int n = libraryPanel_->topLevelItemCount();
     for (int i = 0; i < n; i += 1) {
-        Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
-        if (cat == NULL)
-            continue;
+    Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
+    if (cat == NULL)
+        continue;
 
-        if (cat != expandedCategory && cat->name() != "Constants")
-            cat->setExpanded(false);
+    if (cat != expandedCategory && cat->name() != "Constants")
+        cat->setExpanded(false);
     }
 
     // Save the last category that was expanded
@@ -1368,39 +1378,39 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
     HomePage *homePage = dynamic_cast<HomePage *>(m_ui->tabWidget->currentWidget());
     // If we have, disable all buttons (and restore the "play" icon to the play/pause button)
     if (homePage != NULL) {
-        m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-        m_ui->actionRun->setEnabled(false);
-        m_ui->actionStop->setEnabled(false);
-        m_ui->actionScope->setEnabled(false);
-        if (m_runTimeDisplay != NULL) // this is null the first time, because its' not created yet
-            m_runTimeDisplay->setEnabled(false);
-        m_activeScript = NULL;
-        return;
+    m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+    m_ui->actionRun->setEnabled(false);
+    m_ui->actionStop->setEnabled(false);
+    m_ui->actionScope->setEnabled(false);
+    if (m_runTimeDisplay != NULL) // this is null the first time, because its' not created yet
+        m_runTimeDisplay->setEnabled(false);
+    m_activeScript = NULL;
+    return;
     }
 
     // Otherwise, try to get a DiagramView
     DiagramView *currentView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
     // If there is none, there's an issue
     if (currentView == NULL) {
-            m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
-                                            "(this is an internal error, you should report it.)"));
-            m_activeScript = NULL;
-            return;
-    }
-
-    // Get the scene associated with the view
-    DiagramScene *currentScene = dynamic_cast<DiagramScene *>(currentView->scene());
-    if (currentScene == NULL) {
-        // TODO: _actually_ automatically report it instead of asking the user to do it.
         m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
                                         "(this is an internal error, you should report it.)"));
         m_activeScript = NULL;
         return;
     }
 
+    // Get the scene associated with the view
+    DiagramScene *currentScene = dynamic_cast<DiagramScene *>(currentView->scene());
+    if (currentScene == NULL) {
+    // TODO: _actually_ automatically report it instead of asking the user to do it.
+    m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
+                                    "(this is an internal error, you should report it.)"));
+    m_activeScript = NULL;
+    return;
+    }
+
     // De-active current script (is any)
     if (m_activeScript != NULL)
-        m_activeScript->setIsActiveScript(false);
+    m_activeScript->setIsActiveScript(false);
 
     // Get the script associated with the scene and set it as the active script
     m_activeScript = currentScene->script();
@@ -1414,14 +1424,14 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
 {
     DiagramView *view = dynamic_cast<DiagramView *>(m_ui->tabWidget->widget(index));
     if (view == NULL) {
-        m_ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated view."));
-        return;
+    m_ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated view."));
+    return;
     }
 
     DiagramScene *scene = dynamic_cast<DiagramScene *>(view->scene());
     if (scene == NULL) {
-        m_ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated scene."));
-        return;
+    m_ui->statusBar->showMessage(tr("Could not rename script: failed to get the associated scene."));
+    return;
     }
 
     QString currentName = scene->script()->name();
@@ -1434,7 +1444,7 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
     msgBox.setIcon(QMessageBox::Question);
     QGridLayout *layout = dynamic_cast<QGridLayout *>(msgBox.layout());
     if (layout == NULL)
-        return;
+    return;
     QFormLayout *addLayout = new QFormLayout();
     QLineEdit *newName = new QLineEdit(currentName);
     QLabel label(tr("New script name:"));
@@ -1450,36 +1460,36 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
 
     int ret = msgBox.exec();
     if (ret == QMessageBox::Ok) {
-        QString newScriptName(newName->text());
-        QString str(tr("\"") + currentName + "\" renamed to \"" + newScriptName + "\"");
-        script->setName(newScriptName);
-        m_ui->tabWidget->tabBar()->setTabText(index, newScriptName);
+    QString newScriptName(newName->text());
+    QString str(tr("\"") + currentName + "\" renamed to \"" + newScriptName + "\"");
+    script->setName(newScriptName);
+    m_ui->tabWidget->tabBar()->setTabText(index, newScriptName);
 
-        if (cBox->isChecked() && !currentFilePath.isEmpty()) {
-            QFileInfo fi(currentFilePath);
-            QString ext = fi.completeSuffix();
-            QFile file(currentFilePath);
-            QString dir(fi.absoluteDir().absolutePath());
-            QString sanitizedScriptName(newScriptName.toLower().replace(" ", "_"));
-            QString newScriptFilePath(dir + "/" + sanitizedScriptName + "." + ext);
+    if (cBox->isChecked() && !currentFilePath.isEmpty()) {
+        QFileInfo fi(currentFilePath);
+        QString ext = fi.completeSuffix();
+        QFile file(currentFilePath);
+        QString dir(fi.absoluteDir().absolutePath());
+        QString sanitizedScriptName(newScriptName.toLower().replace(" ", "_"));
+        QString newScriptFilePath(dir + "/" + sanitizedScriptName + "." + ext);
 
-            script->setFilePath(newScriptFilePath);
-            script->setStatusModified(true);
+        script->setFilePath(newScriptFilePath);
+        script->setStatusModified(true);
 
-            if (file.rename(newScriptFilePath)) {
-                str += tr(", and XML filed renamed too.");
-            } else {
-                str += tr(", BUT the XML file could NOT be renamed (reason unknown).");
-            }
-
-            m_propertiesPanel->displayScriptProperties(scene->script());
+        if (file.rename(newScriptFilePath)) {
+        str += tr(", and XML filed renamed too.");
         } else {
-            str += ".";
+        str += tr(", BUT the XML file could NOT be renamed (reason unknown).");
         }
 
-        m_ui->statusBar->showMessage(str);
+        m_propertiesPanel->displayScriptProperties(scene->script());
     } else {
-        m_ui->statusBar->showMessage(tr("Renaming cancelled. Nothing was done."));
+        str += ".";
+    }
+
+    m_ui->statusBar->showMessage(str);
+    } else {
+    m_ui->statusBar->showMessage(tr("Renaming cancelled. Nothing was done."));
     }
 }
 
@@ -1487,14 +1497,14 @@ void PapyrusWindow::on_actionClose_Script_triggered()
 {
     DiagramView *view = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
     if (view == NULL) {
-        m_ui->statusBar->showMessage(tr("Could not close script: no script open!"));
-        return;
+    m_ui->statusBar->showMessage(tr("Could not close script: no script open!"));
+    return;
     }
 
     DiagramScene *scene = dynamic_cast<DiagramScene *>(view->scene());
     if (scene == NULL) {
-        qFatal("Could not close script: failed to get the associated scene.");
-        return;
+    qFatal("Could not close script: failed to get the associated scene.");
+    return;
     }
 
     int currIdx = m_ui->tabWidget->currentIndex();
@@ -1502,53 +1512,53 @@ void PapyrusWindow::on_actionClose_Script_triggered()
 
     // Check if the script has unsaved modifications
     if (scene->script()->modified()) {
-        switch (QMessageBox::question(this, tr("Save unsaved script?"),
-                                      tr("This script have unsaved changes that will be lost if you close it now.\n"
-                                         "Do you want to save them?"),
-                                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel)) {
-        case QMessageBox::Cancel:
-            m_ui->statusBar->showMessage(tr("Cancel closing."));
-            break;
+    switch (QMessageBox::question(this, tr("Save unsaved script?"),
+                                  tr("This script have unsaved changes that will be lost if you close it now.\n"
+                                     "Do you want to save them?"),
+                                  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel)) {
+    case QMessageBox::Cancel:
+        m_ui->statusBar->showMessage(tr("Cancel closing."));
+        break;
 
-        case QMessageBox::Save:
-            // Save this script
-            scene->script()->save(getDescriptionPath());
+    case QMessageBox::Save:
+        // Save this script
+        scene->script()->save(getDescriptionPath());
 
-            // Make another pass to check that the script was indeed saved
-            if (scene->script()->modified()) {
-                QMessageBox::warning(this, tr("Script still unsaved"),
-                                     tr("This script was still nto saved, exit aborted."));
-                break;
-            }
-
-            // Remove the tab containing this widget
-            m_ui->tabWidget->removeTab(currIdx);
-
-            // Destroy the view
-            delete view;
-            m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
-            break;
-
-        case QMessageBox::Discard:
-            // Remove the tab containing this widget
-            m_ui->tabWidget->removeTab(currIdx);
-
-            // Destroy the view
-            delete view;
-            m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed (changes discarded)"));
-            break;
-
-        default:
-            m_ui->statusBar->showMessage(tr("Cancel closing."));
+        // Make another pass to check that the script was indeed saved
+        if (scene->script()->modified()) {
+        QMessageBox::warning(this, tr("Script still unsaved"),
+                             tr("This script was still nto saved, exit aborted."));
+        break;
         }
-    } else {
-        // Close the script directly if it has no unsaved changes
+
         // Remove the tab containing this widget
         m_ui->tabWidget->removeTab(currIdx);
 
         // Destroy the view
         delete view;
         m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
+        break;
+
+    case QMessageBox::Discard:
+        // Remove the tab containing this widget
+        m_ui->tabWidget->removeTab(currIdx);
+
+        // Destroy the view
+        delete view;
+        m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed (changes discarded)"));
+        break;
+
+    default:
+        m_ui->statusBar->showMessage(tr("Cancel closing."));
+    }
+    } else {
+    // Close the script directly if it has no unsaved changes
+    // Remove the tab containing this widget
+    m_ui->tabWidget->removeTab(currIdx);
+
+    // Destroy the view
+    delete view;
+    m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
     }
 }
 
@@ -1586,16 +1596,48 @@ void PapyrusWindow::on_actionConnect_triggered()
                 return;
             }
 
+            // Ask the specified kheops node for its script path
+            QString ctrlSrv = selectedNode + "/control";
+            ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(ctrlSrv.toStdString());
+            hieroglyph::SimpleCmd srv;
+            srv.request.cmd = "path";
+            QString scriptPath;
 
-            // When kheops/#11 is solved, we can ask the script for its path
-            // In the mean time, we ask the user to manually specify the file path
+            if (client.call(srv)) {
+                QString response = QString::fromStdString(srv.response.ret);;
 
-            // TODO: factor out this code, because it's the same as Open File
-            on_actionOpen_Script_triggered();
-            if (m_activeScript == NULL || m_activeScript->rosSession() == NULL) {
-                displayStatusMessage(tr("Failed to open the script."), MSG_ERROR);
+                if (response.startsWith("/")) {
+                    scriptPath = response;
+                    //                    m_isRunning = true;
+                    //                    m_isPaused = false;
+
+                    // Record a new starting time for the run
+                    //                    m_startTime = QDateTime::currentDateTime();
+
+                    //                    emit scriptResumed();
+                } else {
+                    emit displayStatusMessage(tr("Node answered with invalid script path."));
+                    qCritical() << QString("Node answered \"%1\" to the PATH command, which is not valid").arg(response);
+                    return;
+                }
+            } else {
+                emit displayStatusMessage(tr("Node did not specify its script path, abording."),
+                                          MSG_ERROR);
+                qDebug() << "Failed to call PATH";
                 return;
             }
+
+            // Open the script
+            parseXmlScriptFile(scriptPath);
+
+            /*
+        // TODO: factor out this code, because it's the same as Open File
+        on_actionOpen_Script_triggered();
+        if (m_activeScript == NULL || m_activeScript->rosSession() == NULL) {
+        displayStatusMessage(tr("Failed to open the script."), MSG_ERROR);
+        return;
+        }
+        //*/
 
             // Set the session as running, obviouly becasue we have just connected to a running script
             m_activeScript->rosSession()->setIsRunning(true);
@@ -1616,96 +1658,96 @@ void PapyrusWindow::on_actionConnect_triggered()
     /*
     // Make sure we do have an active script and its associated ROS Session
     if (m_activeScript == NULL) {
-        displayStatusMessage(tr("No active script: cannot connect/disconnect"), MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No active script: cannot connect/disconnect"), MSG_ERROR);
+    return;
     }
 
     if (m_activeScript->rosSession() == NULL) {
-        displayStatusMessage(tr("No ROS session for the active script: cannot connect/disconnect"),
-                             MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No ROS session for the active script: cannot connect/disconnect"),
+                 MSG_ERROR);
+    return;
     }
 
     // CONNECT FUNCTION
     if (!m_activeScript->rosSession()->isConnected()) {
-        // Create an instance of NodesChooser, and make it modal to the application
-        NodesChooser *nodesChooser = new NodesChooser;
-        nodesChooser->setWindowFlag(Qt::Dialog);
-        nodesChooser->setWindowModality(Qt::ApplicationModal);
+    // Create an instance of NodesChooser, and make it modal to the application
+    NodesChooser *nodesChooser = new NodesChooser;
+    nodesChooser->setWindowFlag(Qt::Dialog);
+    nodesChooser->setWindowModality(Qt::ApplicationModal);
 
-        // If we validated (and thus chose a node), transform the "connect" button into a "disconnect"
-        if (nodesChooser->exec()) {
-            // Update node name and connected status
-            QString selectedNode = nodesChooser->selectedNode();
-            m_activeScript->rosSession()->setNodeName(selectedNode);
-            m_activeScript->rosSession()->setIsConnected(true);
+    // If we validated (and thus chose a node), transform the "connect" button into a "disconnect"
+    if (nodesChooser->exec()) {
+        // Update node name and connected status
+        QString selectedNode = nodesChooser->selectedNode();
+        m_activeScript->rosSession()->setNodeName(selectedNode);
+        m_activeScript->rosSession()->setIsConnected(true);
 
-            // Change the "connect" button into a "disconnect"
-            m_ui->actionConnect->setIcon(QIcon(":/icons/icons/disconnect.svg"));
-            m_ui->actionConnect->setToolTip(tr("Disconnect"));
+        // Change the "connect" button into a "disconnect"
+        m_ui->actionConnect->setIcon(QIcon(":/icons/icons/disconnect.svg"));
+        m_ui->actionConnect->setToolTip(tr("Disconnect"));
 
-            // If the node is the current script, then it's not running
-            if (selectedNode == "Current Script") {
-                m_rosSession->setIsRunning(false);
-                m_rosSession->setIsPaused(false);
-
-                // Make the play/pause button a "play" one
-                m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-                m_ui->actionRun->setToolTip(tr("Resume script"));
-                m_ui->actionRun->setEnabled(true);
-                m_runTimeDisplay->setEnabled(true);
-
-                // Disable the stop button
-                m_ui->actionStop->setEnabled(false);
-            }
-            // Otherwise, we should ask the node its status (when kheops/#12 is solved)
-            else {
-                // Ask the script its status (paused or running)
-                switch (m_rosSession->queryScriptStatus()) {
-                case SCRIPT_RUNNING:
-                    // Mark the script as running and not paused
-                    m_rosSession->setIsRunning(true);
-                    m_rosSession->setIsPaused(false);
-
-                    // Make the play button into a "pause" one
-                    m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
-                    m_ui->actionRun->setToolTip(tr("Pause script"));
-                    m_ui->actionRun->setEnabled(true);
-                    m_runTimeDisplay->setEnabled(true);
-
-                    // Enable the stop button
-                    m_ui->actionStop->setEnabled(true);
-                    break;
-
-                case SCRIPT_PAUSED:
-                    //Mark the script as running and paused
-                    m_rosSession->setIsRunning(true);
-                    m_rosSession->setIsPaused(true);
-
-                    // Make the play button into a "play" one
-                    m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-                    m_ui->actionRun->setToolTip(tr("Resume script"));
-                    m_ui->actionRun->setEnabled(true);
-                    m_runTimeDisplay->setEnabled(true);
-
-                    // Enable the stop button
-                    m_ui->actionStop->setEnabled(true);
-                    break;
-                }
-            }
-        }
-    } else {
-        // DISCONNECT FUNCTION
-        m_rosSession->setIsConnected(false);
+        // If the node is the current script, then it's not running
+        if (selectedNode == "Current Script") {
         m_rosSession->setIsRunning(false);
         m_rosSession->setIsPaused(false);
-        m_rosSession->setNodeName("");
-        m_ui->actionConnect->setIcon(QIcon(":/icons/icons/connect.svg"));
-        m_ui->actionConnect->setToolTip(tr("Connect"));
-        m_ui->actionRun->setEnabled(false);
+
+        // Make the play/pause button a "play" one
+        m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+        m_ui->actionRun->setToolTip(tr("Resume script"));
+        m_ui->actionRun->setEnabled(true);
+        m_runTimeDisplay->setEnabled(true);
+
+        // Disable the stop button
         m_ui->actionStop->setEnabled(false);
-        m_ui->actionScope->setEnabled(false);
-        m_runTimeDisplay->setEnabled(false);
+        }
+        // Otherwise, we should ask the node its status (when kheops/#12 is solved)
+        else {
+        // Ask the script its status (paused or running)
+        switch (m_rosSession->queryScriptStatus()) {
+        case SCRIPT_RUNNING:
+            // Mark the script as running and not paused
+            m_rosSession->setIsRunning(true);
+            m_rosSession->setIsPaused(false);
+
+            // Make the play button into a "pause" one
+            m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
+            m_ui->actionRun->setToolTip(tr("Pause script"));
+            m_ui->actionRun->setEnabled(true);
+            m_runTimeDisplay->setEnabled(true);
+
+            // Enable the stop button
+            m_ui->actionStop->setEnabled(true);
+            break;
+
+        case SCRIPT_PAUSED:
+            //Mark the script as running and paused
+            m_rosSession->setIsRunning(true);
+            m_rosSession->setIsPaused(true);
+
+            // Make the play button into a "play" one
+            m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+            m_ui->actionRun->setToolTip(tr("Resume script"));
+            m_ui->actionRun->setEnabled(true);
+            m_runTimeDisplay->setEnabled(true);
+
+            // Enable the stop button
+            m_ui->actionStop->setEnabled(true);
+            break;
+        }
+        }
+    }
+    } else {
+    // DISCONNECT FUNCTION
+    m_rosSession->setIsConnected(false);
+    m_rosSession->setIsRunning(false);
+    m_rosSession->setIsPaused(false);
+    m_rosSession->setNodeName("");
+    m_ui->actionConnect->setIcon(QIcon(":/icons/icons/connect.svg"));
+    m_ui->actionConnect->setToolTip(tr("Connect"));
+    m_ui->actionRun->setEnabled(false);
+    m_ui->actionStop->setEnabled(false);
+    m_ui->actionScope->setEnabled(false);
+    m_runTimeDisplay->setEnabled(false);
     }
     //*/
 }
@@ -1714,38 +1756,38 @@ void PapyrusWindow::on_actionRun_triggered()
 {
     // Make sure we do have an active script and its associated ROS Session
     if (m_activeScript == NULL) {
-        displayStatusMessage(tr("No active script: cannot play/pause"), MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No active script: cannot play/pause"), MSG_ERROR);
+    return;
     }
 
     if (m_activeScript->rosSession() == NULL) {
-        displayStatusMessage(tr("No ROS session for the active script: cannot play/pause"),
-                             MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No ROS session for the active script: cannot play/pause"),
+                         MSG_ERROR);
+    return;
     }
 
     // If the node is not already running (meaning it was not one we connected to), we need to have
     // the path of the library in order to launch a kheops instance
     if (!m_activeScript->rosSession()->isRunning()) {
-        if (m_developmentType == RELEASE && m_releaseLibPath.isEmpty()) {
-            askForPath(true, PATH_LIB);
-            // Check that the user did specify a path and not cancelled
-            if (m_releaseLibPath.isEmpty()) {
-                displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
-                                     MSG_ERROR);
-                return;
-            }
+    if (m_developmentType == RELEASE && m_releaseLibPath.isEmpty()) {
+        askForPath(true, PATH_LIB);
+        // Check that the user did specify a path and not cancelled
+        if (m_releaseLibPath.isEmpty()) {
+        displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
+                             MSG_ERROR);
+        return;
+        }
 
+    }
+    else if (m_developmentType == DEBUG && m_debugLibPath.isEmpty()) {
+        askForPath(true, PATH_LIB);
+        // Check that the user did specify a path and not cancelled
+        if (m_debugLibPath.isEmpty()) {
+        displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
+                             MSG_ERROR);
+        return;
         }
-        else if (m_developmentType == DEBUG && m_debugLibPath.isEmpty()) {
-            askForPath(true, PATH_LIB);
-            // Check that the user did specify a path and not cancelled
-            if (m_debugLibPath.isEmpty()) {
-                displayStatusMessage(tr("Cannot launch script: you did not specify a lib path"),
-                                     MSG_ERROR);
-                return;
-            }
-        }
+    }
 
     }
     m_activeScript->rosSession()->runOrPause();
@@ -1755,14 +1797,14 @@ void PapyrusWindow::on_actionStop_triggered()
 {
     // Make sure we do have an active script and its associated ROS Session
     if (m_activeScript == NULL) {
-        displayStatusMessage(tr("No active script: cannot stop"), MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No active script: cannot stop"), MSG_ERROR);
+    return;
     }
 
     if (m_activeScript->rosSession() == NULL) {
-        displayStatusMessage(tr("No ROS session for the active script: cannot stop"),
-                             MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No ROS session for the active script: cannot stop"),
+                         MSG_ERROR);
+    return;
     }
     m_activeScript->rosSession()->stop();
 }
@@ -1771,14 +1813,14 @@ void PapyrusWindow::on_actionScope_triggered()
 {
     // Make sure we do have an active script and its associated ROS Session
     if (m_activeScript == NULL) {
-        displayStatusMessage(tr("No active script: cannot scope"), MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No active script: cannot scope"), MSG_ERROR);
+    return;
     }
 
     if (m_activeScript->rosSession() == NULL) {
-        displayStatusMessage(tr("No ROS session for the active script: cannot scope"),
-                             MSG_ERROR);
-        return;
+    displayStatusMessage(tr("No ROS session for the active script: cannot scope"),
+                         MSG_ERROR);
+    return;
     }
 
     displayStatusMessage(tr("Action scope not implemented yet"), MSG_WARNING);

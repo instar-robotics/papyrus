@@ -11,14 +11,11 @@ RosNode::RosNode(int argc, char **argv) : m_argc(argc), m_argv(argv)
 
 RosNode::~RosNode()
 {
-    qDebug() << "[DESTRUCTOR]";
-
     if(ros::isStarted()) {
+        qDebug() << "ROS Node thread terminating ROS";
         ros::shutdown();
         ros::waitForShutdown();
     }
-
-    wait();
 }
 
 void cb1(const std_msgs::String::ConstPtr& msg)
@@ -29,7 +26,7 @@ void cb1(const std_msgs::String::ConstPtr& msg)
 bool RosNode::init()
 {
     // Initialize the ROS API (must be the first ROS-related call)
-    ros::init(m_argc, m_argv, "Papyrus");
+//    ros::init(m_argc, m_argv, "Papyrus");
 
     // Start the QThread (we need this so that waiting for the ROS master is done in thread)
     start();

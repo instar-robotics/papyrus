@@ -1692,3 +1692,13 @@ void PapyrusWindow::on_actionEdit_paths_triggered()
 {
     qDebug() << "Should edit path";
 }
+
+void PapyrusWindow::on_actionShow_all_outputs_triggered()
+{
+    qDebug() << "Show all outputs";
+}
+
+void PapyrusWindow::on_actionHide_all_outputs_triggered()
+{
+    qDebug() << "Hide all outputs";
+}

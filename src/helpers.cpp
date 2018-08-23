@@ -11,19 +11,19 @@
  */
 PapyrusWindow *getMainWindow()
 {
-    PapyrusWindow *mainWindow = NULL;
+	PapyrusWindow *mainWindow = NULL;
 
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
-            mainWindow = mW;
-            break;
-        }
-    }
+	foreach (QWidget *w, qApp->topLevelWidgets()) {
+		if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
+			mainWindow = mW;
+			break;
+		}
+	}
 
-    if (mainWindow == NULL)
-        informUserAndCrash(QObject::tr("Could not fetch Papyrus' main window."));
+	if (mainWindow == NULL)
+		informUserAndCrash(QObject::tr("Could not fetch Papyrus' main window."));
 
-    return mainWindow;
+	return mainWindow;
 }
 
 /**
@@ -34,20 +34,20 @@ PapyrusWindow *getMainWindow()
  */
 QString outputTypeToString(const OutputType &outputType)
 {
-    switch (outputType) {
-    case SCALAR:
-        return QString("SCALAR");
-        break;
-    case MATRIX:
-        return QString("MATRIX");
-        break;
-    case STRING:
-        return QString("STRING");
-        break;
-    default:
-        qFatal("Unsupported OutputType when converting to QString.");
-        break;
-    }
+	switch (outputType) {
+		case SCALAR:
+		return QString("SCALAR");
+		break;
+		case MATRIX:
+		return QString("MATRIX");
+		break;
+		case STRING:
+		return QString("STRING");
+		break;
+		default:
+			qFatal("Unsupported OutputType when converting to QString.");
+		break;
+	}
 }
 
 /**
@@ -57,19 +57,19 @@ QString outputTypeToString(const OutputType &outputType)
  */
 OutputType stringToOutputType(const QString &str)
 {
-    QString lower = str.toLower();
+	QString lower = str.toLower();
 
-    if (lower == "scalar")
-        return SCALAR;
+	if (lower == "scalar")
+		return SCALAR;
 
-    if (lower == "matrix")
-        return MATRIX;
+	if (lower == "matrix")
+		return MATRIX;
 
-    // WARNING: both InputType and OutputType are written as "STRING" the XML files
-    if (lower == "string")
-        return STRING;
+	// WARNING: both InputType and OutputType are written as "STRING" the XML files
+	if (lower == "string")
+		return STRING;
 
-    qFatal("Failed to parse string into OutputType");
+	qFatal("Failed to parse string into OutputType");
 }
 
 /**
@@ -80,26 +80,26 @@ OutputType stringToOutputType(const QString &str)
  */
 QString inputTypeToString(const InputType &inputType)
 {
-    switch (inputType) {
-    case SCALAR_SCALAR:
-        return QString("SCALAR_SCALAR");
-        break;
-    case SCALAR_MATRIX:
-        return QString("SCALAR_MATRIX");
-        break;
-    case MATRIX_MATRIX:
-        return QString("MATRIX_MATRIX");
-        break;
-    case SPARSE_MATRIX:
-        return QString("SPARSE_MATRIX");
-        break;
-    case STRING_INPUT:
-        return QString("STRING");
-        break;
-    default:
-        qFatal("Unsupported InputType when converting to QString.");
-        break;
-    }
+	switch (inputType) {
+		case SCALAR_SCALAR:
+		return QString("SCALAR_SCALAR");
+		break;
+		case SCALAR_MATRIX:
+		return QString("SCALAR_MATRIX");
+		break;
+		case MATRIX_MATRIX:
+		return QString("MATRIX_MATRIX");
+		break;
+		case SPARSE_MATRIX:
+		return QString("SPARSE_MATRIX");
+		break;
+		case STRING_INPUT:
+		return QString("STRING");
+		break;
+		default:
+			qFatal("Unsupported InputType when converting to QString.");
+		break;
+	}
 }
 
 /**
@@ -109,25 +109,25 @@ QString inputTypeToString(const InputType &inputType)
  */
 InputType stringToInputType(const QString &str)
 {
-    QString lower = str.toLower();
+	QString lower = str.toLower();
 
-    if (lower == "scalar_scalar")
-        return SCALAR_SCALAR;
+	if (lower == "scalar_scalar")
+		return SCALAR_SCALAR;
 
-    if (lower == "scalar_matrix")
-        return SCALAR_MATRIX;
+	if (lower == "scalar_matrix")
+		return SCALAR_MATRIX;
 
-    if (lower == "matrix_matrix")
-        return MATRIX_MATRIX;
+	if (lower == "matrix_matrix")
+		return MATRIX_MATRIX;
 
-    if (lower == "sparse_matrix")
-        return SPARSE_MATRIX;
+	if (lower == "sparse_matrix")
+		return SPARSE_MATRIX;
 
-    // WARNING: both Input and Output types are written as "STRING" in XML files
-    if (lower == "string")
-        return STRING_INPUT;
+	// WARNING: both Input and Output types are written as "STRING" in XML files
+	if (lower == "string")
+		return STRING_INPUT;
 
-    qFatal("Failed to parse string to InputType");
+	qFatal("Failed to parse string to InputType");
 }
 
 /**
@@ -139,21 +139,21 @@ InputType stringToInputType(const QString &str)
  */
 bool canLink(const OutputType &from, const InputType &to)
 {
-    // If the input slot expects a scalar, only a scalar can be connected to it
-    if (from == SCALAR && to == SCALAR_SCALAR)
-        return true;
+	// If the input slot expects a scalar, only a scalar can be connected to it
+	if (from == SCALAR && to == SCALAR_SCALAR)
+		return true;
 
-    // If the input slot expects a matrix with any kind of connectivity, then only a matrix can
-    // be connected
-    if (from == MATRIX && to != SCALAR_SCALAR && to != STRING_INPUT)
-        return true;
+	// If the input slot expects a matrix with any kind of connectivity, then only a matrix can
+	// be connected
+	if (from == MATRIX && to != SCALAR_SCALAR && to != STRING_INPUT)
+		return true;
 
-    // Match strings together
-    if (from == STRING && to == STRING_INPUT)
-        return true;
+	// Match strings together
+	if (from == STRING && to == STRING_INPUT)
+		return true;
 
-    // other cases are invalid
-    return false;
+	// other cases are invalid
+	return false;
 }
 
 /**
@@ -172,8 +172,8 @@ bool canLink(const OutputType &from, const InputType &to)
  */
 void informUserAndCrash(const QString &text, const QString &title)
 {
-    QMessageBox::critical(NULL, title, text, QMessageBox::Close);
-    qFatal("[Papyrus] FATAL: %s", text.toStdString().c_str());
+	QMessageBox::critical(NULL, title, text, QMessageBox::Close);
+	qFatal("[Papyrus] FATAL: %s", text.toStdString().c_str());
 }
 
 /**
@@ -186,33 +186,33 @@ void informUserAndCrash(const QString &text, const QString &title)
  */
 void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF &size, const QPointF &pos, bool center)
 {
-    QSizeF svgSize = svg->boundingRect().size();
-    qreal targetWidth = size.width();
-    qreal targetHeight = size.height();
-    qreal svgWidth = svgSize.width();
-    qreal svgHeight = svgSize.height();
-    qreal xOffset = 0.0;
-    qreal yOffset = 0.0;
-    qreal ratio = 1.0;
+	QSizeF svgSize = svg->boundingRect().size();
+	qreal targetWidth = size.width();
+	qreal targetHeight = size.height();
+	qreal svgWidth = svgSize.width();
+	qreal svgHeight = svgSize.height();
+	qreal xOffset = 0.0;
+	qreal yOffset = 0.0;
+	qreal ratio = 1.0;
 
-    if (svgWidth > svgHeight) {
-        // When scaling in width, we need to center the image vertically
-        ratio = targetWidth / svgWidth;
-        if (center)
-            yOffset = (targetHeight - ratio * svgHeight) / 2.0;
-    } else {
-        // When scaling in height, we need to center the image horizontally
-        ratio = targetHeight / svgHeight;
-        if (center)
-            xOffset = (targetWidth - ratio * svgWidth) / 2.0;
-    }
+	if (svgWidth > svgHeight) {
+		// When scaling in width, we need to center the image vertically
+		ratio = targetWidth / svgWidth;
+		if (center)
+			yOffset = (targetHeight - ratio * svgHeight) / 2.0;
+	} else {
+		// When scaling in height, we need to center the image horizontally
+		ratio = targetHeight / svgHeight;
+		if (center)
+			xOffset = (targetWidth - ratio * svgWidth) / 2.0;
+	}
 
-    svg->setScale(ratio);
+	svg->setScale(ratio);
 
-    QPointF pos_ = pos;
-    pos_.rx() += xOffset;
-    pos_.ry() += yOffset;
-    svg->setPos(pos_);
+	QPointF pos_ = pos;
+	pos_.rx() += xOffset;
+	pos_.ry() += yOffset;
+	svg->setPos(pos_);
 }
 
 /**
@@ -221,51 +221,51 @@ void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF &size, const QPointF &po
  */
 void updateSizeIcon(DiagramBox *box)
 {
-    if (box == NULL)
-        informUserAndCrash(QObject::tr("Cannot update box's size icon: box is null!"));
+	if (box == NULL)
+		informUserAndCrash(QObject::tr("Cannot update box's size icon: box is null!"));
 
-    OutputType oType = box->outputType();
-    QGraphicsSvgItem *sizeIcon = box->sizeIcon();
-    if (sizeIcon == NULL)
-        informUserAndCrash(QObject::tr("Cannot update box's size icon: svg item is null!"));
+	OutputType oType = box->outputType();
+	QGraphicsSvgItem *sizeIcon = box->sizeIcon();
+	if (sizeIcon == NULL)
+		informUserAndCrash(QObject::tr("Cannot update box's size icon: svg item is null!"));
 
-    // If the output type is SCALAR, then set the icon size as scalar
-    if (oType == SCALAR)
-        sizeIcon->setElementId("scalar");
+	// If the output type is SCALAR, then set the icon size as scalar
+	if (oType == SCALAR)
+		sizeIcon->setElementId("scalar");
 
-    // If the output is MATRIX, then compares rows and cols to display a column vector, a row vector
-    // or a general matrix
-    else if (oType == MATRIX) {
-        int rows = box->rows();
-        int cols = box->cols();
+	// If the output is MATRIX, then compares rows and cols to display a column vector, a row vector
+	// or a general matrix
+	else if (oType == MATRIX) {
+		int rows = box->rows();
+		int cols = box->cols();
 
-        if (rows == 1 && cols != 1)
-            sizeIcon->setElementId("row");
-        else if (cols == 1 && rows != 1)
-            sizeIcon->setElementId("column");
-        else
-            sizeIcon->setElementId("matrix");
-    } else if (oType == STRING ){
-        sizeIcon->setElementId("string");
-    } else {
-        informUserAndCrash(QObject::tr("Unsupported output type when trying to update a box's icon size. "
-                              "Supported types are SCALAR and MATRIX."));
-    }
+		if (rows == 1 && cols != 1)
+			sizeIcon->setElementId("row");
+		else if (cols == 1 && rows != 1)
+			sizeIcon->setElementId("column");
+		else
+			sizeIcon->setElementId("matrix");
+	} else if (oType == STRING ){
+		sizeIcon->setElementId("string");
+	} else {
+		informUserAndCrash(QObject::tr("Unsupported output type when trying to update a box's icon size. "
+		                      "Supported types are SCALAR and MATRIX."));
+	}
 
 }
 
 QString timeUnitToString(const TimeUnit &unit)
 {
-    if (unit == HZ)
-        return "Hz";
+	if (unit == HZ)
+		return "Hz";
 
-    if (unit == MS)
-        return "ms";
+	if (unit == MS)
+		return "ms";
 
-    informUserAndCrash(QObject::tr("Unsupported time unit when trying to convert to string. Supported "
-                          "time units are: HZ and MS"));
+	informUserAndCrash(QObject::tr("Unsupported time unit when trying to convert to string. Supported "
+	                      "time units are: HZ and MS"));
 
-    return ""; // should not reach here as informUserAndCrash() crashes
+	return ""; // should not reach here as informUserAndCrash() crashes
 }
 
 /**
@@ -276,45 +276,45 @@ QString timeUnitToString(const TimeUnit &unit)
  */
 bool areLinked(OutputSlot *oSlot, InputSlot *iSlot)
 {
-    if (oSlot == NULL || iSlot == NULL)
-        informUserAndCrash(QObject::tr("Cannot check whether two slots are linked: at least one of them is null."));
+	if (oSlot == NULL || iSlot == NULL)
+		informUserAndCrash(QObject::tr("Cannot check whether two slots are linked: at least one of them is null."));
 
-    bool areLinked = false;
-    foreach (Link *link, oSlot->outputs()) {
-        if (link->to() == iSlot) {
-            areLinked = true;
-            break;
-        }
-    }
+	bool areLinked = false;
+	foreach (Link *link, oSlot->outputs()) {
+		if (link->to() == iSlot) {
+			areLinked = true;
+			break;
+		}
+	}
 
-    return areLinked;
+	return areLinked;
 }
 
 bool fileExists(const std::string &filename)
 {
-    struct stat buffer;
-    return (stat (filename.c_str(), &buffer) == 0);
+	struct stat buffer;
+	return (stat (filename.c_str(), &buffer) == 0);
 }
 
 
 
 QList<QString> getKheopsNodes()
 {
-    std::vector<std::string> nodes;
-    QList<QString> ret;
+	std::vector<std::string> nodes;
+	QList<QString> ret;
 
-    if (!ros::master::getNodes(nodes)) {
-        qDebug() << "Could not get nodes";
-        } else {
-        foreach (std::string node_, nodes) {
-            QString node = QString::fromStdString(node_);
+	if (!ros::master::getNodes(nodes)) {
+		qDebug() << "Could not get nodes";
+	    } else {
+		foreach (std::string node_, nodes) {
+			QString node = QString::fromStdString(node_);
 
-            if (node.startsWith("/kheops_"))
-                ret.append(node);
-        }
-    }
+			if (node.startsWith("/kheops_"))
+				ret.append(node);
+		}
+	}
 
-    return ret;
+	return ret;
 }
 
 /**
@@ -324,44 +324,71 @@ QList<QString> getKheopsNodes()
  */
 QString snakeCaseToPretty(const QString &str)
 {
-    QStringList words = str.split('_', QString::SkipEmptyParts);
-    QStringList capitalized;
+	QStringList words = str.split('_', QString::SkipEmptyParts);
+	QStringList capitalized;
 
-    foreach (QString s, words) {
-        capitalized << s[0].toUpper() + s.mid(1).toLower();
-    }
+	foreach (QString s, words) {
+		capitalized << s[0].toUpper() + s.mid(1).toLower();
+	}
 
-    return capitalized.join(" ");
+	return capitalized.join(" ");
 }
 
 QString connectivityToString(const Connectivity &conn)
 {
-    if (conn == ONE_TO_ALL)
-        return "ONE_TO_ALL";
+	if (conn == ONE_TO_ALL)
+		return "ONE_TO_ALL";
 
-    if (conn == ONE_TO_ONE)
-        return "ONE_TO_ONE";
+	if (conn == ONE_TO_ONE)
+		return "ONE_TO_ONE";
 
-    if (conn == ONE_TO_NEI)
-        return "ONE_TO_NEI";
+	if (conn == ONE_TO_NEI)
+		return "ONE_TO_NEI";
 
-    informUserAndCrash(QObject::tr("Unsupported Connectivity when trying to convert to string. Supported "
-                          "types are ONE_TO_ALL, ONE_TO_ONE and ONE_TO_NEI"));
+	informUserAndCrash(QObject::tr("Unsupported Connectivity when trying to convert to string. Supported "
+	                      "types are ONE_TO_ALL, ONE_TO_ONE and ONE_TO_NEI"));
 }
 
 
 Connectivity stringToConnectivity(const QString &str)
 {
-    QString lower = str.toLower();
+	QString lower = str.toLower();
 
-    if (lower == "one_to_one")
-        return ONE_TO_ONE;
+	if (lower == "one_to_one")
+		return ONE_TO_ONE;
 
-    if (lower == "one_to_all")
-        return ONE_TO_ALL;
+	if (lower == "one_to_all")
+		return ONE_TO_ALL;
 
-    if (lower == "one_to_nei")
-        return ONE_TO_NEI;
+	if (lower == "one_to_nei")
+		return ONE_TO_NEI;
 
-    informUserAndCrash(QObject::tr("Unsupported string to convert to Connectivity"));
+	informUserAndCrash(QObject::tr("Unsupported string to convert to Connectivity"));
+}
+
+/**
+ * @brief mkTopicName creates a full ROS topic name based on the script name, and the function's
+ * settings that contain the topic name
+ * @param scriptName
+ * @param topicName
+ * @return
+ */
+QString mkTopicName(const QString &scriptName, const QString &topicName)
+{
+	return sanitizeTopicName(QString("/kheops_%1/function_%2").arg(scriptName, topicName));
+}
+
+/**
+ * @brief sanitizeTopicName removes forbidden characters from topic names
+ * @param name
+ * @return
+ */
+QString sanitizeTopicName(const QString &name)
+{
+	QString ret = name;
+	ret.remove('{');
+	ret.remove('}');
+	ret.replace('-', '_');
+
+	return ret;
 }

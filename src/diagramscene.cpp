@@ -9,6 +9,7 @@
 #include "diagrambox.h"
 #include "script.h"
 #include "constantdiagrambox.h"
+#include "datavisualization.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -20,6 +21,9 @@
 #include <QApplication>
 #include <QDebug>
 #include <QGraphicsSvgItem>
+#include <QGraphicsProxyWidget>
+#include <QDockWidget>
+#include <QMenuBar>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_mainWindow(NULL),
@@ -38,6 +42,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
     connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
     connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
+    connect(propPanel->displayVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
     connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 
@@ -168,6 +173,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
                 updateSceneRect();
             }
         }
+    } else {
+        qDebug() << "Nb items:" << items().count();
     }
 
     QGraphicsScene::mousePressEvent(evt);
@@ -757,6 +764,26 @@ void DiagramScene::onCancelBtnClicked(bool)
                 informUserAndCrash(tr("Unsupported element for restoring properties, only function "
                                       "boxes and links are supported at the moment."));
             }
+        }
+    }
+}
+
+void DiagramScene::onDisplayVisuClicked(bool)
+{
+    QList<QGraphicsItem *> sItems = selectedItems();
+
+    PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
+    if (propPanel == NULL)
+        informUserAndCrash(tr("Impossible to fetch the properties panel!"));
+
+    if (sItems.count() == 0) {
+        propPanel->timeValue()->setValue(m_script->timeValue());
+        propPanel->timeUnit()->setCurrentIndex(m_script->timeUnit());
+    } else if (sItems.count() == 1) {
+        QGraphicsItem *item = sItems.at(0);
+        DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
+        if (selectedBox != NULL) {
+            selectedBox->showDataVis();
         }
     }
 }

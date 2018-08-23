@@ -68,6 +68,9 @@ public:
     QLineEdit *linkValue() const;
     void setLinkValue(QLineEdit *linkValue);
 
+    QPushButton *displayVisu() const;
+    void setDisplayVisu(QPushButton *displayVisu);
+
 private:
     QVBoxLayout *m_panelLayout;  // The properties panel's main layout
     QFrame *m_scriptFrame;       // Container for script's properties
@@ -86,6 +89,7 @@ private:
     QCheckBox *m_saveActivity; // To enable saving the activity of the box
     QCheckBox *m_publish;      // To enable publish the output of the function
     QLineEdit *m_topic;        // To input the topic name for publishing
+    QPushButton *m_displayVisu; // (TEMP) display the box's data vizualisation
 
     QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
     QFrame *m_linkFrame;          // Container for link's properties

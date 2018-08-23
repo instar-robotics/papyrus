@@ -90,6 +90,9 @@
     <addaction name="actionRun"/>
     <addaction name="actionStop"/>
     <addaction name="actionScope"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_all_outputs"/>
+    <addaction name="actionHide_all_outputs"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -299,6 +302,9 @@
    <property name="toolTip">
     <string>Connect to kheops script</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
   </action>
   <action name="actionRun">
    <property name="enabled">
@@ -347,6 +353,30 @@
   <action name="actionEdit_paths">
    <property name="text">
     <string>Edit paths</string>
+   </property>
+  </action>
+  <action name="actionShow_all_outputs">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/show.svg</normaloff>:/icons/icons/show.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Show all outputs</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionHide_all_outputs">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/hide.svg</normaloff>:/icons/icons/hide.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Hide all outputs</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+H</string>
    </property>
   </action>
  </widget>

@@ -47,4 +47,8 @@ QString connectivityToString(const Connectivity &conn);
 
 Connectivity stringToConnectivity(const QString &str);
 
+QString mkTopicName(const QString &scriptName, const QString &topicName);
+
+QString sanitizeTopicName(const QString &name);
+
 #endif // HELPERS_H

@@ -100,6 +100,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_saveActivity = new QCheckBox(tr("Save Activity"));
     m_publish = new QCheckBox(tr("Publish output"));
     m_topic = new QLineEdit;
+    m_displayVisu = new QPushButton(tr("Display Visualization"));
 
     // Parameterize the fields
     m_boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
@@ -121,6 +122,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
     m_boxLayout->addRow(m_saveActivity);
     m_boxLayout->addRow(m_publish);
     m_boxLayout->addRow(tr("Topic:"), m_topic);
+    m_boxLayout->addRow(m_displayVisu);
 
     m_boxFrame->setLayout(m_boxLayout);
 
@@ -279,6 +281,16 @@ QLineEdit *PropertiesPanel::linkValue() const
 void PropertiesPanel::setLinkValue(QLineEdit *linkValue)
 {
     m_linkValue = linkValue;
+}
+
+QPushButton *PropertiesPanel::displayVisu() const
+{
+    return m_displayVisu;
+}
+
+void PropertiesPanel::setDisplayVisu(QPushButton *displayVisu)
+{
+    m_displayVisu = displayVisu;
 }
 
 /**

@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "scalarvisualization.h"
 #include "vectorvisualization.h"
+#include "matrixvisualization.h"
 
 #include <iostream>
 
@@ -467,8 +468,9 @@ void DiagramBox::showDataVis()
 //				m_dataVis = new VectorVisualization(nullptr, scene(), this);
 				m_dataVis = new ScalarVisualization(nullptr, scene(), this);
 			} else {
-				qDebug() << "MATRIX data visualization not supported";
-				return;
+//				qDebug() << "MATRIX data visualization not supported";
+//				return;
+				m_dataVis = new MatrixVisualization(nullptr, scene(), this);
 			}
 		break;
 

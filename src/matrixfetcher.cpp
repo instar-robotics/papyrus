@@ -1,14 +1,33 @@
 #include "matrixfetcher.h"
+#include "matrixvisualization.h"
 
 #include <QDebug>
 
+MatrixFetcher::MatrixFetcher(const QString &topicName, MatrixVisualization *matrixVisualization, QObject *parent) :
+    DataFetcher(topicName, parent),
+    m_matrixVisualization(matrixVisualization),
+    m_scalarVisualization(nullptr)
+{
+	qDebug() << "[MatrixFetcher] created on topic" << m_topicName << "in matrix mode";
+
+	qDebug() << "[MatrixFetcher] start in matrix mode";
+	start();
+}
+
+MatrixFetcher::MatrixFetcher(const QString &topicName, MatrixVisualization *matrixVisualization, VisualizationType type, QObject *parent) :
+    MatrixFetcher(topicName, matrixVisualization, parent)
+{
+	setVisType(type);
+}
+
 MatrixFetcher::MatrixFetcher(const QString &topicName, ScalarVisualization *scalarVisualization, QObject *parent) :
     DataFetcher(topicName, parent),
-    m_scalarVisualization(scalarVisualization)
+    m_scalarVisualization(scalarVisualization),
+    m_matrixVisualization(nullptr)
 {
-	qDebug() << "[MatrixFetcher] created on topic" << m_topicName;
+	qDebug() << "[MatrixFetcher] created on topic" << m_topicName << "in scalar mode";
 
-	qDebug() << "[MatrixFetcher] start";
+	qDebug() << "[MatrixFetcher] start in scalar mode";
 	start();
 }
 
@@ -62,6 +81,12 @@ void MatrixFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &sca
 		case GRAPH:
 			if (m_scalarVisualization != nullptr) {
 				m_scalarVisualization->pushGraphValues(scalar->data);
+			}
+		break;
+
+		case GRAYSCALE:
+			if (m_matrixVisualization != nullptr) {
+				m_matrixVisualization->updateGrayscale(scalar->data);
 			}
 		break;
 

@@ -24,11 +24,11 @@ ScalarVisualization::ScalarVisualization(QWidget *parent, QGraphicsScene *scene,
 	createCharts();
 
 	m_vLayout = new QVBoxLayout;
-	m_vLayout->addWidget(m_menuBar);
+//	m_vLayout->addWidget(m_menuBar);
 	m_vLayout->addWidget(m_barView);
 	m_vLayout->addWidget(m_graphView);
 	m_graphView->hide();
-	m_vLayout->setContentsMargins(0, 0, 0, 0);
+	m_vLayout->setContentsMargins(0, 35, 0, 0);
 	setLayout(m_vLayout);
 
 	// Create the appropriate fetcher

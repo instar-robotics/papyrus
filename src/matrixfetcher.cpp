@@ -55,15 +55,12 @@ void MatrixFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &sca
 	switch (m_visType) {
 		case BAR:
 			if (m_scalarVisualization != nullptr) {
-//				std::vector<qreal> v;
-//				v.push_back(scalar->data);
 				m_scalarVisualization->updateBarValues(scalar->data);
 			}
 		break;
 
 		case GRAPH:
 			if (m_scalarVisualization != nullptr) {
-//				m_scalarVisualization->pushGraphValue(scalar->data);
 				m_scalarVisualization->pushGraphValues(scalar->data);
 			}
 		break;

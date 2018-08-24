@@ -78,32 +78,6 @@ void ScalarVisualization::updateBarValues(const std::vector<qreal> &values)
 
 	if (rangeChanged)
 		m_barAxisY->setRange(m_barMin, m_barMax);
-	/*
-
-	// Update the color bar based on the value
-	if (value < 0)
-		m_barSet->setColor(QColor(200, 0, 0, 200));
-	else
-		m_barSet->setColor(QColor(32, 159, 223, 200));
-
-	bool rangeChanged = false;
-
-	// Update the range (for now, range doesn't shrink back)
-	if (value > m_barMax) {
-		m_barMax = 1.2 * value;
-		rangeChanged = true;
-	}
-	if (value < m_barMin) {
-		if (value < 0)
-			m_barMin = 1.2 * value;
-		else
-			m_barMin = 0.8 * value;
-		rangeChanged = true;
-	}
-
-	if (rangeChanged)
-		m_barAxisY->setRange(m_barMin, m_barMax);
-	//*/
 }
 
 void ScalarVisualization::pushGraphValues(const std::vector<qreal> &values)
@@ -142,38 +116,6 @@ void ScalarVisualization::pushGraphValues(const std::vector<qreal> &values)
 
 	if (rangeChanged)
 		m_graphAxisY->setRange(m_graphMin, m_graphMax);
-
-	/*
-//	qreal dx = m_graphChart->plotArea().width() / (m_graphAxisX->tickCount() - 1);
-//	m_idx += (m_graphAxisX->max() - m_graphAxisX->min()) / ((m_graphAxisX->tickCount() - 1));
-	qreal dx = m_graphChart->plotArea().width() / (500);
-	m_idx += (m_graphAxisX->max() - m_graphAxisX->min()) / (500);
-
-	m_graphChart->scroll(dx, 0);
-//	m_graphSeries->append(m_idx, value);
-	m_graphSeries.at(0)->append(m_idx, value);
-	m_graphSeries.at(1)->append(m_idx, -value);
-
-	/*
-
-	bool rangeChanged = false;
-
-	// Update the range (for now, range doesn't shrink back)
-	if (value > m_graphMax) {
-		m_graphMax = 1.2 * value;
-		rangeChanged = true;
-	}
-	if (value < m_graphMin) {
-		if (value < 0)
-			m_graphMin = 1.2 * value;
-		else
-			m_graphMin = 0.8 * value;
-		rangeChanged = true;
-	}
-
-	if (rangeChanged)
-		m_graphAxisY->setRange(m_graphMin, m_graphMax);
-	//*/
 }
 
 void ScalarVisualization::createCharts()

@@ -31,7 +31,6 @@ protected:
 
 	int m_size;
 
-//	QBarSet *m_barSet;
 	QList<QBarSet *> m_barSets;
 	QBarSeries *m_barSeries;
 	QChart *m_barChart;
@@ -40,7 +39,6 @@ protected:
 	qreal m_barMin;
 	qreal m_barMax;
 
-//	QSplineSeries *m_graphSeries;
 	QList<QSplineSeries *> m_graphSeries;
 	QChart *m_graphChart;
 	QVBoxLayout *m_vLayout;

@@ -24,13 +24,19 @@ void ScalarFetcher::fetchScalar(const std_msgs::Float64::ConstPtr &scalar)
 	switch (m_visType) {
 		case BAR:
 			if (m_scalarVisualization != nullptr) {
-				m_scalarVisualization->updateBarValue(scalar->data);
+//				m_scalarVisualization->updateBarValue(scalar->data);
+				std::vector<qreal> v;
+				v.push_back(scalar->data);
+				m_scalarVisualization->updateBarValues(v);
 			}
 		break;
 
 		case GRAPH:
 			if (m_scalarVisualization != nullptr) {
-				m_scalarVisualization->pushGraphValue(scalar->data);
+//				m_scalarVisualization->pushGraphValue(scalar->data);
+				std::vector<qreal> v;
+				v.push_back(scalar->data);
+				m_scalarVisualization->pushGraphValues(v);
 			}
 		break;
 
@@ -53,7 +59,7 @@ void ScalarFetcher::setVisType(VisualizationType type)
 	if (type <= GRAPH)
 		m_visType = type;
 	else
-		qDebug() << "[ScalarFetcher] ignores new visualization type" << type;
+		qWarning() << "[ScalarFetcher] ignores new visualization type" << type;
 }
 
 void ScalarFetcher::run()

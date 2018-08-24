@@ -45,7 +45,6 @@ enum Connectivity {
 enum VisualizationType {
 	BAR,        // scalar and vector
 	GRAPH,      // scalar and vector
-	PERCENT,    // vector
 	IMAGE,      // matrix
 	GRAYSCALE,  // matrix
 	LANDSCAPE   // matrix

@@ -10,6 +10,9 @@
 #include <QSplineSeries>
 #include <QValueAxis>
 #include <QVBoxLayout>
+#include <QList>
+
+#include <vector>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -20,11 +23,16 @@ public:
 	ScalarVisualization(QWidget *parent = nullptr, QGraphicsScene *scene = nullptr, DiagramBox *box = nullptr);
 	void mousePressEvent(QMouseEvent *evt);
 
-	void updateBarValue(const qreal value);
-	void pushGraphValue(const qreal value);
+	void updateBarValues(const std::vector<qreal> &values);
+	void pushGraphValues(const std::vector<qreal> &values);
 
-private:
-	QBarSet *m_barSet;
+protected:
+	void createCharts();
+
+	int m_size;
+
+//	QBarSet *m_barSet;
+	QList<QBarSet *> m_barSets;
 	QBarSeries *m_barSeries;
 	QChart *m_barChart;
 	QValueAxis *m_barAxisY;
@@ -32,7 +40,8 @@ private:
 	qreal m_barMin;
 	qreal m_barMax;
 
-	QSplineSeries *m_graphSeries;
+//	QSplineSeries *m_graphSeries;
+	QList<QSplineSeries *> m_graphSeries;
 	QChart *m_graphChart;
 	QVBoxLayout *m_vLayout;
 	QValueAxis *m_graphAxisX;
@@ -42,7 +51,7 @@ private:
 	qreal m_graphMin;
 	qreal m_graphMax;
 
-private slots:
+protected slots:
 	void switchToBar();
 	void switchToGraph();
 };

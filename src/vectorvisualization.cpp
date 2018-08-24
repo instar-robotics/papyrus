@@ -1,28 +1,29 @@
 #include "vectorvisualization.h"
+#include "helpers.h"
 
 #include <QDebug>
 
 VectorVisualization::VectorVisualization(QWidget *parent, QGraphicsScene *scene, DiagramBox *box) :
-    DataVisualization(parent, scene, box)
+    ScalarVisualization(parent, scene, box)
 {
 	qDebug() << "[VectorVis] created";
-	// We populate the available types of visualization for Scalar in the menu
-	m_typeMenu->addAction(tr("Bar"), this, SLOT(switchToBar()));
-	m_typeMenu->addAction(tr("Graph"), this, SLOT(switchToGraph()));
-	m_typeMenu->addAction(tr("Percent"), this, SLOT(switchToPercent()));
-}
 
-void VectorVisualization::switchToBar()
-{
-	qDebug() << "Switched to Bar";
-}
+	// Get the size of the vector
+	// TODO: change between row and col vis
+	if (box->rows() == 1)
+		m_size = box->cols();
+	else if (box->cols() == 1)
+		m_size = box->rows();
+	else
+		informUserAndCrash(tr("Not a vector!"));
 
-void VectorVisualization::switchToGraph()
-{
-	qDebug() << "Switched to Graph";
-}
+	// Populate the bar set
+	m_barSets.clear();
+	for (unsigned int i = 0; i < m_size; i += 1) {
+		QBarSet *s = new QBarSet(QString::number(i));
+		*s << 0;
+		m_barSets.append(s);
+	}
 
-void VectorVisualization::switchToPercent()
-{
-	qDebug() << "Switched to Percent";
+
 }

@@ -456,7 +456,6 @@ void DiagramBox::showDataVis()
 	switch (outputType()) {
 		case SCALAR:
 			m_dataVis = new ScalarVisualization(nullptr, scene(), this);
-			m_dataVis->resize(200, 200);
 		break;
 
 		case MATRIX:
@@ -465,7 +464,8 @@ void DiagramBox::showDataVis()
 				qDebug() << "Treat (1,1) matrix as scalar";
 				m_dataVis = new ScalarVisualization(nullptr, scene(), this);
 			} else if (m_rows == 1 || m_cols == 1) {
-				m_dataVis = new VectorVisualization(nullptr, scene(), this);
+//				m_dataVis = new VectorVisualization(nullptr, scene(), this);
+				m_dataVis = new ScalarVisualization(nullptr, scene(), this);
 			} else {
 				qDebug() << "MATRIX data visualization not supported";
 				return;

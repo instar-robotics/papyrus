@@ -20,7 +20,6 @@ public:
 	explicit MatrixFetcher(const QString &topicName, ScalarVisualization *scalarVisualization, QObject *parent = nullptr);
 	explicit MatrixFetcher(const QString &topicName, ScalarVisualization *scalarVisualization, VisualizationType type, QObject *parent = nullptr);
 
-
 	void setVisType(VisualizationType type) override;
 
 protected:
@@ -30,6 +29,7 @@ protected:
 private:
 	ScalarVisualization *m_scalarVisualization;
 	MatrixVisualization *m_matrixVisualization;
+	QList<double> m_dataList;
 };
 
 #endif // MATRIXFETCHER_H

@@ -47,7 +47,7 @@ void MatrixFetcher::setVisType(VisualizationType type)
 	if (type == m_visType)
 		return;
 
-	    m_visType = type;
+	m_visType = type;
 }
 
 void MatrixFetcher::run()
@@ -86,7 +86,11 @@ void MatrixFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &sca
 
 		case GRAYSCALE:
 			if (m_matrixVisualization != nullptr) {
-				m_matrixVisualization->updateGrayscale(scalar->data);
+				m_dataList.clear();
+				for(unsigned int i = 0; i < scalar->data.size(); i += 1)
+					m_dataList.append(scalar->data.at(i));
+
+				emit newMatrix(&m_dataList);
 			}
 		break;
 

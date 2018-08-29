@@ -14,8 +14,6 @@ class MatrixVisualization : public DataVisualization
 public:
 	explicit MatrixVisualization(QWidget *parent = nullptr, QGraphicsScene *scene = nullptr, DiagramBox *box = nullptr);
 
-	void updateGrayscale(const std::vector<qreal> &values);
-
 private:
 	QLabel *m_grayImageLabel;
 	QImage m_grayImage;
@@ -25,6 +23,7 @@ private slots:
 	void switchToGrayscale();
 	void switchToImage();
 	void switchToLandscape();
+	void updateGrayscale(QList<double> *values);
 };
 
 #endif // MATRIXVISUALIZATION_H

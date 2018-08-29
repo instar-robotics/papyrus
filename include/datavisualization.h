@@ -29,8 +29,6 @@ protected:
 	QMenuBar *m_menuBar;
 	QMenu *m_typeMenu;
 	DataFetcher *m_dataFetcher;
-
-signals:
 };
 
 #endif // DATAVISUALIZATION_H

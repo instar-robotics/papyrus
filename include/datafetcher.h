@@ -5,6 +5,7 @@
 
 #include <QThread>
 #include <QString>
+#include <QList>
 #include <ros/ros.h>
 
 //QT_CHARTS_USE_NAMESPACE
@@ -29,6 +30,7 @@ protected:
 	VisualizationType m_visType;
 
 signals:
+	void newMatrix(QList<double> *values);
 };
 
 #endif // DATAFETCHER_H

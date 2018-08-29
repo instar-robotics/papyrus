@@ -7,11 +7,12 @@ project(papyrus)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
+set(CATKIN_DEPS
   roscpp
   std_msgs
   hieroglyph
 )
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -105,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES my-pkg
-#  CATKIN_DEPENDS roscpp std_msgs
+ CATKIN_DEPENDS ${CATKIN_DEPS}
 #  DEPENDS system_lib
 )
 
@@ -198,7 +199,8 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O2")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -Wall -Wextra")
+# set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -g") # For debug
 
 ###############
 #  Qt related #

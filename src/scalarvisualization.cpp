@@ -44,6 +44,7 @@ ScalarVisualization::ScalarVisualization(QWidget *parent, QGraphicsScene *scene,
 
 void ScalarVisualization::mousePressEvent(QMouseEvent *evt)
 {
+	Q_UNUSED(evt);
 	qDebug() << "Click detected, what to do?^^";
 	qDebug() << "Layout Content Margins:" << layout()->contentsMargins();
 }
@@ -141,7 +142,7 @@ void ScalarVisualization::createCharts()
 	qDebug() << "Created charts with size" << m_size;
 
 	// Create the chart for BAR mode
-	for (unsigned int i = 0; i < m_size; i += 1) {
+	for (int i = 0; i < m_size; i += 1) {
 		QBarSet *s = new QBarSet(QString::number(i));
 		*s << 0;
 		m_barSets.append(s);
@@ -169,7 +170,7 @@ void ScalarVisualization::createCharts()
 	// Create the chart for GRAPH mode
 	m_graphChart = new QChart;
 
-	for (unsigned int i = 0; i < m_size; i += 1) {
+	for (int i = 0; i < m_size; i += 1) {
 		m_graphSeries.append(new QSplineSeries);
 		m_graphChart->addSeries(m_graphSeries.at(i));
 	}
@@ -184,7 +185,7 @@ void ScalarVisualization::createCharts()
 	m_graphAxisY->setRange(m_graphMin, m_graphMax);
 	m_graphAxisY->setTickCount(5);
 
-	for (unsigned int i = 0; i < m_size; i += 1) {
+	for (int i = 0; i < m_size; i += 1) {
 		m_graphChart->setAxisX(m_graphAxisX, m_graphSeries.at(i));
 		m_graphChart->setAxisY(m_graphAxisY, m_graphSeries.at(i));
 	}

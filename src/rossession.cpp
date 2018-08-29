@@ -32,6 +32,8 @@ ROSSession::~ROSSession()
  */
 void ROSSession::timerEvent(QTimerEvent *evt)
 {
+	Q_UNUSED(evt);
+
 	if (m_isRunning && !m_isPaused) {
 		qint64 ms = m_timeOffset +  m_startTime.msecsTo(QDateTime::currentDateTime());
 		int h = ms / 1000 / 60 / 60;
@@ -222,6 +224,8 @@ ScriptStatus ROSSession::queryScriptStatus()
 		informUserAndCrash(tr("The command STATUS failed when the node was queried."),
 		                   tr("Failed STATUS command"));
 	}
+
+	return INVALID_SCRIPT_STATUS;
 }
 
 bool ROSSession::isRunning() const

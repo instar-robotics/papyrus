@@ -45,7 +45,8 @@ QString outputTypeToString(const OutputType &outputType)
 		return QString("STRING");
 		break;
 		default:
-			qFatal("Unsupported OutputType when converting to QString.");
+			informUserAndCrash("Unsupported OutputType when converting to QString.");
+		    return ""; // never reached, to prevent compiler warning
 		break;
 	}
 }
@@ -69,7 +70,8 @@ OutputType stringToOutputType(const QString &str)
 	if (lower == "string")
 		return STRING;
 
-	qFatal("Failed to parse string into OutputType");
+	informUserAndCrash("Failed to parse string into OutputType");
+	return INVALID_OUTPUT_TYPE;
 }
 
 /**
@@ -97,7 +99,8 @@ QString inputTypeToString(const InputType &inputType)
 		return QString("STRING");
 		break;
 		default:
-			qFatal("Unsupported InputType when converting to QString.");
+			informUserAndCrash("Unsupported InputType when converting to QString.");
+		    return ""; // never reached, to prevent compiler warning
 		break;
 	}
 }
@@ -127,7 +130,9 @@ InputType stringToInputType(const QString &str)
 	if (lower == "string")
 		return STRING_INPUT;
 
-	qFatal("Failed to parse string to InputType");
+	informUserAndCrash("Failed to parse string to InputType");
+
+	return INVALID_INPUT_TYPE;
 }
 
 /**
@@ -347,6 +352,8 @@ QString connectivityToString(const Connectivity &conn)
 
 	informUserAndCrash(QObject::tr("Unsupported Connectivity when trying to convert to string. Supported "
 	                      "types are ONE_TO_ALL, ONE_TO_ONE and ONE_TO_NEI"));
+
+	return ""; // Never reached, to prevent compier warning
 }
 
 
@@ -364,6 +371,8 @@ Connectivity stringToConnectivity(const QString &str)
 		return ONE_TO_NEI;
 
 	informUserAndCrash(QObject::tr("Unsupported string to convert to Connectivity"));
+
+	return INVALID_CONNECTIVITY;
 }
 
 /**

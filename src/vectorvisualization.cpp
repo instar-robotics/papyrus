@@ -19,7 +19,7 @@ VectorVisualization::VectorVisualization(QWidget *parent, QGraphicsScene *scene,
 
 	// Populate the bar set
 	m_barSets.clear();
-	for (unsigned int i = 0; i < m_size; i += 1) {
+	for (int i = 0; i < m_size; i += 1) {
 		QBarSet *s = new QBarSet(QString::number(i));
 		*s << 0;
 		m_barSets.append(s);

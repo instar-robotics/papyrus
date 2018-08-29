@@ -30,6 +30,7 @@ protected:
 	void createCharts();
 
 	int m_size;
+	int m_idx;
 
 	QList<QBarSet *> m_barSets;
 	QBarSeries *m_barSeries;
@@ -45,7 +46,6 @@ protected:
 	QValueAxis *m_graphAxisX;
 	QValueAxis *m_graphAxisY;
 	QChartView *m_graphView;
-	int m_idx;
 	qreal m_graphMin;
 	qreal m_graphMax;
 

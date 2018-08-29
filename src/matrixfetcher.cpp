@@ -5,8 +5,8 @@
 
 MatrixFetcher::MatrixFetcher(const QString &topicName, MatrixVisualization *matrixVisualization, QObject *parent) :
     DataFetcher(topicName, parent),
-    m_matrixVisualization(matrixVisualization),
-    m_scalarVisualization(nullptr)
+    m_scalarVisualization(nullptr),
+    m_matrixVisualization(matrixVisualization)
 {
 	qDebug() << "[MatrixFetcher] created on topic" << m_topicName << "in matrix mode";
 

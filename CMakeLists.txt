@@ -11,7 +11,9 @@ set(CATKIN_DEPS
   roscpp
   std_msgs
   hieroglyph
-)
+  alexandria
+  )
+
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 ## System dependencies are found with CMake's conventions
@@ -199,7 +201,7 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -Wall -Wextra -msse2 -mtune=native -march=native -pipe")
 # set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -g") # For debug
 
 ###############
@@ -238,3 +240,5 @@ file(GLOB RESOURCES "*.qrc")
 
 add_executable(papyrus ${SOURCES} ${HEADERS} ${RESOURCES})
 target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts cryptopp)
+
+add_dependencies(papyrus ${hieroglyph_EXPORTED_TARGETS})

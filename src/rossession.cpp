@@ -74,14 +74,16 @@ void ROSSession::run()
 	if (!m_isRunning) {
 		QProcess *kheopsNode = new QProcess(this);
 		// TEMPORARY
-		/*
+		//*
 		QString prog = "rosrun";
 		QStringList args;
 		args << "kheops";
 		args << "kheops";
 		//*/
+		/*
 		QString prog = "/home/nschoe/workspace/Qt/catkin_ws/devel/lib/kheops/kheops";
 		QStringList args;
+		//*/
 		args << "-s";
 		args << m_script->filePath();
 		args << "-l";

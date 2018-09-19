@@ -2,6 +2,7 @@
 #include "helpers.h"
 #include "constants.h"
 #include "connectivitywindow.h"
+#include "constantdiagrambox.h"
 
 #include <QVBoxLayout>
 #include <QDebug>
@@ -541,11 +542,16 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 	if (box->outputType() == MATRIX) {
 		box->setRows(m_rowsInput->value());
 		box->setCols(m_colsInput->value());
+
 		// Make sure to call updateSizeIcon() BEFORE rescaleSvgItem() because the latter is based on the former
+		// but only if this is NOT a constant box
+		ConstantDiagramBox *constantBox = dynamic_cast<ConstantDiagramBox *>(box);
+		if (constantBox == nullptr) {
 		updateSizeIcon(box);
 		rescaleSvgItem(box->sizeIcon(),
 		               QSizeF(box->bWidth() / 3 - 1.5, box->bHeight() - box->tHeight() - 2.5),
 		               QPointF(2 * box->bWidth() / 3, 1.5));
+		}
 	}
 
 	// Set the box's "save activity" flag

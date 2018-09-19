@@ -40,6 +40,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_cols(1),
                                                 m_saveActivity(false),
                                                 m_publish(false),
+                                                m_sizeIcon(nullptr),
                                                 m_dataVis(nullptr),
                                                 m_dataProxy(nullptr)
 {
@@ -62,9 +63,7 @@ DiagramBox::DiagramBox(const QString &name,
 	m_outputSlot->setAcceptHoverEvents(true);
 
 	// Set the output's slot position, in its parent's referential (this item's)
-	QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
-	p.rx() += 5; // Set a bit of margin to the right to prevent the diamon-shape to overlap
-	m_outputSlot->setPos(p);
+	setOutputSlotPos();
 
 	// Make this the parent item of all input slots, so that they follow drags, etc.
 	qreal s = 20;
@@ -495,6 +494,13 @@ void DiagramBox::showDataVis()
 	m_dataProxy->setAcceptHoverEvents(true);
 
 	m_dataProxy->setZValue(DATA_Z_VALUE);
+}
+
+void DiagramBox::setOutputSlotPos()
+{
+	QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
+	p.rx() += 5; // Set a bit of margin to the right to prevent the diamon-shape to overlap
+	m_outputSlot->setPos(p);
 }
 
 /**

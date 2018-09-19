@@ -42,6 +42,8 @@ public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
 	void showDataVis();
+	void setOutputSlotPos();
+
 	QString scriptName();
 
 	QString name() const;
@@ -102,15 +104,16 @@ public:
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
-private:
-	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
 	QString m_name;    // Name of the function
-	QString m_libname; // Name of the library this function belongs to (for kheops's linking)
-	QIcon m_icon;      // Icon representing the function
 
 	qreal m_bWidth;  // Overall width of the function's box
 	qreal m_bHeight; // Overall height of the function's box
 	qreal m_tHeight; // Height of the space in which th function's name is written
+
+private:
+	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
+	QString m_libname; // Name of the library this function belongs to (for kheops's linking)
+	QIcon m_icon;      // Icon representing the function
 
 	QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 

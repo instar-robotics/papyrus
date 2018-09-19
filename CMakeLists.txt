@@ -241,4 +241,4 @@ file(GLOB RESOURCES "*.qrc")
 add_executable(papyrus ${SOURCES} ${HEADERS} ${RESOURCES})
 target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts cryptopp)
 
-add_dependencies(papyrus ${hieroglyph_EXPORTED_TARGETS})
+add_dependencies(papyrus ${hieroglyph_EXPORTED_TARGETS} ${alexandria_EXPORTED_TARGETS})

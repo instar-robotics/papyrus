@@ -50,6 +50,7 @@ void RosNode::run()
 	m_sub = n.subscribe("chatter", 1000, cb1);
 
 	// And now enter the ROS loop
+	ros::Rate rate(10); // 10 Hz
 	while (ros::ok() && ros::master::check()) {
 		if (m_shouldQuit) {
 			quit();
@@ -57,6 +58,7 @@ void RosNode::run()
 		}
 
 		ros::spinOnce();
+		rate.sleep();
 	}
 
 	emit rosMasterChanged(false);

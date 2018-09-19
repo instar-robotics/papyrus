@@ -65,6 +65,7 @@ void ScalarFetcher::setVisType(VisualizationType type)
 void ScalarFetcher::run()
 {
 	qDebug() << "[ScalarFetcher] run";
+	ros::Rate rate(10); // 10Hz
 
 	ros::Subscriber m_sub = m_n.subscribe(m_topicName.toStdString(),
 	                                      1000,
@@ -78,5 +79,6 @@ void ScalarFetcher::run()
 		}
 
 		ros::spinOnce();
+		rate.sleep();
 	}
 }

@@ -19,6 +19,7 @@ void DataFetcher::run()
 	qDebug() << "[DataFetcher] Run";
 //	ros::Subscriber m_sub = m_n.subscribe(m_topicName.toStdString(), 1000, &DataFetcher::fetchScalar, this);
 
+	ros::Rate rate(10); // 10 Hz
 	while (ros::ok()) {
 		if (m_shouldQuit) {
 			qDebug() << "[DataFetcher] should quit now";
@@ -27,6 +28,7 @@ void DataFetcher::run()
 		}
 
 		ros::spinOnce();
+		rate.sleep();
 	}
 }
 //*/

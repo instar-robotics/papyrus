@@ -58,6 +58,7 @@ void MatrixFetcher::run()
 	                                      1000,
 	                                      &MatrixFetcher::fetchMatrix, this);
 
+	ros::Rate rate(10); // 10Hz
 	while (ros::ok()) {
 		if (m_shouldQuit) {
 			qDebug() << "[MatrixFetcher] quitting";
@@ -66,6 +67,7 @@ void MatrixFetcher::run()
 		}
 
 		ros::spinOnce();
+		rate.sleep();
 	}
 }
 

@@ -490,9 +490,11 @@ void PropertiesPanel::displayScriptProperties(Script *script)
 	m_cancelBtn->show();
 }
 
-void PropertiesPanel::convertTimeValues(int unit)
+void PropertiesPanel::convertTimeValues(int idx)
 {
 	m_timeValue->setValue(1000.0 / m_timeValue->value());
+
+	TimeUnit unit = m_timeUnit->itemData(idx).value<TimeUnit>();
 
 	if (unit == MS) {
 		m_timeLabel->setText(tr("Period:"));

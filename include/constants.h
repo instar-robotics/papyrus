@@ -43,7 +43,7 @@
 #define MAX_WEIGHT 10000
 
 // Define the minimum and maximum time value (for the double spinbox)
-#define MIN_TIME_VALUE 0.001
+#define MIN_TIME_VALUE 0 //0.001
 #define MAX_TIME_VALUE 10000
 
 // Define the z-value for the links (used to put them behind slots to prevent hiding the slots)

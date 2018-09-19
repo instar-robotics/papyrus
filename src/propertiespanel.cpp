@@ -482,7 +482,18 @@ void PropertiesPanel::displayScriptProperties(Script *script)
 	// Populate fields
 	m_scriptName->setText(script->name());
 	m_timeValue->setValue(script->timeValue());
-	m_timeUnit->setCurrentIndex(script->timeUnit());
+	switch (script->timeUnit()) {
+		case HZ:
+			m_timeUnit->setCurrentIndex(0);
+		break;
+
+		case MS:
+			m_timeUnit->setCurrentIndex(1);
+		break;
+
+		default:
+			qWarning() << "Unsupported time Unit";
+	}
 	m_encrypt->setChecked(script->encrypt());
 
 	// Show the script's frame

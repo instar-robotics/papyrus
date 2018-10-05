@@ -1536,6 +1536,12 @@ void PapyrusWindow::on_actionClose_Script_triggered()
  */
 void PapyrusWindow::on_actionConnect_triggered()
 {
+	// Make sure we have a ros master running
+	if (!ros::master::check()) {
+		emit displayStatusMessage(tr("Connect is cancelled because the ROS master is not up."), MSG_ERROR);
+		return;
+	}
+
 	// Create an instance of NodesChooser, and make it modal to the application
 	NodesChooser *nodesChooser = new NodesChooser;
 	nodesChooser->setWindowFlag(Qt::Dialog);
@@ -1564,7 +1570,8 @@ void PapyrusWindow::on_actionConnect_triggered()
 
 			// Ask the specified kheops node for its script path
 			QString ctrlSrv = selectedNode + "/control";
-			ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(ctrlSrv.toStdString());
+			ros::NodeHandle nh;
+			ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(ctrlSrv.toStdString());
 			hieroglyph::SimpleCmd srv;
 			srv.request.cmd = "path";
 			QString scriptPath;

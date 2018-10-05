@@ -36,6 +36,10 @@ void RosNode::run()
 {
 	// Wait for the master node to come online
 	while (!ros::master::check()) {
+		if (m_shouldQuit) {
+			quit();
+			return;
+		}
 		sleep(1);
 	}
 

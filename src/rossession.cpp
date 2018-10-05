@@ -54,6 +54,14 @@ void ROSSession::runOrPause()
 
 void ROSSession::run()
 {
+	// Make sure the ROS master is up before trying to run
+	if (!ros::master::check()) {
+		emit displayStatusMessage(tr("Command cancelled because the ROS master is not up."), MSG_ERROR);
+		return;
+	}
+
+	ros::NodeHandle nh;
+
 	if (m_nodeName.isEmpty()) {
 		emit displayStatusMessage(tr("No node name: cannot run"), MSG_ERROR);
 		return;
@@ -108,7 +116,7 @@ void ROSSession::run()
 	// Otherwise, if the node is already running, we just have to ask it to resume execution
 	else {
 		QString srvName = m_nodeName + "/control";
-		ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+		ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 		hieroglyph::SimpleCmd srv;
 		srv.request.cmd = "resume";
 
@@ -139,8 +147,10 @@ void ROSSession::pause()
 		return;
 	}
 
+	ros::NodeHandle nh;
+
 	QString srvName = m_nodeName + "/control";
-	ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = "pause";
 
@@ -164,6 +174,14 @@ void ROSSession::pause()
 
 void ROSSession::stop()
 {
+	// Make sure the ROS master is up
+	if (!ros::master::check()) {
+		emit displayStatusMessage(tr("STOP command cancelled because the ROS master is not up."), MSG_ERROR);
+		return;
+	}
+
+	ros::NodeHandle nh;
+
 	if (m_nodeName.isEmpty()) {
 		emit displayStatusMessage(tr("No node name for this script: cannot stop"), MSG_ERROR);
 		qWarning() << "No node name: cannot stop";
@@ -172,7 +190,7 @@ void ROSSession::stop()
 
 	QString srvName = m_nodeName + "/control";
 
-	ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = "quit";
 
@@ -201,13 +219,21 @@ void ROSSession::stop()
  */
 ScriptStatus ROSSession::queryScriptStatus()
 {
+	// Make sure the ROS master is up
+	if (!ros::master::check()) {
+		emit displayStatusMessage(tr("Command cancelled because the ROS master is not up."), MSG_ERROR);
+		return INVALID_SCRIPT_STATUS;
+	}
+
+	ros::NodeHandle nh;
+
 	if (m_nodeName.isEmpty())
 		informUserAndCrash(tr("Cannot query for script's status because no node name was specified."),
 		                   tr("No node name specified"));
 
 	QString srvName = m_nodeName + "/control";
 
-	ros::ServiceClient client = m_n.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = "status";
 

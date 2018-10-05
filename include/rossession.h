@@ -50,7 +50,6 @@ public:
 
 private:
 	QString m_nodeName;       // the ROS node we are connected to
-	ros::NodeHandle m_n;      // The ROS handle through which we will issue commands
 	bool m_isRunning;         // indicates whether the associated kheops script is currently running
 	bool m_isPaused;          // indicated whether the associated kheops script is paused
 	qint64 m_timeOffset;      // time accumulator to keep track of elapsed time when script is paused

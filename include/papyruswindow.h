@@ -108,6 +108,9 @@ public:
 	QString ivFile() const;
 	void setIvFile(const QString &ivFile);
 
+	QString lastDir() const;
+	void setLastDir(const QString &lastDir);
+
 private:
 	Ui::PapyrusWindow *m_ui;
 	RosNode *m_rosnode;
@@ -129,12 +132,13 @@ private:
 	DevelopmentType m_developmentType;
 	QAction *m_actionRelease;
 	QAction *m_actionDebug;
-	QString m_debugPath;              // Path where to search for description files in DEBUG mode
-	QString m_releasePath;            // Path where to search for description files in RELEASE mode
-	QString m_debugLibPath;           // Path where to search for library files in DEBUG mode
-	QString m_releaseLibPath;         // Path where to search for library files in RELEASE mode
-	QString m_keyFile;                // Path of the key file to crypt / decrypt scrip files
-	QString m_ivFile;                 // Path of the IV
+	QString m_debugPath;       // Path where to search for description files in DEBUG mode
+	QString m_releasePath;     // Path where to search for description files in RELEASE mode
+	QString m_debugLibPath;    // Path where to search for library files in DEBUG mode
+	QString m_releaseLibPath;  // Path where to search for library files in RELEASE mode
+	QString m_keyFile;         // Path of the key file to crypt / decrypt scrip files
+	QString m_ivFile;          // Path of the IV
+	QString m_lastDir;         // Last directory visited for saving or loading files
 
 signals:
 	void toggleDisplayGrid(bool);

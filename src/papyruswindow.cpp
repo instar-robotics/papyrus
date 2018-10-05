@@ -52,7 +52,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_homePage(NULL),
     m_runTimeDisplay(NULL),
     m_actionRelease(NULL),
-    m_actionDebug(NULL)
+    m_actionDebug(NULL),
+    m_lastDir(QDir::homePath())
 {
 	// First of all set the UI according to the UI file (MUST be called before the rest)
 	m_ui->setupUi(this);
@@ -319,6 +320,10 @@ void PapyrusWindow::readSettings()
 	move(settings.value("pos", QPoint(33, 33)).toPoint());
 	settings.endGroup(); // MainWindow
 
+	settings.beginGroup("Scripts");
+	m_lastDir = settings.value("lastDir", QDir::homePath()).toString();
+	settings.endGroup();
+
 	// View settings regarding the scripts (grid toggled, antialiasing, etc.)
 	settings.beginGroup("View");
 	m_ui->actionAntialiasing->setChecked(settings.value("antialiasing", true).toBool());
@@ -356,6 +361,10 @@ void PapyrusWindow::writeSettings()
 	settings.setValue("size", size());
 	settings.setValue("pos", pos());
 	settings.endGroup(); // MainWindow
+
+	settings.beginGroup("Scripts");
+	settings.setValue("lastDir", m_lastDir);
+	settings.endGroup();
 
 	// Save the view settings
 	settings.beginGroup("View");
@@ -937,23 +946,34 @@ void PapyrusWindow::setIvFile(const QString &ivFile)
 	m_ivFile = ivFile;
 }
 
+QString PapyrusWindow::lastDir() const
+{
+	return m_lastDir;
+}
+
+void PapyrusWindow::setLastDir(const QString &lastDir)
+{
+	m_lastDir = lastDir;
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
 	// Call the 'Save' function of the current script
 	if (m_activeScript == NULL) {
 		m_ui->statusBar->showMessage(tr("No open script to save."));
-	QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
-	return;
+		QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
+		return;
 	}
 
-	m_activeScript->save(getDescriptionPath());
+	m_activeScript->save(getDescriptionPath(), m_lastDir);
 }
 
 void PapyrusWindow::on_actionOpen_Script_triggered()
 {
 	QString scriptPath = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
-	                                                  QDir::homePath(),
+	                                                  m_lastDir,
 	                                                  tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
+
 
 	// Make sure the user selected a file
 	if (scriptPath.isEmpty()) {
@@ -1046,6 +1066,8 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
 	} else {
 		parseXmlScriptFile(scriptPath);
 	}
+
+	m_lastDir = fi.absoluteDir().canonicalPath();
 }
 
 Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)

@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QFile>
+#include <QDir>
 #include <QUuid>
 #include <QTimer>
 
@@ -22,80 +23,80 @@ Q_DECLARE_METATYPE(TimeUnit) // This allows convertion from/to QVariant
 
 class Script : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    Script(DiagramScene *scene, const QString &name = "");
+	Script(DiagramScene *scene, const QString &name = "");
 
-    void save(const QString &descriptionPath);
-    void autoSave();
+	void save(const QString &descriptionPath, const QString &basePath = QDir::homePath());
+	void autoSave();
 
-    void updateTextStyle();
+	void updateTextStyle();
 
-    QString name() const;
-    void setName(const QString &name);
+	QString name() const;
+	void setName(const QString &name);
 
-    QString filePath() const;
-    void setFilePath(const QString &filePath);
+	QString filePath() const;
+	void setFilePath(const QString &filePath);
 
-    DiagramScene *scene() const;
+	DiagramScene *scene() const;
 
-    bool modified() const;
+	bool modified() const;
 
-    void setStatusModified(bool isModified);
+	void setStatusModified(bool isModified);
 
-    bool isInvalid() const;
-    void setIsInvalid(bool isInvalid);
+	bool isInvalid() const;
+	void setIsInvalid(bool isInvalid);
 
-    double timeValue() const;
-    void setTimeValue(double timeValue);
+	double timeValue() const;
+	void setTimeValue(double timeValue);
 
-    TimeUnit timeUnit() const;
-    void setTimeUnit(const TimeUnit &timeUnit);
+	TimeUnit timeUnit() const;
+	void setTimeUnit(const TimeUnit &timeUnit);
 
-    QUuid uuid() const;
-    void setUuid(const QUuid &uuid);
+	QUuid uuid() const;
+	void setUuid(const QUuid &uuid);
 
-    bool encrypt() const;
-    void setEncrypt(bool encrypt);
+	bool encrypt() const;
+	void setEncrypt(bool encrypt);
 
-    ROSSession *rosSession() const;
-    void setRosSession(ROSSession *rosSession);
+	ROSSession *rosSession() const;
+	void setRosSession(ROSSession *rosSession);
 
-    bool isActiveScript() const;
-    void setIsActiveScript(bool isActiveScript);
+	bool isActiveScript() const;
+	void setIsActiveScript(bool isActiveScript);
 
 public slots:
-    void warnAboutModifiedScript();
+	void warnAboutModifiedScript();
 
 private:
-    DiagramScene *m_scene; // The associated scene for this script
-    ROSSession *m_rosSession; // The associated ROS Session for this script
-    QString m_name;        // Pretty name of the script (to display in tabs for instance)
-    QString m_filePath;    // Path of the (XML) file in which to save this script
-    bool m_modified;       // Whether there was some changes since last save
-    bool m_isInvalid;      // Whether this script is currently invalid (and thus prevent saving)
-    double m_timeValue;    // The RT Token time (either frequency or period)
-    TimeUnit m_timeUnit;   // Whether the time value is a frequency or a period
-    QUuid m_uuid;          // UUID for the RT Token (needed by kheops)
-    QTimer *m_modifiedNotifTimer; // Timer to display a system tray notification when unsaved for more than X minutes
-    bool m_encrypt;        // Whether the XML script should be encrypted on save (to protect IP)
-    std::string m_key;     // AES Key used to encrypt the file
-    std::string m_iv;      // AES IV used to encrypt the file
-    bool m_isActiveScript; // Tells this script if it's the currently active one
+	DiagramScene *m_scene; // The associated scene for this script
+	ROSSession *m_rosSession; // The associated ROS Session for this script
+	QString m_name;        // Pretty name of the script (to display in tabs for instance)
+	QString m_filePath;    // Path of the (XML) file in which to save this script
+	bool m_modified;       // Whether there was some changes since last save
+	bool m_isInvalid;      // Whether this script is currently invalid (and thus prevent saving)
+	double m_timeValue;    // The RT Token time (either frequency or period)
+	TimeUnit m_timeUnit;   // Whether the time value is a frequency or a period
+	QUuid m_uuid;          // UUID for the RT Token (needed by kheops)
+	QTimer *m_modifiedNotifTimer; // Timer to display a system tray notification when unsaved for more than X minutes
+	bool m_encrypt;        // Whether the XML script should be encrypted on save (to protect IP)
+	std::string m_key;     // AES Key used to encrypt the file
+	std::string m_iv;      // AES IV used to encrypt the file
+	bool m_isActiveScript; // Tells this script if it's the currently active one
 
 private slots:
-    void onROSSessionMessage(const QString &msg, MessageUrgency urgency = MSG_INFO);
-    void onScriptResumed();
-    void onScriptPaused();
-    void onScriptStopped();
-    void onTimeElapsed(int h, int m, int s, int ms);
+	void onROSSessionMessage(const QString &msg, MessageUrgency urgency = MSG_INFO);
+	void onScriptResumed();
+	void onScriptPaused();
+	void onScriptStopped();
+	void onTimeElapsed(int h, int m, int s, int ms);
 
 signals:
-    void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
-    void scriptResumed();
-    void scriptPaused();
-    void scriptStopped();
-    void timeElapsed(int h, int m, int s, int ms);
+	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
+	void scriptResumed();
+	void scriptPaused();
+	void scriptStopped();
+	void timeElapsed(int h, int m, int s, int ms);
 };
 
 #endif // SCRIPT_H

@@ -58,7 +58,7 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
  * @param descriptionPath: the path to the (release or debug) description path, so that we can
  * strip it off of paths to save everything in relative.
  */
-void Script::save(const QString &descriptionPath)
+void Script::save(const QString &descriptionPath, const QString &basePath)
 {
 	// Prevent saving when the script is in invalid state
 	if (m_isInvalid || m_name == NEW_SCRIPT_DEFAULT_NAME) {
@@ -91,13 +91,13 @@ void Script::save(const QString &descriptionPath)
 
 		if (mainWin->keyFile().isEmpty()) {
 			mainWin->setKeyFile(QFileDialog::getOpenFileName(mainWin, tr("Please provide the KEY file"),
-			                                                 tr("/home"),
+			                                                 basePath,
 			                                                 "Key files (*.*)"));
 		}
 
 		if (mainWin->ivFile().isEmpty()) {
 			mainWin->setIvFile(QFileDialog::getOpenFileName(mainWin, tr("Please provide the IV file"),
-			                                                tr("/home"),
+			                                                basePath,
 			                                                "IV files (*.*)"));
 		}
 
@@ -140,7 +140,7 @@ void Script::save(const QString &descriptionPath)
 
 		QString savePath = QFileDialog::getSaveFileName(NULL,
 		                             QObject::tr("Save as..."),
-		                             QDir::homePath(),
+		                             basePath,
 		                             QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
 		// Abort if it's empty

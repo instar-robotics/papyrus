@@ -128,82 +128,83 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	// Make a last check in order to see if the user simply cancelled
 	if (searchPath.isEmpty()) {
 		QMessageBox::warning(this, tr("Library path not specified"),
-	tr("You did not specify a path for the library files.\nIt is needed as ")
-	+ QString(APP_NAME) + tr(" needs to know where to search for those files.\nThe application "
-	"will still load, but you won't be able to create scripts."));
+		                     tr("You did not specify a path for the library files.\nIt is needed as ")
+		                     + QString(APP_NAME) + tr(" needs to know where to search for those files.\nThe application "
+		                                              "will still load, but you won't be able to create scripts."));
 	} else if (!description.exists()) {
 		QMessageBox msgBox;
-	msgBox.setText(QObject::tr("<strong>Failed to load neural boxes' description files.</strong>"));
+		msgBox.setText(QObject::tr("<strong>Failed to load neural boxes' description files.</strong>"));
 
-	QString str("The path ");
-	str += "<em>";
-	str += description.absolutePath();
-	str += "</em>";
-	str += " doesn't exist, so function description files could not be loaded.\nThe application"
-	       " will still load, but you won't be able to create scripts.";
+		QString str("The path ");
+		str += "<em>";
+		str += description.absolutePath();
+		str += "</em>";
+		str += " doesn't exist, so function description files could not be loaded.\nThe application"
+		       " will still load, but you won't be able to create scripts.";
 
-	msgBox.setInformativeText(QObject::tr(qPrintable(str)));
-	msgBox.setIcon(QMessageBox::Critical);
+		msgBox.setInformativeText(QObject::tr(qPrintable(str)));
+		msgBox.setIcon(QMessageBox::Critical);
 
-	msgBox.exec();
+		msgBox.exec();
 	}
 	// Parse the description directory
 	else {
 		m_library = new Library;
 
-	description_ = description;
+		description_ = description;
 
-	description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-	QStringList categories = description_.entryList();
+		description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
+		QStringList categories = description_.entryList();
 
-	// Create one 'Tree Root' per category
-	for (int i = 0; i < categories.size(); i += 1) {
-		// Add the category in the Tree Widget
-		Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));\
-		XmlDescriptionReader *xmlReader = new XmlDescriptionReader(newCategory);
+		// Create one 'Tree Root' per category
+		for (int i = 0; i < categories.size(); i += 1) {
+			// Add the category in the Tree Widget
+			Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));\
+			XmlDescriptionReader *xmlReader = new XmlDescriptionReader(newCategory);
 
-		parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
+			parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
 
-		m_library->addCategory(newCategory);
-	}
+			m_library->addCategory(newCategory);
+		}
 
-	// Create one "built-in" category for the constant inputs (created at the end so that it
-	// appears first)
-	Category *constants = addTreeRoot("Constants");
-	constants->setExpanded(true); // By default, keep "Constants" expanded
-	ConstantFunction *constantScalar = new ConstantFunction("SCALAR",
-	                                                        ":/icons/icons/constant-scalar.svg",
-	                                                        QIcon(":/icons/icons/constant-scalar.svg"),
-	                                                        SCALAR);
-	ConstantFunction *constantString = new ConstantFunction("STRING",
-	                                                        ":icons/icons/constant-string.svg",
-	                                                        QIcon(":/icons/icons/constant-string.svg"),
-	                                                        STRING);
-	ConstantFunction *constantMatrix = new ConstantFunction("MATRIX",
-	                                                        ":/icons/icons/constant-matrix.svg",
-	                                                        QIcon(":/icons/icons/constant-matrix.svg"),
-	                                                        MATRIX);
-	constants->addChild(constantScalar);
-	constants->addChild(constantString);
-	constants->addChild(constantMatrix);
+		// Create one "built-in" category for the constant inputs (created at the end so that it
+		// appears first)
+		Category *constants = addTreeRoot("Constants");
+		constants->setExpanded(true); // By default, keep "Constants" expanded
+		ConstantFunction *constantScalar = new ConstantFunction("SCALAR",
+		                                                        ":/icons/icons/constant-scalar.svg",
+		                                                        QIcon(":/icons/icons/constant-scalar.svg"),
+		                                                        SCALAR);
+		ConstantFunction *constantString = new ConstantFunction("STRING",
+		                                                        ":icons/icons/constant-string.svg",
+		                                                        QIcon(":/icons/icons/constant-string.svg"),
+		                                                        STRING);
+		ConstantFunction *constantMatrix = new ConstantFunction("MATRIX",
+		                                                        ":/icons/icons/constant-matrix.svg",
+		                                                        QIcon(":/icons/icons/constant-matrix.svg"),
+		                                                        MATRIX);
+		constants->addChild(constantScalar);
+		constants->addChild(constantString);
+		constants->addChild(constantMatrix);
 
-	// Display a warning box if some library description files could not be read
-	// TODO: display a message in the system tray instead!
-	// TODO: keep a list of the XML files that failed
-	if (m_libraryParsingErrors > 0)
-		QMessageBox::warning(this, tr("Problems while parsing the description files"),
-		QString::number(m_libraryParsingErrors) + tr(" issues happened where parsing XML"
-		" description files.\nOnly the functions with a valid XML "
-		"file were added to the library.\nPlease fix the syntax errors in order to have the full"
-		" library of functions loaded."));
+		// Display a warning box if some library description files could not be read
+		// TODO: display a message in the system tray instead!
+		// TODO: keep a list of the XML files that failed
+		if (m_libraryParsingErrors > 0)
+			QMessageBox::warning(this, tr("Problems while parsing the description files"),
+			                     QString::number(m_libraryParsingErrors) +
+			                     tr(" issues happened where parsing XML"
+			                        " description files.\nOnly the functions with a valid XML "
+			                        "file were added to the library.\nPlease fix the syntax errors in order to have the full"
+			                        " library of functions loaded."));
 	}
 
 
 	// Display a system tray if it is available
 	if (QSystemTrayIcon::isSystemTrayAvailable()) {
 		trayIcon = new QSystemTrayIcon(this);
-	trayIcon->setIcon(QIcon(":/icons/icons/papyrus.svg"));
-	trayIcon->show();
+		trayIcon->setIcon(QIcon(":/icons/icons/papyrus.svg"));
+		trayIcon->show();
 	}
 
 	// Show a normal status message on application startup

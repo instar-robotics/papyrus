@@ -376,7 +376,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		// Cast the integer to the Enum type (problem of operator '>>' with enums)
 		outputType = static_cast<OutputType>(outputType_);
 
-		std::set<InputSlot *> inputSlots;
+		std::vector<InputSlot *> inputSlots;
 		for (int i = 0; i < nbInputs; i += 1) {
 			QString iName;
 			InputType inputType;
@@ -391,7 +391,8 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 			InputSlot *iSlot = new InputSlot(iName);
 			iSlot->setInputType(inputType);
 			iSlot->setMultiple(multiple);
-			inputSlots.insert(iSlot);
+//			inputSlots.insert(iSlot);
+			inputSlots.push_back(iSlot);
 
 //            inputNames.push_back(iName);
 		}

@@ -33,7 +33,7 @@ public:
 	explicit DiagramBox(const QString &name,
 	                    const QIcon &icon,
 	                    OutputSlot *outputSlot,
-	                    std::set<InputSlot *> inputSlots,
+	                    std::vector<InputSlot *> inputSlots,
 	                    const QUuid &uuid = 0,
 	                    QGraphicsItem *parent = 0);
 	~DiagramBox();
@@ -62,8 +62,8 @@ public:
 	OutputSlot *outputSlot() const;
 	void setOutputSlot(OutputSlot *outputSlot);
 
-	std::set<InputSlot *> inputSlots() const;
-	void setInputSlots(const std::set<InputSlot *> &inputSlots);
+	std::vector<InputSlot *> inputSlots() const;
+	void setInputSlots(const std::vector<InputSlot *> &inputSlots);
 
 	OutputType outputType() const;
 	void setOutputType(const OutputType &outputType);
@@ -118,7 +118,7 @@ private:
 	QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 
 	OutputSlot *m_outputSlot;  // The output slot for this function's box
-	std::set<InputSlot *> m_inputSlots; // The set of input slots for this function's box
+	std::vector<InputSlot *> m_inputSlots; // The set of input slots for this function's box
 
 	int m_rows;              // Number of rows in the output (if matrix)
 	int m_cols;              // Number of columns in the output (if matrix)

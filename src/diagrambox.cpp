@@ -25,15 +25,15 @@ int DiagramBox::getType()
 DiagramBox::DiagramBox(const QString &name,
                        const QIcon &icon,
                        OutputSlot *outputSlot,
-                       std::set<InputSlot *> inputSlots,
+                       std::vector<InputSlot *> inputSlots,
                        const QUuid &uuid,
                        QGraphicsItem *parent) : QGraphicsItem(parent),
-                                                m_uuid(uuid),
                                                 m_name(name),
-                                                m_icon(icon),
                                                 m_bWidth(175),
                                                 m_bHeight(70),
                                                 m_tHeight(20),
+                                                m_uuid(uuid),
+                                                m_icon(icon),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
                                                 m_rows(1),
@@ -322,12 +322,12 @@ void DiagramBox::setOutputType(const OutputType &outputType)
 	m_outputSlot->setOutputType(outputType);
 }
 
-std::set<InputSlot *> DiagramBox::inputSlots() const
+std::vector<InputSlot *> DiagramBox::inputSlots() const
 {
 	return m_inputSlots;
 }
 
-void DiagramBox::setInputSlots(const std::set<InputSlot *> &inputSlots)
+void DiagramBox::setInputSlots(const std::vector<InputSlot *> &inputSlots)
 {
 	m_inputSlots = inputSlots;
 }

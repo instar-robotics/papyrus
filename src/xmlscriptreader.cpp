@@ -10,7 +10,9 @@ XmlScriptReader::XmlScriptReader(Script *script, const QString &descriptionPath)
     m_descriptionPath(descriptionPath),
     m_centerView(0, 0)
 {
-
+	// Set script's default value to detect XML parsing errors
+	m_script->setUuid(QUuid());
+	m_script->setTimeValue(-1.0);
 }
 
 bool XmlScriptReader::read(QIODevice *device)
@@ -53,7 +55,7 @@ void XmlScriptReader::setCenterView(const QPointF &centerView)
 void XmlScriptReader::readScript()
 {
 	// First read the name of the script
-	if (reader.readNextStartElement()) {
+	while (reader.readNextStartElement()) {
 		if (reader.name() == "name") {
 			QString scriptName = reader.readElementText();
 			if (scriptName.isEmpty()) {
@@ -61,155 +63,143 @@ void XmlScriptReader::readScript()
 			} else {
 				m_script->setName(scriptName);
 			}
-
-			// Then read the rt_token flag
-			if (reader.readNextStartElement()) {
-				if (reader.name() == "rt_token") {
-					// Read its UUID
-					if (reader.attributes().hasAttribute("uuid")) {
-						QUuid uuid(reader.attributes().value("uuid").toString());
-						if (!uuid.isNull()) {
-							m_script->setUuid(uuid);
-						} else {
-							reader.raiseError(QObject::tr("Invalid UUID for RT Token."));
-						}
-					} else {
-						reader.raiseError(QObject::tr("Missing UUID attribute for the RT Token."));
-					}
-
-					// Read its unit
-					if (reader.attributes().hasAttribute("unit")) {
-						QString unit(reader.attributes().value("unit").toString());
-						if (!unit.isNull() && (unit == "Hz" || unit == "ms")) {
-							if (unit == "Hz")
-								m_script->setTimeUnit(HZ);
-							else
-								m_script->setTimeUnit(MS);
-						} else {
-							reader.raiseError(QObject::tr("Invalid unit for the RT Token."));
-						}
-					} else {
-						reader.raiseError(QObject::tr("Missing unit attribute for the RT Token."));
-					}
-
-					// Read its value
-					bool ok = false;
-					double timeValue = reader.readElementText().toDouble(&ok);
-					if (ok)
-						m_script->setTimeValue(timeValue);
-					else
-						reader.raiseError(QObject::tr("Invalid unit value for the RT Token."));
+		}
+		// Then read the rt_token flag
+		else if (reader.name() == "rt_token") {
+			// Read its UUID
+			if (reader.attributes().hasAttribute("uuid")) {
+				QUuid uuid(reader.attributes().value("uuid").toString());
+				if (!uuid.isNull()) {
+					m_script->setUuid(uuid);
 				} else {
-					reader.raiseError(QObject::tr("No RT Token found."));
-				}
-			}
-
-			// Then read the scene's rect
-			if (reader.readNextStartElement()) {
-				if (reader.name() == "scene") {
-					double x, y, width, height;
-
-					while (reader.readNextStartElement()) {
-						if (reader.name() == "x")
-							x = reader.readElementText().toDouble();
-						else if (reader.name() == "y")
-							y = reader.readElementText().toDouble();
-						else if (reader.name() == "width")
-							width = reader.readElementText().toDouble();
-						else if (reader.name() == "height")
-							height = reader.readElementText().toDouble();
-						else
-							reader.skipCurrentElement();
-					}
-					m_script->scene()->setSceneRect(QRectF(x, y, width, height));
-				} else {
-					reader.raiseError(QObject::tr("No scene found."));
-				}
-			}
-
-			// Then read the view's center position
-			if (reader.readNextStartElement()) {
-				if (reader.name() == "view") {
-
-					while (reader.readNextStartElement()) {
-						if (reader.name() == "centerX")
-							m_centerView.setX(reader.readElementText().toDouble());
-						else if (reader.name() == "centerY")
-							m_centerView.setY(reader.readElementText().toDouble());
-						else
-							reader.skipCurrentElement();
-					}
-				}
-			}
-
-			// Then read the opening <functions> tag
-			if (reader.readNextStartElement()) {
-				if (reader.name() == "functions") {
-					/*
-					 * Then loop through all <function> tags. We create the function (box) when we
-					 * parse it, and add a link to it in the dict below.
-					 * When we find a link for its input(s), we lookup the uuid in the dict and see
-					 * if the box it originates from was already created.
-					 * If yes, make the link, otherwise, store the (incomplete) link in the second
-					 * dict. When <function> parsing is over, we traverse the incomplete links and
-					 * complete them.
-					 */
-					std::map<QUuid, DiagramBox *> allBoxes;
-					std::set<std::pair<QUuid, Link *>> incompleteLinks;
-					while (reader.readNextStartElement()) {
-						if (reader.name() == "function" || reader.name() == "constant")
-							readFunction(&allBoxes, &incompleteLinks);
-						else
-							reader.skipCurrentElement();
-					}
-
-					if (incompleteLinks.size() > 0) {
-						foreach (auto pair, incompleteLinks) {
-							QUuid fromUuid = pair.first;
-							Link *link = pair.second;
-
-							std::map<QUuid, DiagramBox *>::iterator it = allBoxes.find(fromUuid);
-
-							if (it != allBoxes.end()) {
-								OutputSlot *oSlot = it->second->outputSlot();
-								link->setFrom(oSlot);
-								oSlot->addOutput(link);
-								m_script->scene()->addItem(link);
-								link->addLinesToScene();
-
-								link->setZValue(LINKS_Z_VALUE);
-								// TODO: empty the set as we go?
-//                                incompleteLinks.erase(fromUuid);
-							} else {
-								informUserAndCrash(QObject::tr(
-								"Link with UUID %1 could not be completed, because it did not find "
-								"its originating box (with UUID %2)").arg(link->uuid().toString())
-								        .arg(fromUuid.toString()));
-							}
-						}
-					}
-					DiagramScene *scene = m_script->scene();
-
-					// Make sure all links are displayed correctly
-					foreach (QGraphicsItem *i, m_script->scene()->items()) {
-						Link *link= dynamic_cast<Link *>(i);
-						if (link != nullptr) {
-							link->updateLines();
-						}
-					}
-					scene->update();
-				} else {
-					reader.raiseError(QObject::tr("Missing functions definition."));
+					reader.raiseError(QObject::tr("Invalid UUID for RT Token."));
 				}
 			} else {
-				reader.raiseError(QObject::tr("Incomplete script file (failed to parse functions)."));
+				reader.raiseError(QObject::tr("Missing UUID attribute for the RT Token."));
 			}
-		} else {
-			reader.raiseError(QObject::tr("Missing script name."));
+
+			// Read its unit
+			if (reader.attributes().hasAttribute("unit")) {
+				QString unit(reader.attributes().value("unit").toString());
+				if (!unit.isNull() && (unit == "Hz" || unit == "ms")) {
+					if (unit == "Hz")
+						m_script->setTimeUnit(HZ);
+					else
+						m_script->setTimeUnit(MS);
+				} else {
+					reader.raiseError(QObject::tr("Invalid unit for the RT Token."));
+				}
+			} else {
+				reader.raiseError(QObject::tr("Missing unit attribute for the RT Token."));
+			}
+
+			// Read its value
+			bool ok = false;
+			double timeValue = reader.readElementText().toDouble(&ok);
+			if (ok)
+				m_script->setTimeValue(timeValue);
+			else
+				reader.raiseError(QObject::tr("Invalid unit value for the RT Token."));
 		}
-	} else {
-		reader.raiseError(QObject::tr("Incomplete script file (failed to parse name)."));
+
+		// Then read the scene's rect
+		else if (reader.name() == "scene") {
+			double x, y, width, height;
+
+			while (reader.readNextStartElement()) {
+				if (reader.name() == "x")
+					x = reader.readElementText().toDouble();
+				else if (reader.name() == "y")
+					y = reader.readElementText().toDouble();
+				else if (reader.name() == "width")
+					width = reader.readElementText().toDouble();
+				else if (reader.name() == "height")
+					height = reader.readElementText().toDouble();
+				else
+					reader.skipCurrentElement();
+			}
+			m_script->scene()->setSceneRect(QRectF(x, y, width, height));
+		}
+
+		// Then read the view's center position
+		else if (reader.name() == "view") {
+
+			while (reader.readNextStartElement()) {
+				if (reader.name() == "centerX")
+					m_centerView.setX(reader.readElementText().toDouble());
+				else if (reader.name() == "centerY")
+					m_centerView.setY(reader.readElementText().toDouble());
+				else
+					reader.skipCurrentElement();
+			}
+		}
+
+
+		// Then read the opening <functions> tag
+		else if (reader.name() == "functions") {
+			/*
+			 * Then loop through all <function> tags. We create the function (box) when we
+			 * parse it, and add a link to it in the dict below.
+			 * When we find a link for its input(s), we lookup the uuid in the dict and see
+			 * if the box it originates from was already created.
+			 * If yes, make the link, otherwise, store the (incomplete) link in the second
+			 * dict. When <function> parsing is over, we traverse the incomplete links and
+			 * complete them.
+			 */
+			std::map<QUuid, DiagramBox *> allBoxes;
+			std::set<std::pair<QUuid, Link *>> incompleteLinks;
+			while (reader.readNextStartElement()) {
+				if (reader.name() == "function" || reader.name() == "constant")
+					readFunction(&allBoxes, &incompleteLinks);
+				else
+					reader.skipCurrentElement();
+			}
+
+			if (incompleteLinks.size() > 0) {
+				foreach (auto pair, incompleteLinks) {
+					QUuid fromUuid = pair.first;
+					Link *link = pair.second;
+
+					std::map<QUuid, DiagramBox *>::iterator it = allBoxes.find(fromUuid);
+
+					if (it != allBoxes.end()) {
+						OutputSlot *oSlot = it->second->outputSlot();
+						link->setFrom(oSlot);
+						oSlot->addOutput(link);
+						m_script->scene()->addItem(link);
+						link->addLinesToScene();
+
+						link->setZValue(LINKS_Z_VALUE);
+						// TODO: empty the set as we go?
+						//                                incompleteLinks.erase(fromUuid);
+					} else {
+						informUserAndCrash(QObject::tr(
+						                       "Link with UUID %1 could not be completed, because it did not find "
+						                       "its originating box (with UUID %2)").arg(link->uuid().toString())
+						                   .arg(fromUuid.toString()));
+					}
+				}
+			}
+			DiagramScene *scene = m_script->scene();
+
+			// Make sure all links are displayed correctly
+			foreach (QGraphicsItem *i, m_script->scene()->items()) {
+				Link *link= dynamic_cast<Link *>(i);
+				if (link != nullptr) {
+					link->updateLines();
+				}
+			}
+			scene->update();
+		}
 	}
+
+	// Check if we could read everything that is mandatory
+	if (m_script->name().isEmpty())
+		reader.raiseError(QObject::tr("Missing script name"));
+	if (m_script->uuid().isNull())
+		reader.raiseError(QObject::tr("Missing RT Token (or RT Token's UUID)"));
+	if (m_script->timeValue() < 0)
+		reader.raiseError(QObject::tr("Missing (or negative) RT token value"));
 }
 
 void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,

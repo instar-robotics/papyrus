@@ -1085,7 +1085,6 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 
 	// Create the scene and script objets, which will be used by the XmlReader
 	DiagramScene *openScene = new DiagramScene;
-	qDebug() << "[Parse] scene rect: " << openScene->sceneRect();
 	Script *openScript = new Script(openScene);
 	connect(openScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
 	        SLOT(displayStatusMessage(QString,MessageUrgency)));
@@ -1122,22 +1121,9 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		// Add the script in the set of opened scripts
 		addScript(openScript);
 
-		/*
-	 * Set the scene's initial rect based on the widget in which it is displayed (and centered)
-	 * if it's smaller
-	 */
-		QSizeF widgetSize = m_ui->tabWidget->size();
-		QRectF currentSceneRect = openScene->sceneRect();
-		QRectF minSceneRect(- widgetSize.width() / 2,
-		                    - widgetSize.height() / 2,
-		                    widgetSize.width(),
-		                    widgetSize.height());
-
-		if (currentSceneRect.width() < minSceneRect.width()
-		    || currentSceneRect.height() < minSceneRect.height()) {
-			openScene->setSceneRect(minSceneRect);
-		}
-
+		// Make sure the scene is set correctly by calling its updateScene() function (this should
+		// be ignored if the scene was parsed correctly)
+		openScene->updateSceneRect();
 
 		// Add the new scene as a new tab and make it active
 		m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,

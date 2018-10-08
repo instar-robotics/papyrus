@@ -19,74 +19,74 @@ class PapyrusWindow;
  */
 class DiagramScene : public QGraphicsScene
 {
-    Q_OBJECT
-
-    void updateSceneRect();
+	Q_OBJECT
 
 public:
-    explicit DiagramScene(QObject *parent = 0);
-    ~DiagramScene();
+	explicit DiagramScene(QObject *parent = 0);
+	~DiagramScene();
 
-    void addBox(DiagramBox *newBox, const QPointF &position);
+	void addBox(DiagramBox *newBox, const QPointF &position);
 
-    bool checkForInvalidLinks();
+	bool checkForInvalidLinks();
 
-    bool shouldDrawGrid() const;
-    void setShouldDrawGrid(bool shouldDrawGrid);
+	void updateSceneRect();
 
-    int gridSize() const;
+	bool shouldDrawGrid() const;
+	void setShouldDrawGrid(bool shouldDrawGrid);
 
-    Script *script() const;
-    void setScript(Script *script);
+	int gridSize() const;
 
-    bool leftBtnDown() const;
+	Script *script() const;
+	void setScript(Script *script);
 
-    QGraphicsLineItem *line() const;
+	bool leftBtnDown() const;
 
-    PapyrusWindow *mainWindow() const;
+	QGraphicsLineItem *line() const;
 
-    bool displayLabels() const;
-    void setDisplayLabels(bool displayLabels);
+	PapyrusWindow *mainWindow() const;
+
+	bool displayLabels() const;
+	void setDisplayLabels(bool displayLabels);
 
 public slots:
-    void toggleDisplayGrid(bool shouldDraw);
-    void onOkBtnClicked(bool);
-    void onCancelBtnClicked(bool);
-    void onDisplayVisuClicked(bool);
+	void toggleDisplayGrid(bool shouldDraw);
+	void onOkBtnClicked(bool);
+	void onCancelBtnClicked(bool);
+	void onDisplayVisuClicked(bool);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *evt);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *evt);
-    void dragLeaveEvent(QGraphicsSceneDragDropEvent *evt);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *evt);
-    void dropEvent(QGraphicsSceneDragDropEvent *evt);
-    void keyPressEvent(QKeyEvent *evt);
-    void deleteItem(Link *link);
-    void deleteItem(DiagramBox *box);
+	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *evt);
+	void dragLeaveEvent(QGraphicsSceneDragDropEvent *evt);
+	void dragMoveEvent(QGraphicsSceneDragDropEvent *evt);
+	void dropEvent(QGraphicsSceneDragDropEvent *evt);
+	void keyPressEvent(QKeyEvent *evt);
+	void deleteItem(Link *link);
+	void deleteItem(DiagramBox *box);
 
-    void removeItem(QGraphicsItem *item);
+	void removeItem(QGraphicsItem *item);
 
-    void drawBackground(QPainter *painter, const QRectF &rect);
+	void drawBackground(QPainter *painter, const QRectF &rect);
 
 private:
-    PapyrusWindow *m_mainWindow; // A pointer to the main Papyrus window widget
-    bool m_leftBtnDown;
-    bool middleBtnIsDown;
-    bool m_shouldDrawGrid;   // Whether to draw the grid or not
-    int m_gridSize;          // Size (in px) of the grid
-    QGraphicsLineItem *m_line; // The current line being drawn while clicking
-    OutputSlot *m_oSlot;     // The slot from which the line being drawn originates
-    Script *m_script;        // The script to which this scene is associated
-    bool m_displayLabels;    // Whether or not to display input slots's names
-    bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
+	PapyrusWindow *m_mainWindow; // A pointer to the main Papyrus window widget
+	bool m_leftBtnDown;
+	bool middleBtnIsDown;
+	bool m_shouldDrawGrid;   // Whether to draw the grid or not
+	int m_gridSize;          // Size (in px) of the grid
+	QGraphicsLineItem *m_line; // The current line being drawn while clicking
+	OutputSlot *m_oSlot;     // The slot from which the line being drawn originates
+	Script *m_script;        // The script to which this scene is associated
+	bool m_displayLabels;    // Whether or not to display input slots's names
+	bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
 
 private slots:
-    void onSelectionChanged();
+	void onSelectionChanged();
 
 signals:
-    void displayStatusMessage(const QString &text);
+	void displayStatusMessage(const QString &text);
 
 };
 

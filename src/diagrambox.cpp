@@ -161,14 +161,6 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 		// Create the Point representing the new, snapped position
 		QPointF newPos(newX, newY);
 
-		// Compute new start and end points for the connected links
-		QPointF newStartPoint = newPos;
-		newStartPoint.rx() += boundingRect().width();
-		newStartPoint.ry() += boundingRect().height() / 2;
-
-		QPointF newEndPoint = newPos;
-		newEndPoint.ry() += boundingRect().height() / 2;
-
 		// Prompt the output slot and all inputs slots to update their connected links
 		m_outputSlot->updateLinks();
 		foreach (InputSlot *inputSlot, m_inputSlots) {

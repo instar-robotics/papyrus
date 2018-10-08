@@ -110,7 +110,6 @@ void XmlScriptReader::readScript()
 						else
 							reader.skipCurrentElement();
 					}
-
 					m_script->scene()->setSceneRect(QRectF(x, y, width, height));
 				} else {
 					reader.raiseError(QObject::tr("No scene found."));
@@ -126,7 +125,7 @@ void XmlScriptReader::readScript()
 					 * When we find a link for its input(s), we lookup the uuid in the dict and see
 					 * if the box it originates from was already created.
 					 * If yes, make the link, otherwise, store the (incomplete) link in the second
-					 * dict. When <function> parsing is over, we traverse the incomplete links are
+					 * dict. When <function> parsing is over, we traverse the incomplete links and
 					 * complete them.
 					 */
 					std::map<QUuid, DiagramBox *> allBoxes;
@@ -164,7 +163,14 @@ void XmlScriptReader::readScript()
 						}
 					}
 					DiagramScene *scene = m_script->scene();
-//                    scene->updateSceneRect();
+
+					// Make sure all links are displayed correctly
+					foreach (QGraphicsItem *i, m_script->scene()->items()) {
+						Link *link= dynamic_cast<Link *>(i);
+						if (link != nullptr) {
+							link->updateLines();
+						}
+					}
 					scene->update();
 				} else {
 					reader.raiseError(QObject::tr("Missing functions definition."));
@@ -487,8 +493,8 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 						m_script->scene()->addItem(link);
 						link->addLinesToScene();
 						link->setZValue(LINKS_Z_VALUE);
-						link->updateLines();
-						m_script->scene()->update();
+//						link->updateLines();
+//						m_script->scene()->update();
 					} else {
 						// If the OutputSlot is not yet created, we can't link, so put in incomplete
 						incompleteLinks->insert(std::pair<QUuid, Link *>(fromUuid, link));

@@ -1125,6 +1125,9 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		// be ignored if the scene was parsed correctly)
 		openScene->updateSceneRect();
 
+		// Center the view on where it was when it was saved
+		newView->centerOn(xmlReader.centerView());
+
 		// Add the new scene as a new tab and make it active
 		m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
 		                                                         QIcon(":/icons/icons/script.svg"),

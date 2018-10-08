@@ -12,6 +12,7 @@
 #include <QFileInfo>
 #include <QXmlStreamWriter>
 #include <QDebug>
+#include <QGraphicsView>
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
@@ -202,6 +203,19 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 	stream.writeTextElement("width", QString::number(rect.width()));
 	stream.writeTextElement("height", QString::number(rect.height()));
 	stream.writeEndElement(); // scene
+
+	// Write the scene's center point
+	QList<QGraphicsView *> views = scene()->views();
+	if (views.size() == 0)
+		informUserAndCrash(tr("No views attached to the scene: cannot save."));
+	else if (views.size() > 1)
+		informUserAndCrash(tr("More than one view is attached to the scene: unsupported!"));
+	QGraphicsView *mainView = views[0];
+	QPointF viewCenter = mainView->mapToScene(mainView->viewport()->rect().center());
+	stream.writeStartElement("view");
+	stream.writeTextElement("centerX", QString::number(viewCenter.x()));
+	stream.writeTextElement("centerY", QString::number(viewCenter.y()));
+	stream.writeEndElement(); // view
 
 	// Write all functions
 	stream.writeStartElement("functions");

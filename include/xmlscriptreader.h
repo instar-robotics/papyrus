@@ -22,11 +22,15 @@ public:
 
 	QString errorString() const;
 
+	QPointF centerView() const;
+	void setCenterView(const QPointF &centerView);
+
 private:
 	QXmlStreamReader reader;
 	QString m_errorString;
 	Script *m_script;
 	QString m_descriptionPath;
+	QPointF m_centerView;
 
 	void readScript();
 	void readFunction(std::map<QUuid, DiagramBox *> *allBoxes,

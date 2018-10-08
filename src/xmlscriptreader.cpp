@@ -7,7 +7,8 @@
 #include <iostream>
 
 XmlScriptReader::XmlScriptReader(Script *script, const QString &descriptionPath) : m_script(script),
-    m_descriptionPath(descriptionPath)
+    m_descriptionPath(descriptionPath),
+    m_centerView(0, 0)
 {
 
 }
@@ -35,6 +36,16 @@ bool XmlScriptReader::read(QIODevice *device)
 QString XmlScriptReader::errorString() const
 {
 	return m_errorString;
+}
+
+QPointF XmlScriptReader::centerView() const
+{
+	return m_centerView;
+}
+
+void XmlScriptReader::setCenterView(const QPointF &centerView)
+{
+	m_centerView = centerView;
 }
 
 // TODO: it should be a while(readNextElement()) and use decidated functions such as
@@ -113,6 +124,21 @@ void XmlScriptReader::readScript()
 					m_script->scene()->setSceneRect(QRectF(x, y, width, height));
 				} else {
 					reader.raiseError(QObject::tr("No scene found."));
+				}
+			}
+
+			// Then read the view's center position
+			if (reader.readNextStartElement()) {
+				if (reader.name() == "view") {
+
+					while (reader.readNextStartElement()) {
+						if (reader.name() == "centerX")
+							m_centerView.setX(reader.readElementText().toDouble());
+						else if (reader.name() == "centerY")
+							m_centerView.setY(reader.readElementText().toDouble());
+						else
+							reader.skipCurrentElement();
+					}
 				}
 			}
 

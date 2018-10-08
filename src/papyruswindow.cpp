@@ -977,7 +977,7 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
 
 	// Make sure the user selected a file
 	if (scriptPath.isEmpty()) {
-		emit displayStatusMessage(tr("Abort opening script: no selected file."));
+		emit displayStatusMessage(tr("Abort opening script: no selected file."), MSG_INFO);
 		return;
 	}
 
@@ -1080,11 +1080,12 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		QMessageBox::warning(NULL, tr("Could not open script file"),
 		                 tr("We failed to open the script file for reading.\nMake sure you have "
 		                    "the correct permissions for this file."));
-	return NULL;
+		return NULL;
 	}
 
 	// Create the scene and script objets, which will be used by the XmlReader
 	DiagramScene *openScene = new DiagramScene;
+	qDebug() << "[Parse] scene rect: " << openScene->sceneRect();
 	Script *openScript = new Script(openScene);
 	connect(openScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
 	        SLOT(displayStatusMessage(QString,MessageUrgency)));
@@ -1102,46 +1103,46 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 	XmlScriptReader xmlReader(openScript, getDescriptionPath());
 	if (!xmlReader.read(&scriptFile)) {
 		QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
-	str += xmlReader.errorString();
+		str += xmlReader.errorString();
 
-	QMessageBox::warning(NULL, tr("Failed to load script."), str);
+		QMessageBox::warning(NULL, tr("Failed to load script."), str);
 
-	return NULL;
+		return NULL;
 	} else {
 		QString msg(tr("Script '") + openScript->name() + tr("' loaded."));
-	m_ui->statusBar->showMessage(msg);
+		m_ui->statusBar->showMessage(msg);
 
-	// Create a new view to display the new scene
-	DiagramView *newView = new DiagramView(openScene);
+		// Create a new view to display the new scene
+		DiagramView *newView = new DiagramView(openScene);
 
-	// Connect the necessary events for the scene and the script
-	connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
-	connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
+		// Connect the necessary events for the scene and the script
+		connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+		connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
 
-	// Add the script in the set of opened scripts
-	addScript(openScript);
+		// Add the script in the set of opened scripts
+		addScript(openScript);
 
-	/*
+		/*
 	 * Set the scene's initial rect based on the widget in which it is displayed (and centered)
 	 * if it's smaller
 	 */
-	QSizeF widgetSize = m_ui->tabWidget->size();
-	QRectF currentSceneRect = openScene->sceneRect();
-	QRectF minSceneRect(- widgetSize.width() / 2,
-	                    - widgetSize.height() / 2,
-	                    widgetSize.width(),
-	                    widgetSize.height());
+		QSizeF widgetSize = m_ui->tabWidget->size();
+		QRectF currentSceneRect = openScene->sceneRect();
+		QRectF minSceneRect(- widgetSize.width() / 2,
+		                    - widgetSize.height() / 2,
+		                    widgetSize.width(),
+		                    widgetSize.height());
 
-	if (currentSceneRect.width() < minSceneRect.width()
-	   || currentSceneRect.height() < minSceneRect.height()) {
-		openScene->setSceneRect(minSceneRect);
-	}
+		if (currentSceneRect.width() < minSceneRect.width()
+		    || currentSceneRect.height() < minSceneRect.height()) {
+			openScene->setSceneRect(minSceneRect);
+		}
 
 
-	// Add the new scene as a new tab and make it active
-	m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
-	                                                     QIcon(":/icons/icons/script.svg"),
-	                                                     openScript->name()));
+		// Add the new scene as a new tab and make it active
+		m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
+		                                                         QIcon(":/icons/icons/script.svg"),
+		                                                         openScript->name()));
 	}
 
 	return openScript;

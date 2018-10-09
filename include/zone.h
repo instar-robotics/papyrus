@@ -31,14 +31,10 @@ public:
 	QColor color() const;
 	void setColor(const QColor &color);
 
-	QGraphicsItemGroup *group() const;
-	void setGroup(QGraphicsItemGroup *group);
-
 private:
 	qreal m_width;
 	qreal m_height;
 	QColor m_color;
-	QGraphicsItemGroup *m_group; // The group that constitutes all functions inside this zone
 };
 
 #endif // ZONE_H

@@ -6,6 +6,7 @@
 #include "scalarvisualization.h"
 #include "vectorvisualization.h"
 #include "matrixvisualization.h"
+#include "zone.h"
 
 #include <iostream>
 
@@ -442,6 +443,35 @@ void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 	qDebug() << "Double Click";
 
 	QGraphicsItem::mouseDoubleClickEvent(event);
+}
+
+/**
+ * @brief DiagramBox::mouseReleaseEvent check if this @DiagramBox was moved _outside_ a @Zone, and
+ * if yes, it removes itself from this @Zone's children
+ * @param event
+ */
+void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	QList<QGraphicsItem *> colliding = collidingItems();
+	bool onZone = false;
+
+	foreach (QGraphicsItem *item, colliding) {
+		Zone *z = dynamic_cast<Zone *>(item);
+
+		if (z != nullptr) {
+			onZone = true;
+			break;
+		}
+	}
+
+	// If the box had been dropped outside a zone, make sure we don't have a parent anymore
+	if (!onZone && parentItem() != nullptr) {
+		QPointF savedPos = parentItem()->mapToScene(pos());
+		setParentItem(nullptr);
+		setPos(savedPos);
+	}
+
+	QGraphicsItem::mouseReleaseEvent(event);
 }
 
 void DiagramBox::showDataVis()

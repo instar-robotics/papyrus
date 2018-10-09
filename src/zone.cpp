@@ -13,8 +13,7 @@ Zone::Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsObject *parent)
     : QGraphicsObject(parent),
       m_width(w),
       m_height(h),
-      m_color(qRgba(51, 153, 255, 10)),
-      m_group(new QGraphicsItemGroup(this))
+      m_color(qRgba(51, 153, 255, 10))
 {
 	m_color.setAlpha(80);
 	setX(x);
@@ -26,15 +25,11 @@ Zone::Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsObject *parent)
 	setAcceptHoverEvents(true);
 
 	setZValue(COMMENTS_Z_VALUE);
-
-	m_group->setZValue(COMMENTS_Z_VALUE);
-	m_group->setFlag(QGraphicsItem::ItemIsSelectable, true);
-	m_group->setAcceptedMouseButtons(0);
 }
 
 Zone::~Zone()
 {
-	delete m_group;
+//	delete m_group;
 }
 
 Zone::Zone(QGraphicsObject *parent) : Zone(0,0,0,0,parent)
@@ -80,20 +75,24 @@ void Zone::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsObject::mousePressEvent(event);
 }
 
+/**
+ * @brief Zone::updateGroup makes sure that all @DiagramBox es that are colliding with this zone
+ * are made children of it.
+ */
 void Zone::updateGroup()
 {
-	// First, add the group to the scene if it is not already added
-//	if (m_group->scene() == nullptr && scene() != nullptr) {
-//		scene()->addItem(m_group);
-//	}
 
 	QList<QGraphicsItem *> colliding = collidingItems();
 
 	foreach (QGraphicsItem *item, colliding) {
-		// Add the DiagramBox only in the group
+		// Filter by DiagramBox which are not already children
 		DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(item);
-		if (maybeBox != nullptr) {
-			m_group->addToGroup(item);
+		if (maybeBox != nullptr && maybeBox->parentItem() != this) {
+			// For some reason, calling setParentItem() moves the object weirdly so here we save its
+			// current scene position mapped to the zone's coordinates, and immediately restore it
+			QPointF savedPos = mapFromScene(maybeBox->scenePos());
+			maybeBox->setParentItem(this);
+			maybeBox->setPos(savedPos);
 		}
 	}
 }
@@ -126,14 +125,4 @@ QColor Zone::color() const
 void Zone::setColor(const QColor &color)
 {
 	m_color = color;
-}
-
-QGraphicsItemGroup *Zone::group() const
-{
-	return m_group;
-}
-
-void Zone::setGroup(QGraphicsItemGroup *group)
-{
-	m_group = group;
 }

@@ -48,6 +48,12 @@ public:
 	bool displayLabels() const;
 	void setDisplayLabels(bool displayLabels);
 
+	bool rightBtnDown() const;
+	void setRightBtnDown(bool rightBtnDown);
+
+	QGraphicsRectItem *rect() const;
+	void setRect(QGraphicsRectItem *rect);
+
 public slots:
 	void toggleDisplayGrid(bool shouldDraw);
 	void onOkBtnClicked(bool);
@@ -74,9 +80,11 @@ private:
 	PapyrusWindow *m_mainWindow; // A pointer to the main Papyrus window widget
 	bool m_leftBtnDown;
 	bool middleBtnIsDown;
+	bool m_rightBtnDown;
 	bool m_shouldDrawGrid;   // Whether to draw the grid or not
 	int m_gridSize;          // Size (in px) of the grid
 	QGraphicsLineItem *m_line; // The current line being drawn while clicking
+	QGraphicsRectItem *m_rect; // The current rectangular section being drawn while clicking
 	OutputSlot *m_oSlot;     // The slot from which the line being drawn originates
 	Script *m_script;        // The script to which this scene is associated
 	bool m_displayLabels;    // Whether or not to display input slots's names

@@ -26,14 +26,16 @@
 #include <QMenuBar>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
-                                            m_mainWindow(NULL),
+                                            m_mainWindow(nullptr),
                                             m_leftBtnDown(false),
                                             middleBtnIsDown(false),
+                                            m_rightBtnDown(false),
                                             m_shouldDrawGrid(true),
                                             m_gridSize(35),
-                                            m_line(NULL),
-                                            m_oSlot(NULL),
-                                            m_script(NULL),
+                                            m_line(nullptr),
+                                            m_rect(nullptr),
+                                            m_oSlot(nullptr),
+                                            m_script(nullptr),
                                             m_displayLabels(false)
 {
 	m_mainWindow = getMainWindow();
@@ -176,8 +178,17 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 				updateSceneRect();
 			}
 		}
-	} else {
-		qDebug() << "Nb items:" << items().count();
+	} else if (evt->button() & Qt::RightButton) {
+		m_rightBtnDown = true;
+
+		// Check if we have clicked on something
+		QGraphicsItem *maybeItem = itemAt(mousePos, QTransform());
+		if (maybeItem) {
+			updateSceneRect();
+		} else {
+			m_rect = new QGraphicsRectItem(evt->scenePos().x(), evt->scenePos().y(), 1, 1);
+			addItem(m_rect);
+		}
 	}
 
 	QGraphicsScene::mousePressEvent(evt);
@@ -244,6 +255,27 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		m_line->setLine(newLine);
 	}
 
+	// Draw a rectangle if the right button is pressed
+	else if (m_rightBtnDown && m_rect != nullptr) {
+		QRectF r(m_rect->rect());
+
+		if (mousePos.x() > m_rect->rect().left() &&
+		    mousePos.y() > m_rect->rect().top()) {
+			r.setBottomRight(mousePos);
+		} else if (mousePos.x() > m_rect->rect().left() &&
+		           mousePos.y() < m_rect->rect().bottom()) {
+			r.setTopRight(mousePos);
+		} else if (mousePos.x() < m_rect->rect().right() &&
+		           mousePos.y() > m_rect->rect().top()) {
+			r.setBottomLeft(mousePos);
+		} else if (mousePos.x() < m_rect->rect().right() &&
+		           mousePos.y() < m_rect->rect().bottom()) {
+			r.setTopLeft(mousePos);
+		}
+
+		m_rect->setRect(r);
+	}
+
 	QGraphicsScene::mouseMoveEvent(evt);
 }
 
@@ -299,6 +331,8 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 		}
 
 		m_oSlot = 0;
+	} else if (evt->button() == Qt::RightButton) {
+		m_rightBtnDown = false;
 	}
 
 	updateSceneRect();
@@ -570,6 +604,26 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
 	}
 
 	painter->drawPoints(dots.data(), dots.size());
+}
+
+QGraphicsRectItem *DiagramScene::rect() const
+{
+	return m_rect;
+}
+
+void DiagramScene::setRect(QGraphicsRectItem *rect)
+{
+	m_rect = rect;
+}
+
+bool DiagramScene::rightBtnDown() const
+{
+	return m_rightBtnDown;
+}
+
+void DiagramScene::setRightBtnDown(bool rightBtnDown)
+{
+	m_rightBtnDown = rightBtnDown;
 }
 
 bool DiagramScene::displayLabels() const

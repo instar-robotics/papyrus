@@ -31,10 +31,14 @@ public:
 	QColor color() const;
 	void setColor(const QColor &color);
 
+	QString title() const;
+	void setTitle(const QString &title);
+
 private:
 	qreal m_width;
 	qreal m_height;
 	QColor m_color;
+	QString m_title; // The title of the comment zone (should be kept small)
 };
 
 #endif // ZONE_H

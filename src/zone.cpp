@@ -47,24 +47,22 @@ void Zone::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 	Q_UNUSED(widget);
 	Q_UNUSED(option);
 
-	QPen pen;
-
-	pen.setColor(Qt::red);
-
-	painter->setPen(pen);
-
+	// No simple function painter->fillRoundedRect(), so we must use a QPainterPath for this
 	QPainterPath path;
 	path.addRoundedRect(boundingRect(), 4, 4);
 	painter->fillPath(path, m_color);
+
+	// Draw the title of the comment zone
+	QPointF txtOrigin = boundingRect().topLeft();
+	txtOrigin.rx() += 10;
+	txtOrigin.ry() += 20;
+	QFont titleFont("Inconsolata");
+	painter->setFont(titleFont);
+	painter->drawText(txtOrigin, m_title);
 }
 
 QVariant Zone::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-	// When it is moved, we need to move the functions inside it
-	if (change == QGraphicsItem::ItemPositionChange && scene()) {
-
-	}
-
 	return QGraphicsItem::itemChange(change, value);
 }
 
@@ -125,4 +123,14 @@ QColor Zone::color() const
 void Zone::setColor(const QColor &color)
 {
 	m_color = color;
+}
+
+QString Zone::title() const
+{
+	return m_title;
+}
+
+void Zone::setTitle(const QString &title)
+{
+	m_title = title;
 }

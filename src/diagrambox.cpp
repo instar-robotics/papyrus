@@ -437,6 +437,13 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	painter->drawText(QRectF(0, m_bHeight - m_tHeight, m_bWidth, m_tHeight), Qt::AlignCenter, m_name);
 }
 
+void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+	qDebug() << "Double Click";
+
+	QGraphicsItem::mouseDoubleClickEvent(event);
+}
+
 void DiagramBox::showDataVis()
 {
 	// First check that there isn't already a visualization window, otherwise do nothing

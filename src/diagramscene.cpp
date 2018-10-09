@@ -10,6 +10,7 @@
 #include "script.h"
 #include "constantdiagrambox.h"
 #include "datavisualization.h"
+#include "zone.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -333,6 +334,17 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 		m_oSlot = 0;
 	} else if (evt->button() == Qt::RightButton) {
 		m_rightBtnDown = false;
+
+		if (m_rect != nullptr) {
+			QRectF r = m_rect->rect();
+
+			Zone *z = new Zone(r.x(), r.y(), r.width(), r.height());
+			addItem(z);
+			qDebug() << "Foo";
+
+			delete m_rect;
+			m_rect = nullptr;
+		}
 	}
 
 	updateSceneRect();

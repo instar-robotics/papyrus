@@ -40,6 +40,7 @@ public:
 
 	QRectF boundingRect() const override;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 
 	void showDataVis();
 	void setOutputSlotPos();

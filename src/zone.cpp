@@ -63,6 +63,18 @@ void Zone::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 QVariant Zone::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
+	// Make the DiagramBoxe es children update their links when moving
+	foreach (QGraphicsItem *child, childItems()) {
+		DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(child);
+		if (maybeBox != nullptr) {
+			// This is a DIRTY trick: the itemChange() position was not called for the children
+			// so I'm using this moveBy() to make it so that itemChange() is called.
+			// This is  dirty trick but I could not find a way to propagate the itemChange() event
+			// to the child items
+			maybeBox->moveBy(0.1, 0);
+			maybeBox->moveBy(-0.1, 0);
+		}
+	}
 	return QGraphicsItem::itemChange(change, value);
 }
 

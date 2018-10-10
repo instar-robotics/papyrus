@@ -44,6 +44,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_scriptFrame = new QFrame;
 	m_boxFrame = new QFrame;
 	m_linkFrame = new QFrame;
+	m_zoneFrame = new QFrame;
 	m_okBtn = new QPushButton("OK");
 	m_okBtn->setIcon(QIcon(":/icons/icons/check.svg"));
 	m_okBtn->setToolTip(tr("Apply changes to the selected item"));
@@ -54,6 +55,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_panelLayout->addWidget(m_scriptFrame);
 	m_panelLayout->addWidget(m_boxFrame);
 	m_panelLayout->addWidget(m_linkFrame);
+	m_panelLayout->addWidget(m_zoneFrame);
 	QHBoxLayout *btnsLayout = new QHBoxLayout;
 	btnsLayout->addWidget(m_okBtn);
 	btnsLayout->addWidget(m_cancelBtn);
@@ -161,12 +163,34 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
 	m_linkLayout->setSizeConstraint(QLayout::SetFixedSize);
 
+	// Create the layout for the zone
+	m_zoneLayout = new QFormLayout;
+	m_zoneLayout->setContentsMargins(0, 0, 0, 0);
+	m_zoneTitle = new QLineEdit;
+
+	m_zoneLayout->addRow(tr("Title:"), m_zoneTitle);
+
+	m_zoneFrame->setLayout(m_zoneLayout);
+
+
 	// By default, hide the frames and the buttons
+	hideAllFrames(true);
+}
+
+/**
+ * @brief PropertiesPanel::hideAllFrames hides all frame from the properties panel, making it empty
+ */
+void PropertiesPanel::hideAllFrames(bool buttonsToo)
+{
 	m_linkFrame->hide();
 	m_boxFrame->hide();
 	m_scriptFrame->hide();
-	m_okBtn->hide();
-	m_cancelBtn->hide();
+	m_zoneFrame->hide();
+
+	if (buttonsToo) {
+		m_okBtn->hide();
+		m_cancelBtn->hide();
+	}
 }
 
 QFrame *PropertiesPanel::boxFrame() const
@@ -304,8 +328,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		informUserAndCrash(tr("Cannot display box's properties because box is null!"));
 
 	// Hide the other frames
-	m_linkFrame->hide();
-	m_scriptFrame->hide();
+	hideAllFrames();
 
 	// Update the fields with the selected box
 	m_boxName->setText(box->name());
@@ -392,8 +415,7 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 		informUserAndCrash(tr("Cannot display link's properties because link is null!"));
 
 	// Hide the other frames
-	m_boxFrame->hide();
-	m_scriptFrame->hide();
+	hideAllFrames();
 
 	InputType linkType = link->to()->inputType();
 
@@ -476,8 +498,7 @@ void PropertiesPanel::displayScriptProperties(Script *script)
 		informUserAndCrash(tr("Cannot display script's properties because script is null!"));
 
 	// Hide the other frames
-	m_boxFrame->hide();
-	m_linkFrame->hide();
+	hideAllFrames();
 
 	// Populate fields
 	m_scriptName->setText(script->name());
@@ -498,6 +519,23 @@ void PropertiesPanel::displayScriptProperties(Script *script)
 
 	// Show the script's frame
 	m_scriptFrame->show();
+	m_okBtn->show();
+	m_cancelBtn->show();
+}
+
+void PropertiesPanel::displayZoneProperties(Zone *zone)
+{
+	if (zone == nullptr)
+		informUserAndCrash(tr("Cannot display comment zone's properties because script is null!"));
+
+	// Hide all other frames
+	hideAllFrames();
+
+	// Populate fields
+	m_zoneTitle->setText(zone->title());
+
+	// Show the zone frame
+	m_zoneFrame->show();
 	m_okBtn->show();
 	m_cancelBtn->show();
 }
@@ -609,4 +647,12 @@ void PropertiesPanel::updateScriptProperties(Script *script)
 	script->setTimeValue(m_timeValue->value());
 	script->setTimeUnit(m_timeUnit->currentData().value<TimeUnit>());
 	script->setEncrypt(m_encrypt->isChecked());
+}
+
+void PropertiesPanel::updateZoneProperties(Zone *zone)
+{
+	if (zone == nullptr)
+		informUserAndCrash(tr("Cannot update zone's properties: script is null!"));
+
+	zone->setTitle(m_zoneTitle->text());
 }

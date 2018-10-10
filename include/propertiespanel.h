@@ -4,6 +4,7 @@
 #include "diagrambox.h"
 #include "link.h"
 #include "script.h"
+#include "zone.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -28,9 +29,11 @@ class PropertiesPanel : public QGroupBox
 public:
 	explicit PropertiesPanel(QWidget *parent = 0);
 
+	void hideAllFrames(bool buttonsToo = false);
 	void updateBoxProperties(DiagramBox *box);
 	void updateLinkProperties(Link *link);
 	void updateScriptProperties(Script *script);
+	void updateZoneProperties(Zone *zone);
 
 	QFrame *boxFrame() const;
 	void setBoxFrame(QFrame *boxFrame);
@@ -102,6 +105,10 @@ private:
 	QComboBox *m_linkConnectivity;
 	QMetaObject::Connection m_conn;     // Contains the the Qt's connection object for the above button
 
+	QFormLayout *m_zoneLayout;     // Contains the layout to display comment zone's properties
+	QFrame *m_zoneFrame;           // Container for zone's properties
+	QLineEdit *m_zoneTitle;        // The comment zone's title
+
 	// Will contain the sizes of connected matrix when the link is SPARSE_MATRIX
 	QSize m_inputSize;
 	QSize m_outputSize;
@@ -113,6 +120,7 @@ public slots:
 	void displayBoxProperties(DiagramBox *box);
 	void displayLinkProperties(Link *link);
 	void displayScriptProperties(Script *script);
+	void displayZoneProperties(Zone *zone);
 	void convertTimeValues(int idx);
 	void toggleTopic(bool isChecked);
 

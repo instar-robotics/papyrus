@@ -340,7 +340,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
 			Zone *z = new Zone(r.x(), r.y(), r.width(), r.height());
 			addItem(z);
-			qDebug() << "Foo";
 
 			delete m_rect;
 			m_rect = nullptr;
@@ -666,18 +665,19 @@ void DiagramScene::onSelectionChanged()
 	if (sItems.count() == 1) {
 		QGraphicsItem *item = sItems.at(0);
 
-		// Display a box's or link's properties only if there is only one selected
-		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
-		if (selectedBox != NULL) {
+		DiagramBox *selectedBox = nullptr;
+		Link *link = nullptr;
+		Zone *zone = nullptr;
+
+		// Display a box's, link's or comment zone properties only if there is only one selected
+		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
 			propPanel->displayBoxProperties(selectedBox);
-		} else {
-			Link *link = dynamic_cast<Link *>(item);
-			if (link != NULL) {
-				propPanel->displayLinkProperties(link);
-			} else {
-				emit displayStatusMessage(tr("Only function box or link can have their properties displayed!"));
-			}
+		} else if ((link = dynamic_cast<Link *>(item))) {
+			propPanel->displayLinkProperties(link);
+		} else if ((zone = dynamic_cast<Zone *>(item))) {
+			propPanel->displayZoneProperties(zone);
 		}
+
 	} else if (sItems.count() == 0) {
 		propPanel->boxFrame()->hide();
 		propPanel->linkFrame()->hide();
@@ -799,8 +799,14 @@ void DiagramScene::onOkBtnClicked(bool)
 			if (selectedLink != NULL) {
 				propPanel->updateLinkProperties(selectedLink);
 			} else {
-				informUserAndCrash(tr("Unsupported element for updating properties, only function "
-				                      "boxes and links are supported at the moment."));
+				Zone *selectedZone = dynamic_cast<Zone *>(item);
+				if (selectedZone != nullptr) {
+					propPanel->updateZoneProperties(selectedZone);
+				}
+				else {
+					informUserAndCrash(tr("Unsupported element for updating properties, only function "
+					                      "boxes, links and zones are supported at the moment."));
+				}
 			}
 		}
 	}

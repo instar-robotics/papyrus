@@ -104,9 +104,12 @@ QRectF OutputSlot::boundingRect() const
  */
 void OutputSlot::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
+	Q_UNUSED(evt);
+
 	m_isDrawingLine = true;
 
-	QGraphicsItem::mousePressEvent(evt);
+	// Do NOT propagate the event: this prevents items undereneath to receive the event
+	//	QGraphicsItem::mousePressEvent(evt);
 }
 
 /**

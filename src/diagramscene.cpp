@@ -25,6 +25,7 @@
 #include <QGraphicsProxyWidget>
 #include <QDockWidget>
 #include <QMenuBar>
+#include <QCursor>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_mainWindow(nullptr),
@@ -340,6 +341,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
 			Zone *z = new Zone(r.x(), r.y(), r.width(), r.height());
 			addItem(z);
+			z->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
 
 			delete m_rect;
 			m_rect = nullptr;

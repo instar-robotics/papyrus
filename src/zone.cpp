@@ -1,6 +1,8 @@
 #include "zone.h"
 #include "diagrambox.h"
 #include "constants.h"
+#include "diagramscene.h"
+#include "helpers.h"
 
 #include <QDebug>
 #include <QPen>
@@ -8,14 +10,17 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QGraphicsScene>
+#include <QGraphicsSceneHoverEvent>
 
 Zone::Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsObject *parent)
     : QGraphicsObject(parent),
       m_width(w),
       m_height(h),
-      m_color(qRgba(51, 153, 255, 10))
+      m_color(qRgba(51, 153, 255, 10)),
+      m_resizeType(NO_RESIZE)
 {
 	m_color.setAlpha(80);
+
 	setX(x);
 	setY(y);
 
@@ -29,7 +34,7 @@ Zone::Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsObject *parent)
 
 Zone::~Zone()
 {
-//	delete m_group;
+
 }
 
 Zone::Zone(QGraphicsObject *parent) : Zone(0,0,0,0,parent)
@@ -63,34 +68,180 @@ void Zone::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 QVariant Zone::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-	// Make the DiagramBoxe es children update their links when moving
-	foreach (QGraphicsItem *child, childItems()) {
-		DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(child);
-		if (maybeBox != nullptr) {
-			// This is a DIRTY trick: the itemChange() position was not called for the children
-			// so I'm using this moveBy() to make it so that itemChange() is called.
-			// This is  dirty trick but I could not find a way to propagate the itemChange() event
-			// to the child items
-			maybeBox->moveBy(0.1, 0);
-			maybeBox->moveBy(-0.1, 0);
+	if (change == QGraphicsItem::ItemPositionChange && scene()) {
+		// Get coordinate of the target new position
+		QPointF targetPos = value.toPointF();
+
+		// Get the scene in order to get the grid size
+		DiagramScene *theScene = dynamic_cast<DiagramScene *>(scene());
+		if (theScene == nullptr) {
+			informUserAndCrash("Could not cast the scene into a DiagramScene!");
 		}
+		int gridSize = theScene->gridSize();
+
+		// Snap the new position's (x, y) coordinates to the grid
+		qreal newX = round(targetPos.x() / gridSize) * gridSize;
+		qreal newY = round(targetPos.y() / gridSize) * gridSize;
+
+		// Create the Point representing the new, snapped position
+		QPointF newPos(newX, newY);
+
+		// Make the DiagramBoxe es children update their links when moving
+		foreach (QGraphicsItem *child, childItems()) {
+			DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(child);
+			if (maybeBox != nullptr) {
+				// This is a DIRTY trick: the itemChange() position was not called for the children
+				// so I'm using this moveBy() to make it so that itemChange() is called.
+				// This is  dirty trick but I could not find a way to propagate the itemChange() event
+				// to the child items
+				maybeBox->moveBy(0.1, 0);
+				maybeBox->moveBy(-0.1, 0);
+			}
+		}
+
+		return newPos;
 	}
 	return QGraphicsItem::itemChange(change, value);
 }
 
 void Zone::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	// Update the boxes included in this zone
 	updateGroup();
 
+	QPointF p(event->pos());
+
+	// Flag resizing
+	qreal margin = 10;
+	if (p.x() <= margin) {
+		m_resizeType = RESIZE_LEFT;
+	} else if (p.x() >= m_width - margin) {
+		m_resizeType = RESIZE_RIGHT;
+	} else if (p.y() <= margin) {
+		m_resizeType = RESIZE_TOP;
+	} else if(p.y() > m_height - margin) {
+		m_resizeType = RESIZE_BOTTOM ;
+	} else {
+		m_resizeType = NO_RESIZE;
+	}
+
 	QGraphicsObject::mousePressEvent(event);
+}
+
+void Zone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+	QPointF sPos, p;
+	qreal dx, dy;
+
+	// Get coordinate of the target new position
+	QPointF targetPos = event->pos();
+
+	// Get the scene in order to get the grid size
+	DiagramScene *theScene = dynamic_cast<DiagramScene *>(scene());
+	if (theScene == nullptr) {
+		informUserAndCrash("Could not cast the scene into a DiagramScene!");
+	}
+	int gridSize = theScene->gridSize();
+
+	// Snap the new position's (x, y) coordinates to the grid
+	qreal newX = round(targetPos.x() / gridSize) * gridSize;
+	qreal newY = round(targetPos.y() / gridSize) * gridSize;
+
+	switch (m_resizeType) {
+		// Resizing left can be done just by adjusting bottom right point
+		case RESIZE_RIGHT:
+//			m_width = event->pos().x();
+			m_width = newX;
+			update();
+			theScene->update(); // COSTLY: TODO: find a better way
+		break;
+
+		case RESIZE_BOTTOM:
+//			m_height = event->pos().y();
+			m_height = newY;
+			update();
+			theScene->update(); // COSTLY: TODO: find a better way
+		break;
+
+		case RESIZE_TOP:
+			sPos = event->scenePos();
+			p = scenePos();
+//			dy = p.y() - sPos.y();
+			dy = round((p.y() - sPos.y()) / gridSize) * gridSize;
+			p.setY(sPos.y());
+			setPos(p);
+			m_height += dy;
+			update();
+		break;
+
+		case RESIZE_LEFT:
+			sPos = event->scenePos();
+			p = scenePos();
+//			dx = p.x() - sPos.x();
+			dx = round((p.x() - sPos.x()) / gridSize) * gridSize;
+			p.setX(sPos.x());
+			setPos(p);
+			m_width += dx;
+
+			// Move all children by the dx (because otherwise they move WITH the zone)
+			foreach (QGraphicsItem *child, childItems()) {
+				child->moveBy(dx, 0);
+			}
+
+			update();
+		break;
+
+		default:
+			QGraphicsItem::mouseMoveEvent(event);
+	}
+}
+
+void Zone::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+	m_resizeType = NO_RESIZE;
+
+	updateGroup(true);
+
+	updateLinks();
+
+	QGraphicsItem::mouseReleaseEvent(event);
+}
+
+void Zone::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+	QPointF p = event->pos();
+	qreal margin = 10;
+
+	if (p.x() <= margin) {
+		setCursor(Qt::SizeHorCursor);
+	} else if (p.x() >= m_width - margin) {
+		setCursor(Qt::SizeHorCursor);
+	} else if (p.y() <= margin) {
+		setCursor(Qt::SizeVerCursor);
+	} else if(p.y() > m_height - margin) {
+		setCursor(Qt::SizeVerCursor);
+	} else {
+		setCursor(Qt::ArrowCursor);
+	}
+
+	QGraphicsItem::hoverMoveEvent(event);
 }
 
 /**
  * @brief Zone::updateGroup makes sure that all @DiagramBox es that are colliding with this zone
  * are made children of it.
  */
-void Zone::updateGroup()
+void Zone::updateGroup(bool startFromScratch)
 {
+	// If startFromScratch is true, first empty all children before starting over
+	if (startFromScratch) {
+		foreach (QGraphicsItem *child, childItems()) {
+
+			QPointF savedPos = child->scenePos();
+			child->setParentItem(nullptr);
+			child->setPos(savedPos);
+		}
+	}
 
 	QList<QGraphicsItem *> colliding = collidingItems();
 
@@ -103,6 +254,16 @@ void Zone::updateGroup()
 			QPointF savedPos = mapFromScene(maybeBox->scenePos());
 			maybeBox->setParentItem(this);
 			maybeBox->setPos(savedPos);
+		}
+	}
+}
+
+void Zone::updateLinks()
+{
+	foreach (QGraphicsItem *child, childItems()) {
+		DiagramBox *maybeBox= dynamic_cast<DiagramBox *>(child);
+		if (maybeBox != nullptr) {
+			maybeBox->outputSlot()->updateLinks();
 		}
 	}
 }

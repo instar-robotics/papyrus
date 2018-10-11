@@ -6,6 +6,14 @@
 #include <QColor>
 #include <QGraphicsItemGroup>
 
+enum ResizeType {
+	NO_RESIZE,
+	RESIZE_TOP,
+	RESIZE_RIGHT,
+	RESIZE_BOTTOM,
+	RESIZE_LEFT
+};
+
 class Zone : public QGraphicsObject
 {
 public:
@@ -17,8 +25,12 @@ public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
 
-	void updateGroup();
+	void updateGroup(bool startFromScratch = false);
+	void updateLinks();
 
 	// Getters / Setters
 
@@ -39,6 +51,7 @@ private:
 	qreal m_height;
 	QColor m_color;
 	QString m_title; // The title of the comment zone (should be kept small)
+	ResizeType m_resizeType;
 };
 
 #endif // ZONE_H

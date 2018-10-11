@@ -258,12 +258,18 @@ void Zone::updateGroup(bool startFromScratch)
 	}
 }
 
+/**
+ * @brief Zone::updateLinks updates the displaying of the links for all boxes inside this zone
+ */
 void Zone::updateLinks()
 {
 	foreach (QGraphicsItem *child, childItems()) {
 		DiagramBox *maybeBox= dynamic_cast<DiagramBox *>(child);
 		if (maybeBox != nullptr) {
 			maybeBox->outputSlot()->updateLinks();
+			foreach (InputSlot *iSlot, maybeBox->inputSlots()) {
+				iSlot->updateLinks();
+			}
 		}
 	}
 }

@@ -469,6 +469,15 @@ void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		QPointF savedPos = parentItem()->mapToScene(pos());
 		setParentItem(nullptr);
 		setPos(savedPos);
+
+		// And then update the displaying of its links because otherwise they go back to pointing
+		// to some weird location
+		if (outputSlot() != nullptr)
+			outputSlot()->updateLinks();
+
+		foreach (InputSlot *iSlot, inputSlots()) {
+			iSlot->updateLinks();
+		}
 	}
 
 	QGraphicsItem::mouseReleaseEvent(event);

@@ -5,6 +5,7 @@
 #include "link.h"
 #include "script.h"
 #include "zone.h"
+#include "setcolorbutton.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -74,6 +75,12 @@ public:
 	QPushButton *displayVisu() const;
 	void setDisplayVisu(QPushButton *displayVisu);
 
+	QLineEdit *zoneTitle() const;
+	void setZoneTitle(QLineEdit *zoneTitle);
+
+	SetColorButton *zoneColor() const;
+	void setZoneColor(SetColorButton *zoneColor);
+
 private:
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame *m_scriptFrame;       // Container for script's properties
@@ -108,6 +115,7 @@ private:
 	QFormLayout *m_zoneLayout;     // Contains the layout to display comment zone's properties
 	QFrame *m_zoneFrame;           // Container for zone's properties
 	QLineEdit *m_zoneTitle;        // The comment zone's title
+	SetColorButton *m_zoneColor;     // Holds the color of the comment zone
 
 	// Will contain the sizes of connected matrix when the link is SPARSE_MATRIX
 	QSize m_inputSize;

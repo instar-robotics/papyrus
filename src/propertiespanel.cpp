@@ -167,8 +167,10 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_zoneLayout = new QFormLayout;
 	m_zoneLayout->setContentsMargins(0, 0, 0, 0);
 	m_zoneTitle = new QLineEdit;
+	m_zoneColor = new SetColorButton;
 
 	m_zoneLayout->addRow(tr("Title:"), m_zoneTitle);
+	m_zoneLayout->addRow(tr("Color:"), m_zoneColor);
 
 	m_zoneFrame->setLayout(m_zoneLayout);
 
@@ -316,6 +318,26 @@ QPushButton *PropertiesPanel::displayVisu() const
 void PropertiesPanel::setDisplayVisu(QPushButton *displayVisu)
 {
 	m_displayVisu = displayVisu;
+}
+
+QLineEdit *PropertiesPanel::zoneTitle() const
+{
+	return m_zoneTitle;
+}
+
+void PropertiesPanel::setZoneTitle(QLineEdit *zoneTitle)
+{
+	m_zoneTitle = zoneTitle;
+}
+
+SetColorButton *PropertiesPanel::zoneColor() const
+{
+	return m_zoneColor;
+}
+
+void PropertiesPanel::setZoneColor(SetColorButton *zoneColor)
+{
+	m_zoneColor = zoneColor;
 }
 
 /**
@@ -533,6 +555,7 @@ void PropertiesPanel::displayZoneProperties(Zone *zone)
 
 	// Populate fields
 	m_zoneTitle->setText(zone->title());
+	m_zoneColor->setColor(zone->color());
 
 	// Show the zone frame
 	m_zoneFrame->show();
@@ -655,4 +678,5 @@ void PropertiesPanel::updateZoneProperties(Zone *zone)
 		informUserAndCrash(tr("Cannot update zone's properties: script is null!"));
 
 	zone->setTitle(m_zoneTitle->text());
+	zone->setColor(m_zoneColor->color());
 }

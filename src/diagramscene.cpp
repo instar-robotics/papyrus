@@ -746,8 +746,11 @@ void DiagramScene::onOkBtnClicked(bool)
 	} else if (sItems.count() == 1) {
 		QGraphicsItem *item = sItems.at(0);
 
-		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
-		if (selectedBox != NULL) {
+		DiagramBox *selectedBox;
+		Link *selectedLink;
+		Zone *selectedZone;
+
+		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
 			propPanel->updateBoxProperties(selectedBox);
 
 			// Now check all SCALAR_MATRIX links for invalidity and if there was one found, trigger
@@ -796,20 +799,13 @@ void DiagramScene::onOkBtnClicked(bool)
 				emit displayStatusMessage(tr("Invalid link found!"));
 				script()->setIsInvalid(true);
 			}
+		} else if((selectedLink = dynamic_cast<Link *>(item))) {
+			propPanel->updateLinkProperties(selectedLink);
+		} else if ((selectedZone = dynamic_cast<Zone *>(item))) {
+			propPanel->updateZoneProperties(selectedZone);
 		} else {
-			Link *selectedLink = dynamic_cast<Link *>(item);
-			if (selectedLink != NULL) {
-				propPanel->updateLinkProperties(selectedLink);
-			} else {
-				Zone *selectedZone = dynamic_cast<Zone *>(item);
-				if (selectedZone != nullptr) {
-					propPanel->updateZoneProperties(selectedZone);
-				}
-				else {
-					informUserAndCrash(tr("Unsupported element for updating properties, only function "
-					                      "boxes, links and zones are supported at the moment."));
-				}
-			}
+			informUserAndCrash(tr("Unsupported element for updating properties, only function "
+			                      "boxes, links and zones are supported at the moment."));
 		}
 	}
 }
@@ -827,21 +823,25 @@ void DiagramScene::onCancelBtnClicked(bool)
 		propPanel->timeUnit()->setCurrentIndex(m_script->timeUnit());
 	} else if (sItems.count() == 1) {
 		QGraphicsItem *item = sItems.at(0);
-		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
-		if (selectedBox != NULL) {
+		DiagramBox *selectedBox;
+		Link *selectedLink;
+		Zone *selectedZone;
+
+		if ((selectedBox  = dynamic_cast<DiagramBox *>(item))) {
 			// If the selected box outputs a matrix, then fetch the values for rows and cols
 			if (selectedBox->outputType() == MATRIX) {
 				propPanel->rowsInput()->setValue(selectedBox->rows());
 				propPanel->colsInput()->setValue(selectedBox->cols());
 			}
+		} else if ((selectedLink = dynamic_cast<Link *>(item))) {
+			propPanel->linkWeight()->setValue(selectedLink->weight());
+			propPanel->linkValue()->setText(selectedLink->value());
+		} else if ((selectedZone = dynamic_cast<Zone *>(item))) {
+			propPanel->zoneTitle()->setText(selectedZone->title());
+			propPanel->zoneColor()->setColor(selectedZone->color());
 		} else {
-			Link *selectedLink = dynamic_cast<Link *>(item);
-			if (selectedLink != NULL) {
-				propPanel->linkWeight()->setValue(selectedLink->weight());
-			} else {
-				informUserAndCrash(tr("Unsupported element for restoring properties, only function "
-				                      "boxes and links are supported at the moment."));
-			}
+			informUserAndCrash(tr("Unsupported element for restoring properties, only function "
+			                      "boxes and links are supported at the moment."));
 		}
 	}
 }

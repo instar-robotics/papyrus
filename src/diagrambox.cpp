@@ -30,7 +30,7 @@ DiagramBox::DiagramBox(const QString &name,
                        const QUuid &uuid,
                        QGraphicsItem *parent) : QGraphicsItem(parent),
                                                 m_name(name),
-                                                m_bWidth(175),
+                                                m_bWidth(120),
                                                 m_bHeight(70),
                                                 m_tHeight(20),
                                                 m_uuid(uuid),
@@ -419,8 +419,7 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	painter->drawRoundedRect(QRectF(x0, y0, w, h), 7, 7);
 
 	// Draw vertical lines to create compartments
-	painter->drawLine(QLineF(m_bWidth / 3 - width / 2.0, 1.5 * width, m_bWidth / 3 - width / 2.0, m_bHeight - m_tHeight - width));
-	painter->drawLine(QLineF(2 * m_bWidth / 3 - width / 2.0, 1.5 * width, 2 * m_bWidth / 3 - width / 2.0, m_bHeight - m_tHeight - width));
+	painter->drawLine(QLineF(m_bWidth / 2.0 - width / 2.0, 1.5 * width, m_bWidth / 2.0 - width / 2.0, m_bHeight - m_tHeight - width));
 
 	// Draw horizontal line to create the space for the function's name, with dashed line
 	pen.setStyle(Qt::DotLine);

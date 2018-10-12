@@ -996,6 +996,20 @@ void PapyrusWindow::on_actionOpen_Script_triggered()
 		return;
 	}
 
+	// Check if there is an .autosave file associated to it and offer to load it instead to the user
+	QFile autoSavedFile(scriptPath + ".autosave");
+
+	if (autoSavedFile.exists()) {
+		if (QMessageBox::question(this,
+		                          tr("Open autosaved file instead?"),
+		                          tr("We have found an autosaved version of the script file you"
+		                             " are trying to open. This is most likely due to a previous"
+		                             " crash and some modifications were not saved.\n\n"
+		                             "Do you want to open the autosaved version instead?")) == QMessageBox::Yes) {
+			scriptPath = scriptPath + ".autosave";
+		}
+	}
+
 	// Check if the file is an encrypted file, and if yes, decrypt it
 	QFileInfo fi(scriptPath);
 	if (fi.completeSuffix() == "xml.crypted") {

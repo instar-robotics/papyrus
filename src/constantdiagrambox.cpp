@@ -52,10 +52,6 @@ void ConstantDiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem
 	// Draw enclosure
 	painter->drawRoundedRect(QRectF(x0, y0, w, h), 5, 5);
 
-	// Draw vertical lines to create compartments
-//	painter->drawLine(QLineF(m_bWidth / 3 - width / 2.0, 1.5 * width, m_bWidth / 3 - width / 2.0, m_bHeight - m_tHeight - width));
-//	painter->drawLine(QLineF(2 * m_bWidth / 3 - width / 2.0, 1.5 * width, 2 * m_bWidth / 3 - width / 2.0, m_bHeight - m_tHeight - width));
-
 	// Draw horizontal line to create the space for the function's name, with dashed line
 	pen.setStyle(Qt::DotLine);
 	painter->setPen(pen);

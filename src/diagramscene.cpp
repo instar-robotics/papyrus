@@ -65,13 +65,14 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 	// We add the Svg item here, as a child of the box, this way the box doesn't need to have knowledge of it
 	QGraphicsSvgItem *svg = new QGraphicsSvgItem(newBox->iconFilepath(), newBox);
 
-	rescaleSvgItem(svg,
-	               QSizeF(newBox->bWidth() / 2 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
-	               QPointF(0, 1.5));
-
 	// Add an SVG element to display to hint the size of the function (if not a constant box)
 	ConstantDiagramBox *constantBox = dynamic_cast<ConstantDiagramBox *>(newBox);
 	if (constantBox == nullptr) {
+		// If it's not a Constant, position the function icon AND an icon to indicate size
+		rescaleSvgItem(svg,
+		               QSizeF(newBox->bWidth() / 2 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
+		               QPointF(0, 1.5));
+
 		QString svgPath = ":/icons/icons/size-icon.svg";
 		QGraphicsSvgItem *s = new QGraphicsSvgItem(svgPath, newBox);
 		newBox->setSizeIcon(s);
@@ -80,6 +81,11 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 		rescaleSvgItem(s,
 		               QSizeF(newBox->bWidth() / 2 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
 		               QPointF(newBox->bWidth() / 2, 1.5));
+	} else {
+		// if this is a Constant, position only the function icon
+		rescaleSvgItem(svg,
+		               QSizeF(newBox->bWidth() - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
+		               QPointF(0, 1.5));
 	}
 
 	addItem(newBox);

@@ -10,7 +10,6 @@
 #include "script.h"
 #include "constantdiagrambox.h"
 #include "datavisualization.h"
-#include "zone.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -495,24 +494,23 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 
 		foreach (QGraphicsItem *item, items) {
 			Link *link = dynamic_cast<Link *>(item);
-			if (link != NULL) {
+			if (link != nullptr) {
 				deleteItem(link);
 				continue;
 			}
 
 			DiagramBox *box = dynamic_cast<DiagramBox *>(item);
-			if (box != NULL) {
+			if (box != nullptr) {
 				deleteItem(box);
 				continue;
 			}
+
+			Zone *zone = dynamic_cast<Zone *>(item);
+			if (zone != nullptr) {
+				deleteItem(zone);
+				continue;
+			}
 		}
-		/*
-		for (int i = 0; i < nbItems; i += 1) {
-			// Remove the item
-			removeItem(qgraphicsitem_cast<DiagramBox *>(items.at(i)));
-			updateSceneRect();
-		}
-		//*/
 
 		// Set the associated script as modified if there was a deletion
 		if (nbItems > 0) {
@@ -535,7 +533,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 void DiagramScene::deleteItem(Link *link)
 {
 	if (link == NULL) {
-		emit displayStatusMessage(tr("WARNING: tried to remove a link that was null."));
+		emit displayStatusMessage(tr("WARNING: tried to remove a link that was null."), MSG_WARNING);
 		return;
 	}
 
@@ -544,7 +542,7 @@ void DiagramScene::deleteItem(Link *link)
 		link->from()->removeOutput(link);
 	} else {
 		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an "
-		                             "originating output slot."));
+		                             "originating output slot."), MSG_WARNING);
 	}
 
 	// Then, remove this link from its InputSlot
@@ -552,7 +550,7 @@ void DiagramScene::deleteItem(Link *link)
 		link->to()->removeInput(link);
 	} else {
 		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an ending "
-		                             "input slot."));
+		                             "input slot."), MSG_WARNING);
 	}
 
 	// And finally, delete the Link (the QGraphicsScene will take care of removing the object)
@@ -567,7 +565,7 @@ void DiagramScene::deleteItem(Link *link)
 void DiagramScene::deleteItem(DiagramBox *box)
 {
 	if (box == NULL) {
-		emit displayStatusMessage(tr("WARNING: tried to remove a box that was null."));
+		emit displayStatusMessage(tr("WARNING: tried to remove a box that was null."), MSG_WARNING);
 		return;
 	}
 
@@ -584,6 +582,29 @@ void DiagramScene::deleteItem(DiagramBox *box)
 
 	// Finally, delete the box (the QGraphicsScene will take care of removing the box)
 	delete box;
+}
+
+/**
+ * @brief DiagramScene::deleteItem is used to delete a zone form the scene. It first un-parents all
+ * boxes inside it, because we don't want to delete the boxes inside the zone when we delete it.
+ * @param zone
+ */
+void DiagramScene::deleteItem(Zone *zone)
+{
+	if (zone == nullptr) {
+		emit displayStatusMessage(tr("WARNING: tried to remove a zone that was null."), MSG_WARNING);
+		return;
+	}
+
+	// First, remove itself as a parent from all childs
+	foreach (QGraphicsItem *child, zone->childItems()) {
+		QPointF savedPos = child->scenePos();
+		child->setParentItem(nullptr);
+		child->setPos(savedPos);
+	}
+
+	// Finally delete the zone (the QGraphicsScene will take care of removing the zone)
+	delete zone;
 }
 
 void DiagramScene::removeItem(QGraphicsItem *item)

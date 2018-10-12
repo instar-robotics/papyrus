@@ -5,6 +5,7 @@
 #include "outputslot.h"
 #include "inputslot.h"
 #include "diagrambox.h"
+#include "zone.h"
 
 #include <QGraphicsScene>
 #include <QUuid>
@@ -71,6 +72,7 @@ protected:
 	void keyPressEvent(QKeyEvent *evt);
 	void deleteItem(Link *link);
 	void deleteItem(DiagramBox *box);
+	void deleteItem(Zone *zone);
 
 	void removeItem(QGraphicsItem *item);
 
@@ -94,7 +96,7 @@ private slots:
 	void onSelectionChanged();
 
 signals:
-	void displayStatusMessage(const QString &text);
+	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
 
 };
 

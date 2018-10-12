@@ -191,6 +191,16 @@ void XmlScriptReader::readScript()
 			}
 			scene->update();
 		}
+
+		// Then read the comment zones
+		else if (reader.name() == "zones") {
+			while (reader.readNextStartElement()) {
+				if (reader.name() == "zone" )
+					readZone();
+				else
+					reader.skipCurrentElement();
+			}
+		}
 	}
 
 	// Check if we could read everything that is mandatory
@@ -534,6 +544,55 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 			reader.skipCurrentElement();
 		}
 	}
+}
+
+void XmlScriptReader::readZone()
+{
+	Q_ASSERT(reader.isStartElement() && reader.name() == "zone");
+
+	QString title;
+	qreal x = 0;
+	qreal y = 0;
+	qreal width = 100;
+	qreal height = 100;
+	int r = 100;
+	int g = 100;
+	int b = 100;
+	int a = 100;
+
+
+	while (reader.readNextStartElement()) {
+		if (reader.name() == "title") {
+			title = reader.readElementText();
+		} else if (reader.name() == "x") {
+			x = reader.readElementText().toDouble();
+		} else if (reader.name() == "y") {
+			y = reader.readElementText().toDouble();
+		} else if (reader.name() == "width") {
+			width = reader.readElementText().toDouble();
+		} else if (reader.name() == "height") {
+			height = reader.readElementText().toDouble();
+		} else if (reader.name() == "color") {
+			if (!reader.attributes().hasAttribute("red") ||
+			    !reader.attributes().hasAttribute("green") ||
+			    !reader.attributes().hasAttribute("blue") ||
+			    !reader.attributes().hasAttribute("alpha")) {
+				reader.raiseError(QObject::tr("Missing r,g,b or alpha component for the color"));
+			} else {
+				r = reader.attributes().value("red").toInt();
+				g = reader.attributes().value("green").toInt();
+				b = reader.attributes().value("blue").toInt();
+				a = reader.attributes().value("alpha").toInt();
+			}
+		} else
+			reader.skipCurrentElement();
+	}
+
+	Zone *zone = new Zone(x, y, width, height);
+	zone->setColor(QColor(r, g, b, a));
+	zone->setTitle(title);
+	m_script->scene()->addItem(zone);
+	zone->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
 }
 
 

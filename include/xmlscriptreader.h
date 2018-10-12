@@ -51,6 +51,7 @@ private:
 	               std::set<std::pair<QUuid, Link *> > *incompleteLinks);
 	void readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
 	              std::set<std::pair<QUuid, Link *> > *incompleteLinks);
+	void readZone();
 };
 
 #endif // XMLSCRIPTREADER_H

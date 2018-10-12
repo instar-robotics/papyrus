@@ -84,6 +84,7 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 	}
 
 	addItem(newBox);
+	newBox->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
 }
 
 /**

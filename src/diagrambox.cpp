@@ -440,8 +440,6 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-	qDebug() << "Double Click";
-
 	QGraphicsItem::mouseDoubleClickEvent(event);
 }
 

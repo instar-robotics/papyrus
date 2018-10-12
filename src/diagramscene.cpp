@@ -60,8 +60,7 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 {
 	Q_ASSERT(newBox->outputSlot() != NULL);
 
-	QPointF center = newBox->boundingRect().center();
-	newBox->setPos(position - center);
+	newBox->setPos(position);
 
 	// We add the Svg item here, as a child of the box, this way the box doesn't need to have knowledge of it
 	QGraphicsSvgItem *svg = new QGraphicsSvgItem(newBox->iconFilepath(), newBox);

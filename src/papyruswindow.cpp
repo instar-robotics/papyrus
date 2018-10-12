@@ -527,7 +527,7 @@ void PapyrusWindow::on_actionNew_script_triggered()
 	// Make sure the script has a name
 	if (newScriptName.length() == 0) {
 		newScriptName = NEW_SCRIPT_DEFAULT_NAME;
-	m_ui->statusBar->showMessage(tr("Script without a name are not allowed, setting a default name."), 2e3);
+		m_ui->statusBar->showMessage(tr("Script without a name are not allowed, setting a default name."), 2e3);
 	}
 
 	// Create a new scene to contain the items for the new script
@@ -539,7 +539,8 @@ void PapyrusWindow::on_actionNew_script_triggered()
 	                              widgetSize.width(),
 	                              widgetSize.height()));
 
-	connect(newScene, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+	connect(newScene, SIGNAL(displayStatusMessage(QString, MessageUrgency)),
+	        this, SLOT(displayStatusMessage(QString, MessageUrgency)));
 	connect(this, SIGNAL(toggleDisplayGrid(bool)), newScene, SLOT(toggleDisplayGrid(bool)));
 
 	// Create a new view to display the new scene
@@ -560,11 +561,9 @@ void PapyrusWindow::on_actionNew_script_triggered()
 	m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
 	                                                     QIcon(":/icons/icons/script.svg"),
 	                                                     newScriptName));
+	newScript->setHasTab(true);
 
 	m_propertiesPanel->displayScriptProperties(newScript);
-
-	// Set the script as modified
-	newScript->setStatusModified(true);
 
 	m_ui->statusBar->showMessage("New script '" + newScriptName + "' created.");
 }
@@ -1144,7 +1143,8 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		DiagramView *newView = new DiagramView(openScene);
 
 		// Connect the necessary events for the scene and the script
-		connect(openScript, SIGNAL(displayStatusMessage(QString)), this, SLOT(displayStatusMessage(QString)));
+		connect(openScript, SIGNAL(displayStatusMessage(QString, MessageUrgency)),
+		        this, SLOT(displayStatusMessage(QString, MessageUrgency)));
 		connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
 
 		// Add the script in the set of opened scripts
@@ -1161,6 +1161,9 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
 		                                                         QIcon(":/icons/icons/script.svg"),
 		                                                         openScript->name()));
+
+		openScript->setStatusModified(false);
+		openScript->setHasTab(true);
 	}
 
 	return openScript;

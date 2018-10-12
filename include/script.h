@@ -66,11 +66,15 @@ public:
 	bool isActiveScript() const;
 	void setIsActiveScript(bool isActiveScript);
 
+	bool hasTab() const;
+	void setHasTab(bool hasTab);
+
 public slots:
 	void warnAboutModifiedScript();
 
 private:
 	DiagramScene *m_scene; // The associated scene for this script
+	bool m_hasTab; // Tells whether the scripts has a tab in the tabwidget or not
 	ROSSession *m_rosSession; // The associated ROS Session for this script
 	QString m_name;        // Pretty name of the script (to display in tabs for instance)
 	QString m_filePath;    // Path of the (XML) file in which to save this script

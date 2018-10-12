@@ -29,6 +29,7 @@
 
 
 Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
+                                                           m_hasTab(false),
                                                            m_name(name),
                                                            m_modified(false),
                                                            m_isInvalid(false),
@@ -462,10 +463,14 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
  */
 void Script::updateTextStyle()
 {
+	// Do not attempt to modify the text style if we have not been added to a tab yet
+	if (!m_hasTab)
+		return;
+
 	// First, get the main window
 	PapyrusWindow *mainWindow = getMainWindow();
 
-	// Then get the tab widget and teh current index
+	// Then get the tab widget and the current index
 	QTabWidget *tabWidget = mainWindow->ui()->tabWidget;
 	if (tabWidget == NULL)
 		informUserAndCrash(tr("Failed to fetch the main tabbed widget"));
@@ -593,6 +598,16 @@ void Script::warnAboutModifiedScript()
 	QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
 	QString msg(tr("You should save it to prevent data loss."));
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
+}
+
+bool Script::hasTab() const
+{
+	return m_hasTab;
+}
+
+void Script::setHasTab(bool hasTab)
+{
+	m_hasTab = hasTab;
 }
 
 bool Script::isActiveScript() const

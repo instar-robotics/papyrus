@@ -14,6 +14,8 @@
 #include <QXmlStreamWriter>
 #include <QDebug>
 #include <QGraphicsView>
+#include <QTemporaryFile>
+
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
@@ -173,11 +175,14 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 	// At this point, we should have a filePath
 	Q_ASSERT (!m_filePath.isEmpty());
 
-	// Open the XML file
-	QFile file(m_filePath);
-	if (!file.open(QIODevice::WriteOnly)) {
-		QMessageBox::warning(NULL, QObject::tr("Could not open XML file"),
-		                     QObject::tr("An error occured whlie trying to open the XML file to "
+	// Open a temporary file in which to save the script
+	QTemporaryFile file;
+	if (!file.open()) {
+		//		QMessageBox::warning(NULL, QObject::tr("Could not open XML file"),
+		//		                     QObject::tr("An error occured whlie trying to open the XML file to "
+		//		                                 "save the script. "));
+		QMessageBox::warning(nullptr, QObject::tr("Could not open temporary file"),
+		                     QObject::tr("An error occured while trying to open a temporary file to "
 		                                 "save the script. "));
 		return;
 	}
@@ -381,6 +386,11 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 	stream.writeEndDocument(); //Close the document
 
 	file.close();
+
+	// Now that we have successfully saved the script in the temporary file, replace old script file
+	// with the temporary file
+	QFile::remove(m_filePath);
+	file.copy(m_filePath);
 
 	// Encrypt the file if the option is set
 	if (m_encrypt) {

@@ -1,6 +1,7 @@
 #include "setcolorbutton.h"
 
 #include <QColorDialog>
+#include <QDebug>
 
 SetColorButton::SetColorButton(QWidget *parent) : QPushButton(parent), m_color(qRgba(51, 153, 255, 10))
 {
@@ -25,7 +26,10 @@ void SetColorButton::setColor(const QColor &color)
 
 void SetColorButton::changeColor()
 {
-	QColor newColor = QColorDialog::getColor(m_color, parentWidget());
+	QColor newColor = QColorDialog::getColor(m_color,
+	                                         parentWidget(),
+	                                         tr("Change comment zone color"),
+	                                         QColorDialog::ShowAlphaChannel);
 	if (newColor != m_color)
 		setColor(newColor);
 }

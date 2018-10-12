@@ -5,6 +5,7 @@
 #include "helpers.h"
 #include "constants.h"
 #include "constantdiagrambox.h"
+#include "zone.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -221,11 +222,18 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 	stream.writeStartElement("functions");
 
 	// Traverse all items in the scene and store them
+	std::vector<Zone *> zones;
 	foreach (QGraphicsItem *i, m_scene->items()) {
 		// For some reasons, it fails with 'qgraphicsitem_cast' even though 'type()' is reimplemented
 		DiagramBox *item = dynamic_cast<DiagramBox *>(i);
-		if (item == NULL) {
-			// Item is not a function, skip it
+		if (item == nullptr) {
+			// If the item is not a function, check if this is a comment zone
+			Zone *zone = dynamic_cast<Zone *>(i);
+			if (zone != nullptr) {
+				zones.push_back(zone);
+			}
+
+			// Skip the element (whether it's a zone of not)
 			continue;
 		}
 
@@ -348,6 +356,27 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 	}
 
 	stream.writeEndElement(); // functions
+
+	stream.writeStartElement("zones");
+	foreach (Zone *zone, zones) {
+		stream.writeStartElement("zone");
+		QPointF zonePos = zone->scenePos();
+		stream.writeTextElement("title", zone->title());
+		stream.writeTextElement("x", QString::number(zonePos.x()));
+		stream.writeTextElement("y", QString::number(zonePos.y()));
+		stream.writeTextElement("width", QString::number(zone->width()));
+		stream.writeTextElement("height", QString::number(zone->height()));
+		stream.writeStartElement("color");
+
+		stream.writeAttribute("red", QString::number(zone->color().red()));
+		stream.writeAttribute("green", QString::number(zone->color().green()));
+		stream.writeAttribute("blue", QString::number(zone->color().blue()));
+		stream.writeAttribute("alpha", QString::number(zone->color().alpha()));
+
+		stream.writeEndElement(); //color
+		stream.writeEndElement(); // zone
+	}
+	stream.writeEndElement(); // zones
 
 	stream.writeEndDocument(); //Close the document
 

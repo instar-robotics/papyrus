@@ -61,23 +61,41 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
  * XML file.
  * @param descriptionPath: the path to the (release or debug) description path, so that we can
  * strip it off of paths to save everything in relative.
+ * @param basePath: the directory in which to open the file dialogs (used as a convenience to the
+ * user to re-open the last visited directory to avoid traversing the file hierarchy over and over)
+ * @param isAutoSave: if this is an autosave, allow saving even in invalid state, make it non-
+ * interactive (do not open dialogs) and save in ".autosave" file
  */
-void Script::save(const QString &descriptionPath, const QString &basePath)
+void Script::save(const QString &descriptionPath, const QString &basePath, bool isAutoSave)
 {
-	// Prevent saving when the script is in invalid state
-	if (m_isInvalid || m_name == NEW_SCRIPT_DEFAULT_NAME) {
-		QMessageBox::warning(NULL, tr("Saving not allowed in invalid state!"),
-		                     tr("You cannot save the script at this time because it is currently "
-		                        "in an invalid state.\nThis can mean that:\n"
-		                        "  - some function boxes are linked with SCALAR_MATRIX but are "
-		                        "not the same size\n"
-		                        "  - some function boxes have negative sizes\n"
-		                        "  - it is still named \"") + QString(NEW_SCRIPT_DEFAULT_NAME) + tr("\"\n"
-		                        "  - etc."));
-		return;
-	}
+	QString scriptfilePath;
 
-	emit displayStatusMessage(tr("Saving \"") + m_name + "\"...", MSG_INFO);
+	// Allow saving in invalid state if this is an auto save
+	if (!isAutoSave) {
+		// Prevent saving when the script doesn't have a name
+		if (m_name == NEW_SCRIPT_DEFAULT_NAME) {
+			QMessageBox::warning(nullptr, tr("Can't save unnamed script."),
+			                     tr("You script is still named \"") +
+			                     QString(NEW_SCRIPT_DEFAULT_NAME) +
+			                     tr(".\n Rename it and try saving again"));
+
+			return;
+		}
+		// Prevent saving when the script is in invalid state
+		if (m_isInvalid) {
+			QMessageBox::warning(NULL, tr("Saving not allowed in invalid state!"),
+			                     tr("You cannot save the script at this time because it is currently "
+			                        "in an invalid state.\nThis can mean that:\n"
+			                        "  - some function boxes are linked with SCALAR_MATRIX but are "
+			                        "not the same size\n"
+			                        "  - some function boxes have negative sizes\n"
+			                        "  - etc."));
+			return;
+		}
+		emit displayStatusMessage(tr("Saving \"") + m_name + "\"...", MSG_INFO);
+	} else {
+		emit displayStatusMessage(tr("Auto saving \"") + m_name + "\"...", MSG_INFO);
+	}
 
 	// Read keys if the script is specified to be encrypted
 	if (m_encrypt) {
@@ -140,36 +158,44 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 
 	// First check if we have a filepath in which to save the script
 	if (m_filePath.isEmpty()) {
-		emit displayStatusMessage(QObject::tr("No file for ") + m_name + tr(", please select one..."), MSG_WARNING);
+		if (!isAutoSave) {
+			emit displayStatusMessage(QObject::tr("No file for ") + m_name +
+			                          tr(", please select one..."), MSG_INFO);
 
-		QString savePath = QFileDialog::getSaveFileName(NULL,
-		                             QObject::tr("Save as..."),
-		                             basePath,
-		                             QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
+			QString savePath = QFileDialog::getSaveFileName(NULL,
+			                             QObject::tr("Save as..."),
+			                             basePath,
+			                             QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
-		// Abort if it's empty
-		if (savePath.isEmpty()) {
-			QString text(tr("Cancelled saving "));
-			text += name();
-			emit displayStatusMessage(text, MSG_INFO);
+			// Abort if it's empty
+			if (savePath.isEmpty()) {
+				QString text(tr("Cancelled saving "));
+				text += name();
+				emit displayStatusMessage(text, MSG_INFO);
+				return;
+			}
+
+			// Qt will ask confirmation if the file exists by default, so don't ask again
+
+			// Check if the user manually entered extension ".xml" and add it otherwise.
+			QFileInfo fi(savePath);
+			if (fi.suffix().isEmpty())
+				savePath.append(".xml");
+			else if (fi.suffix().toLower() != "xml") {
+				// This case means the user entered an extension that is not XML so fail
+				QMessageBox::warning(NULL, QObject::tr("Only .xml file are supported"),
+				                     QObject::tr("Scripts must be saved in .xml files, please select or "
+				                                 "enter a valid .xml filename."));
+				return;
+			}
+
+			setFilePath(savePath);
+		} else {
+			// It should not happen (auto save should not be triggered when there's not filepath)
+			// but just in case, display a message
+			emit displayStatusMessage(tr("Auto save cancelled: no filepath."), MSG_WARNING);
 			return;
 		}
-
-		// Qt will ask confirmation if the file exists by default, so don't ask again
-
-		// Check if the user manually entered extension ".xml" and add it otherwise.
-		QFileInfo fi(savePath);
-		if (fi.suffix().isEmpty())
-			savePath.append(".xml");
-		else if (fi.suffix().toLower() != "xml") {
-			// This case means the user entered an extension that is not XML so fail
-			QMessageBox::warning(NULL, QObject::tr("Only .xml file are supported"),
-			                     QObject::tr("Scripts must be saved in .xml files, please select or "
-			                                 "enter a valid .xml filename."));
-			return;
-		}
-
-		setFilePath(savePath);
 	}
 
 	// At this point, we should have a filePath
@@ -389,8 +415,12 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 
 	// Now that we have successfully saved the script in the temporary file, replace old script file
 	// with the temporary file
-	QFile::remove(m_filePath);
-	file.copy(m_filePath);
+	scriptfilePath = m_filePath;
+	if (isAutoSave)
+		scriptfilePath = m_filePath + ".autosave";
+
+	QFile::remove(scriptfilePath);
+	file.copy(scriptfilePath);
 
 	// Encrypt the file if the option is set
 	if (m_encrypt) {
@@ -403,30 +433,27 @@ void Script::save(const QString &descriptionPath, const QString &basePath)
 		                 m_key.size(),
 		                 reinterpret_cast<const byte *>(m_iv.data()));
 		// Encrypt the file
-		CryptoPP::FileSource f(m_filePath.toStdString().c_str(), true,
+		CryptoPP::FileSource f(scriptfilePath.toStdString().c_str(), true,
 		                       new CryptoPP::StreamTransformationFilter(enc,
-		                                new CryptoPP::FileSink((m_filePath + ".crypted").toStdString().c_str())));
+		                                new CryptoPP::FileSink((scriptfilePath + ".crypted").toStdString().c_str())));
 
 		// Remove the unencrypted file
-		QFile::remove(m_filePath);
+		QFile::remove(scriptfilePath);
 	}
 
-	QString msg(tr("Script \"") + m_name + tr("\" saved!"));
+	QString msg;
+	if (!isAutoSave)
+		msg = (tr("Script \"") + m_name + tr("\" saved!"));
+	else
+		msg = (tr("Autosaved script \"") + m_name + "\".");
 
-	// Set the status as not modified
-	setStatusModified(false);
+	// If it was a manual save, set the script as modified and erase .autosave file
+	if (!isAutoSave) {
+		setStatusModified(false);
+		QFile::remove(scriptfilePath + ".autosave");
+	}
+
 	emit displayStatusMessage(msg, MSG_INFO);
-}
-
-void Script::autoSave()
-{
-	QMessageBox msgBox;
-	msgBox.setText(QObject::tr("<strong>Not implemented yet</strong>"));
-
-	msgBox.setInformativeText("Auto-saving is not yet implemented!");
-	msgBox.setIcon(QMessageBox::Critical);
-
-	msgBox.exec();
 }
 
 /**

@@ -18,6 +18,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QAction>
+#include <QTimer>
 
 namespace Ui {
 class PapyrusWindow;
@@ -111,6 +112,9 @@ public:
 	QString lastDir() const;
 	void setLastDir(const QString &lastDir);
 
+	QTimer *autoSaveTimer() const;
+	void setAutoSaveTimer(QTimer *autoSaveTimer);
+
 private:
 	Ui::PapyrusWindow *m_ui;
 	RosNode *m_rosnode;
@@ -139,6 +143,7 @@ private:
 	QString m_keyFile;         // Path of the key file to crypt / decrypt scrip files
 	QString m_ivFile;          // Path of the IV
 	QString m_lastDir;         // Last directory visited for saving or loading files
+	QTimer *m_autoSaveTimer;   // Timer to trigger auto save for scripts
 
 signals:
 	void toggleDisplayGrid(bool);
@@ -153,6 +158,7 @@ private slots:
 	void updateStopWatch(int h, int m, int s, int ms);
 	void updateDevelopmentEnvironment(QAction *action);
 	void categoryExpanded(QTreeWidgetItem *item);
+	void autoSave();
 
 	void on_actionExit_triggered();
 

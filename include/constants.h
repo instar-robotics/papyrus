@@ -62,5 +62,8 @@
 #define ORGA "INSTAR Robotics"
 #define DOMAIN "instar-robotics.com"
 
+// Define the period for the autosave script
+#define AUTOSAVE_PERIOD 60000 // 1 minute
+
 #endif // CONSTANTS
 

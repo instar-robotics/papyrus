@@ -27,8 +27,9 @@ class Script : public QObject
 public:
 	Script(DiagramScene *scene, const QString &name = "");
 
-	void save(const QString &descriptionPath, const QString &basePath = QDir::homePath());
-	void autoSave();
+	void save(const QString &descriptionPath,
+	          const QString &basePath = QDir::homePath(),
+	          bool isAutoSave = false);
 
 	void updateTextStyle();
 

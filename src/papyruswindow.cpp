@@ -266,6 +266,11 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	m_runTimeDisplay->setAlignment(Qt::AlignCenter);
 	m_runTimeDisplay->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
+
+	// Start the autosave timer
+	m_autoSaveTimer = new QTimer(this);
+	connect(m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
+	m_autoSaveTimer->start(AUTOSAVE_PERIOD);
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -956,6 +961,16 @@ void PapyrusWindow::setLastDir(const QString &lastDir)
 	m_lastDir = lastDir;
 }
 
+QTimer *PapyrusWindow::autoSaveTimer() const
+{
+	return m_autoSaveTimer;
+}
+
+void PapyrusWindow::setAutoSaveTimer(QTimer *autoSaveTimer)
+{
+	m_autoSaveTimer = autoSaveTimer;
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
 	// Call the 'Save' function of the current script
@@ -1234,8 +1249,8 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
 
 /**
  * @brief PapyrusWindow::getDescriptionPath returns either the debug or release description path,
- * bassed on the development type. this is simply a way to save keystrokes (we need the path at
- * several places, and makign the comparison each time is stupid)
+ * based on the development type. This is simply a way to save keystrokes (we need the path at
+ * several places, and making the comparison each time is stupid)
  * @return
  */
 QString PapyrusWindow::getDescriptionPath()
@@ -1341,6 +1356,29 @@ void PapyrusWindow::categoryExpanded(QTreeWidgetItem *item)
 
 	// Save the last category that was expanded
 	m_lastExpandedCategory = expandedCategory->name();
+}
+
+/**
+ * @brief Script::autoSave periodically saves the scripts in .autosave files if they were modified
+ * since last save.
+ * When a proper save is performed, the .autosave file is removed.
+ * When a script is opened, if there is an .autosave file present, offer the user to load this
+ * script instead.
+ */
+void PapyrusWindow::autoSave()
+{
+	foreach (Script *script, m_scripts) {
+		// Do not activate autosave if the script doesn't have a filepath (i.e. was not saved even once)
+		if (script->filePath().isEmpty())
+			return;
+
+		// Do not autosave if the script was not modified
+		if (!script->modified())
+			return;
+
+		// Otherwise perform save
+		script->save(getDescriptionPath(), m_lastDir, true);
+	}
 }
 
 /**

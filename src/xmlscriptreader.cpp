@@ -219,6 +219,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 	QPointF pos;
 	QString name;
+	QString title;
 	QString libname;
 	bool save = false;
 	QString descriptionFile;
@@ -236,6 +237,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	while (reader.readNextStartElement()) {
 		if (reader.name() == "name")
 			readFunctionName(name);
+		else if (reader.name() == "title")
+			readFunctionTitle(title);
 		else if (reader.name() == "libname")
 			readFunctionLibname(libname);
 		else if (reader.name() == "save")
@@ -272,6 +275,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	else {
 		b = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
 
+		b->setTitle(title);
 		b->setLibname(libname);
 		b->setDescriptionFile(descriptionFile);
 		b->setSaveActivity(save);
@@ -303,6 +307,14 @@ void XmlScriptReader::readFunctionName(QString &name)
 	} else {
 		name = functionName;
 	}
+}
+
+void XmlScriptReader::readFunctionTitle(QString &title)
+{
+	Q_ASSERT(reader.isStartElement() && reader.name() == "title");
+
+	// We allow empty function title
+	title = reader.readElementText();
 }
 
 void XmlScriptReader::readFunctionLibname(QString &libname)

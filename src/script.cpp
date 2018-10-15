@@ -272,6 +272,7 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 		ConstantDiagramBox *constantItem = dynamic_cast<ConstantDiagramBox *>(item);
 
 		QString name = item->name();
+		QString title = item->title();
 		QPointF pos = item->scenePos();
 		QUuid uuid = item->uuid();
 		QString descriptionFile = item->descriptionFile();
@@ -304,6 +305,7 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 
 		stream.writeAttribute("uuid", uuid.toString());
 		stream.writeTextElement("name", name);
+		stream.writeTextElement("title", title);
 
 		// Skip irrelevant information for constant objects
 		if (!constant) {

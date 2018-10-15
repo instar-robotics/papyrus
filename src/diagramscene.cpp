@@ -835,6 +835,9 @@ void DiagramScene::onOkBtnClicked(bool)
 			                      "boxes, links and zones are supported at the moment."));
 		}
 	}
+
+	// After everything, update the scene to reflect changes
+	update(sceneRect());
 }
 
 void DiagramScene::onCancelBtnClicked(bool)

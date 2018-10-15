@@ -855,6 +855,8 @@ void DiagramScene::onCancelBtnClicked(bool)
 		Zone *selectedZone;
 
 		if ((selectedBox  = dynamic_cast<DiagramBox *>(item))) {
+			propPanel->boxTitle()->setText(selectedBox->title());
+
 			// If the selected box outputs a matrix, then fetch the values for rows and cols
 			if (selectedBox->outputType() == MATRIX) {
 				propPanel->rowsInput()->setValue(selectedBox->rows());

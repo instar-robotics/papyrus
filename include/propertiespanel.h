@@ -81,6 +81,9 @@ public:
 	SetColorButton *zoneColor() const;
 	void setZoneColor(SetColorButton *zoneColor);
 
+	QLineEdit *boxTitle() const;
+	void setBoxTitle(QLineEdit *boxTitle);
+
 private:
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame *m_scriptFrame;       // Container for script's properties
@@ -93,6 +96,7 @@ private:
 	QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
 	QFrame *m_boxFrame;        // Container for box's properties
 	QLabel *m_boxName;         // Display the name of the box
+	QLineEdit *m_boxTitle;     // Allow to see or change the box's custom name
 	QLabel *m_boxOutputType;   // Display the box's output type (scalar, matrix)
 	QSpinBox *m_rowsInput;     // Spin box to input number of rows in the output (if matrix)
 	QSpinBox *m_colsInput;     // Spin box to input number of columns in the output (if matrix)

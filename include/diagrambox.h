@@ -103,10 +103,14 @@ public:
 	DataVisualization *dataVis() const;
 	void setDataVis(DataVisualization *dataVis);
 
+	QString title() const;
+	void setTitle(const QString &title);
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	QString m_name;    // Name of the function
+	QString m_title;   // Title of the box (user-friendly & customizable name)
 
 	qreal m_bWidth;  // Overall width of the function's box
 	qreal m_bHeight; // Overall height of the function's box

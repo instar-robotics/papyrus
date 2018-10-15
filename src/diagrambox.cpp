@@ -177,6 +177,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	return QGraphicsItem::itemChange(change, value);
 }
 
+QString DiagramBox::title() const
+{
+	return m_title;
+}
+
+void DiagramBox::setTitle(const QString &title)
+{
+	m_title = title;
+}
+
 void DiagramBox::onDataVisClosed()
 {
 	delete m_dataProxy;    // also deletes the widget
@@ -433,8 +443,12 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 	// The function's icon is not drawn here since it's a SVG element set as a child of this one
 
-	// Draw the function's name
-	painter->drawText(QRectF(0, m_bHeight - m_tHeight, m_bWidth, m_tHeight), Qt::AlignCenter, m_name);
+	// Draw the function's name or title if present
+	QString toDisplay = m_name;
+	if (!m_title.isEmpty())
+		toDisplay = m_title;
+
+	painter->drawText(QRectF(0, m_bHeight - m_tHeight, m_bWidth, m_tHeight), Qt::AlignCenter, toDisplay);
 }
 
 void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)

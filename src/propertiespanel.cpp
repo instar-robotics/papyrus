@@ -94,6 +94,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	// Create the layout for the frames
 	m_boxLayout = new QFormLayout;
 	m_boxName = new QLabel;
+	m_boxTitle = new QLineEdit;
 	m_boxOutputType = new QLabel;
 	m_rowsInput = new QSpinBox;
 	m_colsInput = new QSpinBox;
@@ -116,6 +117,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
 	// Add the fields to the layout
 	m_boxLayout->addRow(m_boxName);
+	m_boxLayout->addRow(tr("Title:"), m_boxTitle);
 	m_boxLayout->addRow(tr("Type:"), m_boxOutputType);
 	m_boxLayout->addRow(tr("Rows:"), m_rowsInput);
 	m_boxLayout->addRow(tr("Cols:"), m_colsInput);
@@ -329,6 +331,16 @@ void PropertiesPanel::setZoneColor(SetColorButton *zoneColor)
 	m_zoneColor = zoneColor;
 }
 
+QLineEdit *PropertiesPanel::boxTitle() const
+{
+	return m_boxTitle;
+}
+
+void PropertiesPanel::setBoxTitle(QLineEdit *boxTitle)
+{
+	m_boxTitle = boxTitle;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -343,6 +355,8 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 	// Update the fields with the selected box
 	m_boxName->setText(box->name());
+	m_boxTitle->setText(box->title());
+	m_boxTitle->setPlaceholderText(box->name());
 
 	// Check the "save activity" box according to the box's flag
 	m_saveActivity->setChecked(box->saveActivity());
@@ -558,6 +572,8 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
 	if (box == NULL)
 		informUserAndCrash(tr("Cannot update box's properties: box is null!"));
+
+	box->setTitle(m_boxTitle->text());
 
 	// If the box's output is matrix, then set its rows and cols
 	if (box->outputType() == MATRIX) {

@@ -1124,7 +1124,15 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 
 	Q_ASSERT(openScene->script() != NULL);
 
-	openScript->setFilePath(scriptPath);
+	// Remove the .autosave suffix to prevent .autosave.autosave.autosave etc.
+	QFileInfo fi(scriptPath);
+	if (fi.completeSuffix() == "xml.autosave" || fi.completeSuffix() == "xml.crypted.autosave") {
+		QString noAutoSave = scriptPath;
+		noAutoSave.remove(".autosave");
+		openScript->setFilePath(noAutoSave);
+	} else {
+		openScript->setFilePath(scriptPath);
+	}
 
 	// Parse the script XML file
 	XmlScriptReader xmlReader(openScript, getDescriptionPath());

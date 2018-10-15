@@ -781,7 +781,7 @@ void DiagramScene::onOkBtnClicked(bool)
 			propPanel->updateBoxProperties(selectedBox);
 
 			// Now check all SCALAR_MATRIX links for invalidity and if there was one found, trigger
-			// a recheck for the entie script
+			// a recheck for the entire script
 			bool linkWasFixed = false;   // wether a link switched from invalid to valid
 			bool invalidLinkFound = false; // wether we found an invalid link
 

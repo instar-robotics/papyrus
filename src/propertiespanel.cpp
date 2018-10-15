@@ -586,8 +586,8 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 		if (constantBox == nullptr) {
 		updateSizeIcon(box);
 		rescaleSvgItem(box->sizeIcon(),
-		               QSizeF(box->bWidth() / 3 - 1.5, box->bHeight() - box->tHeight() - 2.5),
-		               QPointF(2 * box->bWidth() / 3, 1.5));
+		               QSizeF(box->bWidth() / 2 - 1.5, box->bHeight() - box->tHeight() - 2.5),
+		               QPointF(box->bWidth() / 2, 1.5));
 		}
 	}
 

@@ -107,10 +107,6 @@ private:
 	QCheckBox *m_linkSecondary;   // Will display if the link is secondary or not
 	QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
 	QLineEdit *m_linkValue;       // Text field to enter the link's value (for string links)
-	QPushButton *m_linkConnectivityBtn; // Button to launch the window that allows setting the connectivity
-	QLabel *m_linkConnectivityLabel;
-	QComboBox *m_linkConnectivity;
-	QMetaObject::Connection m_conn;     // Contains the the Qt's connection object for the above button
 
 	QFormLayout *m_zoneLayout;     // Contains the layout to display comment zone's properties
 	QFrame *m_zoneFrame;           // Container for zone's properties
@@ -133,7 +129,6 @@ public slots:
 	void toggleTopic(bool isChecked);
 
 private slots:
-	void showConnectivityWindow();
 };
 
 #endif // PROPERTIESPANEL_H

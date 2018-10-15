@@ -33,9 +33,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_linkSecondary(NULL),
                                                     m_linkWeight(NULL),
                                                     m_linkValue(NULL),
-                                                    m_linkConnectivityBtn(NULL),
-                                                    m_linkConnectivityLabel(NULL),
-                                                    m_linkConnectivity(NULL),
                                                     m_okBtn(NULL),
                                                     m_cancelBtn(NULL)
 {
@@ -145,19 +142,11 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_linkWeight->setFixedWidth(150);
 	m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_linkValue = new QLineEdit;
-	m_linkConnectivityBtn = new QPushButton(tr("Edit Connectivity"));
-	m_linkConnectivityLabel = new QLabel(tr("Connectivity"));
-	m_linkConnectivity = new QComboBox;
-	m_linkConnectivity->addItem(tr("One to One"), ONE_TO_ONE);
-	m_linkConnectivity->addItem(tr("One to All"), ONE_TO_ALL);
-	m_linkConnectivity->addItem(tr("One to Neighboors"), ONE_TO_NEI);
 
 	m_linkLayout->addRow(m_linkType);
 	m_linkLayout->addRow(tr("Weight:"), m_linkWeight);
 	m_linkLayout->addRow(tr("Value:"), m_linkValue);
 	m_linkLayout->addRow(m_linkSecondary);
-	m_linkLayout->addRow(m_linkConnectivityBtn);
-	m_linkLayout->addRow(m_linkConnectivityLabel, m_linkConnectivity);
 
 	m_linkFrame->setLayout(m_linkLayout);
 
@@ -477,32 +466,6 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 	else
 		m_linkSecondary->setEnabled(true);
 
-	// Display "Edit Connectivity" button is link is SPARSE_MATRIX
-	m_linkConnectivityBtn->disconnect(m_conn);
-
-	if (linkType == SPARSE_MATRIX) {
-		m_linkConnectivityBtn->setVisible(true);
-		m_inputSize.setWidth(link->from()->box()->rows());
-		m_inputSize.setHeight(link->from()->box()->cols());
-		m_outputSize.setWidth(link->to()->box()->rows());
-		m_outputSize.setHeight(link->to()->box()->cols());
-
-		m_conn = connect(m_linkConnectivityBtn, SIGNAL(clicked(bool)),
-		        this, SLOT(showConnectivityWindow()));
-	}
-	else
-		m_linkConnectivityBtn->setVisible(false);
-
-	// Display the connectivity button choice for links of type "MATRIX_MATRIX"
-	if (linkType == MATRIX_MATRIX) {
-		m_linkConnectivity->setCurrentIndex(link->connectivity());
-		m_linkConnectivityLabel->setVisible(true);
-		m_linkConnectivity->setVisible(true);
-	} else {
-		m_linkConnectivityLabel->setVisible(false);
-		m_linkConnectivity->setVisible(false);
-	}
-
 	// Show the link frame
 	m_linkFrame->show();
 	m_okBtn->show();
@@ -585,20 +548,6 @@ void PropertiesPanel::toggleTopic(bool isChecked)
 	m_topic->setEnabled(isChecked);
 }
 
-void PropertiesPanel::showConnectivityWindow()
-{
-	ConnectivityWindow *connWin = new ConnectivityWindow(m_inputSize, m_outputSize);
-	connWin->setWindowFlag(Qt::Dialog);
-	connWin->setWindowModality(Qt::ApplicationModal);
-
-	QScreen *primaryScreen = QGuiApplication::primaryScreen();
-	if (primaryScreen == NULL)
-		qFatal("No screen detected!");
-
-	connWin->resize(0.8 * primaryScreen->availableSize());
-	connWin->show();
-}
-
 /**
  * @brief PropertiesPanel::updateBoxProperties is called when the user clicked "OK" after changing
  * some properties of the selected box. It updates the selected box's properties based on the
@@ -650,11 +599,6 @@ void PropertiesPanel::updateLinkProperties(Link *link)
 		link->setWeight(m_linkWeight->value());
 
 	link->setSecondary(m_linkSecondary->isChecked());
-
-	// If the link is of type MATRIX_MATRIX, update the Connectivity
-	if (link->to()->inputType() == MATRIX_MATRIX) {
-		link->setConnectivity(m_linkConnectivity->currentData().value<Connectivity>());
-	}
 }
 
 /**

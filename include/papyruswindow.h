@@ -159,6 +159,8 @@ private slots:
 	void updateDevelopmentEnvironment(QAction *action);
 	void categoryExpanded(QTreeWidgetItem *item);
 	void autoSave();
+	void onPropPanelEnter();
+	void onPropPanelEscape();
 
 	void on_actionExit_triggered();
 

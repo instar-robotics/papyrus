@@ -36,6 +36,8 @@ public:
 	void updateScriptProperties(Script *script);
 	void updateZoneProperties(Zone *zone);
 
+	void keyPressEvent(QKeyEvent *event);
+
 	QFrame *boxFrame() const;
 	void setBoxFrame(QFrame *boxFrame);
 
@@ -133,6 +135,10 @@ public slots:
 	void toggleTopic(bool isChecked);
 
 private slots:
+
+signals:
+	void enterPressed();
+	void escapePressed();
 };
 
 #endif // PROPERTIESPANEL_H

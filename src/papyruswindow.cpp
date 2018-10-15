@@ -117,6 +117,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	libraryGroupBox->setLayout(vbox);
 
 	m_propertiesPanel = new PropertiesPanel;
+	connect(m_propertiesPanel, SIGNAL(enterPressed()), this, SLOT(onPropPanelEnter()));
+	connect(m_propertiesPanel, SIGNAL(escapePressed()), this, SLOT(onPropPanelEscape()));
 
 	QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
 	leftSplitter->addWidget(libraryGroupBox);
@@ -1404,6 +1406,36 @@ void PapyrusWindow::autoSave()
 		// Otherwise perform save
 		script->save(getDescriptionPath(), m_lastDir, true);
 	}
+}
+
+void PapyrusWindow::onPropPanelEnter()
+{
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("No active script: cannot validate parameters."), MSG_WARNING);
+		return;
+	}
+
+	if (m_activeScript->scene() == nullptr) {
+		emit displayStatusMessage(tr("Active script doesn't have a scene: cannot validate parameters."),
+		                          MSG_WARNING);
+	}
+
+	m_activeScript->scene()->onOkBtnClicked(true); // boolean has no meaning here
+}
+
+void PapyrusWindow::onPropPanelEscape()
+{
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("No active script: cannot restore parameters."), MSG_WARNING);
+		return;
+	}
+
+	if (m_activeScript->scene() == nullptr) {
+		emit displayStatusMessage(tr("Active script doesn't have a scene: cannot restore parameters."),
+		                          MSG_WARNING);
+	}
+
+	m_activeScript->scene()->onCancelBtnClicked(true); // boolean has no meaning here
 }
 
 /**

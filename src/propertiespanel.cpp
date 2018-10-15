@@ -640,3 +640,22 @@ void PropertiesPanel::updateZoneProperties(Zone *zone)
 	zone->setTitle(m_zoneTitle->text());
 	zone->setColor(m_zoneColor->color());
 }
+
+/**
+ * @brief PropertiesPanel::keyPressEvent catches key presses in order to binds ENTER and ESCAPE
+ * to OK and CANCEL actions
+ * @param event
+ */
+void PropertiesPanel::keyPressEvent(QKeyEvent *event)
+{
+	int key = event->key();
+
+	if (key == Qt::Key_Escape) {
+		emit escapePressed();
+	} else if (key == Qt::Key_Enter || key == Qt::Key_Return) {
+		// Note: "Enter" is the keypad's enter key and "Return" is the main keyboard's enter key
+		emit enterPressed();
+	}
+
+	QGroupBox::keyPressEvent(event);
+}

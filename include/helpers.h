@@ -12,6 +12,7 @@
 #include <QGraphicsSvgItem>
 #include <QList>
 #include <QDebug>
+#include <QColor>
 
 /**
  * This file provides a set of helpers that are used throughout this project.
@@ -50,5 +51,9 @@ Connectivity stringToConnectivity(const QString &str);
 QString mkTopicName(const QString &scriptName, const QString &topicName);
 
 QString sanitizeTopicName(const QString &name);
+
+QColor getTypeColor(const InputType inputType);
+
+QColor getTypeColor(const OutputType outputType);
 
 #endif // HELPERS_H

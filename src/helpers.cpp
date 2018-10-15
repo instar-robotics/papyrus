@@ -92,15 +92,12 @@ QString inputTypeToString(const InputType &inputType)
 		case MATRIX_MATRIX:
 		return QString("MATRIX_MATRIX");
 		break;
-		case SPARSE_MATRIX:
-		return QString("SPARSE_MATRIX");
-		break;
 		case STRING_INPUT:
 		return QString("STRING");
 		break;
 		default:
 			informUserAndCrash("Unsupported InputType when converting to QString.");
-		    return ""; // never reached, to prevent compiler warning
+		return ""; // never reached, to prevent compiler warning
 		break;
 	}
 }
@@ -122,9 +119,6 @@ InputType stringToInputType(const QString &str)
 
 	if (lower == "matrix_matrix")
 		return MATRIX_MATRIX;
-
-	if (lower == "sparse_matrix")
-		return SPARSE_MATRIX;
 
 	// WARNING: both Input and Output types are written as "STRING" in XML files
 	if (lower == "string")
@@ -400,4 +394,45 @@ QString sanitizeTopicName(const QString &name)
 	ret.replace('-', '_');
 
 	return ret;
+}
+
+QColor getTypeColor(const InputType inputType)
+{
+	switch (inputType) {
+		case SCALAR_SCALAR:
+		    return Qt::white;
+		break;
+
+		case SCALAR_MATRIX:
+		case MATRIX_MATRIX:
+		    return QColor(255, 84, 227, 80);
+		break;
+
+		case STRING_INPUT:
+		    return QColor(0, 255, 255, 80);
+		break;
+
+		default:
+		    return Qt::black;
+	}
+}
+
+QColor getTypeColor(const OutputType outputType)
+{
+	switch (outputType) {
+		case SCALAR:
+		    return Qt::white;
+		break;
+
+		case MATRIX:
+		    return QColor(255, 84, 227, 80);
+		break;
+
+		case STRING:
+		    return QColor(0, 255, 255, 80);
+		break;
+
+		default:
+		    return Qt::black;
+	}
 }

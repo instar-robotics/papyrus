@@ -1,4 +1,5 @@
 #include "outputslot.h"
+#include "helpers.h"
 
 #include <cmath>
 #include <iostream>
@@ -71,8 +72,10 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		qFatal("Could not cast the scene into a DiagramScene!");
 	}
 
+	QGraphicsLineItem *drawnLine = dscene->line();
+
 	// Change the output slot's size only if not drawing a line
-	if (dscene->line() == NULL) {
+	if (drawnLine == nullptr) {
 		// Make the slot bigger when the mouse is near it
 		qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
 
@@ -88,6 +91,14 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	painter->setPen(pen);
 
 	painter->drawEllipse(QPointF(cx, cy), rx, ry);
+
+	// Fill the output with the color associated to its type (use a QPainterPath because there is no
+	// painter->fillEllipse()) (if it's not drawing a line)
+	if (drawnLine == nullptr) {
+		QPainterPath path;
+		path.addEllipse(QPointF(cx, cy), rx, ry);
+		painter->fillPath(path, getTypeColor(m_outputType));
+	}
 }
 
 QRectF OutputSlot::boundingRect() const

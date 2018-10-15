@@ -845,9 +845,11 @@ void DiagramScene::onCancelBtnClicked(bool)
 	if (propPanel == NULL)
 		informUserAndCrash(tr("Impossible to fetch the properties panel!"));
 
+	// Instead of manually try to undo all changed in the properties panel, simply call
+	// the displayXXX() functions which will take care of re-initializing all fields
+
 	if (sItems.count() == 0) {
-		propPanel->timeValue()->setValue(m_script->timeValue());
-		propPanel->timeUnit()->setCurrentIndex(m_script->timeUnit());
+		propPanel->displayScriptProperties(m_script);
 	} else if (sItems.count() == 1) {
 		QGraphicsItem *item = sItems.at(0);
 		DiagramBox *selectedBox;
@@ -855,19 +857,11 @@ void DiagramScene::onCancelBtnClicked(bool)
 		Zone *selectedZone;
 
 		if ((selectedBox  = dynamic_cast<DiagramBox *>(item))) {
-			propPanel->boxTitle()->setText(selectedBox->title());
-
-			// If the selected box outputs a matrix, then fetch the values for rows and cols
-			if (selectedBox->outputType() == MATRIX) {
-				propPanel->rowsInput()->setValue(selectedBox->rows());
-				propPanel->colsInput()->setValue(selectedBox->cols());
-			}
+			propPanel->displayBoxProperties(selectedBox);
 		} else if ((selectedLink = dynamic_cast<Link *>(item))) {
-			propPanel->linkWeight()->setValue(selectedLink->weight());
-			propPanel->linkValue()->setText(selectedLink->value());
+			propPanel->displayLinkProperties(selectedLink);
 		} else if ((selectedZone = dynamic_cast<Zone *>(item))) {
-			propPanel->zoneTitle()->setText(selectedZone->title());
-			propPanel->zoneColor()->setColor(selectedZone->color());
+			propPanel->displayZoneProperties(selectedZone);
 		} else {
 			informUserAndCrash(tr("Unsupported element for restoring properties, only function "
 			                      "boxes and links are supported at the moment."));

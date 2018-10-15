@@ -836,6 +836,10 @@ void DiagramScene::onOkBtnClicked(bool)
 		}
 	}
 
+	// When we validate changes, mark the script as modified
+	if (m_script != nullptr)
+		m_script->setStatusModified(true);
+
 	// After everything, update the scene to reflect changes
 	update(sceneRect());
 }

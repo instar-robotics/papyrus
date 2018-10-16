@@ -60,8 +60,6 @@ void ROSSession::run()
 		return;
 	}
 
-	ros::NodeHandle nh;
-
 	if (m_nodeName.isEmpty()) {
 		emit displayStatusMessage(tr("No node name: cannot run"), MSG_ERROR);
 		return;
@@ -69,7 +67,7 @@ void ROSSession::run()
 
 	// Save the node before launching it
 	PapyrusWindow *mainWin = getMainWindow();
-	m_script->save(mainWin->getDescriptionPath());
+	m_script->save(mainWin->getDescriptionPath(), mainWin->lastDir());
 
 	// Check if the save worked
 	if (m_script->modified()) {
@@ -81,13 +79,13 @@ void ROSSession::run()
 	// If the node is not running, we need to launch a kheops instance
 	if (!m_isRunning) {
 		QProcess *kheopsNode = new QProcess(this);
-		// TEMPORARY
 		//*
 		QString prog = "rosrun";
 		QStringList args;
 		args << "kheops";
 		args << "kheops";
 		//*/
+		// TEMPORARY
 		/*
 		QString prog = "/home/nschoe/workspace/Qt/catkin_ws/devel/lib/kheops/kheops";
 		QStringList args;
@@ -96,32 +94,23 @@ void ROSSession::run()
 		args << m_script->filePath();
 		args << "-l";
 		args << mainWin->getLibPath() + "/";
+		emit displayStatusMessage(tr("Starting script \"") + m_script->name() + "\"...");
+		qDebug() << "[RUN]" << prog << args;
 		kheopsNode->start(prog, args);
-
-		// Note that it just means the program was started, but it may as well crash just after launch
-		if (kheopsNode->waitForStarted(2000)) {
-			m_isRunning = true;
-			m_isPaused = false;
-
-			// Record a new starting time for the run
-			m_startTime = QDateTime::currentDateTime();
-
-			emit scriptResumed();
-		} else {
-			m_isRunning = false;
-			emit displayStatusMessage(tr("Failed to launch script."), MSG_ERROR);
-			qWarning() << "Failed to re-launch with cmd \"" << prog << args << "\"";
-		}
 	}
 	// Otherwise, if the node is already running, we just have to ask it to resume execution
 	else {
+		ros::NodeHandle nh;
 		QString srvName = m_nodeName + "/control";
 		ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 		hieroglyph::SimpleCmd srv;
 		srv.request.cmd = "resume";
 
+		// We switched to asynchronous mode: so discard the answer to this ROS service
+		// instead, the status will be reported by the "/status" topic
+		/*
 		if (client.call(srv)) {
-			QString response = QString::fromStdString(srv.response.ret);;
+			QString response = QString::fromStdString(srv.response.ret);
 
 			if (response == "resume") {
 				m_isRunning = true;
@@ -132,9 +121,11 @@ void ROSSession::run()
 
 				emit scriptResumed();
 			}
-		} else {
+			*/
+
+		emit displayStatusMessage(tr("Resuming script \"") + m_script->name() + "\"...");
+		if (!client.call(srv)) {
 			emit displayStatusMessage(tr("The RUN command failed."), MSG_ERROR);
-			qDebug() << "Failed to call RUN";
 		}
 	}
 }

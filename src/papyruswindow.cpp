@@ -1684,7 +1684,7 @@ void PapyrusWindow::on_actionConnect_triggered()
 			QString scriptPath;
 
 			if (client.call(srv)) {
-				QString response = QString::fromStdString(srv.response.ret);;
+				QString response = QString::fromStdString(srv.response.ret);
 
 				if (response.startsWith("/")) {
 					scriptPath = response;
@@ -1703,21 +1703,11 @@ void PapyrusWindow::on_actionConnect_triggered()
 			} else {
 				emit displayStatusMessage(tr("Node did not specify its script path, abording."),
 				                          MSG_ERROR);
-				qDebug() << "Failed to call PATH";
 				return;
 			}
 
 			// Open the script
 			parseXmlScriptFile(scriptPath);
-
-			/*
-		// TODO: factor out this code, because it's the same as Open File
-		on_actionOpen_Script_triggered();
-		if (m_activeScript == NULL || m_activeScript->rosSession() == NULL) {
-		displayStatusMessage(tr("Failed to open the script."), MSG_ERROR);
-		return;
-		}
-		//*/
 
 			// Set the session as running, obviouly because we have just connected to a running script
 			m_activeScript->rosSession()->setIsRunning(true);
@@ -1777,6 +1767,7 @@ void PapyrusWindow::on_actionRun_triggered()
 		}
 
 	}
+
 	m_activeScript->rosSession()->runOrPause();
 }
 

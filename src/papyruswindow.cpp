@@ -1827,3 +1827,20 @@ void PapyrusWindow::on_actionHide_all_outputs_triggered()
 {
 	qDebug() << "Hide all outputs";
 }
+
+void PapyrusWindow::on_actionList_shortcuts_triggered()
+{
+	QString title(tr("%1's shortcuts").arg(APP_NAME));
+	QString desc("<h2>List of shortcuts</h2>");
+	desc += "Here are the actions that have a shortcut not listed in the menu:";
+	desc += "<table><tr><th>Shortcut</th><th>Action</th></tr>";
+	desc += "<tr><td><strong>T:</strong></td><td>Toggle the display of input slot names in a script</td></tr>";
+	desc += "<tr><td><strong>DEL:</strong></td><td>Deletes the selected objects in a scene</td></tr>";
+	desc += "<tr><td><strong>ENTER:</strong></td><td>Validates properties change in the properties panel</td></tr>";
+	desc += "<tr><td><strong>ESC:</strong></td><td>Discards properties change in the properties panel</td></tr>";
+	desc += "<tr><td><strong>Right click:</strong></td><td>Create Comment Zone to group several function boxes</td></tr>";
+	desc += "<tr><td><strong>Double click on tab:</strong></td><td>Rename the associated script</td></tr>";
+
+
+	QMessageBox::about(this, title, desc);
+}

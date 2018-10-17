@@ -30,6 +30,7 @@
         <file>icons/constant-matrix.svg</file>
         <file>icons/show.svg</file>
         <file>icons/hide.svg</file>
+        <file>icons/shortcut.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

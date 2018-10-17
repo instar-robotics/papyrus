@@ -713,7 +713,7 @@ void PapyrusWindow::onScriptResumed()
 	m_ui->actionScope->setEnabled(true);
 
 	// Display a message in the status bar
-	displayStatusMessage(tr("Script \"%1\" resumed").arg(m_activeScript->rosSession()->nodeName()));
+	displayStatusMessage(tr("Script \"%1\" resumed").arg(m_activeScript->nodeName()));
 }
 
 /**
@@ -735,7 +735,7 @@ void PapyrusWindow::onScriptPaused()
 	m_ui->actionScope->setEnabled(true);
 
 	// Display a message in the status bar
-	displayStatusMessage(tr("Script \"%1\" paused").arg(m_activeScript->rosSession()->nodeName()));
+	displayStatusMessage(tr("Script \"%1\" paused").arg(m_activeScript->nodeName()));
 }
 
 /**
@@ -759,7 +759,7 @@ void PapyrusWindow::onScriptStopped()
 	updateStopWatch(0, 0, 0, 0);
 
 	// Display a message in the status bar
-	displayStatusMessage(tr("Script \"%1\" stopped").arg(m_activeScript->rosSession()->nodeName()));
+	displayStatusMessage(tr("Script \"%1\" stopped").arg(m_activeScript->nodeName()));
 }
 
 void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
@@ -1325,17 +1325,19 @@ void PapyrusWindow::updateButtonsState()
 
 	m_ui->actionRun->setEnabled(true);
 
+	/*
 	ROSSession *session = m_activeScript->rosSession();
 	if (session == NULL) {
 		displayStatusMessage(tr("Not ROS Session for script \"%1\"").arg(m_activeScript->name()), MSG_ERROR);
 		return;
 	}
+	//*/
 
-	if (session->isRunning()) {
+	if (m_activeScript->isRunning()) {
 		m_ui->actionStop->setEnabled(true);
 		m_ui->actionScope->setEnabled(true);
 
-		if (!session->isPaused()) {
+		if (!m_activeScript->isPaused()) {
 			m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
 			m_ui->actionRun->setToolTip(tr("Pause script"));
 		} else {
@@ -1661,10 +1663,10 @@ void PapyrusWindow::on_actionConnect_triggered()
 		if (!selectedNode.isEmpty()) {
 			bool found = false;
 			foreach (Script *script, m_scripts) {
-				if (script == NULL || script->rosSession() == NULL)
+				if (script == nullptr)
 					continue;
 
-				if (script->rosSession()->nodeName() == selectedNode) {
+				if (script->nodeName() == selectedNode) {
 					found = true;
 					break;
 				}
@@ -1710,15 +1712,15 @@ void PapyrusWindow::on_actionConnect_triggered()
 			parseXmlScriptFile(scriptPath);
 
 			// Set the session as running, obviouly because we have just connected to a running script
-			m_activeScript->rosSession()->setIsRunning(true);
+			m_activeScript->setIsRunning(true);
 
-			switch (m_activeScript->rosSession()->queryScriptStatus()) {
+			switch (m_activeScript->queryScriptStatus()) {
 				case SCRIPT_RUNNING:
-					m_activeScript->rosSession()->setIsPaused(false);
+					m_activeScript->setIsPaused(false);
 				break;
 
 				case SCRIPT_PAUSED:
-					m_activeScript->rosSession()->setIsPaused(true);
+					m_activeScript->setIsPaused(true);
 				break;
 
 				default:
@@ -1732,20 +1734,22 @@ void PapyrusWindow::on_actionConnect_triggered()
 void PapyrusWindow::on_actionRun_triggered()
 {
 	// Make sure we do have an active script and its associated ROS Session
-	if (m_activeScript == NULL) {
+	if (m_activeScript == nullptr) {
 		displayStatusMessage(tr("No active script: cannot play/pause"), MSG_ERROR);
 		return;
 	}
 
+	/*
 	if (m_activeScript->rosSession() == NULL) {
 		displayStatusMessage(tr("No ROS session for the active script: cannot play/pause"),
-		                     MSG_ERROR);
+							 MSG_ERROR);
 		return;
 	}
+	//*/
 
 	// If the node is not already running (meaning it was not one we connected to), we need to have
 	// the path of the library in order to launch a kheops instance
-	if (!m_activeScript->rosSession()->isRunning()) {
+	if (!m_activeScript->isRunning()) {
 		if (m_developmentType == RELEASE && m_releaseLibPath.isEmpty()) {
 			askForPath(true, PATH_LIB);
 			// Check that the user did specify a path and not cancelled
@@ -1768,23 +1772,26 @@ void PapyrusWindow::on_actionRun_triggered()
 
 	}
 
-	m_activeScript->rosSession()->runOrPause();
+	m_activeScript->runOrPause();
 }
 
 void PapyrusWindow::on_actionStop_triggered()
 {
 	// Make sure we do have an active script and its associated ROS Session
-	if (m_activeScript == NULL) {
+	if (m_activeScript == nullptr) {
 		displayStatusMessage(tr("No active script: cannot stop"), MSG_ERROR);
 		return;
 	}
 
+	/*
 	if (m_activeScript->rosSession() == NULL) {
 		displayStatusMessage(tr("No ROS session for the active script: cannot stop"),
-		                     MSG_ERROR);
+							 MSG_ERROR);
 		return;
 	}
-	m_activeScript->rosSession()->stop();
+	//*/
+
+	m_activeScript->stop();
 }
 
 void PapyrusWindow::on_actionScope_triggered()
@@ -1795,11 +1802,13 @@ void PapyrusWindow::on_actionScope_triggered()
 		return;
 	}
 
+	/*
 	if (m_activeScript->rosSession() == NULL) {
 		displayStatusMessage(tr("No ROS session for the active script: cannot scope"),
-		                     MSG_ERROR);
+							 MSG_ERROR);
 		return;
 	}
+	//*/
 
 	displayStatusMessage(tr("Action scope not implemented yet"), MSG_WARNING);
 }

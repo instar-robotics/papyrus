@@ -11,6 +11,12 @@
 #include <QUuid>
 #include <QTimer>
 
+enum ScriptStatus {
+	INVALID_SCRIPT_STATUS,
+	SCRIPT_RUNNING,
+	SCRIPT_PAUSED
+};
+
 // Forward declaration because of recursive includes
 class DiagramScene;
 
@@ -26,12 +32,19 @@ class Script : public QObject
 	Q_OBJECT
 public:
 	Script(DiagramScene *scene, const QString &name = "");
+	~Script();
 
 	void save(const QString &descriptionPath,
 	          const QString &basePath = QDir::homePath(),
 	          bool isAutoSave = false);
 
 	void updateTextStyle();
+	void runOrPause();
+	void run();
+	void pause();
+	void stop();
+	ScriptStatus queryScriptStatus();
+	void setupROSSession();
 
 	QString name() const;
 	void setName(const QString &name);
@@ -69,6 +82,15 @@ public:
 	bool hasTab() const;
 	void setHasTab(bool hasTab);
 
+	bool isRunning() const;
+	void setIsRunning(bool isRunning);
+
+	bool isPaused() const;
+	void setIsPaused(bool isPaused);
+
+	QString nodeName() const;
+	void setNodeName(const QString &nodeName);
+
 public slots:
 	void warnAboutModifiedScript();
 
@@ -77,6 +99,7 @@ private:
 	bool m_hasTab; // Tells whether the scripts has a tab in the tabwidget or not
 	ROSSession *m_rosSession; // The associated ROS Session for this script
 	QString m_name;        // Pretty name of the script (to display in tabs for instance)
+	QString m_nodeName;    // The ROS node name of the script
 	QString m_filePath;    // Path of the (XML) file in which to save this script
 	bool m_modified;       // Whether there was some changes since last save
 	bool m_isInvalid;      // Whether this script is currently invalid (and thus prevent saving)
@@ -88,6 +111,8 @@ private:
 	std::string m_key;     // AES Key used to encrypt the file
 	std::string m_iv;      // AES IV used to encrypt the file
 	bool m_isActiveScript; // Tells this script if it's the currently active one
+	bool m_isRunning;      // Tells whether this script is running (launched)
+	bool m_isPaused;       // Tells whether this script is paused while running
 
 private slots:
 	void onROSSessionMessage(const QString &msg, MessageUrgency urgency = MSG_INFO);
@@ -95,6 +120,7 @@ private slots:
 	void onScriptPaused();
 	void onScriptStopped();
 	void onTimeElapsed(int h, int m, int s, int ms);
+//	void temporaryCheckLaunch();
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);

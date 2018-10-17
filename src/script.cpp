@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "constantdiagrambox.h"
 #include "zone.h"
+#include "hieroglyph/SimpleCmd.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -15,6 +16,8 @@
 #include <QDebug>
 #include <QGraphicsView>
 #include <QTemporaryFile>
+#include <QProcess>
+#include <QTimer>
 
 #include <iostream>
 #include <fstream>
@@ -27,10 +30,14 @@
 #include <cryptopp/hex.h>
 #include <cryptopp/files.h>
 
+#include <ros/ros.h>
+
 
 Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_hasTab(false),
+                                                           m_rosSession(nullptr),
                                                            m_name(name),
+                                                           m_nodeName(QString("/kheops_%1").arg(name)),
                                                            m_modified(false),
                                                            m_isInvalid(false),
                                                            m_timeValue(10.0),
@@ -47,14 +54,30 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 	m_modifiedNotifTimer = new QTimer(this);
 	connect(m_modifiedNotifTimer, SIGNAL(timeout()), this, SLOT(warnAboutModifiedScript()));
 
+	// Create the ROS session only if we have a name (otherwise there's no valid node name)
+	if (!m_name.isEmpty())
+		setupROSSession();
+
 	// Create an associated ROS Session for this script and connect signals
+	/*
 	m_rosSession = new ROSSession(NULL, this);
 	m_rosSession->setNodeName(QString("/kheops_%1").arg(m_name));
 	connect(m_rosSession, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
-	        SLOT(onROSSessionMessage(QString,MessageUrgency)));
+			SLOT(onROSSessionMessage(QString,MessageUrgency)));
 	connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
 	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 	connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+	//*/
+}
+
+Script::~Script()
+{
+	if (m_rosSession != nullptr) {
+		m_rosSession->setShouldQuit(true);
+		m_rosSession->wait(500);
+
+		delete m_rosSession;
+	}
 }
 
 /**
@@ -506,8 +529,16 @@ void Script::setName(const QString &name)
 	m_name = name;
 
 	// Also set the ROS node name
-	if (m_rosSession != NULL)
-		m_rosSession->setNodeName(QString("/kheops_%1").arg(m_name));
+	m_nodeName = QString("/kheops_%1").arg(m_name);
+
+	// And then (re)create a ROSSession with the new name
+	if (m_rosSession != nullptr) {
+		m_rosSession->setShouldQuit(true);
+		m_rosSession->wait(500);
+		delete m_rosSession;
+	}
+
+	setupROSSession();
 }
 
 QString Script::filePath() const
@@ -602,6 +633,36 @@ void Script::warnAboutModifiedScript()
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
 }
 
+QString Script::nodeName() const
+{
+	return m_nodeName;
+}
+
+void Script::setNodeName(const QString &nodeName)
+{
+	m_nodeName = nodeName;
+}
+
+bool Script::isPaused() const
+{
+	return m_isPaused;
+}
+
+void Script::setIsPaused(bool isPaused)
+{
+	m_isPaused = isPaused;
+}
+
+bool Script::isRunning() const
+{
+	return m_isRunning;
+}
+
+void Script::setIsRunning(bool isRunning)
+{
+	m_isRunning = isRunning;
+}
+
 bool Script::hasTab() const
 {
 	return m_hasTab;
@@ -631,6 +692,10 @@ void Script::onROSSessionMessage(const QString &msg, MessageUrgency urgency)
 
 void Script::onScriptResumed()
 {
+	// Update state
+	m_isRunning = true;
+	m_isPaused = false;
+
 	// We only re-emit the event if we are the active script
 	if (m_isActiveScript)
 		emit scriptResumed();
@@ -638,6 +703,10 @@ void Script::onScriptResumed()
 
 void Script::onScriptPaused()
 {
+	// Update state
+	m_isRunning = true;
+	m_isPaused = true;
+
 	// We only re-emit the event if we are the active script
 	if (m_isActiveScript)
 		emit scriptPaused();
@@ -645,6 +714,10 @@ void Script::onScriptPaused()
 
 void Script::onScriptStopped()
 {
+	// Update state
+	m_isRunning = false;
+	m_isPaused = false;
+
 	// We only re-emit the event if we are the active script
 	if (m_isActiveScript)
 		emit scriptStopped();
@@ -655,6 +728,187 @@ void Script::onTimeElapsed(int h, int m, int s, int ms)
 	// We only re-emit the event if we are the active script
 	if (m_isActiveScript)
 		emit timeElapsed(h, m, s, ms);
+}
+
+/**
+ * @brief Script::runOrPause calls pause() or run() according to the internal status of the script
+ */
+void Script::runOrPause()
+{
+	if (m_isRunning && !m_isPaused)
+		pause();
+	else
+		run();
+}
+
+/**
+ * @brief Script::run launches a script or ask the script to resume execution if it is already
+ * launched
+ */
+void Script::run()
+{
+	// Make sure the ROS master is up before trying to run
+	if (!ros::master::check()) {
+		emit displayStatusMessage(tr("Command cancelled because the ROS master is not up."), MSG_ERROR);
+		return;
+	}
+
+	// Make sure we have a node name
+	if (m_nodeName.isEmpty()) {
+		emit displayStatusMessage(tr("No node name: cannot run"), MSG_ERROR);
+		return;
+	}
+
+	// Make sure we have a ROSSession
+	if (m_rosSession == nullptr) {
+		emit displayStatusMessage(tr("Cannot launch script: no ROSSession"), MSG_ERROR);
+		return;
+	}
+
+	// Save the node before launching it
+	PapyrusWindow *mainWin = getMainWindow();
+	save(mainWin->getDescriptionPath(), mainWin->lastDir());
+
+	// Check if the save worked
+	if (m_modified) {
+		emit displayStatusMessage(tr("You need to provide a file to save the script in order to run it"),
+		                          MSG_WARNING);
+		return;
+	}
+
+	// If the node is not running, we need to launch a kheops instance
+	if (!m_isRunning) {
+		// Do not set a parent to QProcess otherwise, exiting Papyrus also exits the process!
+		QProcess *kheopsNode = new QProcess;
+		//*
+		QString prog = "rosrun";
+		QStringList args;
+		args << "kheops";
+		args << "kheops";
+		//*/
+		// TEMPORARY
+		/*
+			QString prog = "/home/nschoe/workspace/Qt/catkin_ws/devel/lib/kheops/kheops";
+			QStringList args;
+			//*/
+		args << "-s";
+		args << m_filePath;
+		args << "-l";
+		args << mainWin->getLibPath() + "/";
+		emit displayStatusMessage(tr("Starting script \"") + m_name + "\"...");
+		kheopsNode->start(prog, args);
+	}
+	// Otherwise, if the node is already running, we just have to ask it to resume execution
+	else {
+		ros::NodeHandle nh;
+		QString srvName = m_nodeName + "/control";
+		ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+		hieroglyph::SimpleCmd srv;
+		srv.request.cmd = "resume";
+
+		emit displayStatusMessage(tr("Resuming script \"") + m_name + "\"...");
+		if (!client.call(srv)) {
+			emit displayStatusMessage(tr("The RUN command failed."), MSG_ERROR);
+		}
+	}
+}
+
+/**
+ * @brief Script::pause pauses a script's execution
+ */
+void Script::pause()
+{
+	// Make sure the script has a node name
+	if (m_nodeName.isEmpty()) {
+		emit displayStatusMessage(tr("No node name: cannot pause"), MSG_ERROR);
+		return;
+	}
+
+	QString srvName = m_nodeName + "/control";
+	ros::NodeHandle nh;
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = "pause";
+
+	if (!client.call(srv)) {
+		emit displayStatusMessage(tr("The PAUSE command failed."), MSG_ERROR);
+	}
+}
+
+void Script::stop()
+{
+	// Make sure the ROS master is up
+	if (!ros::master::check()) {
+		emit displayStatusMessage(tr("STOP command cancelled because the ROS master is not up."), MSG_ERROR);
+		return;
+	}
+
+	if (m_nodeName.isEmpty()) {
+		emit displayStatusMessage(tr("No node name for this script: cannot stop"), MSG_ERROR);
+		return;
+	}
+
+	QString srvName = m_nodeName + "/control";
+	ros::NodeHandle nh;
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = "quit";
+
+	if (!client.call(srv)) {
+		emit displayStatusMessage(tr("The STOP command failed."), MSG_ERROR);
+	}
+}
+
+/**
+ * @brief Script::queryScriptStatus makes a ROS service call to the "control" endpoint, with the
+ * "status" parameters to actually query the script for its status.
+ * @return
+ */
+ScriptStatus Script::queryScriptStatus()
+{
+	// Make sure the ROS master is up
+	if (!ros::master::check()) {
+		emit displayStatusMessage(tr("Command cancelled because the ROS master is not up."), MSG_ERROR);
+		return INVALID_SCRIPT_STATUS;
+	}
+
+	if (m_nodeName.isEmpty())
+		informUserAndCrash(tr("Cannot query for script's status because no node name was specified."),
+		                   tr("No node name specified"));
+
+	QString srvName = m_nodeName + "/control";
+
+	ros::NodeHandle nh;
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = "status";
+
+	if (client.call(srv)) {
+		QString response = QString::fromStdString(srv.response.ret);;
+
+		if (response == "run")
+			return SCRIPT_RUNNING;
+		else if (response == "pause")
+			return SCRIPT_PAUSED;
+		else
+			emit displayStatusMessage(tr("Invalid response to command STATUS"), MSG_ERROR);
+	} else {
+		emit displayStatusMessage(tr("Command STATUS failed"), MSG_ERROR);
+	}
+
+	return INVALID_SCRIPT_STATUS;
+}
+
+/**
+ * @brief Script::setupROSSession creates a ROSSession with the node name
+ */
+void Script::setupROSSession()
+{
+	m_rosSession = new ROSSession(m_nodeName);
+
+	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+	connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
+	connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
 }
 
 ROSSession *Script::rosSession() const

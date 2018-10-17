@@ -6,62 +6,41 @@
 //#include "script.h"
 #include "types.h"
 
-#include <QObject>
+#include <QThread>
 #include <QString>
-#include <QDateTime>
 
-// Forward definition of the Script class
-class Script;
-
-enum ScriptStatus {
-	INVALID_SCRIPT_STATUS,
-	SCRIPT_RUNNING,
-	SCRIPT_PAUSED
-};
+#include "diagnostic_msgs/KeyValue.h"
 
 /**
  * @brief The ROSSession class contains parameters related to the current ROS session (connection
  * with a Kheops node
  */
-class ROSSession : public QObject
+class ROSSession : public QThread
 {
 	Q_OBJECT
 
 public:
-	ROSSession(QObject *parent = nullptr, Script *script = NULL);
+	ROSSession(const QString &topicName, QObject *parent = nullptr);
 	~ROSSession();
 
-	void timerEvent(QTimerEvent *evt);
-
-	void runOrPause();
-	void run();
-	void pause();
-	void stop();
-	ScriptStatus queryScriptStatus();
+	bool shouldQuit() const;
+	void setShouldQuit(bool shouldQuit);
 
 	QString nodeName() const;
 	void setNodeName(const QString &nodeName);
 
-	bool isRunning() const;
-	void setIsRunning(bool isRunning);
-
-	bool isPaused() const;
-	void setIsPaused(bool isPaused);
-
 private:
-	QString m_nodeName;       // the ROS node we are connected to
-	bool m_isRunning;         // indicates whether the associated kheops script is currently running
-	bool m_isPaused;          // indicated whether the associated kheops script is paused
-	qint64 m_timeOffset;      // time accumulator to keep track of elapsed time when script is paused
-	QDateTime m_startTime;    // start time of the last "run"
-	Script *m_script;         // the script to which this session is asscoiated
+	bool m_shouldQuit;       // Used to properly exit the thread
+	QString m_nodeName;      // Name of the node it should listen
+
+	void run() override;
+	void handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr& msg);
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
-	void scriptResumed();     // emited when "play" action succeeded
-	void scriptPaused();      // emited when "pause" action succeeded
-	void scriptStopped();     // emitted when "stop" action succeeded
-	void timeElapsed(int h, int m, int s, int ms); // emited regularly with the new run time
+	void scriptResumed();
+	void scriptPaused();
+	void scriptStopped();
 };
 
 #endif // ROSSESSION_H

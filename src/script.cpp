@@ -301,7 +301,7 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 		QString descriptionFile = item->descriptionFile();
 		QString iconFilepath = item->iconFilepath();
 		std::vector<InputSlot *>inputSlots = item->inputSlots();
-		bool constant = (constantItem != NULL);
+		bool constant = (constantItem != nullptr);
 
 		// Strip the description path prefix from paths, to make it relative, unless this is a
 		// resource (and begins with ":")
@@ -355,11 +355,14 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 				foreach (Link* link, inputSlot->inputs()) {
 					// Should loop for each connection
 					stream.writeStartElement("link");
+
+					// Secondary is enforced for links that are connected to the same box
 					bool isSecondary = link->to()->box() == link->from()->box();
+					isSecondary |= link->secondary(); // But it can also be manually specified
 
 					// Write attribute "constant" when the originating box is constant
 					// We don't explicitly write "false" because this is rare and don't want to clutter
-					if (dynamic_cast<ConstantDiagramBox *>(link->from()->box()) != NULL)
+					if (dynamic_cast<ConstantDiagramBox *>(link->from()->box()) != nullptr)
 						//                if (link->from()->box()->constant())
 						                stream.writeAttribute("constant", "true");
 					stream.writeAttribute("uuid", link->uuid().toString());

@@ -297,10 +297,10 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 		bool constant = (constantItem != nullptr);
 
 		// Strip the description path prefix from paths, to make it relative, unless this is a
-		// resource (and begins with ":")
+		// a constant (built-in constant don't have description files)
 		if (descriptionFile.startsWith(descriptionPath + "/"))
 			descriptionFile.remove(descriptionPath + "/");
-		else if (!descriptionFile.startsWith(":"))
+		else if (!constant)
 			qWarning() << "Description file" << descriptionFile << "cannot be made relative "
 			"(for function" << name << "). Saving as absolute, but this will NOT be portable.";
 

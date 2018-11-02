@@ -38,6 +38,8 @@ void updateSizeIcon(DiagramBox *box);
 
 bool areLinked(OutputSlot *oSlot, InputSlot *iSlot);
 
+bool isFull(InputSlot *iSlot);
+
 bool fileExists(const std::string& filename);
 
 QList<QString> getKheopsNodes();

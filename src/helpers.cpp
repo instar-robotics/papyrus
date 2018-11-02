@@ -289,6 +289,15 @@ bool areLinked(OutputSlot *oSlot, InputSlot *iSlot)
 	return areLinked;
 }
 
+/**
+ * @brief isFull checks whether an @InputSlot with 'multiple = false' can accept the connection
+ * @param iSlot the @InputSlot we check
+ * @return wether it can accept a new @Link or not
+ */
+bool isFull(InputSlot *iSlot) {
+	return (!iSlot->multiple() && iSlot->inputs().size() > 0);
+}
+
 bool fileExists(const std::string &filename)
 {
 	struct stat buffer;

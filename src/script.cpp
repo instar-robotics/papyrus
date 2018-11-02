@@ -188,7 +188,7 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 
 			QString savePath = QFileDialog::getSaveFileName(NULL,
 			                             QObject::tr("Save as..."),
-			                             basePath,
+			                             basePath + "/" + mkFilenameFromScript(m_name),
 			                             QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
 			// Abort if it's empty

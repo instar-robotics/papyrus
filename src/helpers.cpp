@@ -445,3 +445,14 @@ QColor getTypeColor(const OutputType outputType)
 		    return Qt::black;
 	}
 }
+
+/**
+ * @brief mkFilenameFromScript sanitizes a script name to create an associated file name. The
+ * pattern is CapitalCamelCase
+ * @param scriptName the script name to derive the file name from
+ * @return the filename
+ */
+QString mkFilenameFromScript(const QString &scriptName)
+{
+	return snakeCaseToPretty(scriptName).remove(" ");
+}

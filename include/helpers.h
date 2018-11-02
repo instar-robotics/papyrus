@@ -58,4 +58,6 @@ QColor getTypeColor(const InputType inputType);
 
 QColor getTypeColor(const OutputType outputType);
 
+QString mkFilenameFromScript(const QString &scriptName);
+
 #endif // HELPERS_H

@@ -1116,11 +1116,11 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 	// Create the scene and script objets, which will be used by the XmlReader
 	DiagramScene *openScene = new DiagramScene;
 	Script *openScript = new Script(openScene);
-	connect(openScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
-	        SLOT(displayStatusMessage(QString,MessageUrgency)));
-	connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
-	connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
-	connect(openScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+//	connect(openScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
+//	        SLOT(displayStatusMessage(QString,MessageUrgency)));
+//	connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+//	connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
+//	connect(openScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
 	//    connect(openScript, SIGNAL(timeElapsed(int,int,int,int)), this,
 	//            SLOT(updateStopWatch(int,int,int,int)));
 
@@ -1147,7 +1147,8 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		return NULL;
 	} else {
 		QString msg(tr("Script '") + openScript->name() + tr("' loaded."));
-		m_ui->statusBar->showMessage(msg);
+//		m_ui->statusBar->showMessage(msg);
+		displayStatusMessage(msg, MSG_INFO);
 
 		// Create a new view to display the new scene
 		DiagramView *newView = new DiagramView(openScene);
@@ -1156,6 +1157,9 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		connect(openScript, SIGNAL(displayStatusMessage(QString, MessageUrgency)),
 		        this, SLOT(displayStatusMessage(QString, MessageUrgency)));
 		connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
+		connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
+		connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
+		connect(openScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
 
 		// Add the script in the set of opened scripts
 		addScript(openScript);
@@ -1320,18 +1324,10 @@ QString PapyrusWindow::getLibPath()
 void PapyrusWindow::updateButtonsState()
 {
 	// Make sure we have an active script
-	if (m_activeScript == NULL)
+	if (m_activeScript == nullptr)
 		return;
 
 	m_ui->actionRun->setEnabled(true);
-
-	/*
-	ROSSession *session = m_activeScript->rosSession();
-	if (session == NULL) {
-		displayStatusMessage(tr("Not ROS Session for script \"%1\"").arg(m_activeScript->name()), MSG_ERROR);
-		return;
-	}
-	//*/
 
 	if (m_activeScript->isRunning()) {
 		m_ui->actionStop->setEnabled(true);
@@ -1452,7 +1448,7 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 	// Check we have switched to the Home Page
 	HomePage *homePage = dynamic_cast<HomePage *>(m_ui->tabWidget->currentWidget());
 	// If we have, disable all buttons (and restore the "play" icon to the play/pause button)
-	if (homePage != NULL) {
+	if (homePage != nullptr) {
 		m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
 		m_ui->actionRun->setEnabled(false);
 		m_ui->actionStop->setEnabled(false);
@@ -1536,8 +1532,8 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
 	int ret = msgBox.exec();
 	if (ret == QMessageBox::Ok) {
 		QString newScriptName(newName->text());
-		QString str(tr("\"") + currentName + "\" renamed to \"" + newScriptName + "\"");
 		script->setName(newScriptName);
+		QString str(tr("\"") + currentName + "\" renamed to \"" + script->name() + "\"");
 		m_ui->tabWidget->tabBar()->setTabText(index, newScriptName);
 
 		if (cBox->isChecked() && !currentFilePath.isEmpty()) {

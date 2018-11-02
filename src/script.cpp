@@ -42,7 +42,9 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_timeValue(10.0),
                                                            m_timeUnit(HZ),
                                                            m_encrypt(false),
-                                                           m_isActiveScript(false)
+                                                           m_isActiveScript(false),
+                                                           m_isRunning(false),
+                                                           m_isPaused(false)
 {
 	if (scene != NULL) {
 		scene->setScript(this);
@@ -59,17 +61,6 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 	// Create the ROS session only if we have a name (otherwise there's no valid node name)
 	if (!m_name.isEmpty())
 		setupROSSession();
-
-	// Create an associated ROS Session for this script and connect signals
-	/*
-	m_rosSession = new ROSSession(NULL, this);
-	m_rosSession->setNodeName(QString("/kheops_%1").arg(m_name));
-	connect(m_rosSession, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
-			SLOT(onROSSessionMessage(QString,MessageUrgency)));
-	connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
-	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
-	connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
-	//*/
 }
 
 Script::~Script()

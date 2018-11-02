@@ -400,6 +400,7 @@ QString sanitizeTopicName(const QString &name)
 	QString ret = name;
 	ret.remove('{');
 	ret.remove('}');
+	ret.remove(' ');
 	ret.replace('-', '_');
 
 	return ret;

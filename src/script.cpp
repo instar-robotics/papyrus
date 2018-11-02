@@ -36,7 +36,6 @@
 Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_hasTab(false),
                                                            m_rosSession(nullptr),
-                                                           m_name(name),
                                                            m_nodeName(QString("/kheops_%1").arg(name)),
                                                            m_modified(false),
                                                            m_isInvalid(false),
@@ -48,6 +47,9 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 	if (scene != NULL) {
 		scene->setScript(this);
 	}
+
+	// We use setName() and not initialize with m_name(name) because of sanitation that must happen
+	setName(name);
 
 	m_uuid = QUuid::createUuid();
 
@@ -188,7 +190,7 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 
 			QString savePath = QFileDialog::getSaveFileName(NULL,
 			                             QObject::tr("Save as..."),
-			                             basePath + "/" + mkFilenameFromScript(m_name),
+			                             basePath + "/" + mkFilenameFromScript(m_name.replace(' ', '_')),
 			                             QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
 			// Abort if it's empty
@@ -532,7 +534,7 @@ void Script::setName(const QString &name)
 	m_name = name;
 
 	// Also set the ROS node name
-	m_nodeName = QString("/kheops_%1").arg(m_name);
+	m_nodeName = QString("/kheops_%1").arg(sanitizeTopicName(m_name));
 
 	// And then (re)create a ROSSession with the new name
 	if (m_rosSession != nullptr) {

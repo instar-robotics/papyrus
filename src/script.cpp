@@ -98,17 +98,20 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 
 			return;
 		}
+		// IMPORTANT: Disable not being able to save while invalid!
+		/*
 		// Prevent saving when the script is in invalid state
 		if (m_isInvalid) {
 			QMessageBox::warning(NULL, tr("Saving not allowed in invalid state!"),
-			                     tr("You cannot save the script at this time because it is currently "
-			                        "in an invalid state.\nThis can mean that:\n"
-			                        "  - some function boxes are linked with SCALAR_MATRIX but are "
-			                        "not the same size\n"
-			                        "  - some function boxes have negative sizes\n"
-			                        "  - etc."));
+								 tr("You cannot save the script at this time because it is currently "
+									"in an invalid state.\nThis can mean that:\n"
+									"  - some function boxes are linked with SCALAR_MATRIX but are "
+									"not the same size\n"
+									"  - some function boxes have negative sizes\n"
+									"  - etc."));
 			return;
 		}
+		//*/
 		emit displayStatusMessage(tr("Saving \"") + m_name + "\"...", MSG_INFO);
 	} else {
 		emit displayStatusMessage(tr("Auto saving \"") + m_name + "\"...", MSG_INFO);

@@ -760,12 +760,26 @@ void DiagramScene::setShouldDrawGrid(bool shouldDrawGrid)
 
 void DiagramScene::toggleDisplayGrid(bool shouldDraw)
 {
+	// React to event only if we are the active script
+	if (m_script == nullptr)
+		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
+
+	if (!m_script->isActiveScript())
+		return;
+
 	m_shouldDrawGrid = shouldDraw;
 	update(sceneRect());
 }
 
 void DiagramScene::onOkBtnClicked(bool)
 {
+	// React to event only if we are the active script
+	if (m_script == nullptr)
+		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
+
+	if (!m_script->isActiveScript())
+		return;
+
 	QList<QGraphicsItem *> sItems = selectedItems();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
@@ -850,6 +864,13 @@ void DiagramScene::onOkBtnClicked(bool)
 
 void DiagramScene::onCancelBtnClicked(bool)
 {
+	// React to event only if we are the active script
+	if (m_script == nullptr)
+		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
+
+	if (!m_script->isActiveScript())
+		return;
+
 	QList<QGraphicsItem *> sItems = selectedItems();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
@@ -882,6 +903,13 @@ void DiagramScene::onCancelBtnClicked(bool)
 
 void DiagramScene::onDisplayVisuClicked(bool)
 {
+	// React to event only if we are the active script
+	if (m_script == nullptr)
+		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
+
+	if (!m_script->isActiveScript())
+		return;
+
 	QList<QGraphicsItem *> sItems = selectedItems();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();

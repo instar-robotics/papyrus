@@ -37,6 +37,15 @@ void ROSSession::setNodeName(const QString &nodeName)
 
 void ROSSession::run()
 {
+	// Wait for the ROS master to become online
+	while (!ros::master::check()) {
+		if (m_shouldQuit) {
+			quit();
+			return;
+		}
+		msleep(100); // We cannot use ROS rate now because we need the ROS master to come up before
+	}
+
 	ros::Rate rate(10); // 10Hz
 	ros::NodeHandle nh;
 

@@ -144,6 +144,8 @@ void ScalarVisualization::createCharts()
 	// Create the chart for BAR mode
 	for (int i = 0; i < m_size; i += 1) {
 		QBarSet *s = new QBarSet(QString::number(i));
+		QColor barColor(51, 153, 255);
+		s->setColor(barColor);
 		*s << 0;
 		m_barSets.append(s);
 	}

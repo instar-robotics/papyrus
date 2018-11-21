@@ -60,4 +60,6 @@ QColor getTypeColor(const OutputType outputType);
 
 QString mkFilenameFromScript(const QString &scriptName);
 
+qreal qrealAbsMax(const qreal a, qreal b);
+
 #endif // HELPERS_H

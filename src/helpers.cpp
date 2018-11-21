@@ -457,3 +457,17 @@ QString mkFilenameFromScript(const QString &scriptName)
 {
 	return snakeCaseToPretty(scriptName).remove(" ");
 }
+
+/**
+ * @brief qrealAbsMax returns the absolute value of the value with the greatest absolute value
+ * @param a
+ * @param b
+ * @return
+ */
+qreal qrealAbsMax(const qreal a, qreal b)
+{
+	qreal a_ = abs(a);
+	qreal b_ = abs(b);
+
+	return a_ >= b_ ? a_ : b_;
+}

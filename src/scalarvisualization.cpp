@@ -77,8 +77,10 @@ void ScalarVisualization::updateBarValues(const std::vector<qreal> &values)
 		rangeChanged = true;
 	}
 
-	if (rangeChanged)
-		m_barAxisY->setRange(m_barMin, m_barMax);
+	if (rangeChanged) {
+		qreal bound = qrealAbsMax(m_barMin, m_barMax);
+		m_barAxisY->setRange(-bound, bound);
+	}
 }
 
 void ScalarVisualization::pushGraphValues(const std::vector<qreal> &values)
@@ -115,8 +117,10 @@ void ScalarVisualization::pushGraphValues(const std::vector<qreal> &values)
 		rangeChanged = true;
 	}
 
-	if (rangeChanged)
-		m_graphAxisY->setRange(m_graphMin, m_graphMax);
+	if (rangeChanged) {
+		qreal bound = qrealAbsMax(m_graphMin, m_graphMax);
+		m_graphAxisY->setRange(-bound, bound);
+	}
 }
 
 void ScalarVisualization::createCharts()

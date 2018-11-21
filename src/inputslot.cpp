@@ -15,7 +15,8 @@ InputSlot::InputSlot() : Slot(),
                          m_multiple(false),
                          m_inputType(MATRIX_MATRIX),
                          m_canLink(false),
-                         m_label(NULL)
+                         m_label(NULL),
+                         m_checkSize(true)
 {
 	m_uuid = QUuid::createUuid();
 }
@@ -216,5 +217,15 @@ QUuid InputSlot::uuid() const
 void InputSlot::setUuid(const QUuid &uuid)
 {
 	m_uuid = uuid;
+}
+
+bool InputSlot::checkSize() const
+{
+    return m_checkSize;
+}
+
+void InputSlot::setCheckSize(bool checkSize)
+{
+    m_checkSize = checkSize;
 }
 

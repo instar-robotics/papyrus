@@ -19,47 +19,51 @@ class Link;
  */
 class InputSlot : public Slot
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit InputSlot();
-    explicit InputSlot(const QString &name);
-    ~InputSlot();
+	explicit InputSlot();
+	explicit InputSlot(const QString &name);
+	~InputSlot();
 
-    bool multiple() const;
-    void setMultiple(bool allowMultiple);
+	bool multiple() const;
+	void setMultiple(bool allowMultiple);
 
-    std::set<Link *> inputs() const;
+	std::set<Link *> inputs() const;
 
-    void addInput(Link *input);
-    void removeInput(Link *input);
+	void addInput(Link *input);
+	void removeInput(Link *input);
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-    QRectF boundingRect() const override;
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+	QRectF boundingRect() const override;
 
-    void updateLinks();
+	void updateLinks();
 
-    InputType inputType() const;
-    void setInputType(const InputType &inputType);
+	InputType inputType() const;
+	void setInputType(const InputType &inputType);
 
-    bool canLink() const;
-    void setCanLink(bool canLink);
+	bool canLink() const;
+	void setCanLink(bool canLink);
 
-    QGraphicsSimpleTextItem *label() const;
-    void setLabel(QGraphicsSimpleTextItem *label);
+	QGraphicsSimpleTextItem *label() const;
+	void setLabel(QGraphicsSimpleTextItem *label);
 
-    QUuid uuid() const;
-    void setUuid(const QUuid &uuid);
+	QUuid uuid() const;
+	void setUuid(const QUuid &uuid);
+
+	bool checkSize() const;
+	void setCheckSize(bool checkSize);
 
 private:
-    QUuid m_uuid;              // Unid ID for the slot (used for kheops)
-    bool m_multiple;           // Whether this slot can receive several links
-    std::set<Link *> m_inputs; // The set of links connected to this slot
-    InputType m_inputType;     // Indicate type and connectivity of this input
-    bool m_canLink;            // Indicate if this input can be linked to the current output when creating a Link
-    QGraphicsSimpleTextItem *m_label; // A label that contains this input's name
+	QUuid m_uuid;              // Unid ID for the slot (used for kheops)
+	bool m_multiple;           // Whether this slot can receive several links
+	std::set<Link *> m_inputs; // The set of links connected to this slot
+	InputType m_inputType;     // Indicate type and connectivity of this input
+	bool m_canLink;            // Indicate if this input can be linked to the current output when creating a Link
+	QGraphicsSimpleTextItem *m_label; // A label that contains this input's name
+	bool m_checkSize;          // Whether or not this input must check that sizes are correct (on SCALAR_MATRIX)
 signals:
-    void slotFull(); // Fired when trying to add a second input to a slot that doesn't allow multiple
+	void slotFull(); // Fired when trying to add a second input to a slot that doesn't allow multiple
 };
 
 #endif // INPUTSLOT_H

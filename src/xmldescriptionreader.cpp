@@ -180,7 +180,6 @@ void XmlDescriptionReader::readInputs(Function *function)
 				inputSlot->setMultiple(false);
 			}
 
-
 			// Read the 'type' attribute
 			if (!attributes.hasAttribute("type")) {
 				qWarning() << "Missing attribute 'type'";
@@ -189,6 +188,18 @@ void XmlDescriptionReader::readInputs(Function *function)
 			}
 
 			inputSlot->setInputType(stringToInputType(attributes.value("type").toString()));
+
+			// Read the 'checkSize' attribute
+			if (attributes.hasAttribute("checkSize")) {
+				if (attributes.value("checkSize").toString() == "true")
+					inputSlot->setCheckSize(true);
+				else if (attributes.value("checkSize").toString() == "false")
+					inputSlot->setCheckSize(false);
+				else {
+					qWarning() << "Invalid value for attribute 'checkSize', supported are 'false' and 'true'";
+					reader.raiseError(QObject::tr("Invalid value for attribute 'checkSize', supported are 'false' and 'true'"));
+				}
+			}
 
 			// Read the <name> tag
 			while (reader.readNextStartElement()) {

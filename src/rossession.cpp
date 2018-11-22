@@ -46,8 +46,8 @@ void ROSSession::run()
 		msleep(100); // We cannot use ROS rate now because we need the ROS master to come up before
 	}
 
-	ros::Rate rate(10); // 10Hz
 	ros::NodeHandle nh;
+	ros::Rate rate(10); // 10Hz
 
 	// Subscribe to the 'status' topic to listen to status change
 	ros::Subscriber sub = nh.subscribe(QString("%1/%2").arg(m_nodeName, "status").toStdString(),

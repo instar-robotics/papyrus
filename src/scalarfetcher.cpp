@@ -7,9 +7,6 @@ ScalarFetcher::ScalarFetcher(const QString &topicName, ScalarVisualization *scal
     DataFetcher(topicName, parent),
     m_scalarVisualization(scalarVisualization)
 {
-	qDebug() << "[ScalarFetcher] created on topic" << m_topicName;
-
-	qDebug() << "[ScalarFetcher] start";
 	start();
 }
 
@@ -64,16 +61,23 @@ void ScalarFetcher::setVisType(VisualizationType type)
 
 void ScalarFetcher::run()
 {
-	qDebug() << "[ScalarFetcher] run";
-	ros::Rate rate(10); // 10Hz
+	// Wait for the ROS master to become online
+	while (!ros::master::check()) {
+		if (m_shouldQuit) {
+			quit();
+			return;
+		}
+		msleep(100); // We cannot use ROS rate now because we need the ROS master to come up before
+	}
 
-	ros::Subscriber m_sub = m_n.subscribe(m_topicName.toStdString(),
+	ros::NodeHandle nh;
+	ros::Subscriber m_sub = nh.subscribe(m_topicName.toStdString(),
 	                                      1000,
 	                                      &ScalarFetcher::fetchScalar, this);
 
+	ros::Rate rate(10); // 10Hz
 	while (ros::ok()) {
 		if (m_shouldQuit) {
-			qDebug() << "[ScalarFetcher] quitting";
 			quit();
 			return;
 		}

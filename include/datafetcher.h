@@ -26,7 +26,7 @@ public:
 protected:
 	QString m_topicName;
 	bool m_shouldQuit;
-	ros::NodeHandle m_n;
+//	ros::NodeHandle m_n;
 	VisualizationType m_visType;
 
 signals:

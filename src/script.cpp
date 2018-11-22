@@ -99,19 +99,15 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 			return;
 		}
 		// IMPORTANT: Disable not being able to save while invalid!
-		/*
+
 		// Prevent saving when the script is in invalid state
 		if (m_isInvalid) {
-			QMessageBox::warning(NULL, tr("Saving not allowed in invalid state!"),
-								 tr("You cannot save the script at this time because it is currently "
-									"in an invalid state.\nThis can mean that:\n"
-									"  - some function boxes are linked with SCALAR_MATRIX but are "
-									"not the same size\n"
-									"  - some function boxes have negative sizes\n"
-									"  - etc."));
-			return;
+			QMessageBox::warning(NULL, tr("Saving script in invalid state"),
+			                     tr("You just saved a script in an invalid state: this is okay if "
+			                        "you are still editing, but if you attempt to run or launch this "
+			                        "script, it is likely going to crash."));
 		}
-		//*/
+
 		emit displayStatusMessage(tr("Saving \"") + m_name + "\"...", MSG_INFO);
 	} else {
 		emit displayStatusMessage(tr("Auto saving \"") + m_name + "\"...", MSG_INFO);
@@ -211,7 +207,7 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 
 			setFilePath(savePath);
 		} else {
-			// It should not happen (auto save should not be triggered when there's not filepath)
+			// It should not happen (auto save should not be triggered when there's no filepath)
 			// but just in case, display a message
 			emit displayStatusMessage(tr("Auto save cancelled: no filepath."), MSG_WARNING);
 			return;

@@ -758,19 +758,21 @@ void DiagramScene::setShouldDrawGrid(bool shouldDrawGrid)
 	m_shouldDrawGrid = shouldDrawGrid;
 }
 
+/**
+ * @brief DiagramScene::toggleDisplayGrid toggles the display of the grid on scenes. Note that this
+ * is common to all scenes (and the state is saved in the settings)
+ * @param shouldDraw whether or not the grid should be drawn
+ */
 void DiagramScene::toggleDisplayGrid(bool shouldDraw)
 {
-	// React to event only if we are the active script
-	if (m_script == nullptr)
-		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
-
-	if (!m_script->isActiveScript())
-		return;
-
 	m_shouldDrawGrid = shouldDraw;
 	update(sceneRect());
 }
 
+/**
+ * @brief DiagramScene::onOkBtnClicked validates the changes made in the properties panel. Note the
+ * boolean argument is not used: it's simply here to satisfy types to bind event
+ */
 void DiagramScene::onOkBtnClicked(bool)
 {
 	// React to event only if we are the active script

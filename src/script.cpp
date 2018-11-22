@@ -87,6 +87,10 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 {
 	QString scriptfilePath;
 
+	// Add some debug in order to try and catch segfaults that appear "while doing nothing" (#95)
+	if (isAutoSave)
+		qDebug() << "[Script::save] autosave";
+
 	// Allow saving in invalid state if this is an auto save
 	if (!isAutoSave) {
 		// Prevent saving when the script doesn't have a name
@@ -475,6 +479,10 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 	}
 
 	emit displayStatusMessage(msg, MSG_INFO);
+
+	// Add some debug in order to try and catch segfaults that appear "while doing nothing" (#95)
+	if (isAutoSave)
+		qDebug() << "[Script::save] autosave done.";
 }
 
 /**

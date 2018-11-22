@@ -7,8 +7,6 @@ DataFetcher::DataFetcher(const QString &topicName, QObject *parent) :
     m_topicName(topicName),
     m_shouldQuit(false)
 {
-	qDebug() << "[DataFetcher] created on topic" << m_topicName;
-
 //	m_sub = m_n.subscribe(topicName.toStdString(), 1000, &DataFetcher::fetchScalar, this);
 }
 

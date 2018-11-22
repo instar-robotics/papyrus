@@ -509,17 +509,12 @@ void DiagramBox::showDataVis()
 
 		case MATRIX:
 			// Discriminate between (1,1) (treat as scalar), rows and cols
-			if (m_rows == 1 && m_cols == 1) {
-				qDebug() << "Treat (1,1) matrix as scalar";
+			if (m_rows == 1 && m_cols == 1)
 				m_dataVis = new ScalarVisualization(nullptr, scene(), this);
-			} else if (m_rows == 1 || m_cols == 1) {
-//				m_dataVis = new VectorVisualization(nullptr, scene(), this);
+			else if (m_rows == 1 || m_cols == 1)
 				m_dataVis = new ScalarVisualization(nullptr, scene(), this);
-			} else {
-//				qDebug() << "MATRIX data visualization not supported";
-//				return;
+			else
 				m_dataVis = new MatrixVisualization(nullptr, scene(), this);
-			}
 		break;
 
 		default:
@@ -527,6 +522,7 @@ void DiagramBox::showDataVis()
 		    return;
 		break;
 	}
+
 	m_dataProxy = scene()->addWidget(m_dataVis, Qt::Window);
 	m_dataProxy->setWindowTitle("Visualization");
 	m_dataProxy->setGeometry(QRectF(0, 0, 400, 400 / 1.618));

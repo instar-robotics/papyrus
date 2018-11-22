@@ -25,7 +25,6 @@ DataVisualization::DataVisualization(QWidget *parent, QGraphicsScene *scene, Dia
     m_box(box),
     m_dataFetcher(nullptr)
 {
-	qDebug() << "[DataVisualization] created";
 	if (m_box == nullptr)
 		informUserAndCrash(tr("Data visualization has no box!"),
 		                   tr("A DataVisualization was created without a DiagramBox. This should not"
@@ -40,11 +39,8 @@ DataVisualization::DataVisualization(QWidget *parent, QGraphicsScene *scene, Dia
 
 DataVisualization::~DataVisualization()
 {
-	qDebug() << "[~DataVisualization] destruct";
 	if (m_dataFetcher != nullptr) {
-		qDebug() << "[~DataVisualization] notifying & waiting for fetcher thread";
 		m_dataFetcher->setShouldQuit(true);
 		m_dataFetcher->wait(1000);
 	}
-	qDebug() << "[~DataVisualization] bye";
 }

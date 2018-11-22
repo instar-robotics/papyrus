@@ -16,7 +16,6 @@ ScalarVisualization::ScalarVisualization(QWidget *parent, QGraphicsScene *scene,
     m_graphMin(-1),
     m_graphMax(1)
 {
-	qDebug() << "[ScalarVis] created";
 	// We populate the available types of visualization for Scalar in the menu
 	m_typeMenu->addAction(tr("Bar"), this, SLOT(switchToBar()));
 	m_typeMenu->addAction(tr("Graph"), this, SLOT(switchToGraph()));
@@ -142,8 +141,6 @@ void ScalarVisualization::createCharts()
 		qDebug() << "rows:" << m_box->rows() << "cols:" << m_box->cols();
 		return;
 	}
-
-	qDebug() << "Created charts with size" << m_size;
 
 	// Create the chart for BAR mode
 	for (int i = 0; i < m_size; i += 1) {

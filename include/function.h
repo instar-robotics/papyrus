@@ -22,38 +22,44 @@
 class Function : public QTreeWidgetItem
 {
 public:
-    Function(const QString &path);
+	Function(const QString &path);
 
-    QString name() const;
-    void setName(const QString &name);
+	void updateTooltip();
 
-    std::vector<InputSlot *> inputs() const;
+	QString name() const;
+	void setName(const QString &name);
 
-    void addInputSlot (InputSlot *slot);
+	std::vector<InputSlot *> inputs() const;
 
-    OutputSlot *output() const;
-    void setOutput(OutputSlot *output);
+	void addInputSlot (InputSlot *slot);
 
-    QString descriptionFile() const;
+	OutputSlot *output() const;
+	void setOutput(OutputSlot *output);
 
-    bool constant() const;
-    void setConstant(bool constant);
+	QString descriptionFile() const;
 
-    QString libName() const;
-    void setLibName(const QString &libName);
+	bool constant() const;
+	void setConstant(bool constant);
 
-    QString iconFilepath() const;
-    void setIconFilepath(const QString &value);
+	QString libName() const;
+	void setLibName(const QString &libName);
+
+	QString iconFilepath() const;
+	void setIconFilepath(const QString &value);
+
+	QString description() const;
+	void setDescription(const QString &description);
 
 protected:
-    QString m_name;
-    QString m_descriptionFile;
-    //    QIcon m_icon;
-    std::vector<InputSlot *> m_inputs;
-    OutputSlot *m_output;
-    bool m_constant;   // Indicate whether this represents a constant input
-    QString m_libName; // The name of the lib it belongs to, used for kheops to know where to look
-    QString m_iconFilepath; // Filepath for the SVG icon, used when dropping the box on scene
+	QString m_name;
+	QString m_descriptionFile;
+	//    QIcon m_icon;
+	std::vector<InputSlot *> m_inputs;
+	OutputSlot *m_output;
+	bool m_constant;   // Indicate whether this represents a constant input
+	QString m_libName; // The name of the lib it belongs to, used for kheops to know where to look
+	QString m_iconFilepath; // Filepath for the SVG icon, used when dropping the box on scene
+	QString m_description;  // Description of the function
 };
 
 #endif // FUNCTION_H

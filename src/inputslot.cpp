@@ -229,3 +229,13 @@ void InputSlot::setCheckSize(bool checkSize)
     m_checkSize = checkSize;
 }
 
+QString InputSlot::description() const
+{
+    return m_description;
+}
+
+void InputSlot::setDescription(const QString &description)
+{
+    m_description = description;
+}
+

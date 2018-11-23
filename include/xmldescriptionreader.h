@@ -15,24 +15,26 @@
 class XmlDescriptionReader
 {
 public:
-    XmlDescriptionReader(Category *category );
+	XmlDescriptionReader(Category *category );
 
-    bool read(QIODevice *device, const QString &descriptionFile);
+	bool read(QIODevice *device, const QString &descriptionFile);
 private:
 //    Library *m_library;
-    Category *m_category;
-    QXmlStreamReader reader;
+	Category *m_category;
+	QXmlStreamReader reader;
 
-    void readDescription(const QString &descriptionFile);
-    void readAllFunctions(const QString &libName, const QString &descriptionFile);
-    void readOneFunction(const QString &libName, const QString &descriptionFile);
-    void readName(Function *function);
-    void readInputs(Function *function);
-    QString readIcon();
-    void readParameterName(Slot *paramSlot);
-    void readParameterType(OutputSlot *paramSlot);
-    void readParameterType(InputSlot *paramSlot);
-    void readOutput(Function *function);
+	void readDescription(const QString &descriptionFile);
+	void readAllFunctions(const QString &libName, const QString &descriptionFile);
+	void readOneFunction(const QString &libName, const QString &descriptionFile);
+	void readName(Function *function);
+	void readInputs(Function *function);
+	QString readIcon();
+	void readParameterName(Slot *paramSlot);
+	void readParameterType(OutputSlot *paramSlot);
+	void readParameterType(InputSlot *paramSlot);
+	void readParameterDesc(InputSlot *paramSlot);
+	void readOutput(Function *function);
+	void readFunctionDesc(Function *function);
 };
 
 #endif // XMLDESCRIPTIONREADER_H

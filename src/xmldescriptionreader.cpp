@@ -92,8 +92,10 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, const QString
 			readOutput(function);
 		} else if (reader.name() == "icon") {
 			iconFilename = readIcon();
+		} else if (reader.name() == "desc") {
+			readFunctionDesc(function);
 		} else {
-			qWarning() << "Skipping unsupported tag <" << reader.name() << ">";
+			qWarning() << QString("Skipping unsupported tag <%1>").arg(reader.name());
 			reader.skipCurrentElement();
 		}
 	}
@@ -129,6 +131,8 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, const QString
 	// Add a background color to functions whose output are MATRIX
 	if (function->output()->outputType() == MATRIX)
 		function->setBackground(0, QBrush(QColor(0xffeeee)));
+
+	function->updateTooltip();
 
 	// Only add the function to the library (category) if there was no error while parsing it.
 	if (!reader.error())
@@ -201,10 +205,12 @@ void XmlDescriptionReader::readInputs(Function *function)
 				}
 			}
 
-			// Read the <name> tag
+			// Read the <name> and <desc> tag
 			while (reader.readNextStartElement()) {
 				if (reader.name() == "name")
 					readParameterName(inputSlot);
+				else if (reader.name() == "desc")
+					readParameterDesc(inputSlot);
 				else
 					reader.skipCurrentElement();
 			}
@@ -238,6 +244,13 @@ void XmlDescriptionReader::readParameterName(Slot *paramSlot)
 	}
 }
 
+void XmlDescriptionReader::readParameterDesc(InputSlot *paramSlot)
+{
+	Q_ASSERT(reader.isStartElement() && reader.name() == "desc");
+
+	paramSlot->setDescription(reader.readElementText());
+}
+
 void XmlDescriptionReader::readOutput(Function *function)
 {
 	Q_ASSERT(reader.isStartElement() && reader.name() == "output");
@@ -256,5 +269,12 @@ void XmlDescriptionReader::readOutput(Function *function)
 
 	// Nothing to read, but it's just to consume the <output> element
 	while (reader.readNextStartElement());
+}
+
+void XmlDescriptionReader::readFunctionDesc(Function *function)
+{
+	Q_ASSERT(reader.isStartElement() && reader.name() == "desc");
+
+	function->setDescription(reader.readElementText());
 }
 

@@ -428,7 +428,8 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		QString libname;
 
 		// Then proceed to retrieve the other elements
-		dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_ >> constant >> nbInputs >> libname;
+		dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_
+		           >> constant >> nbInputs >> libname;
 
 		// Cast the integer to the Enum type (problem of operator '>>' with enums)
 		outputType = static_cast<OutputType>(outputType_);
@@ -483,7 +484,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		emit(displayStatusMessage(str));
 	} else {
 		evt->ignore();
-		emit(displayStatusMessage("Unsupported drop event, discarding."));
+		emit(displayStatusMessage("Unsupported drop event, discarding."), MSG_WARNING);
 	}
 }
 

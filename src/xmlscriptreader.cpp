@@ -596,6 +596,9 @@ void XmlScriptReader::readZone()
 				b = reader.attributes().value("blue").toInt();
 				a = reader.attributes().value("alpha").toInt();
 			}
+
+			// IMPORTANT: consumes the <color> tag
+			reader.readElementText();
 		} else
 			reader.skipCurrentElement();
 	}

@@ -51,6 +51,10 @@ void ConstantDiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 	// Draw enclosure
 	painter->drawRoundedRect(QRectF(x0, y0, w, h), 5, 5);
+	// Fill enclosure (use a QPainterPath because there's no fillRoundedRect()
+	QPainterPath encPath;
+	encPath.addRoundedRect(QRectF(x0, y0, w, h), 5, 5);
+	painter->fillPath(encPath, Qt::white);
 
 	// Draw horizontal line to create the space for the function's name, with dashed line
 	pen.setStyle(Qt::DotLine);

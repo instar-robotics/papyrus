@@ -427,6 +427,10 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 	// Draw enclosure
 	painter->drawRoundedRect(QRectF(x0, y0, w, h), 7, 7);
+	// Fill enclosure (use a QPainterPath because there's no fillRoundedRect()
+	QPainterPath encPath;
+	encPath.addRoundedRect(QRectF(x0, y0, w, h), 7, 7);
+	painter->fillPath(encPath, Qt::white);
 
 	// Draw vertical lines to create compartments
 	painter->drawLine(QLineF(m_bWidth / 2.0 - width / 2.0, 1.5 * width, m_bWidth / 2.0 - width / 2.0, m_bHeight - m_tHeight - width));

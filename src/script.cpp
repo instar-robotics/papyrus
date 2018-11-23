@@ -631,9 +631,11 @@ void Script::setUuid(const QUuid &uuid)
 
 void Script::warnAboutModifiedScript()
 {
+	qDebug() << "Warn Modified START";
 	QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
 	QString msg(tr("You should save it to prevent data loss."));
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
+	qDebug() << "Warn Modified END";
 }
 
 QString Script::nodeName() const

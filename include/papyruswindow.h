@@ -136,17 +136,19 @@ private:
 	DevelopmentType m_developmentType;
 	QAction *m_actionRelease;
 	QAction *m_actionDebug;
-	QString m_debugPath;       // Path where to search for description files in DEBUG mode
-	QString m_releasePath;     // Path where to search for description files in RELEASE mode
-	QString m_debugLibPath;    // Path where to search for library files in DEBUG mode
-	QString m_releaseLibPath;  // Path where to search for library files in RELEASE mode
-	QString m_keyFile;         // Path of the key file to crypt / decrypt scrip files
-	QString m_ivFile;          // Path of the IV
-	QString m_lastDir;         // Last directory visited for saving or loading files
-	QTimer *m_autoSaveTimer;   // Timer to trigger auto save for scripts
+	QString m_debugPath;        // Path where to search for description files in DEBUG mode
+	QString m_releasePath;      // Path where to search for description files in RELEASE mode
+	QString m_debugLibPath;     // Path where to search for library files in DEBUG mode
+	QString m_releaseLibPath;   // Path where to search for library files in RELEASE mode
+	QString m_keyFile;          // Path of the key file to crypt / decrypt scrip files
+	QString m_ivFile;           // Path of the IV
+	QString m_lastDir;          // Last directory visited for saving or loading files
+	QTimer *m_autoSaveTimer;    // Timer to trigger auto save for scripts
+	QString m_changelogVersion; // Used to know if we should show the changelog on launch
 
 signals:
 	void toggleDisplayGrid(bool);
+	void launched();
 
 private slots:
 	void filterLibraryNames(const QString &text);
@@ -161,6 +163,7 @@ private slots:
 	void autoSave();
 	void onPropPanelEnter();
 	void onPropPanelEscape();
+	void onLaunched();
 
 	void on_actionExit_triggered();
 
@@ -206,6 +209,7 @@ private slots:
 	void on_actionShow_all_outputs_triggered();
 	void on_actionHide_all_outputs_triggered();
 	void on_actionList_shortcuts_triggered();
+	void on_actionChangelog_triggered(bool isNewRelease = false);
 };
 
 #endif // PAPYRUSWINDOW_H

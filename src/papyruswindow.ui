@@ -69,6 +69,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionList_shortcuts"/>
+    <addaction name="actionChangelog"/>
     <addaction name="separator"/>
     <addaction name="actionAbout_Papyrus"/>
    </widget>
@@ -388,6 +389,15 @@
    </property>
    <property name="text">
     <string>List shortcuts</string>
+   </property>
+  </action>
+  <action name="actionChangelog">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/changelog.svg</normaloff>:/icons/icons/changelog.svg</iconset>
+   </property>
+   <property name="text">
+    <string>CHANGELOG</string>
    </property>
   </action>
  </widget>

@@ -31,6 +31,7 @@
         <file>icons/show.svg</file>
         <file>icons/hide.svg</file>
         <file>icons/shortcut.svg</file>
+        <file>icons/changelog.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -8,6 +8,7 @@
 #include "helpers.h"
 #include "nodeschooser.h"
 #include "constantfunction.h"
+#include "changelog.h"
 
 #include <cryptopp/filters.h>
 #include <cryptopp/aes.h>
@@ -35,6 +36,7 @@
 #include <QSettings>
 #include <QScreen>
 #include <QActionGroup>
+#include <QPlainTextEdit>
 
 #include "hieroglyph/SimpleCmd.h"
 
@@ -273,6 +275,9 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	m_autoSaveTimer = new QTimer(this);
 	connect(m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
 	m_autoSaveTimer->start(AUTOSAVE_PERIOD);
+
+	// Show the changelog
+	QTimer::singleShot(100, this, SLOT(onLaunched()));
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -325,6 +330,7 @@ void PapyrusWindow::readSettings()
 	settings.beginGroup("MainWindow");
 	resize(settings.value("size", availableSize).toSize());
 	move(settings.value("pos", QPoint(33, 33)).toPoint());
+	m_changelogVersion = settings.value("changelogVersion", "").toString();
 	settings.endGroup(); // MainWindow
 
 	settings.beginGroup("Scripts");
@@ -367,6 +373,7 @@ void PapyrusWindow::writeSettings()
 	settings.beginGroup("MainWindow");
 	settings.setValue("size", size());
 	settings.setValue("pos", pos());
+	settings.setValue("changelogVersion", m_changelogVersion);
 	settings.endGroup(); // MainWindow
 
 	settings.beginGroup("Scripts");
@@ -1435,6 +1442,17 @@ void PapyrusWindow::onPropPanelEscape()
 	m_activeScript->scene()->onCancelBtnClicked(true); // boolean has no meaning here
 }
 
+void PapyrusWindow::onLaunched()
+{
+	// When the last read changelog is different from the current version (i,.e. this version is a
+	// new release), automatically show the changelog at startup
+	QString currentVersion = QString("%1.%2.%3").arg(QString::number(MAJOR_VERSION),
+	                                                 QString::number(MINOR_VERSION),
+	                                                 QString::number(BUGFIX_VERSION));
+	if (currentVersion != m_changelogVersion)
+		on_actionChangelog_triggered(true);
+}
+
 /**
  * @brief Fires when the current tab changes. Used to update the pointer to the current active
  *        script.
@@ -1838,4 +1856,41 @@ void PapyrusWindow::on_actionList_shortcuts_triggered()
 
 
 	QMessageBox::about(this, title, desc);
+}
+
+void PapyrusWindow::on_actionChangelog_triggered(bool isNewRelease)
+{
+	QDialog changelogWin(this);
+	changelogWin.setModal(true);
+	changelogWin.setWindowIcon(QIcon(":icons/icons/changelog.svg"));
+	changelogWin.setWindowTitle(tr("CHANGELOG"));
+	changelogWin.setGeometry(0, 0, 800, 600);
+
+	QLabel *winTitle;
+	if (isNewRelease) {
+		winTitle = new QLabel(QString("<span style='color: red;'>New %1 version released:</span> <strong>v%2.%3.%4</strong>!<br>"
+		                              "Take a few minutes to read the CHANGELOG and learn about bug "
+		                              "fixes and new features.").arg(APP_NAME,
+		                                                             QString::number(MAJOR_VERSION),
+		                                                             QString::number(MINOR_VERSION),
+		                                                             QString::number(BUGFIX_VERSION)));
+	} else {
+		winTitle = new QLabel(QString("Here is the changelog for %1.\n"
+		                                  "Newer versions come on top.").arg(APP_NAME));
+	}
+	QTextEdit *changes = new QTextEdit;
+	changes->setReadOnly(true);
+	changes->setText(changelog);
+
+	QVBoxLayout *vLayout = new QVBoxLayout;
+
+	vLayout->addWidget(winTitle);
+	vLayout->addWidget(changes);
+	changelogWin.setLayout(vLayout);
+	changelogWin.exec();
+
+	// When the CHANGELOG is read, flag the current version in the config file, so that it is not
+	m_changelogVersion = QString("%1.%2.%3").arg(QString::number(MAJOR_VERSION),
+	                                             QString::number(MINOR_VERSION),
+	                                             QString::number(BUGFIX_VERSION));
 }

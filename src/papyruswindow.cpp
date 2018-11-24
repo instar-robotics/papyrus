@@ -76,7 +76,9 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	connect(devTypeGroup, SIGNAL(triggered(QAction*)), this, SLOT(updateDevelopmentEnvironment(QAction*)));
 
 	// Then read the QSettings (make sure to call AFTER the above, because we need these actions)
-	readSettings();
+	QString lastOpenedScripts;
+	int lastActive = 0;
+	readSettings(lastOpenedScripts, &lastActive);
 
 	// Before trying to parse the function descriptions, check if we have the path to it, otherwise
 	// ask it
@@ -276,6 +278,14 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	connect(m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
 	m_autoSaveTimer->start(AUTOSAVE_PERIOD);
 
+	// Re-open last opened scripts if we have some.
+	foreach (QString path, lastOpenedScripts.split(' ', QString::SkipEmptyParts)) {
+		openScript(path);
+	}
+
+	// Activate last opened script (will be set to 0 (Home Page) if none or if option is disabled)
+	m_ui->tabWidget->setCurrentIndex(lastActive);
+
 	// Show the changelog
 	QTimer::singleShot(100, this, SLOT(onLaunched()));
 }
@@ -315,7 +325,7 @@ void PapyrusWindow::closeEvent(QCloseEvent *evt)
 /**
  * @brief PapyrusWindow::readSettings reads the application settings and apply them (restore state, preferences, etc.)
  */
-void PapyrusWindow::readSettings()
+void PapyrusWindow::readSettings(QString &lastOpenedScripts, int *lastActiveScript)
 {
 	QSettings settings(ORGA, APP_NAME);
 
@@ -335,6 +345,16 @@ void PapyrusWindow::readSettings()
 
 	settings.beginGroup("Scripts");
 	m_lastDir = settings.value("lastDir", QDir::homePath()).toString();
+	bool reOpen = settings.value("reopen", true).toBool();
+	m_ui->actionReopen_last_scripts->setChecked(reOpen);
+	// Only parse the list of last opened scripts if the option to reopen is set
+	if (reOpen) {
+		lastOpenedScripts = settings.value("lastOpened", "").toString();
+		*lastActiveScript = settings.value("lastActive", 0).toInt();
+	} else {
+		lastOpenedScripts = "";
+		*lastActiveScript = 0;
+	}
 	settings.endGroup();
 
 	// View settings regarding the scripts (grid toggled, antialiasing, etc.)
@@ -378,6 +398,13 @@ void PapyrusWindow::writeSettings()
 
 	settings.beginGroup("Scripts");
 	settings.setValue("lastDir", m_lastDir);
+	settings.setValue("reopen", m_ui->actionReopen_last_scripts->isChecked());
+	QString openedScripts;
+	foreach (Script *script, m_scripts) {
+		openedScripts += script->filePath() + " ";
+	}
+	settings.setValue("lastOpened", openedScripts.trimmed());
+	settings.setValue("lastActive", m_ui->tabWidget->currentIndex()); // Save current active script
 	settings.endGroup();
 
 	// Save the view settings
@@ -992,118 +1019,7 @@ void PapyrusWindow::on_actionSave_Script_triggered()
 
 void PapyrusWindow::on_actionOpen_Script_triggered()
 {
-	QString scriptPath = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
-	                                                  m_lastDir,
-	                                                  tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
-
-
-	// Make sure the user selected a file
-	if (scriptPath.isEmpty()) {
-		emit displayStatusMessage(tr("Abort opening script: no selected file."), MSG_INFO);
-		return;
-	}
-
-	// Check if there is an .autosave file associated to it and offer to load it instead to the user
-	QFile autoSavedFile(scriptPath + ".autosave");
-
-	if (autoSavedFile.exists()) {
-		if (QMessageBox::question(this,
-		                          tr("Open autosaved file instead?"),
-		                          tr("We have found an autosaved version of the script file you"
-		                             " are trying to open. This is most likely due to a previous"
-		                             " crash and some modifications were not saved.\n\n"
-		                             "Do you want to open the autosaved version instead?")) == QMessageBox::Yes) {
-			scriptPath = scriptPath + ".autosave";
-		}
-	}
-
-	// Check if the file is an encrypted file, and if yes, decrypt it
-	QFileInfo fi(scriptPath);
-	if (fi.completeSuffix() == "xml.crypted") {
-		// Check that the user has filled in a key and iv path
-		if (m_keyFile.isEmpty() || m_ivFile.isEmpty()) {
-			QMessageBox::warning(NULL, tr("Missing crypto information"),
-			                     tr("You are trying to decrypt an encrypted script file, for "
-			                        "this, we need a decryption key and IV.\nWe "
-			                        "detected that at least one is missing. You will be prompted for"
-			                        " paths in the next window, read the dialog's titles in order to"
-			                        " provide either the key or the IV (don't get them mixed!)."));
-		}
-
-		if (m_keyFile.isEmpty()) {
-			m_keyFile = QFileDialog::getOpenFileName(this, tr("Please provide the KEY file"),
-			                                         tr("/home"),
-			                                         "Key files (*)");
-		}
-
-		if (m_ivFile.isEmpty()) {
-			m_ivFile = QFileDialog::getOpenFileName(this, tr("Please provide the IV file"),
-			                                        tr("/home"),
-			                                        "IV files (*)");
-		}
-
-		// Make another check to be sure the user did not cancel
-		if (m_keyFile.isEmpty() || m_ivFile.isEmpty()) {
-			QMessageBox::warning(NULL, tr("Loading aborted"),
-			                     tr("The script was not loaded because you failed to provide either "
-			                        "the key or the IV file for decryption."));
-			return;
-		}
-
-		// Check that we can read the key and IV
-		if (!fileExists(m_keyFile.toStdString()) || !fileExists(m_ivFile.toStdString())) {
-			QMessageBox::warning(NULL, tr("Encryption key and IV not found"),
-			                     tr("We could not open this encrypted script file because either the"
-			                        " key of the IV file could not be found."));
-			return;
-		}
-
-		// Read and store key
-		std::string key;
-		CryptoPP::FileSource fkey(m_keyFile.toStdString().c_str(), true,
-		                          new CryptoPP::HexDecoder(
-		                              new CryptoPP::StringSink(key)));
-
-		// Read and store iv
-		std::string iv;
-		CryptoPP::FileSource fiv(m_ivFile.toStdString().c_str(), true,
-		                         new CryptoPP::HexDecoder(
-		                             new CryptoPP::StringSink(iv)));
-
-		Q_UNUSED(fkey);
-		Q_UNUSED(fiv);
-
-		// Create decryptor
-		CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
-		dec.SetKeyWithIV(reinterpret_cast<const byte *>(key.data()),
-		                 key.size(),
-		                 reinterpret_cast<const byte *>(iv.data()));
-
-		QString tmpDestFile(scriptPath);
-		tmpDestFile.replace(".crypted", ".decrypted");
-
-		// Decrypt the file
-		CryptoPP::FileSource f(scriptPath.toStdString().c_str(), true,
-		                       new CryptoPP::StreamTransformationFilter(dec,
-		                                                                new CryptoPP::FileSink(tmpDestFile.toStdString().c_str())));
-
-		Script *newScript = parseXmlScriptFile(tmpDestFile);
-
-		if (newScript != NULL) {
-			// Remove the temporary clear file used to decrypt
-			QFile::remove(tmpDestFile);
-
-			// Assign the script its new filepath (remove ".decrypted" extension)
-			newScript->setFilePath(tmpDestFile.replace(".decrypted", ""));
-
-			// Also set the script as encrypted
-			newScript->setEncrypt(true);
-		}
-	} else {
-		parseXmlScriptFile(scriptPath);
-	}
-
-	m_lastDir = fi.absoluteDir().canonicalPath();
+	openScript();
 }
 
 Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
@@ -1451,6 +1367,128 @@ void PapyrusWindow::onLaunched()
 	                                                 QString::number(BUGFIX_VERSION));
 	if (currentVersion != m_changelogVersion)
 		on_actionChangelog_triggered(true);
+}
+
+void PapyrusWindow::openScript(QString path)
+{
+	QString scriptPath;
+
+	// Used when we want to re-open last opene scripts and don't need/want to open dialog
+	if (!path.isEmpty())
+		scriptPath = path;
+	else
+		scriptPath = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
+		                                          m_lastDir,
+		                                          tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
+
+
+	// Make sure the user selected a file
+	if (scriptPath.isEmpty()) {
+		emit displayStatusMessage(tr("Abort opening script: no selected file."), MSG_INFO);
+		return;
+	}
+
+	// Check if there is an .autosave file associated to it and offer to load it instead to the user
+	QFile autoSavedFile(scriptPath + ".autosave");
+
+	if (autoSavedFile.exists()) {
+		if (QMessageBox::question(this,
+		                          tr("Open autosaved file instead?"),
+		                          tr("We have found an autosaved version of the script file you"
+		                             " are trying to open. This is most likely due to a previous"
+		                             " crash and some modifications were not saved.\n\n"
+		                             "Do you want to open the autosaved version instead?")) == QMessageBox::Yes) {
+			scriptPath = scriptPath + ".autosave";
+		}
+	}
+
+	// Check if the file is an encrypted file, and if yes, decrypt it
+	QFileInfo fi(scriptPath);
+	if (fi.completeSuffix() == "xml.crypted") {
+		// Check that the user has filled in a key and iv path
+		if (m_keyFile.isEmpty() || m_ivFile.isEmpty()) {
+			QMessageBox::warning(NULL, tr("Missing crypto information"),
+			                     tr("You are trying to decrypt an encrypted script file, for "
+			                        "this, we need a decryption key and IV.\nWe "
+			                        "detected that at least one is missing. You will be prompted for"
+			                        " paths in the next window, read the dialog's titles in order to"
+			                        " provide either the key or the IV (don't get them mixed!)."));
+		}
+
+		if (m_keyFile.isEmpty()) {
+			m_keyFile = QFileDialog::getOpenFileName(this, tr("Please provide the KEY file"),
+			                                         tr("/home"),
+			                                         "Key files (*)");
+		}
+
+		if (m_ivFile.isEmpty()) {
+			m_ivFile = QFileDialog::getOpenFileName(this, tr("Please provide the IV file"),
+			                                        tr("/home"),
+			                                        "IV files (*)");
+		}
+
+		// Make another check to be sure the user did not cancel
+		if (m_keyFile.isEmpty() || m_ivFile.isEmpty()) {
+			QMessageBox::warning(NULL, tr("Loading aborted"),
+			                     tr("The script was not loaded because you failed to provide either "
+			                        "the key or the IV file for decryption."));
+			return;
+		}
+
+		// Check that we can read the key and IV
+		if (!fileExists(m_keyFile.toStdString()) || !fileExists(m_ivFile.toStdString())) {
+			QMessageBox::warning(NULL, tr("Encryption key and IV not found"),
+			                     tr("We could not open this encrypted script file because either the"
+			                        " key of the IV file could not be found."));
+			return;
+		}
+
+		// Read and store key
+		std::string key;
+		CryptoPP::FileSource fkey(m_keyFile.toStdString().c_str(), true,
+		                          new CryptoPP::HexDecoder(
+		                              new CryptoPP::StringSink(key)));
+
+		// Read and store iv
+		std::string iv;
+		CryptoPP::FileSource fiv(m_ivFile.toStdString().c_str(), true,
+		                         new CryptoPP::HexDecoder(
+		                             new CryptoPP::StringSink(iv)));
+
+		Q_UNUSED(fkey);
+		Q_UNUSED(fiv);
+
+		// Create decryptor
+		CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption dec;
+		dec.SetKeyWithIV(reinterpret_cast<const byte *>(key.data()),
+		                 key.size(),
+		                 reinterpret_cast<const byte *>(iv.data()));
+
+		QString tmpDestFile(scriptPath);
+		tmpDestFile.replace(".crypted", ".decrypted");
+
+		// Decrypt the file
+		CryptoPP::FileSource f(scriptPath.toStdString().c_str(), true,
+		                       new CryptoPP::StreamTransformationFilter(dec,
+		                                                                new CryptoPP::FileSink(tmpDestFile.toStdString().c_str())));
+
+		Script *newScript = parseXmlScriptFile(tmpDestFile);
+
+		if (newScript != NULL) {
+			// Remove the temporary clear file used to decrypt
+			QFile::remove(tmpDestFile);
+
+			// Assign the script its new filepath (remove ".decrypted" extension)
+			newScript->setFilePath(tmpDestFile.replace(".decrypted", ""));
+
+			// Also set the script as encrypted
+			newScript->setEncrypt(true);
+		}
+	} else {
+		parseXmlScriptFile(scriptPath);
+	}
+
+	m_lastDir = fi.absoluteDir().canonicalPath();
 }
 
 /**
@@ -1893,4 +1931,9 @@ void PapyrusWindow::on_actionChangelog_triggered(bool isNewRelease)
 	m_changelogVersion = QString("%1.%2.%3").arg(QString::number(MAJOR_VERSION),
 	                                             QString::number(MINOR_VERSION),
 	                                             QString::number(BUGFIX_VERSION));
+}
+
+void PapyrusWindow::on_actionReopen_last_scripts_triggered()
+{
+
 }

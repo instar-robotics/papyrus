@@ -108,6 +108,7 @@
      <addaction name="actionEdit_paths"/>
     </widget>
     <addaction name="menuDevelopment"/>
+    <addaction name="actionReopen_last_scripts"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOptions"/>
@@ -398,6 +399,17 @@
    </property>
    <property name="text">
     <string>CHANGELOG</string>
+   </property>
+  </action>
+  <action name="actionReopen_last_scripts">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Reopen last scripts</string>
    </property>
   </action>
  </widget>

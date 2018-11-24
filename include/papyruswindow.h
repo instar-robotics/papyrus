@@ -53,7 +53,7 @@ public:
 
 	void closeEvent(QCloseEvent *evt);
 
-	void readSettings();
+	void readSettings(QString &lastOpenedScripts, int *lastActiveScript);
 	void writeSettings();
 	Script *parseXmlScriptFile(const QString &scriptPath);
 	void askForPath(bool displayWarning, const PathType &pathType);
@@ -164,6 +164,7 @@ private slots:
 	void onPropPanelEnter();
 	void onPropPanelEscape();
 	void onLaunched();
+	void openScript(QString path = "");
 
 	void on_actionExit_triggered();
 
@@ -210,6 +211,7 @@ private slots:
 	void on_actionHide_all_outputs_triggered();
 	void on_actionList_shortcuts_triggered();
 	void on_actionChangelog_triggered(bool isNewRelease = false);
+	void on_actionReopen_last_scripts_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

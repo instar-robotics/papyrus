@@ -10,6 +10,7 @@
 #include "rossession.h"
 #include "types.h"
 #include "xmldescriptionreader.h"
+#include "token.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -145,6 +146,7 @@ private:
 	QString m_lastDir;          // Last directory visited for saving or loading files
 	QTimer *m_autoSaveTimer;    // Timer to trigger auto save for scripts
 	QString m_changelogVersion; // Used to know if we should show the changelog on launch
+	QTimer *m_checkVersionTimer; // Timer that periodically check for new version release
 
 signals:
 	void toggleDisplayGrid(bool);
@@ -165,6 +167,7 @@ private slots:
 	void onPropPanelEscape();
 	void onLaunched();
 	void openScript(QString path = "");
+	void checkForNewRelease();
 
 	void on_actionExit_triggered();
 

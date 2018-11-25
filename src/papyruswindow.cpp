@@ -37,6 +37,8 @@
 #include <QScreen>
 #include <QActionGroup>
 #include <QPlainTextEdit>
+#include <QRegularExpression>
+#include <QProcess>
 
 #include "hieroglyph/SimpleCmd.h"
 
@@ -55,7 +57,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_runTimeDisplay(NULL),
     m_actionRelease(NULL),
     m_actionDebug(NULL),
-    m_lastDir(QDir::homePath())
+    m_lastDir(QDir::homePath()),
+    m_checkVersionTimer(nullptr)
 {
 	// First of all set the UI according to the UI file (MUST be called before the rest)
 	m_ui->setupUi(this);
@@ -285,6 +288,11 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
 	// Activate last opened script (will be set to 0 (Home Page) if none or if option is disabled)
 	m_ui->tabWidget->setCurrentIndex(lastActive);
+
+	// Launch timer to periodically check for a new release
+	m_checkVersionTimer = new QTimer(this);
+	connect(m_checkVersionTimer, SIGNAL(timeout()), this, SLOT(checkForNewRelease()));
+	m_checkVersionTimer->start(60000); // every 1 minute
 
 	// Show the changelog
 	QTimer::singleShot(100, this, SLOT(onLaunched()));
@@ -1267,6 +1275,64 @@ void PapyrusWindow::updateButtonsState()
 		m_ui->actionRun->setToolTip(tr("Launch script"));
 		m_ui->actionStop->setEnabled(false);
 		m_ui->actionScope->setEnabled(false);
+	}
+}
+
+void PapyrusWindow::checkForNewRelease()
+{
+	int fullV = MAJOR_VERSION * 100 + MINOR_VERSION * 10 + BUGFIX_VERSION;
+	static int lastWarning = 0; // holds version of the last warning
+	int newVersion;
+
+	QString cmd = "git";
+	QStringList args;
+	args << "ls-remote" << "--tags"
+	     << QString("https://%1:%2@git.instar-robotics.com/software/NeuralNetwork/papyrus.git")
+	        .arg(GITLAB_TOKEN, GITLAB_PWD);
+
+	QProcess *process = new QProcess(this);
+	process->start(cmd, args);
+
+	bool foundNewRelease = false;
+	int newReleaseMajor = 0;
+	int newReleaseMinor = 0;
+	int newReleaseBugfix = 0;
+
+	if (process->waitForFinished(5000)) {
+		QString results(process->readAll());
+		QStringList tags = results.split('\n', QString::SkipEmptyParts);
+
+		foreach (QString tag, tags) {
+			QRegularExpression regexp(".*(\\d).(\\d).(\\d)\\^{}");
+			QRegularExpressionMatch match = regexp.match(tag);
+			if (match.hasMatch() ) {
+				newVersion = match.captured(1).toInt() * 100
+				        + match.captured(2).toInt() * 10
+				        + match.captured(3).toInt();
+
+				if (newVersion > fullV) {
+					foundNewRelease = true;
+					newReleaseMajor = match.captured(1).toInt();
+					newReleaseMinor = match.captured(2).toInt();
+					newReleaseBugfix = match.captured(3).toInt();
+				}
+			}
+		}
+
+		if (foundNewRelease && newVersion != lastWarning) {
+			lastWarning = newVersion; // Update the last warning so that the message is not shown again
+
+			QMessageBox::information(this, "New Papyrus release available!",
+			                         QString(tr("You are currently using version %1.%2.%3 of Papyrus, but a "
+			                                    "new release: <strong>v%4.%5.%6</strong> is now available.\nPlease upgrade "
+			                                    "your version and read the CHANGELOG to learn about bugfixes"
+			                                    " and new features!").arg(QString::number(MAJOR_VERSION),
+			                                                              QString::number(MINOR_VERSION),
+			                                                              QString::number(BUGFIX_VERSION),
+			                                                              QString::number(newReleaseMajor),
+			                                                              QString::number(newReleaseMinor),
+			                                                              QString::number(newReleaseBugfix))));
+		}
 	}
 }
 

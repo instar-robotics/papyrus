@@ -240,6 +240,9 @@ void Zone::updateGroup(bool startFromScratch)
 			QPointF savedPos = child->scenePos();
 			child->setParentItem(nullptr);
 			child->setPos(savedPos);
+			// This is a dirty trick to trigger the itemPositionChanged event so that links are redrawn
+			child->moveBy(0.1, 0);
+			child->moveBy(-0.1, 0);
 		}
 	}
 

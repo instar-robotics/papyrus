@@ -95,7 +95,7 @@ void XmlDescriptionReader::readOneFunction(const QString &libName, const QString
 		} else if (reader.name() == "desc") {
 			readFunctionDesc(function);
 		} else {
-			qWarning() << QString("Skipping unsupported tag <%1>").arg(reader.name());
+			qWarning() << QString("Skipping unsupported tag <%1>").arg(reader.name().toString());
 			reader.skipCurrentElement();
 		}
 	}

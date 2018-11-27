@@ -11,16 +11,15 @@
  */
 class DiagramView : public QGraphicsView
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit DiagramView(QWidget *parent = 0);
-    DiagramView(QGraphicsScene *scene, QWidget *parent = 0);
-    ~DiagramView();
+	explicit DiagramView(QWidget *parent = 0);
+	DiagramView(QGraphicsScene *scene, QWidget *parent = 0);
 
 signals:
 
 protected:
-    void wheelEvent(QWheelEvent *evt);
+	void wheelEvent(QWheelEvent *evt);
 
 public slots:
 };

@@ -164,7 +164,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 		description_ = description;
 
 		description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-		QStringList categories = description_.entryList();
+		QStringList categories = description_.entryList(QDir::NoFilter, QDir::Name | QDir::Reversed);
 
 		// Create one 'Tree Root' per category
 		for (int i = 0; i < categories.size(); i += 1) {
@@ -1212,7 +1212,7 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
 	foreach (QString descFile, descriptionFiles) {
 		QFile xmlFile(dir.absoluteFilePath(descFile));
 		if (!xmlFile.open(QFile::ReadOnly | QFile::Text)) {
-			qDebug() << "\t[X] Could not open file" << descFile << "for parsing";
+			qWarning() << "Could not open file" << descFile << "for parsing";
 			m_libraryParsingErrors += 1;
 			break;
 		}
@@ -1220,7 +1220,7 @@ void PapyrusWindow::parseOneLevel(QDir dir, XmlDescriptionReader *xmlReader)
 		// Read the XML file
 		if (!xmlReader->read(&xmlFile, xmlFile.fileName())) {
 			m_libraryParsingErrors += 1;
-			qWarning() << "\t[X] Failed to parse " << xmlFile.fileName();
+			qWarning() << "Failed to parse " << xmlFile.fileName();
 		}
 	}
 

@@ -49,11 +49,17 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 
+/**
+ * @brief DiagramScene::~DiagramScene cleans up
+ * Reminder: it has ownership of the @Script
+ */
 DiagramScene::~DiagramScene()
 {
 	delete m_line;
+	m_line = nullptr;
 	// do not call delete on m_oSlot because it's only a cast and not something we created
 	delete m_script;
+	m_script = nullptr;
 }
 
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
@@ -739,8 +745,17 @@ Script *DiagramScene::script() const
 	return m_script;
 }
 
+/**
+ * @brief DiagramScene::setScript sets this scene's script.
+ * NOTE: the @DiagramScene takes ownership of the @Script
+ * @param script the @Script to set for this scene
+ */
 void DiagramScene::setScript(Script *script)
 {
+	if (script == nullptr) {
+		qWarning() << "Trying to set DiagramScene's scritp to Null pointer";
+		return;
+	}
 	m_script = script;
 }
 

@@ -409,6 +409,10 @@ void PapyrusWindow::writeSettings()
 	settings.setValue("reopen", m_ui->actionReopen_last_scripts->isChecked());
 	QString openedScripts;
 	foreach (Script *script, m_scripts) {
+		if (script == nullptr) {
+			qWarning() << "Null pointer hanging in m_scripts (writeSettings())";
+			continue;
+		}
 		openedScripts += script->filePath() + " ";
 	}
 	settings.setValue("lastOpened", openedScripts.trimmed());
@@ -464,6 +468,11 @@ void PapyrusWindow::on_actionExit_triggered()
 	// Check if there are unsaved scripts and warn user before quitting
 	bool unsavedScripts = false;
 	foreach (Script *script, m_scripts) {
+		if (script == nullptr) {
+			qWarning() << "Null pointer hanging in m_scripts (actionExit())";
+			continue;
+		}
+
 		if (script->modified()) {
 			unsavedScripts = true;
 			break;
@@ -481,6 +490,11 @@ void PapyrusWindow::on_actionExit_triggered()
 			case QMessageBox::SaveAll:
 				// Make a pass to save all scripts
 				foreach (Script *script, m_scripts) {
+					if (script == nullptr) {
+						qWarning() << "Null pointer hanging in m_scripts (actionExit())";
+						continue;
+					}
+
 					if (script->modified()) {
 						script->save(getDescriptionPath());
 					}
@@ -488,6 +502,11 @@ void PapyrusWindow::on_actionExit_triggered()
 
 				// Make another pass to check no scripts have been ignored ('save()' should return the status
 				foreach (Script *script, m_scripts) {
+					if (script == nullptr) {
+						qWarning() << "Null pointer hanging in m_scripts (actionExit())";
+						continue;
+					}
+
 					if (script->modified()) {
 						QMessageBox::warning(this, tr("There are still some unsaved scripts"),
 						                     tr("Some scripts are still unsaved, abort exit."));
@@ -897,6 +916,11 @@ std::set<Script *> PapyrusWindow::getScripts() const
  */
 void PapyrusWindow::addScript(Script *script)
 {
+	if (script == nullptr) {
+		qWarning() << "Trying to add a Null pointer to m_scripts (addScript())";
+		return;
+	}
+
 	m_scripts.insert(script);
 }
 
@@ -1381,6 +1405,11 @@ void PapyrusWindow::categoryExpanded(QTreeWidgetItem *item)
 void PapyrusWindow::autoSave()
 {
 	foreach (Script *script, m_scripts) {
+		if (script == nullptr) {
+			qWarning() << "Null pointer hanging in m_scripts (autosave)";
+			continue;
+		}
+
 		// Do not activate autosave if the script doesn't have a filepath (i.e. was not saved even once)
 		if (script->filePath().isEmpty())
 			return;
@@ -1685,73 +1714,85 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
 	}
 }
 
+/**
+ * @brief PapyrusWindow::on_actionClose_Script_triggered closes the current active script
+ */
 void PapyrusWindow::on_actionClose_Script_triggered()
 {
 	DiagramView *view = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
-	if (view == NULL) {
+	if (view == nullptr) {
 		m_ui->statusBar->showMessage(tr("Could not close script: no script open!"));
 		return;
 	}
 
 	DiagramScene *scene = dynamic_cast<DiagramScene *>(view->scene());
-	if (scene == NULL) {
-		qFatal("Could not close script: failed to get the associated scene.");
+	if (scene == nullptr) {
+		qWarning("DiagramView doesn't have an associated scene!");
+		return;
+	}
+
+	Script *script = scene->script();
+	if (script == nullptr) {
+		qWarning() << "DiagramScene doesn't have an associated script!";
 		return;
 	}
 
 	int currIdx = m_ui->tabWidget->currentIndex();
-	QString scriptName = scene->script()->name();
+
+	QString scriptName = script->name();
+
+	bool discarded = false;
 
 	// Check if the script has unsaved modifications
-	if (scene->script()->modified()) {
+	if (script->modified()) {
 		switch (QMessageBox::question(this, tr("Save unsaved script?"),
 		                              tr("This script have unsaved changes that will be lost if you close it now.\n"
 		                                 "Do you want to save them?"),
 		                              QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel)) {
 			case QMessageBox::Cancel:
 				m_ui->statusBar->showMessage(tr("Cancel closing."));
+			    return;
 			break;
 
 			case QMessageBox::Save:
 				// Save this script
-				scene->script()->save(getDescriptionPath());
+				script->save(getDescriptionPath());
 
 				// Make another pass to check that the script was indeed saved
-				if (scene->script()->modified()) {
+				if (script->modified()) {
 					QMessageBox::warning(this, tr("Script still unsaved"),
-					                     tr("This script was still nto saved, exit aborted."));
-					break;
+					                     tr("This script was still not saved, exit aborted."));
+					return;
 				}
-
-				// Remove the tab containing this widget
-				m_ui->tabWidget->removeTab(currIdx);
-
-				// Destroy the view
-				delete view;
-				m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
 			break;
 
 			case QMessageBox::Discard:
-				// Remove the tab containing this widget
-				m_ui->tabWidget->removeTab(currIdx);
-
-				// Destroy the view
-				delete view;
-				m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed (changes discarded)"));
+				discarded = true;
 			break;
 
 			default:
-				m_ui->statusBar->showMessage(tr("Cancel closing."));
+				informUserAndCrash(tr("Unsupported case when closing script."));
 		}
-	} else {
-		// Close the script directly if it has no unsaved changes
-		// Remove the tab containing this widget
-		m_ui->tabWidget->removeTab(currIdx);
-
-		// Destroy the view
-		delete view;
-		m_ui->statusBar->showMessage(tr("Script ") + scriptName + tr(" closed."));
 	}
+
+	// Remove the tab containing this widget
+	m_ui->tabWidget->removeTab(currIdx);
+
+	// Remove the script from the list of scripts
+	m_scripts.erase(script);
+
+	// Destroy the view (MUST be done as removeTab() doesn't delete the page widget)
+	delete view;
+	view = nullptr;
+
+	// Destroy the scene (which has ownership of the script)
+	delete scene;
+	scene = nullptr;
+
+	if (discarded)
+		m_ui->statusBar->showMessage(tr("Script %1 closed (changes discarded)").arg(scriptName));
+	else
+		m_ui->statusBar->showMessage(tr("Script %1 closed.").arg(scriptName));
 }
 
 /**
@@ -1780,8 +1821,10 @@ void PapyrusWindow::on_actionConnect_triggered()
 		if (!selectedNode.isEmpty()) {
 			bool found = false;
 			foreach (Script *script, m_scripts) {
-				if (script == nullptr)
+				if (script == nullptr) {
+					qWarning() << "Null pointer hanging in m_scripts (actionConnect())";
 					continue;
+				}
 
 				if (script->nodeName() == selectedNode) {
 					found = true;

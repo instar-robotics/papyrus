@@ -10,22 +10,16 @@
 
 DiagramView::DiagramView(QWidget *parent) : QGraphicsView(parent)
 {
-    // Make it so that transformations (essentially zooming) are centered on mouse
-    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    setMouseTracking(true);
-    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-    setDragMode(QGraphicsView::RubberBandDrag);
+	// Make it so that transformations (essentially zooming) are centered on mouse
+	setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	setMouseTracking(true);
+	setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+	setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 DiagramView::DiagramView(QGraphicsScene *scene, QWidget *parent) : DiagramView(parent)
 {
-    setScene(scene);
-}
-
-// Destroy the associated scene
-DiagramView::~DiagramView()
-{
-    delete scene();
+	setScene(scene);
 }
 
 /**
@@ -33,16 +27,16 @@ DiagramView::~DiagramView()
  */
 void DiagramView::wheelEvent(QWheelEvent *evt)
 {
-    // Zoom if CTRL is pressed while scrolling
-    if (evt->modifiers() & Qt::ControlModifier) {
+	// Zoom if CTRL is pressed while scrolling
+	if (evt->modifiers() & Qt::ControlModifier) {
 
-        // Handle direction of zoom
-        if (evt->delta() > 0)
-            scale(SCALE_FACTOR, SCALE_FACTOR);
-        else
-            scale(1 / SCALE_FACTOR, 1 / SCALE_FACTOR);
-    } else {
-        // If CTRL is not pressed, simply scroll
-        QGraphicsView::wheelEvent(evt);
-    }
+		// Handle direction of zoom
+		if (evt->delta() > 0)
+			scale(SCALE_FACTOR, SCALE_FACTOR);
+		else
+			scale(1 / SCALE_FACTOR, 1 / SCALE_FACTOR);
+	} else {
+		// If CTRL is not pressed, simply scroll
+		QGraphicsView::wheelEvent(evt);
+	}
 }

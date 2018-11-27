@@ -28,19 +28,16 @@ LibraryPanel::LibraryPanel(QWidget *parent) : QTreeWidget(parent)
 
 void LibraryPanel::dragEnterEvent(QDragEnterEvent *evt)
 {
-	std::cout << "Entering drag on library" << std::endl;
 	evt->accept();
 }
 
 void LibraryPanel::dragMoveEvent(QDragMoveEvent *evt)
 {
-	std::cout << "Move drag on library" << std::endl;
 	evt->accept();
 }
 
 void LibraryPanel::dropEvent(QDropEvent *evt)
 {
-	std::cout << "Drop on library" << std::endl;
 	evt->accept();
 }
 

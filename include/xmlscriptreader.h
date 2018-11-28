@@ -5,6 +5,7 @@
 #include "diagrambox.h"
 #include "outputslot.h"
 #include "inputslot.h"
+#include "library.h"
 
 #include <QXmlStreamReader>
 #include <QUuid>
@@ -17,7 +18,7 @@
 class XmlScriptReader
 {
 public:
-	explicit XmlScriptReader(Script *script, const QString &descriptionPath);
+	explicit XmlScriptReader(Script *script, const QString &descriptionPath, Library *library);
 	bool read(QIODevice *device);
 
 	QString errorString() const;
@@ -25,12 +26,16 @@ public:
 	QPointF centerView() const;
 	void setCenterView(const QPointF &centerView);
 
+	Library *library() const;
+	void setLibrary(Library *library);
+
 private:
 	QXmlStreamReader reader;
 	QString m_errorString;
 	Script *m_script;
 	QString m_descriptionPath;
 	QPointF m_centerView;
+	Library *m_library;
 
 	void readScript();
 	void readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
@@ -46,8 +51,6 @@ private:
 	void readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols);
 	void readUUID(QUuid *uuid);
 	void readPosition(QPointF *pos);
-	void readDescription(QString &descriptionPath);
-	void readIcon(QString &iconFilepath);
 	void readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
 	               std::set<std::pair<QUuid, Link *> > *incompleteLinks);
 	void readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

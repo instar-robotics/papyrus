@@ -6,9 +6,11 @@
 #include <QDebug>
 #include <iostream>
 
-XmlScriptReader::XmlScriptReader(Script *script, const QString &descriptionPath) : m_script(script),
+XmlScriptReader::XmlScriptReader(Script *script, const QString &descriptionPath, Library *library) :
+    m_script(script),
     m_descriptionPath(descriptionPath),
-    m_centerView(0, 0)
+    m_centerView(0, 0),
+    m_library(library)
 {
 	// Set script's default value to detect XML parsing errors
 	m_script->setUuid(QUuid());
@@ -48,6 +50,16 @@ QPointF XmlScriptReader::centerView() const
 void XmlScriptReader::setCenterView(const QPointF &centerView)
 {
 	m_centerView = centerView;
+}
+
+Library *XmlScriptReader::library() const
+{
+	return m_library;
+}
+
+void XmlScriptReader::setLibrary(Library *library)
+{
+	m_library = library;
 }
 
 // TODO: it should be a while(readNextElement()) and use decidated functions such as
@@ -222,14 +234,13 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QString title;
 	QString libname;
 	bool save = false;
-	QString descriptionFile;
-	QString iconFilepath;
 	OutputSlot *outputSlot = new OutputSlot;
 	int rows = 0;
 	int cols = 0;
 	std::vector<InputSlot *> inputSlots;
 	QUuid uuid;
 	QString topic;
+	QString iconFilePath = ":icons/icons/missing-icon.svg";
 	bool publish;
 
 	readUUID(&uuid);
@@ -251,23 +262,45 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			readOutputSlot(outputSlot, &rows, &cols);
 		else if (reader.name() == "position")
 			readPosition(&pos);
-		else if (reader.name() == "description")
-			readDescription(descriptionFile);
-		else if (reader.name() == "icon")
-			readIcon(iconFilepath);
 		else {
-			qWarning() << "Unsupported tag <" << reader.name() << ">, skipping";
+			qWarning() << QString("Unsupported tag <%1>, skipping").arg(reader.name().toString());
 			reader.skipCurrentElement();
 		}
 	}
 
 	// We should check (somehow) that the parsing for this box was okay before adding it
-	QIcon icon;
-	QFile f(iconFilepath);
-	if (f.exists())
-		icon = QIcon(iconFilepath);
-	else
-		icon = QIcon(":/icons/icons/missing-icon.svg");
+	QIcon icon(":/icons/icons/missing-icon.svg");
+	// TODO read Icon
+
+	// Traverse the library to find the Function with the given name, and extract information from it
+	if (m_library == nullptr)
+		informUserAndCrash(QObject::tr("Could not parse script because no library provided!"));
+
+	bool functionFound = false;
+	foreach (Category *category, m_library->categories()) {
+		if (functionFound)
+			break;
+
+		int nbFunctions = category->childCount();
+		for (int i = 0; i < nbFunctions; i += 1) {
+			Function *f = dynamic_cast<Function *>(category->child(i));
+			if (f == nullptr) {
+				qWarning() << "Found non Function item while traversing Category" << category->name();
+				continue;
+			}
+
+			// If we found the function in the library, extract its information
+			if (f->name() == name) {
+				icon = QIcon(f->iconFilepath());
+				iconFilePath = f->iconFilepath();
+				functionFound = true;
+				break;
+			}
+		}
+	}
+
+	if (!functionFound)
+		qDebug() << "Function" << name << "NOT FOUND";
 
 	DiagramBox *b;
 	if (reader.name() == "constant")
@@ -277,17 +310,15 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 		b->setTitle(title);
 		b->setLibname(libname);
-		b->setDescriptionFile(descriptionFile);
 		b->setSaveActivity(save);
 		b->setPublish(publish);
 		if (!topic.isEmpty())
 			b->setTopic(topic);
 	}
 
+	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);
-	b->setIconFilepath(iconFilepath);
-
 	m_script->scene()->addBox(b, pos);
 
 	// TODO: check all links for invalidity and set script's invalidity
@@ -608,46 +639,6 @@ void XmlScriptReader::readZone()
 	zone->setTitle(title);
 	m_script->scene()->addItem(zone);
 	zone->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
-}
-
-
-void XmlScriptReader::readDescription(QString &descriptionFile)
-{
-	Q_ASSERT(reader.isStartElement() && reader.name() == "description");
-
-	QString description = reader.readElementText();
-
-	if (description.isEmpty()) {
-		reader.raiseError(QObject::tr("Empty description file."));
-	} else {
-		// Preprend the description path to make it from relative (in the file) to absolute
-		// Make sure NOT to prepend if path is already absolute or begins with ":" (this is a
-		// resource in this case
-		if (description.startsWith("/") || description.startsWith(":"))
-			descriptionFile = description;
-		else
-			descriptionFile = m_descriptionPath + "/" + description;
-	}
-}
-
-void XmlScriptReader::readIcon(QString &iconFilepath)
-{
-	Q_ASSERT(reader.isStartElement() && reader.name() == "icon");
-
-	QString icon = reader.readElementText();
-
-	if (icon.isEmpty()) {
-		reader.raiseError(QObject::tr("Empty icon, setting missing icon."));
-		iconFilepath = ":/icons/icons/missing-icon.svg";
-	} else {
-		// Preprend the description path to make it from relative (in the file) to absolute
-		// Make sure NOT to prepend if path is already absolute or begins with ":" (this is a
-		// resource in this case
-		if (icon.startsWith("/") || icon.startsWith(":"))
-			iconFilepath = icon;
-		else
-			iconFilepath = m_descriptionPath + "/" + icon;
-	}
 }
 
 void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

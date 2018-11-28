@@ -169,7 +169,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 		// Create one 'Tree Root' per category
 		for (int i = 0; i < categories.size(); i += 1) {
 			// Add the category in the Tree Widget
-			Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));\
+			Category *newCategory = addTreeRoot(snakeCaseToPretty(categories[i]));
 			XmlDescriptionReader *xmlReader = new XmlDescriptionReader(newCategory);
 
 			parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
@@ -196,6 +196,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 		constants->addChild(constantScalar);
 		constants->addChild(constantString);
 		constants->addChild(constantMatrix);
+
+		m_library->addCategory(constants);
 
 		// Display a warning box if some library description files could not be read
 		// TODO: display a message in the system tray instead!
@@ -1046,7 +1048,7 @@ void PapyrusWindow::on_actionSave_Script_triggered()
 		return;
 	}
 
-	m_activeScript->save(getDescriptionPath(), m_lastDir);
+	m_activeScript->save(m_lastDir);
 }
 
 void PapyrusWindow::on_actionOpen_Script_triggered()
@@ -1091,7 +1093,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 	}
 
 	// Parse the script XML file
-	XmlScriptReader xmlReader(openScript, getDescriptionPath());
+	XmlScriptReader xmlReader(openScript, getDescriptionPath(), m_library);
 	if (!xmlReader.read(&scriptFile)) {
 		QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
 		str += xmlReader.errorString();
@@ -1419,7 +1421,7 @@ void PapyrusWindow::autoSave()
 			return;
 
 		// Otherwise perform save
-		script->save(getDescriptionPath(), m_lastDir, true);
+		script->save(m_lastDir, true);
 	}
 }
 

@@ -83,7 +83,7 @@ Script::~Script()
  * @param isAutoSave: if this is an autosave, allow saving even in invalid state, make it non-
  * interactive (do not open dialogs) and save in ".autosave" file
  */
-void Script::save(const QString &descriptionPath, const QString &basePath, bool isAutoSave)
+void Script::save(const QString &basePath, bool isAutoSave)
 {
 	QString scriptfilePath;
 
@@ -294,25 +294,8 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 		QString title = item->title();
 		QPointF pos = item->scenePos();
 		QUuid uuid = item->uuid();
-		QString descriptionFile = item->descriptionFile();
-		QString iconFilepath = item->iconFilepath();
 		std::vector<InputSlot *>inputSlots = item->inputSlots();
 		bool constant = (constantItem != nullptr);
-
-		// Strip the description path prefix from paths, to make it relative, unless this is a
-		// a constant (built-in constant don't have description files)
-		if (descriptionFile.startsWith(descriptionPath + "/"))
-			descriptionFile.remove(descriptionPath + "/");
-		else if (!constant)
-			qWarning() << "Description file" << descriptionFile << "cannot be made relative "
-			"(for function" << name << "). Saving as absolute, but this will NOT be portable.";
-
-
-		if (iconFilepath.startsWith(descriptionPath + "/"))
-			iconFilepath.remove(descriptionPath + "/");
-		else if (!iconFilepath.startsWith(":"))
-			qWarning() << "Icon file" << iconFilepath << "cannot be made relative "
-			"(for function" << name << "). Saving as absolute, but this will NOT be portable.";
 
 		Q_ASSERT(!name.isEmpty());
 
@@ -403,10 +386,6 @@ void Script::save(const QString &descriptionPath, const QString &basePath, bool 
 		stream.writeTextElement("x", QString::number(pos.x()));
 		stream.writeTextElement("y", QString::number(pos.y()));
 		stream.writeEndElement(); // position
-
-		if (!constant)
-			stream.writeTextElement("description", descriptionFile);
-		stream.writeTextElement("icon", iconFilepath);
 
 		stream.writeEndElement(); // function
 	}
@@ -772,7 +751,7 @@ void Script::run()
 
 	// Save the node before launching it
 	PapyrusWindow *mainWin = getMainWindow();
-	save(mainWin->getDescriptionPath(), mainWin->lastDir());
+	save(mainWin->lastDir());
 
 	// Check if the save worked
 	if (m_modified) {

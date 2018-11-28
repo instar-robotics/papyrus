@@ -34,8 +34,7 @@ public:
 	Script(DiagramScene *scene, const QString &name = "");
 	~Script();
 
-	void save(const QString &descriptionPath,
-	          const QString &basePath = QDir::homePath(),
+	void save(const QString &basePath = QDir::homePath(),
 	          bool isAutoSave = false);
 
 	void updateTextStyle();

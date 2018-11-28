@@ -245,13 +245,14 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 	readUUID(&uuid);
 
+	// Note: we deliberately do not read the <libname>. As this is only useful for Kheops, we
+	// instead parse the function box and fetch its libname from the @Library. This allows for a
+	// function box to change its library without needed to change the scripts
 	while (reader.readNextStartElement()) {
 		if (reader.name() == "name")
 			readFunctionName(name);
 		else if (reader.name() == "title")
 			readFunctionTitle(title);
-		else if (reader.name() == "libname")
-			readFunctionLibname(libname);
 		else if (reader.name() == "save")
 			readFunctionSave(&save);
 		else if (reader.name() == "publish")
@@ -262,6 +263,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			readOutputSlot(outputSlot, &rows, &cols);
 		else if (reader.name() == "position")
 			readPosition(&pos);
+		else if (reader.name() == "libname")
+			reader.skipCurrentElement(); // Silently skip <libname>
 		else {
 			qWarning() << QString("Unsupported tag <%1>, skipping").arg(reader.name().toString());
 			reader.skipCurrentElement();
@@ -293,14 +296,12 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			if (f->name() == name) {
 				icon = QIcon(f->iconFilepath());
 				iconFilePath = f->iconFilepath();
+				libname = f->libName();
 				functionFound = true;
 				break;
 			}
 		}
 	}
-
-	if (!functionFound)
-		qDebug() << "Function" << name << "NOT FOUND";
 
 	DiagramBox *b;
 	if (reader.name() == "constant")
@@ -346,19 +347,6 @@ void XmlScriptReader::readFunctionTitle(QString &title)
 
 	// We allow empty function title
 	title = reader.readElementText();
-}
-
-void XmlScriptReader::readFunctionLibname(QString &libname)
-{
-	Q_ASSERT(reader.isStartElement() && reader.name() == "libname");
-
-	QString lib = reader.readElementText();
-
-	if (lib.isEmpty()) {
-		reader.raiseError(QObject::tr("Empty libname."));
-	} else {
-		libname = lib;
-	}
 }
 
 void XmlScriptReader::readFunctionSave(bool *save)

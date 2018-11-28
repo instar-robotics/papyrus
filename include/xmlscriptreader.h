@@ -42,7 +42,6 @@ private:
 	                  std::set<std::pair<QUuid, Link *> > *incompleteLinks);
 	void readFunctionName(QString &name);
 	void readFunctionTitle(QString &title);
-	void readFunctionLibname(QString &libname);
 	void readFunctionSave(bool *save);
 	void readPublishTopic(QString &topic, bool *publish);
 	void readInputSlots(std::vector<InputSlot *> *inputSlots,

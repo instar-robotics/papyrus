@@ -272,21 +272,29 @@ void Script::save(const QString &basePath, bool isAutoSave)
 	// Write all functions
 	stream.writeStartElement("functions");
 
-	// Traverse all items in the scene and store them
+	// Traverse all items in the scene and store them in a map sorting by uuid
 	std::vector<Zone *> zones;
+	std::map<QUuid, DiagramBox *> functions;
 	foreach (QGraphicsItem *i, m_scene->items()) {
 		// For some reasons, it fails with 'qgraphicsitem_cast' even though 'type()' is reimplemented
 		DiagramBox *item = dynamic_cast<DiagramBox *>(i);
-		if (item == nullptr) {
-			// If the item is not a function, check if this is a comment zone
-			Zone *zone = dynamic_cast<Zone *>(i);
-			if (zone != nullptr) {
-				zones.push_back(zone);
-			}
-
-			// Skip the element (whether it's a zone of not)
+		if (item != nullptr) {
+			functions[item->uuid()] = item;
 			continue;
 		}
+
+		// If the item is not a function, check if this is a comment zone
+		Zone *zone = dynamic_cast<Zone *>(i);
+		if (zone != nullptr) {
+			zones.push_back(zone);
+
+			continue;
+		}
+	}
+
+	// Now, re-traverse all functions, but sorted by QUuid
+	for (std::pair<QUuid, DiagramBox *> elem : functions) {
+		DiagramBox *item = elem.second;
 
 		ConstantDiagramBox *constantItem = dynamic_cast<ConstantDiagramBox *>(item);
 

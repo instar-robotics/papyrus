@@ -55,7 +55,7 @@ void InputSlot::setMultiple(bool allowMultiple)
 	m_multiple = allowMultiple;
 }
 
-std::set<Link *> InputSlot::inputs() const
+std::vector<Link *> InputSlot::inputs() const
 {
 	return m_inputs;
 }
@@ -75,7 +75,7 @@ void InputSlot::addInput(Link *input)
 		return;
 	}
 
-	m_inputs.insert(input);
+	m_inputs.push_back(input);
 }
 
 void InputSlot::removeInput(Link *input)
@@ -83,7 +83,12 @@ void InputSlot::removeInput(Link *input)
 	if (input == NULL)
 		return;
 
-	m_inputs.erase(input);
+	for (std::vector<Link *>::iterator it = m_inputs.begin(); it != m_inputs.end(); ++it) {
+		if (*it == input) {
+			m_inputs.erase(it);
+			break;
+		}
+	}
 }
 
 /**
@@ -221,21 +226,21 @@ void InputSlot::setUuid(const QUuid &uuid)
 
 bool InputSlot::checkSize() const
 {
-    return m_checkSize;
+	return m_checkSize;
 }
 
 void InputSlot::setCheckSize(bool checkSize)
 {
-    m_checkSize = checkSize;
+	m_checkSize = checkSize;
 }
 
 QString InputSlot::description() const
 {
-    return m_description;
+	return m_description;
 }
 
 void InputSlot::setDescription(const QString &description)
 {
-    m_description = description;
+	m_description = description;
 }
 

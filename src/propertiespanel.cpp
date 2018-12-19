@@ -114,6 +114,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_rowsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_colsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	connect(m_publish, SIGNAL(toggled(bool)), this, SLOT(toggleTopic(bool)));
+	connect(m_topic, SIGNAL(textChanged(QString)), this, SLOT(onTopicChanged(QString)));
 
 	// Add the fields to the layout
 	m_boxLayout->addRow(m_boxName);
@@ -563,6 +564,20 @@ void PropertiesPanel::toggleTopic(bool isChecked)
 }
 
 /**
+ * @brief PropertiesPanel::onTopicChanged fires when the user edits the value in a box's topic name
+ * field. It is used to check if what the user is entering is valid or not, and color-code it.
+ * @param topic the new value entered by the user for the box' topic
+ */
+void PropertiesPanel::onTopicChanged(const QString &topic)
+{
+	if (isTopicNameValid(topic)) {
+		m_topic->setStyleSheet("color: black;");
+	} else {
+		m_topic->setStyleSheet("color: red;");
+	}
+}
+
+/**
  * @brief PropertiesPanel::updateBoxProperties is called when the user clicked "OK" after changing
  * some properties of the selected box. It updates the selected box's properties based on the
  * contents of the fields in the properties panel
@@ -594,13 +609,23 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 	// Set the box's "save activity" flag
 	box->setSaveActivity(m_saveActivity->isChecked());
 
-	// Set the box's publish and topic name
+	// Set the box's publish and topic name (if it's valid)
 	box->setPublish(m_publish->isChecked());
 	QString topic = m_topic->text();
-	if (topic.isEmpty())
-		box->setTopic(box->uuid().toString());
-	else
+	if (topic.isEmpty()) {
+		Script *s = box->getScript();
+
+		// Since this box is in a script, it should have a Script*
+		if (s == nullptr) {
+			informUserAndCrash(tr("Box in scene is lacking a Script!"));
+		}
+		box->setTopic(mkTopicName(s->name(), box->uuid().toString()));
+		m_topic->setStyleSheet("color: red;");
+	} else if (isTopicNameValid(topic)) {
 		box->setTopic(topic);
+		m_topic->setStyleSheet("color: black;"); // restore normal, black color
+	} else
+		m_topic->setStyleSheet("color: red;"); // mark invalid topic name in red (and don't update it)
 }
 
 void PropertiesPanel::updateLinkProperties(Link *link)

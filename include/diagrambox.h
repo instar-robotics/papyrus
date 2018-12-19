@@ -15,6 +15,8 @@
 #include <QGraphicsSvgItem>
 #include <QGraphicsProxyWidget>
 
+class Script;
+
 /**
  * @brief The DiagramBox class is the main class that represents a "box" or "neural function".
  * This has a name, an icon, a type (scalar or matrix), etc.
@@ -42,6 +44,7 @@ public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	Script *getScript();
 
 	void showDataVis();
 	void setOutputSlotPos();

@@ -406,6 +406,14 @@ QString sanitizeTopicName(const QString &name)
 	return ret;
 }
 
+bool isTopicNameValid(const QString &name) {
+	static QString pattern("^[A-Za-z0-9_//]+$");
+	static QRegularExpression regexp(pattern);
+
+	QRegularExpressionMatch match = regexp.match(name);
+	return match.hasMatch();
+}
+
 QColor getTypeColor(const InputType inputType)
 {
 	switch (inputType) {

@@ -135,6 +135,7 @@ public slots:
 	void toggleTopic(bool isChecked);
 
 private slots:
+	void onTopicChanged(const QString &topic);
 
 signals:
 	void enterPressed();

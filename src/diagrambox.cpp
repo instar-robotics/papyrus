@@ -498,6 +498,20 @@ void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsItem::mouseReleaseEvent(event);
 }
 
+/**
+ * @brief DiagramBox::getScript returns a pointer to the @Script object, if this box has been added
+ * to a scene and this scene has a script. Returns NULL otherwise.
+ */
+Script *DiagramBox::getScript()
+{
+	DiagramScene *dScene = dynamic_cast<DiagramScene *>(scene());
+
+	if (dScene == nullptr)
+		return nullptr;
+
+	return dScene->script();
+}
+
 void DiagramBox::showDataVis()
 {
 	// First check that there isn't already a visualization window, otherwise do nothing

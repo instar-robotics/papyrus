@@ -54,6 +54,8 @@ QString mkTopicName(const QString &scriptName, const QString &topicName);
 
 QString sanitizeTopicName(const QString &name);
 
+bool isTopicNameValid(const QString &name);
+
 QColor getTypeColor(const InputType inputType);
 
 QColor getTypeColor(const OutputType outputType);

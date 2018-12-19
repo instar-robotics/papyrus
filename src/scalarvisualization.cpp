@@ -31,11 +31,10 @@ ScalarVisualization::ScalarVisualization(QWidget *parent, QGraphicsScene *scene,
 	setLayout(m_vLayout);
 
 	// Create the appropriate fetcher
-	QString fullTopicName = mkTopicName(m_box->scriptName(), m_box->topic());
 	if (m_box->outputType() == SCALAR)
-		m_dataFetcher = new ScalarFetcher(fullTopicName, this, BAR);
+		m_dataFetcher = new ScalarFetcher(m_box->topic(), this, BAR);
 	else if (m_box->outputType() == MATRIX)
-		m_dataFetcher = new MatrixFetcher(fullTopicName, this, BAR);
+		m_dataFetcher = new MatrixFetcher(m_box->topic(), this, BAR);
 	else
 		informUserAndCrash(tr("[ScalarVisualization] Output type not supported, supported are SCALAR"
 		                      " and MATRIX"));

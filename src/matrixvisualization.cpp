@@ -41,8 +41,7 @@ MatrixVisualization::MatrixVisualization(QWidget *parent, QGraphicsScene *scene,
 	m_vLayout->setContentsMargins(0, 35, 0, 0);
 	setLayout(m_vLayout);
 
-	QString fullTopicName = mkTopicName(m_box->scriptName(), m_box->topic());
-	m_dataFetcher = new MatrixFetcher(fullTopicName, this, GRAYSCALE);
+	m_dataFetcher = new MatrixFetcher(m_box->topic(), this, GRAYSCALE);
 	connect(m_dataFetcher, SIGNAL(newMatrix(QList<double>*)), this, SLOT(updateGrayscale(QList<double>*)));
 }
 

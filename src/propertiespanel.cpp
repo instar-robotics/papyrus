@@ -619,10 +619,10 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 		if (s == nullptr) {
 			informUserAndCrash(tr("Box in scene is lacking a Script!"));
 		}
-		box->setTopic(mkTopicName(s->name(), box->uuid().toString()));
+		box->setTopic(ensureSlashPrefix(mkTopicName(s->name(), box->uuid().toString())));
 		m_topic->setStyleSheet("color: red;");
 	} else if (isTopicNameValid(topic)) {
-		box->setTopic(topic);
+		box->setTopic(ensureSlashPrefix(topic));
 		m_topic->setStyleSheet("color: black;"); // restore normal, black color
 	} else
 		m_topic->setStyleSheet("color: red;"); // mark invalid topic name in red (and don't update it)

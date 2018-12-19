@@ -479,3 +479,17 @@ qreal qrealAbsMax(const qreal a, qreal b)
 
 	return a_ >= b_ ? a_ : b_;
 }
+
+/**
+ * @brief ensureSlashPrefix makes sure a string is prefixed by a slash '/' (for topic names) by
+ * simply returning the string if this is the case of prependind it otherwise
+ * @param name the name to check
+ * @return
+ */
+QString ensureSlashPrefix(const QString &name)
+{
+	if (name.startsWith('/'))
+		return name;
+	else
+		return '/' + name;
+}

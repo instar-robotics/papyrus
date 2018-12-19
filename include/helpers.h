@@ -56,6 +56,8 @@ QString sanitizeTopicName(const QString &name);
 
 bool isTopicNameValid(const QString &name);
 
+QString ensureSlashPrefix(const QString &name);
+
 QColor getTypeColor(const InputType inputType);
 
 QColor getTypeColor(const OutputType outputType);

@@ -66,4 +66,8 @@ QString mkFilenameFromScript(const QString &scriptName);
 
 qreal qrealAbsMax(const qreal a, qreal b);
 
+MatrixShape stringToMatrixShape(const QString &str);
+
+QString matrixShapeToString(const MatrixShape shape);
+
 #endif // HELPERS_H

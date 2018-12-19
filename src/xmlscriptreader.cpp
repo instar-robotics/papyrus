@@ -233,6 +233,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QString name;
 	QString title;
 	QString libname;
+	MatrixShape matrixShape = SHAPE_NONE;
 	bool save = false;
 	OutputSlot *outputSlot = new OutputSlot;
 	int rows = 0;
@@ -297,6 +298,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				icon = QIcon(f->iconFilepath());
 				iconFilePath = f->iconFilepath();
 				libname = f->libName();
+				matrixShape = f->matrixShape();
 				functionFound = true;
 				break;
 			}
@@ -320,6 +322,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);
+	b->setMatrixShape(matrixShape);
 	m_script->scene()->addBox(b, pos);
 
 	// TODO: check all links for invalidity and set script's invalidity

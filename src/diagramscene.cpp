@@ -432,13 +432,16 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		int nbInputs;
 		bool constant;
 		QString libname;
+		MatrixShape matrixShape;
+		qint32 matrixShape_;
 
 		// Then proceed to retrieve the other elements
 		dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_
-		           >> constant >> nbInputs >> libname;
+		           >> constant >> nbInputs >> libname >> matrixShape_;
 
-		// Cast the integer to the Enum type (problem of operator '>>' with enums)
+		// Cast the integers to the Enum type (problem of operator '>>' with enums)
 		outputType = static_cast<OutputType>(outputType_);
+		matrixShape = static_cast<MatrixShape>(matrixShape_);
 
 		std::vector<InputSlot *> inputSlots;
 		for (int i = 0; i < nbInputs; i += 1) {
@@ -483,6 +486,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		newBox->setDescriptionFile(descriptionFile);
 		newBox->setIconFilepath(iconFilepath);
 		newBox->setLibname(libname);
+		newBox->setMatrixShape(matrixShape);
 		addBox(newBox, evt->scenePos());
 		m_script->setStatusModified(true);
 		setBackgroundBrush(QBrush(Qt::white));

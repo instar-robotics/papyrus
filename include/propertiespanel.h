@@ -86,6 +86,9 @@ public:
 	QLineEdit *boxTitle() const;
 	void setBoxTitle(QLineEdit *boxTitle);
 
+	QLabel *boxMatrixShape() const;
+	void setBoxMatrixShape(QLabel *boxMatrixShape);
+
 private:
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame *m_scriptFrame;       // Container for script's properties
@@ -100,6 +103,7 @@ private:
 	QLabel *m_boxName;         // Display the name of the box
 	QLineEdit *m_boxTitle;     // Allow to see or change the box's custom name
 	QLabel *m_boxOutputType;   // Display the box's output type (scalar, matrix)
+	QLabel *m_boxMatrixShape;  // Display the shape of the function (when matrix)
 	QSpinBox *m_rowsInput;     // Spin box to input number of rows in the output (if matrix)
 	QSpinBox *m_colsInput;     // Spin box to input number of columns in the output (if matrix)
 	QCheckBox *m_saveActivity; // To enable saving the activity of the box

@@ -50,6 +50,9 @@ public:
 	QString description() const;
 	void setDescription(const QString &description);
 
+	MatrixShape matrixShape() const;
+	void setMatrixShape(const MatrixShape &matrixShape);
+
 protected:
 	QString m_name;
 	QString m_descriptionFile;
@@ -60,6 +63,7 @@ protected:
 	QString m_libName; // The name of the lib it belongs to, used for kheops to know where to look
 	QString m_iconFilepath; // Filepath for the SVG icon, used when dropping the box on scene
 	QString m_description;  // Description of the function
+	MatrixShape m_matrixShape;
 };
 
 #endif // FUNCTION_H

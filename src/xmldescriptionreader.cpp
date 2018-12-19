@@ -264,8 +264,17 @@ void XmlDescriptionReader::readOutput(Function *function)
 		return;
 	}
 
-	outputSlot->setOutputType(stringToOutputType(attributes.value("type").toString()));
+	OutputType oType = stringToOutputType(attributes.value("type").toString());
+	outputSlot->setOutputType(oType);
 	function->setOutput(outputSlot);
+
+	// Parse the 'shape' attribute, IF the type is 'MATRIX'
+	if (oType == MATRIX) {
+		if (attributes.hasAttribute("shape"))
+			function->setMatrixShape(stringToMatrixShape(attributes.value("shape").toString()));
+		else
+			function->setMatrixShape(SHAPE_NONE);
+	}
 
 	// Nothing to read, but it's just to consume the <output> element
 	while (reader.readNextStartElement());

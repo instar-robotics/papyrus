@@ -50,6 +50,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
 	QString name = item->name();
 	QString descriptionFile = item->descriptionFile();
 	QString libname = item->libName();
+	MatrixShape matrixShape = item->matrixShape();
 
 	OutputSlot *outputSlot = item->output();
 	OutputType outputType = outputSlot->outputType();
@@ -62,7 +63,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
 	QDataStream dataStream(&itemData, QIODevice::WriteOnly);
 
 	dataStream << name << iconFilepath << icon << descriptionFile << (qint32)outputType
-	           << constant << nbInputs << libname;
+	           << constant << nbInputs << libname << (qint32)matrixShape;
 
 	// Add all input slots' name, type, multiple and checkSize
 	foreach(InputSlot *i, inputSlots) {

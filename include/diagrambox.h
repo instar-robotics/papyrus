@@ -109,6 +109,9 @@ public:
 	QString title() const;
 	void setTitle(const QString &title);
 
+	MatrixShape matrixShape() const;
+	void setMatrixShape(const MatrixShape &matrixShape);
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -118,6 +121,8 @@ protected:
 	qreal m_bWidth;  // Overall width of the function's box
 	qreal m_bHeight; // Overall height of the function's box
 	qreal m_tHeight; // Height of the space in which th function's name is written
+
+	MatrixShape m_matrixShape; // Shape (vector, row vector or col vector) if matrix
 
 private:
 	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)

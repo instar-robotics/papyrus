@@ -2,8 +2,8 @@
 
 Function::Function(const QString &path) : QTreeWidgetItem(),
                                           m_descriptionFile(path),
-                                          m_constant(false)
-
+                                          m_constant(false),
+                                          m_matrixShape(SHAPE_NONE)
 {
 
 }
@@ -100,4 +100,14 @@ QString Function::description() const
 void Function::setDescription(const QString &description)
 {
 	m_description = description;
+}
+
+MatrixShape Function::matrixShape() const
+{
+	return m_matrixShape;
+}
+
+void Function::setMatrixShape(const MatrixShape &matrixShape)
+{
+	m_matrixShape = matrixShape;
 }

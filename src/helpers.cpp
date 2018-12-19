@@ -493,3 +493,57 @@ QString ensureSlashPrefix(const QString &name)
 	else
 		return '/' + name;
 }
+
+MatrixShape stringToMatrixShape(const QString &str)
+{
+	QString lower = str.toLower();
+
+	if (lower == "shape_none")
+		return SHAPE_NONE;
+
+	if (lower == "point")
+		return POINT;
+
+	if (lower == "vect")
+		return VECT;
+
+	if (lower == "row_vect")
+		return ROW_VECT;
+
+	if (lower == "col_vect")
+		return COL_VECT;
+
+	return INVALID_MATRIX_SHAPE;
+}
+
+QString matrixShapeToString(const MatrixShape shape)
+{
+	switch (shape) {
+		case INVALID_MATRIX_SHAPE:
+		    return "INVALID_MATRIX_SHAPE";
+		break;
+
+		case SHAPE_NONE:
+		    return "SHAPE_NONE";
+		break;
+
+		case POINT:
+		    return "POINT";
+		break;
+
+		case VECT:
+		    return "VECT";
+		break;
+
+		case ROW_VECT:
+		    return "ROW_VECT";
+		break;
+
+		case COL_VECT:
+		    return "COL_VECT";
+		break;
+
+		default:
+		    return "INVALID_MATRIX_SHAPE";
+	}
+}

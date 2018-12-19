@@ -22,6 +22,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_boxFrame(NULL),
                                                     m_boxName(NULL),
                                                     m_boxOutputType(NULL),
+                                                    m_boxMatrixShape(NULL),
                                                     m_rowsInput(NULL),
                                                     m_colsInput(NULL),
                                                     m_saveActivity(NULL),
@@ -96,6 +97,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxName = new QLabel;
 	m_boxTitle = new QLineEdit;
 	m_boxOutputType = new QLabel;
+	m_boxMatrixShape = new QLabel;
 	m_rowsInput = new QSpinBox;
 	m_colsInput = new QSpinBox;
 	m_saveActivity = new QCheckBox(tr("Save Activity"));
@@ -120,6 +122,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxLayout->addRow(m_boxName);
 	m_boxLayout->addRow(tr("Title:"), m_boxTitle);
 	m_boxLayout->addRow(tr("Type:"), m_boxOutputType);
+	m_boxLayout->addRow(tr("Shape:"), m_boxMatrixShape);
 	m_boxLayout->addRow(tr("Rows:"), m_rowsInput);
 	m_boxLayout->addRow(tr("Cols:"), m_colsInput);
 	m_boxLayout->addRow(m_saveActivity);
@@ -342,6 +345,16 @@ void PropertiesPanel::setBoxTitle(QLineEdit *boxTitle)
 	m_boxTitle = boxTitle;
 }
 
+QLabel *PropertiesPanel::boxMatrixShape() const
+{
+	return m_boxMatrixShape;
+}
+
+void PropertiesPanel::setBoxMatrixShape(QLabel *boxMatrixShape)
+{
+	m_boxMatrixShape = boxMatrixShape;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -389,6 +402,31 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
 		m_colsInput->show();
+
+		// Gray out appropriate fields based on the shape
+		MatrixShape matrixShape = box->matrixShape();
+		if (matrixShape == POINT) {
+			m_colsInput->setEnabled(false);
+			m_rowsInput->setEnabled(false);
+		} else if (matrixShape == ROW_VECT) {
+			m_rowsInput->setEnabled(false);
+			m_colsInput->setEnabled(true);
+		} else if (matrixShape == COL_VECT) {
+			m_rowsInput->setEnabled(true);
+			m_colsInput->setEnabled(false);
+		} else {
+			m_rowsInput->setEnabled(true);
+			m_colsInput->setEnabled(true);
+		}
+
+		// Show the shape of the box (since it's matrix)
+		m_boxMatrixShape->setText(matrixShapeToString(box->matrixShape()));
+		QWidget *shapeLabel = NULL;
+		if ((shapeLabel = m_boxLayout->labelForField(m_boxMatrixShape)))
+			shapeLabel->show();
+		else
+			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
+		m_boxMatrixShape->show();
 	} else if (oType == SCALAR) {
 		m_boxOutputType->setText(tr("scalar"));
 
@@ -405,6 +443,14 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
 		dimLabel->hide();
+
+		// Hide the shape field
+		QWidget *shapeLabel = NULL;
+		if ((shapeLabel = m_boxLayout->labelForField(m_boxMatrixShape)))
+			shapeLabel->hide();
+		else
+			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
+		m_boxMatrixShape->hide();
 	} else if (oType == STRING) {
 		m_boxOutputType->setText(tr("string"));
 
@@ -421,6 +467,14 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
 		dimLabel->hide();
+
+		// Hide the shape field
+		QWidget *shapeLabel = NULL;
+		if ((shapeLabel = m_boxLayout->labelForField(m_boxMatrixShape)))
+			shapeLabel->hide();
+		else
+			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
+		m_boxMatrixShape->hide();
 	} else {
 		informUserAndCrash(tr("Unsupported output type for a box. Supported types are MATRIX and SCALAR"));
 	}

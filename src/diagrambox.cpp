@@ -18,6 +18,8 @@
 #include <QDebug>
 #include <QGraphicsLayout>
 
+Q_DECLARE_METATYPE(MatrixShape);
+
 int DiagramBox::getType()
 {
 	return UserType + 1;
@@ -33,6 +35,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_bWidth(120),
                                                 m_bHeight(70),
                                                 m_tHeight(20),
+                                                m_matrixShape(SHAPE_NONE),
                                                 m_uuid(uuid),
                                                 m_icon(icon),
                                                 m_outputSlot(outputSlot),
@@ -175,6 +178,26 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+MatrixShape DiagramBox::matrixShape() const
+{
+	return m_matrixShape;
+}
+
+void DiagramBox::setMatrixShape(const MatrixShape &matrixShape)
+{
+	m_matrixShape = matrixShape;
+
+	// Also set the corresponding fields to 1 when appropriate
+	if (matrixShape == POINT) {
+		m_rows = 1;
+		m_cols = 1;
+	} else if (matrixShape == ROW_VECT) {
+		m_rows = 1;
+	} else if (matrixShape == COL_VECT) {
+		m_cols = 1;
+	}
 }
 
 QString DiagramBox::title() const

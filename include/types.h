@@ -22,6 +22,16 @@ enum OutputType{
 	STRING
 };
 
+// Define the shape of a matrix-typed @DiagramBox
+enum MatrixShape {
+	INVALID_MATRIX_SHAPE,
+	SHAPE_NONE,
+	POINT,
+	VECT,
+	ROW_VECT,
+	COL_VECT
+};
+
 // Define whether the time value is a frequency in Hz or a period in ms for a @Script
 enum TimeUnit{
 	INVALID_UNIT,

@@ -126,6 +126,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	m_propertiesPanel = new PropertiesPanel;
 	connect(m_propertiesPanel, SIGNAL(enterPressed()), this, SLOT(onPropPanelEnter()));
 	connect(m_propertiesPanel, SIGNAL(escapePressed()), this, SLOT(onPropPanelEscape()));
+	connect(m_propertiesPanel, SIGNAL(displayStatusMessage(QString,MessageUrgency)),
+	        this, SLOT(displayStatusMessage(QString,MessageUrgency)));
 
 	QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
 	leftSplitter->addWidget(libraryGroupBox);
@@ -723,7 +725,7 @@ void PapyrusWindow::displayStatusMessage(const QString &text, MessageUrgency urg
 		break;
 	}
 
-	m_ui->statusBar->showMessage(text);
+	m_ui->statusBar->showMessage(text, MSG_DURATION);
 }
 
 /**

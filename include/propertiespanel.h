@@ -144,6 +144,7 @@ private slots:
 signals:
 	void enterPressed();
 	void escapePressed();
+	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
 };
 
 #endif // PROPERTIESPANEL_H

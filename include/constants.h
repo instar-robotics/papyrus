@@ -68,5 +68,8 @@
 // Define the period for the autosave script
 #define AUTOSAVE_PERIOD 60000 // 1 minute
 
+// Time (in ms) during which status bar messages are displayed
+#define MSG_DURATION 3000
+
 #endif // CONSTANTS
 

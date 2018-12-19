@@ -646,8 +646,29 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 
 	// If the box's output is matrix, then set its rows and cols
 	if (box->outputType() == MATRIX) {
-		box->setRows(m_rowsInput->value());
-		box->setCols(m_colsInput->value());
+		// Check the shape of the matrix and decide whether it's valid
+		bool okToUpdateSize = false;
+		MatrixShape matrixShape = box->matrixShape();
+
+		if (matrixShape == SHAPE_NONE)
+			okToUpdateSize = true; // No restriction on size
+		else if (matrixShape == VECT) {
+			// For VECT shape, there must be at least one size of dimension 1
+			if (m_rowsInput->value() != 1 && m_colsInput->value() != 1) {
+				okToUpdateSize = false;
+				emit displayStatusMessage("VECT shape requires either rows = 1 or cols = 1", MSG_WARNING);
+			} else {
+				okToUpdateSize = true;
+			}
+		} else {
+			// For the other types, the interface is grayed out, preventing user from changing values
+			okToUpdateSize = true;
+		}
+
+		if (okToUpdateSize) {
+			box->setRows(m_rowsInput->value());
+			box->setCols(m_colsInput->value());
+		}
 
 		// Make sure to call updateSizeIcon() BEFORE rescaleSvgItem() because the latter is based on the former
 		// but only if this is NOT a constant box

@@ -243,7 +243,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QString topic;
 	QString iconFilePath = ":icons/icons/missing-icon.svg";
 	bool publish;
-	QHash<QString, MatrixShape> inputMatrixShapes; // Hold the matrix shape requirement for the input slots
 
 	readUUID(&uuid);
 

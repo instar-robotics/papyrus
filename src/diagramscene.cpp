@@ -87,6 +87,7 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 		rescaleSvgItem(s,
 		               QSizeF(newBox->bWidth() / 2 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
 		               QPointF(newBox->bWidth() / 2, 1.5));
+
 	} else {
 		// if this is a Constant, position only the function icon
 		rescaleSvgItem(svg,
@@ -95,6 +96,10 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 	}
 
 	addItem(newBox);
+	// If the topic name is empty, create one based on the UUID
+	if (constantBox == nullptr && newBox->topic().isEmpty()) {
+		newBox->setTopic(ensureSlashPrefix(mkTopicName(newBox->scriptName(), newBox->uuid().toString())));
+	}
 	newBox->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
 }
 

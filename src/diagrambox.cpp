@@ -53,10 +53,6 @@ DiagramBox::DiagramBox(const QString &name,
 	if (m_uuid.isNull())
 		m_uuid = QUuid::createUuid();
 
-	// The topic name defaults to the UUID if it's empty
-	if (m_topic.isEmpty())
-		m_topic = m_uuid.toString();
-
 	setFlags(QGraphicsItem::ItemIsSelectable
 	       | QGraphicsItem::ItemIsMovable
 	       | QGraphicsItem::ItemSendsScenePositionChanges);

@@ -287,12 +287,12 @@ bool Link::checkIfSelfLoop()
 	}
 }
 
-InvalidReason Link::invalidReason() const
+LinkInvalidReason Link::invalidReason() const
 {
 	return m_invalidReason;
 }
 
-void Link::setInvalidReason(const InvalidReason &invalidReason)
+void Link::setInvalidReason(const LinkInvalidReason &invalidReason)
 {
 	m_invalidReason = invalidReason;
 }
@@ -415,7 +415,6 @@ bool Link::checkIfInvalid()
 	// Start with a valid link
 	m_isInvalid = false;
 	m_invalidReason = INVALID_INVALID_REASON;
-	setToolTip("");
 
 	// First check if the types match
 	m_isInvalid = !canLink(m_from->outputType(), m_to->inputType());
@@ -446,7 +445,7 @@ bool Link::checkIfInvalid()
 
 	// Check matrix shape requirement if target slot is matrix
 	if ((m_to->inputType() == SCALAR_MATRIX || m_to->inputType() == MATRIX_MATRIX)) {
-		InvalidReason reason;
+		LinkInvalidReason reason;
 		bool shapesMismatch = !shapesMatch(boxFrom, m_to, &reason);
 		m_isInvalid = m_isInvalid || shapesMismatch;
 

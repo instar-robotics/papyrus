@@ -66,7 +66,7 @@ enum VisualizationType {
 };
 
 // Define the different reasons why a Link can be invalid
-enum InvalidReason {
+enum LinkInvalidReason {
 	INVALID_INVALID_REASON = 0, // MUST be zero (because it uses bitwise OR)
 	TYPES_INCOMPATIBLE     = 0b1,
 	SIZES_DONT_MATCH       = 0b10,
@@ -76,13 +76,32 @@ enum InvalidReason {
 	SHAPE_MUST_BE_COL_VECT = 0b100000
 };
 
-// Defining bitwise operations for InvalidReason because in C++11, enums are scoped
-inline InvalidReason operator|(InvalidReason a, InvalidReason b) {
-	return static_cast<InvalidReason>(static_cast<int>(a) | static_cast<int>(b));
+// Defining bitwise operations for LinkInvalidReason because in C++11, enums are scoped
+inline LinkInvalidReason operator|(LinkInvalidReason a, LinkInvalidReason b) {
+	return static_cast<LinkInvalidReason>(static_cast<int>(a) | static_cast<int>(b));
 }
 
-inline InvalidReason operator&(InvalidReason a, InvalidReason b) {
-	return static_cast<InvalidReason>(static_cast<int>(a) & static_cast<int>(b));
+inline LinkInvalidReason operator&(LinkInvalidReason a, LinkInvalidReason b) {
+	return static_cast<LinkInvalidReason>(static_cast<int>(a) & static_cast<int>(b));
+}
+
+// Define the different reasons why a box can be invalid
+enum BoxInvalidReason {
+	INVALID_BOX_INVALID_REASON = 0, // MUST be zero (because it uses bitwise OR)
+	INPUT_FULL                 = 0b1,
+	BOX_MUST_BE_POINT          = 0b10,
+	BOX_MUST_BE_VECT           = 0b100,
+	BOX_MUST_BE_ROW_VECT       = 0b1000,
+	BOX_MUST_BE_COL_VECT       = 0b10000,
+};
+
+// Defining bitwise operations for BoxInvalidReason because in C++11, enums are scoped
+inline BoxInvalidReason operator|(BoxInvalidReason a, BoxInvalidReason b) {
+	return static_cast<BoxInvalidReason>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+inline BoxInvalidReason operator&(BoxInvalidReason a, BoxInvalidReason b) {
+	return static_cast<BoxInvalidReason>(static_cast<int>(a) & static_cast<int>(b));
 }
 
 #endif // TYPES_H

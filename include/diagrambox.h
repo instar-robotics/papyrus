@@ -45,6 +45,8 @@ public:
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	Script *getScript();
+	bool checkIfBoxInvalid();
+	void updateTooltip();
 
 	void showDataVis();
 	void setOutputSlotPos();
@@ -112,6 +114,12 @@ public:
 	MatrixShape matrixShape() const;
 	void setMatrixShape(const MatrixShape &matrixShape);
 
+	bool isInvalid() const;
+	void setIsInvalid(bool isInvalid);
+
+	BoxInvalidReason invalidReason() const;
+	void setInvalidReason(const BoxInvalidReason &invalidReason);
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -153,6 +161,9 @@ private:
 
 	DataVisualization *m_dataVis; // The data visualization window for this box
 	QGraphicsProxyWidget *m_dataProxy; // The proxy for the data visualization window
+
+	bool m_isInvalid; // Whether this box is invalid
+	BoxInvalidReason m_invalidReason; // Why this box is invalid
 
 private slots:
 	void onDataVisClosed();

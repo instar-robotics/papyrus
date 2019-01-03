@@ -67,8 +67,8 @@ public:
 	Connectivity connectivity() const;
 	void setConnectivity(const Connectivity &connectivity);
 
-	InvalidReason invalidReason() const;
-	void setInvalidReason(const InvalidReason &invalidReason);
+	LinkInvalidReason invalidReason() const;
+	void setInvalidReason(const LinkInvalidReason &invalidReason);
 
 private:
 	bool checkIfSelfLoop();
@@ -87,7 +87,7 @@ private:
 	QString m_value;           // The string value associated to this link (when between strings)
 
 	bool m_isInvalid; // Tells that this link is currently not valid (error in type, in sizes, etc.)
-	InvalidReason m_invalidReason; // Tell why a link is invalid
+	LinkInvalidReason m_invalidReason; // Tell why a link is invalid
 
 	Connectivity m_connectivity; // Only viable for MATRIX_MATRIX
 };

@@ -46,7 +46,8 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_publish(false),
                                                 m_sizeIcon(nullptr),
                                                 m_dataVis(nullptr),
-                                                m_dataProxy(nullptr)
+                                                m_dataProxy(nullptr),
+                                                m_isInvalid(false)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -178,6 +179,26 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+BoxInvalidReason DiagramBox::invalidReason() const
+{
+	return m_invalidReason;
+}
+
+void DiagramBox::setInvalidReason(const BoxInvalidReason &invalidReason)
+{
+	m_invalidReason = invalidReason;
+}
+
+bool DiagramBox::isInvalid() const
+{
+	return m_isInvalid;
+}
+
+void DiagramBox::setIsInvalid(bool isInvalid)
+{
+	m_isInvalid = isInvalid;
 }
 
 MatrixShape DiagramBox::matrixShape() const
@@ -438,6 +459,9 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QColor color = Qt::gray;
 	color = color.dark();
 
+	if (m_isInvalid)
+		color = Qt::red;
+
 	pen.setColor(color);
 
 	painter->setPen(pen);
@@ -533,6 +557,79 @@ Script *DiagramBox::getScript()
 		return nullptr;
 
 	return dScene->script();
+}
+
+/**
+ * @brief DiagramBox::checkIfBoxInvalid checks if the DiagramBox is invalid. Reasons to be invalid are:
+ * - if one of it input slots that have 'multiple="false"' has several inputs connected
+ */
+bool DiagramBox::checkIfBoxInvalid()
+{
+	// Begin with a valid box
+	m_isInvalid = false;
+	m_invalidReason = INVALID_BOX_INVALID_REASON;
+
+	foreach (InputSlot *iSlot, inputSlots()) {
+		if (iSlot == nullptr) {
+			qWarning() << "Null pointer inside input slots";
+			continue;
+		}
+
+		// Ignore slots that are authorized to have several inputs
+		if (iSlot->multiple())
+			continue;
+
+		if (iSlot->inputs().size() > 1) {
+			m_isInvalid = true;
+			m_invalidReason = m_invalidReason | INPUT_FULL;
+
+			break; // No need to check other inputs: we have found an invalid reason
+		}
+	}
+
+	// Check the dimensions against the shape
+	if (m_matrixShape == POINT && (m_rows != 1 || m_cols != 1)) {
+		m_isInvalid = true;
+		m_invalidReason = m_invalidReason | BOX_MUST_BE_POINT;
+	} else if (m_matrixShape == VECT && m_rows != 1 && m_cols != 1) {
+		m_isInvalid = true;
+		m_invalidReason = m_invalidReason | BOX_MUST_BE_VECT;
+	} else if (m_matrixShape == ROW_VECT && m_rows != 1) {
+		m_isInvalid = true;
+		m_invalidReason = m_invalidReason | BOX_MUST_BE_ROW_VECT;
+	} else if (m_matrixShape == COL_VECT && m_cols != 1) {
+		m_isInvalid = true;
+		m_invalidReason = m_invalidReason | BOX_MUST_BE_COL_VECT;
+	}
+
+	updateTooltip();
+	return m_isInvalid;
+}
+
+/**
+ * @brief DiagramBox::updateTooltip update the tooltip of the box, based on the reason why it's
+ * invalid. Set the tooltip to empty string if valid
+ */
+void DiagramBox::updateTooltip()
+{
+	QString str;
+
+	if (m_invalidReason & INPUT_FULL)
+		str += tr("<li>some input with <pre>multiple = \"false\"</pre> have several connected links</li>");
+
+	if (m_invalidReason & BOX_MUST_BE_POINT)
+		str += tr("<li>this box must be a point (a (1,1) matrix)</li>");
+	else if (m_invalidReason & BOX_MUST_BE_VECT)
+		str += tr("<li>this box must be a vector (either a (1, N) or (N, 1) matrix)</li>");
+	else if (m_invalidReason & BOX_MUST_BE_ROW_VECT)
+		str += tr("<li>this box must be a row vector (a (1, N) matrix)</li>");
+	else if (m_invalidReason & BOX_MUST_BE_COL_VECT)
+		str += tr("<li>this box must be a column vector (a (N, 1) matrix)</li>");
+
+	if (!str.isEmpty())
+		str = tr("Box is <strong>invalid</strong>:<ul>") + str + "</ul>";
+
+	setToolTip(str);
 }
 
 void DiagramBox::showDataVis()

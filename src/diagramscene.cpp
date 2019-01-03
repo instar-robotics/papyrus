@@ -565,9 +565,16 @@ void DiagramScene::deleteItem(Link *link)
 		return;
 	}
 
-	// First, remove this link from its OutputSlot
+	// First, remove this link from its OutputSlot and check the origin box for invalidity
 	if (link->from() != NULL) {
 		link->from()->removeOutput(link);
+		if (link->from()->box() == nullptr)
+			emit displayStatusMessage(tr("Output slot doesn't have a parent box!"), MSG_WARNING);
+		else {
+			bool boxInvalid = link->from()->box()->checkIfBoxInvalid();
+			if (boxInvalid && m_script != nullptr)
+				m_script->setIsInvalid(true);
+		}
 	} else {
 		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an "
 		                             "originating output slot."), MSG_WARNING);
@@ -576,6 +583,13 @@ void DiagramScene::deleteItem(Link *link)
 	// Then, remove this link from its InputSlot
 	if (link->to() != NULL) {
 		link->to()->removeInput(link);
+		if (link->to()->box() == nullptr)
+			emit displayStatusMessage(tr("Input slot doesn't have a parent box!"), MSG_WARNING);
+		else {
+			bool boxInvalid = link->to()->box()->checkIfBoxInvalid();
+			if (boxInvalid && m_script != nullptr)
+				m_script->setIsInvalid(true);
+		}
 	} else {
 		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an ending "
 		                             "input slot."), MSG_WARNING);

@@ -561,7 +561,7 @@ QString matrixShapeToString(const MatrixShape shape)
  * don't match
  * @return whether or not the shapes match
  */
-bool shapesMatch(DiagramBox *from, InputSlot *to, InvalidReason *reason)
+bool shapesMatch(DiagramBox *from, InputSlot *to, LinkInvalidReason *reason)
 {
 	if (from == nullptr || to == nullptr)
 		informUserAndCrash(QObject::tr("Can't check if shapes match: null pointers!"));

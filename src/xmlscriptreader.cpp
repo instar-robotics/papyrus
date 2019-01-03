@@ -201,19 +201,22 @@ void XmlScriptReader::readScript()
 			// virtually free to do here.
 			// TODO: get rid of the need to call Link::updateLines() (this is a dirty hack tbh) and
 			// at this point, we will replace those lines by a call to this function.
-			bool foundInvalidLinks = false;
+			bool foundInvalidReason = false;
 			foreach (QGraphicsItem *i, m_script->scene()->items()) {
 				Link *link= dynamic_cast<Link *>(i);
+				DiagramBox *box = dynamic_cast<DiagramBox *>(i);
 				if (link != nullptr) {
 					link->updateLines();
 					// NOTE: keep this order, because if you swap and 'foundInvalidLinks' is true,
 					// then C++ will apply lazy evaluation and not evaluate the call to link->checkIfInvalid()
 					// which will result in the links not being checked!
-					foundInvalidLinks = link->checkIfInvalid() || foundInvalidLinks;
+					foundInvalidReason = link->checkIfInvalid() || foundInvalidReason;
+				} else if (box != nullptr) {
+					foundInvalidReason = box->checkIfBoxInvalid() || foundInvalidReason;
 				}
 			}
 			scene->update();
-			m_script->setIsInvalid(foundInvalidLinks);
+			m_script->setIsInvalid(foundInvalidReason);
 		}
 
 		// Then read the comment zones

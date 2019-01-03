@@ -30,7 +30,7 @@ QString timeUnitToString(const TimeUnit &unit);
 
 bool canLink(const OutputType &from, const InputType &to);
 
-bool shapesMatch(DiagramBox *from, InputSlot *to, InvalidReason *reason = nullptr);
+bool shapesMatch(DiagramBox *from, InputSlot *to, LinkInvalidReason *reason = nullptr);
 
 void informUserAndCrash(const QString &text, const QString &title = QObject::tr("Papyrus is about to crash!"));
 

@@ -24,7 +24,7 @@ InputSlot::InputSlot() : Slot(),
 
 InputSlot::InputSlot(const QString &name) : InputSlot()
 {
-	// All of this should actuall be in a 'setName()' function I suppose.
+	// All of this should actually be in a 'setName()' function I suppose.
 	setName(name);
 	m_label = new QGraphicsSimpleTextItem(m_name, this);
 	QFont font;

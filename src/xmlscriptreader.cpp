@@ -243,6 +243,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QString topic;
 	QString iconFilePath = ":icons/icons/missing-icon.svg";
 	bool publish;
+	QHash<QString, MatrixShape> inputMatrixShapes; // Hold the matrix shape requirement for the input slots
 
 	readUUID(&uuid);
 
@@ -295,11 +296,41 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 			// If we found the function in the library, extract its information
 			if (f->name() == name) {
+				functionFound = true;
+
+				// Extract DiagrambBox's information
 				icon = QIcon(f->iconFilepath());
 				iconFilePath = f->iconFilepath();
 				libname = f->libName();
 				matrixShape = f->matrixShape();
-				functionFound = true;
+
+				// Extract InputSlots' information
+				foreach (InputSlot *iSlot, inputSlots) {
+					if (iSlot == nullptr) {
+						qWarning() << "Null-pointer found in set of input slots";
+						continue;
+					}
+
+					if (iSlot->inputType() == SCALAR_MATRIX || iSlot->inputType() == MATRIX_MATRIX) {
+						// Look for the same input slot in the library's Function
+						foreach (InputSlot *fISlot, f->inputs()) {
+							if (fISlot == nullptr) {
+								qWarning() << "Null-pointer found in set of input slots (in library)";
+								continue;
+							}
+
+							// Update script's input slot with the library's information
+							if (fISlot->name() == iSlot->name()) {
+								iSlot->setMultiple(fISlot->multiple());
+								iSlot->setInputType(fISlot->inputType());
+								iSlot->setCheckSize(fISlot->checkSize());
+								iSlot->setDescription(fISlot->description());
+								iSlot->setMatrixShape(fISlot->matrixShape());
+								break;
+							}
+						}
+					}
+				}
 				break;
 			}
 		}

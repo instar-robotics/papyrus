@@ -322,23 +322,22 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 						continue;
 					}
 
-					if (iSlot->inputType() == SCALAR_MATRIX || iSlot->inputType() == MATRIX_MATRIX) {
-						// Look for the same input slot in the library's Function
-						foreach (InputSlot *fISlot, f->inputs()) {
-							if (fISlot == nullptr) {
-								qWarning() << "Null-pointer found in set of input slots (in library)";
-								continue;
-							}
 
-							// Update script's input slot with the library's information
-							if (fISlot->name() == iSlot->name()) {
-								iSlot->setMultiple(fISlot->multiple());
-								iSlot->setInputType(fISlot->inputType());
-								iSlot->setCheckSize(fISlot->checkSize());
-								iSlot->setDescription(fISlot->description());
-								iSlot->setMatrixShape(fISlot->matrixShape());
-								break;
-							}
+					// Look for the same input slot in the library's Function
+					foreach (InputSlot *fISlot, f->inputs()) {
+						if (fISlot == nullptr) {
+							qWarning() << "Null-pointer found in set of input slots (in library)";
+							continue;
+						}
+
+						// Update script's input slot with the library's information
+						if (fISlot->name() == iSlot->name()) {
+							iSlot->setMultiple(fISlot->multiple());
+							iSlot->setInputType(fISlot->inputType());
+							iSlot->setCheckSize(fISlot->checkSize());
+							iSlot->setDescription(fISlot->description());
+							iSlot->setMatrixShape(fISlot->matrixShape());
+							break;
 						}
 					}
 				}

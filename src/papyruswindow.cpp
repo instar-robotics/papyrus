@@ -1136,7 +1136,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 
 		openScript->setStatusModified(false);
 		openScript->setHasTab(true);
-		openScript->updateTextStyle(); // Now that it has a tab, update text stye if needed
+		openScript->updateTextStyle(); // Now that it has a tab, update text style if needed
 	}
 
 	return openScript;

@@ -109,10 +109,13 @@ bool DiagramScene::checkForInvalidLinks()
 	QList<QGraphicsItem *> allItems = items();
 	bool foundInvalidLinks = false;
 
+	// NOTE: we do NOT 'break' after we found a link that is invalid, because 'checkIfInvalid()'
+	// will also set the link to be displayed in red when invalid. So we DO want to iterate through
+	// all links because we want all invalid links to be displayed red.
 	foreach (QGraphicsItem *item, allItems) {
 		Link *link = dynamic_cast<Link *>(item);
 		if (link != NULL) {
-			foundInvalidLinks |= link->checkIfInvalid();
+			foundInvalidLinks = foundInvalidLinks || link->checkIfInvalid();
 		}
 	}
 

@@ -339,6 +339,8 @@ void Link::updateLines()
 /**
  * @brief Link::checkIfInvalid checks if a given link is invalid. It can be invalid for several
  * reasons:
+ * - when the ouput type of the origin box and the input type of the destination box are not
+ *   compatible (i.e. cannot be linked)
  * - when the type is SCALAR_MATRIX and the 'checkSize' flag is true, dimensions must be the same,
  *   otherwise, that link is invalid
  * - when the destination inputSlot is a matrix type and has a requirement for shape, then the sizes
@@ -373,6 +375,13 @@ bool Link::checkIfInvalid()
 
 	// Start with a valid link
 	m_isInvalid = false;
+
+	// First check if the types match
+	m_isInvalid = !canLink(m_from->outputType(), m_to->inputType());
+
+	// Early return if false
+	if (m_isInvalid)
+		return false;
 
 	// Check sizes only if:
 	// - the target box's input slot is SCALAR_MATRIX

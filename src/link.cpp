@@ -337,8 +337,12 @@ void Link::updateLines()
 }
 
 /**
- * @brief Link::checkIfInvalid checks that dimensions of the two boxes it is connected to are the
- * same when the type is SCALAR_MATRIX
+ * @brief Link::checkIfInvalid checks if a given link is invalid. It can be invalid for several
+ * reasons:
+ * - when the type is SCALAR_MATRIX and the 'checkSize' flag is true, dimensions must be the same,
+ *   otherwise, that link is invalid
+ * - when the destination inputSlot is a matrix type and has a requirement for shape, then the sizes
+ *   of the incoming @DiagramBox must respect that shape requirement
  */
 bool Link::checkIfInvalid()
 {
@@ -349,28 +353,42 @@ bool Link::checkIfInvalid()
 	if (m_from == NULL)
 		informUserAndCrash(tr("Can't check if Link is invalid: no OutputSlot"));
 
-	// Check sizes only if the 'checkSize' flag is true (by default it is)
-	if (m_to->inputType() == SCALAR_MATRIX && m_to->checkSize()) {
-		DiagramBox *box = m_to->box();
-		if (box == NULL) {
-			informUserAndCrash(tr("Link with UUID %1 cannot be checked for invalidity: it has no "
-			                      "destination box").arg(m_uuid.toString()));
-		}
+	DiagramBox *boxTo = m_to->box();
+	if (boxTo == NULL) {
+		informUserAndCrash(tr("Link with UUID %1 cannot be checked for invalidity: it has no "
+		                      "destination box").arg(m_uuid.toString()));
+	}
 
-		int toRows = box->rows();
-		int toCols = box->cols();
+	DiagramBox *boxFrom = m_from->box();
+	if (boxFrom == NULL) {
+		informUserAndCrash(tr("Link with UUID %1 cannot be checked for invalidity: it has no "
+		                      "origin box").arg(m_uuid.toString()));
+	}
 
-		box = m_from->box();
-		if (box == NULL)
-			informUserAndCrash(tr("Can't check if Link is invalid: no origin box"));
-		int fromRows = box->rows();
-		int fromCols = box->cols();
+	int toRows = boxTo->rows();
+	int toCols = boxTo->cols();
+
+	int fromRows = boxFrom->rows();
+	int fromCols = boxFrom->cols();
+
+	// Start with a valid link
+	m_isInvalid = false;
+
+	// Check sizes only if:
+	// - the target box's input slot is SCALAR_MATRIX
+	// - the 'checkSize' flag is true (by default it is)
+	// - the target box is also a matrix
+	if (m_to->inputType() == SCALAR_MATRIX
+	    && m_to->checkSize()
+	    && boxTo->outputType() == MATRIX) {
 
 		// I *know* parentheses are optional here, but they increase readability, so sue me
-		m_isInvalid = (toRows != fromRows) || (toCols != fromCols);
-	} else {
-		// This is considered valid
-		m_isInvalid = false;
+		m_isInvalid = m_isInvalid || (toRows != fromRows) || (toCols != fromCols);
+	}
+
+	// Check matrix shape requirement if target slot is matrix
+	if ((m_to->inputType() == SCALAR_MATRIX || m_to->inputType() == MATRIX_MATRIX)) {
+		m_isInvalid = m_isInvalid || !shapesMatch(boxFrom, m_to);
 	}
 
 	// At the end, return wether we are invalid

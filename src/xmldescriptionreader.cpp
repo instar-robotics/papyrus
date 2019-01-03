@@ -191,7 +191,8 @@ void XmlDescriptionReader::readInputs(Function *function)
 				continue;
 			}
 
-			inputSlot->setInputType(stringToInputType(attributes.value("type").toString()));
+			InputType iType = stringToInputType(attributes.value("type").toString());
+			inputSlot->setInputType(iType);
 
 			// Read the 'checkSize' attribute
 			if (attributes.hasAttribute("checkSize")) {
@@ -203,6 +204,11 @@ void XmlDescriptionReader::readInputs(Function *function)
 					qWarning() << "Invalid value for attribute 'checkSize', supported are 'false' and 'true'";
 					reader.raiseError(QObject::tr("Invalid value for attribute 'checkSize', supported are 'false' and 'true'"));
 				}
+			}
+
+			// Read the 'shape' attribute if the input is of matricial type
+			if ( attributes.hasAttribute("shape") && (iType == SCALAR_MATRIX || iType == MATRIX_MATRIX)) {
+				inputSlot->setMatrixShape(stringToMatrixShape(attributes.value("shape").toString()));
 			}
 
 			// Read the <name> and <desc> tag

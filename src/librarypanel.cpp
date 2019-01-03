@@ -67,7 +67,8 @@ void LibraryPanel::startDrag(Qt::DropActions)
 
 	// Add all input slots' name, type, multiple and checkSize
 	foreach(InputSlot *i, inputSlots) {
-		dataStream << i->name() << (qint32)i->inputType() << i->multiple() << i->checkSize();
+		dataStream << i->name() << (qint32)i->inputType() << i->multiple() << i->checkSize()
+		           << (qint32)i->matrixShape();
 	}
 
 	QMimeData *mimeData = new QMimeData;

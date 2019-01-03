@@ -16,7 +16,8 @@ InputSlot::InputSlot() : Slot(),
                          m_inputType(MATRIX_MATRIX),
                          m_canLink(false),
                          m_label(NULL),
-                         m_checkSize(true)
+                         m_checkSize(true),
+                         m_matrixShape(SHAPE_NONE)
 {
 	m_uuid = QUuid::createUuid();
 }
@@ -242,5 +243,15 @@ QString InputSlot::description() const
 void InputSlot::setDescription(const QString &description)
 {
 	m_description = description;
+}
+
+MatrixShape InputSlot::matrixShape() const
+{
+	return m_matrixShape;
+}
+
+void InputSlot::setMatrixShape(const MatrixShape &matrixShape)
+{
+	m_matrixShape = matrixShape;
 }
 

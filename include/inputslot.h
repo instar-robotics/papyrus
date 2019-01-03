@@ -57,6 +57,9 @@ public:
 	QString description() const;
 	void setDescription(const QString &description);
 
+	MatrixShape matrixShape() const;
+	void setMatrixShape(const MatrixShape &matrixShape);
+
 private:
 	QUuid m_uuid;              // Unid ID for the slot (used for kheops)
 	bool m_multiple;           // Whether this slot can receive several links
@@ -66,6 +69,7 @@ private:
 	QGraphicsSimpleTextItem *m_label; // A label that contains this input's name
 	bool m_checkSize;          // Whether or not this input must check that sizes are correct (on SCALAR_MATRIX)
 	QString m_description;     // Description of the input
+	MatrixShape m_matrixShape; // The shape of the matrix it can accept
 signals:
 	void slotFull(); // Fired when trying to add a second input to a slot that doesn't allow multiple
 };

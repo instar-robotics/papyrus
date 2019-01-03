@@ -138,18 +138,22 @@ InputType stringToInputType(const QString &str)
  */
 bool canLink(const OutputType &from, const InputType &to)
 {
+	// In case of invalid input or output, nothing can be linked
+	if (to == INVALID_INPUT_TYPE || from == INVALID_OUTPUT_TYPE)
+		return false;
+
 	// If the input slot expects a scalar, only a scalar can be connected to it
-	if (from == SCALAR && to == SCALAR_SCALAR)
-		return true;
+	if (to == SCALAR_SCALAR)
+		return (from == SCALAR);
 
-	// If the input slot expects a matrix with any kind of connectivity, then only a matrix can
-	// be connected
-	if (from == MATRIX && to != SCALAR_SCALAR && to != STRING_INPUT)
-		return true;
+	// If the input slot expects a matrix (any kind of connectivity), then only a matrix can be connected to it
+	if (to == SCALAR_MATRIX || to == MATRIX_MATRIX) {
+		return (from == MATRIX);
+	}
 
-	// Match strings together
-	if (from == STRING && to == STRING_INPUT)
-		return true;
+	// If the input expects a string, only a string can be connected to it
+	if (to == STRING_INPUT)
+		return (from == STRING);
 
 	// other cases are invalid
 	return false;
@@ -547,3 +551,50 @@ QString matrixShapeToString(const MatrixShape shape)
 		    return "INVALID_MATRIX_SHAPE";
 	}
 }
+
+//*
+bool shapesMatch(DiagramBox *from, InputSlot *to)
+{
+	if (from == nullptr || to == nullptr)
+		informUserAndCrash(QObject::tr("Can't check if shapes match: null pointers!"));
+
+	// If the destination slot is not matrix, return true (no matrix shape)
+	if (to->inputType() != SCALAR_MATRIX && to->inputType() != MATRIX_MATRIX)
+		return true;
+
+	MatrixShape acceptedShape = to->matrixShape();
+
+	// If the destination slot has no shape requirement, return true
+	if (acceptedShape == SHAPE_NONE)
+		return true;
+
+	// If the destination box is invalid, report an issue
+	if (acceptedShape == INVALID_MATRIX_SHAPE)
+		informUserAndCrash(QObject::tr("Can't check if shapes match: invalid shape!"));
+
+	// Then perform match
+	int rows = from->rows();
+	int cols = from->cols();
+
+	switch (acceptedShape) {
+		case POINT:
+		    return (rows == 1 && cols == 1);
+		break;
+
+		case VECT:
+		    return (rows == 1 || cols == 1);
+		break;
+
+		case ROW_VECT:
+		    return (rows == 1);
+		break;
+
+		case COL_VECT:
+		    return (cols == 1);
+		break;
+
+		default:
+		    return false;
+	}
+}
+//*/

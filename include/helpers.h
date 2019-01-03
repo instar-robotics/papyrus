@@ -30,6 +30,8 @@ QString timeUnitToString(const TimeUnit &unit);
 
 bool canLink(const OutputType &from, const InputType &to);
 
+bool shapesMatch(DiagramBox *from, InputSlot *to);
+
 void informUserAndCrash(const QString &text, const QString &title = QObject::tr("Papyrus is about to crash!"));
 
 void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF &size, const QPointF &pos, bool center = true);

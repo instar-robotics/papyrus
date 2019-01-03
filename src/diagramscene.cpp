@@ -450,16 +450,20 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 			qint32 inputType_;
 			bool multiple;
 			bool checkSize;
+			MatrixShape inputMatrixShape;
+			qint32 inputMatrixShape_;
 
-			dataStream >> iName >> inputType_ >> multiple >> checkSize;
+			dataStream >> iName >> inputType_ >> multiple >> checkSize >> inputMatrixShape_;
 
-			// Cast the integer input type into enum InputType
+			// Cast the integer input types into enums
 			inputType = static_cast<InputType>(inputType_);
+			inputMatrixShape = static_cast<MatrixShape>(inputMatrixShape_);
 
 			InputSlot *iSlot = new InputSlot(iName);
 			iSlot->setInputType(inputType);
 			iSlot->setMultiple(multiple);
 			iSlot->setCheckSize(checkSize);
+			iSlot->setMatrixShape(inputMatrixShape);
 			inputSlots.push_back(iSlot);
 		}
 

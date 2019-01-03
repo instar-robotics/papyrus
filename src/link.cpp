@@ -173,6 +173,35 @@ bool Link::isStringLink()
 }
 
 /**
+ * @brief Link::updateToolTip updates the tooltip of the Link based on the reason why it's invalid,
+ * set it to empty string if it is valid
+ */
+void Link::updateTooltip()
+{
+	QString str;
+
+	if (m_invalidReason & TYPES_INCOMPATIBLE)
+		str += tr("<li>incompatible types between origin box and this slot's expected type</li>");
+
+	if (m_invalidReason & SIZES_DONT_MATCH)
+		str += tr("<li>size don't match for SCALAR_MATRIX type (checkSize = true)</li>");
+
+	if (m_invalidReason & SHAPE_MUST_BE_POINT)
+		str += tr("<li>slot is expecting a (1,1) matrix\n");
+	else if (m_invalidReason & SHAPE_MUST_BE_VECT)
+		str += tr("<li>slot is expecting a vector matrix (either a (N, 1) or a (1, N) matrix)</li>");
+	else if (m_invalidReason & SHAPE_MUST_BE_ROW_VECT)
+		str += tr("<li>slot is expecting a row vector (a (1, N) matrix)</li>");
+	else if (m_invalidReason & SHAPE_MUST_BE_COL_VECT)
+		str += tr("<li>slot is expecting a column vector (a (N, 1) matrix)</li>");
+
+	if (!str.isEmpty())
+		str = tr("Link is <strong>invalid</strong>:<ul>") + str + "</ul>";
+
+	setToolTip(str);
+}
+
+/**
  * @brief Link::addLinesToScene adds the segments that constitutes this Link to the scene.
  * Unfortunately we need to have a separate function: it cannot be done in the constructor, because
  * when we call new Link(from, to), the Link object is not yet added to the scene, so it cannot do
@@ -256,6 +285,16 @@ bool Link::checkIfSelfLoop()
 	else {
 		return false;
 	}
+}
+
+InvalidReason Link::invalidReason() const
+{
+	return m_invalidReason;
+}
+
+void Link::setInvalidReason(const InvalidReason &invalidReason)
+{
+	m_invalidReason = invalidReason;
 }
 
 Connectivity Link::connectivity() const
@@ -375,13 +414,18 @@ bool Link::checkIfInvalid()
 
 	// Start with a valid link
 	m_isInvalid = false;
+	m_invalidReason = INVALID_INVALID_REASON;
+	setToolTip("");
 
 	// First check if the types match
 	m_isInvalid = !canLink(m_from->outputType(), m_to->inputType());
 
 	// Early return if false
-	if (m_isInvalid)
+	if (m_isInvalid) {
+		m_invalidReason = TYPES_INCOMPATIBLE;
+		updateTooltip();
 		return false;
+	}
 
 	// Check sizes only if:
 	// - the target box's input slot is SCALAR_MATRIX
@@ -392,15 +436,27 @@ bool Link::checkIfInvalid()
 	    && boxTo->outputType() == MATRIX) {
 
 		// I *know* parentheses are optional here, but they increase readability, so sue me
-		m_isInvalid = m_isInvalid || (toRows != fromRows) || (toCols != fromCols);
+		bool checkSizeError = (toRows != fromRows) || (toCols != fromCols);
+		m_isInvalid = m_isInvalid || checkSizeError;
+
+		// Update reason if invalid
+		if (checkSizeError)
+			m_invalidReason = m_invalidReason | SIZES_DONT_MATCH;
 	}
 
 	// Check matrix shape requirement if target slot is matrix
 	if ((m_to->inputType() == SCALAR_MATRIX || m_to->inputType() == MATRIX_MATRIX)) {
-		m_isInvalid = m_isInvalid || !shapesMatch(boxFrom, m_to);
+		InvalidReason reason;
+		bool shapesMismatch = !shapesMatch(boxFrom, m_to, &reason);
+		m_isInvalid = m_isInvalid || shapesMismatch;
+
+		// Update reason if invalid
+		if (shapesMismatch)
+			m_invalidReason = m_invalidReason | reason;
 	}
 
 	// At the end, return wether we are invalid
+	updateTooltip();
 	return m_isInvalid;
 }
 

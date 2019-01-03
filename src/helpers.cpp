@@ -552,8 +552,16 @@ QString matrixShapeToString(const MatrixShape shape)
 	}
 }
 
-//*
-bool shapesMatch(DiagramBox *from, InputSlot *to)
+/**
+ * @brief shapesMatch checks if the shape of the origin box and the expected shape of the incoming
+ * @InputSlot match. Optional report the error when they don't match.
+ * @param from the origin box
+ * @param to the target box's @Inputslot
+ * @param reason (optional) a pointer to an @InvalidReason which will get updated in case the shapes
+ * don't match
+ * @return whether or not the shapes match
+ */
+bool shapesMatch(DiagramBox *from, InputSlot *to, InvalidReason *reason)
 {
 	if (from == nullptr || to == nullptr)
 		informUserAndCrash(QObject::tr("Can't check if shapes match: null pointers!"));
@@ -577,24 +585,51 @@ bool shapesMatch(DiagramBox *from, InputSlot *to)
 	int cols = from->cols();
 
 	switch (acceptedShape) {
+		bool pointOK;
+		bool vectOK;
+		bool rowOK;
+		bool colOK;
+
 		case POINT:
-		    return (rows == 1 && cols == 1);
+			pointOK = (rows == 1 && cols == 1);
+
+			if (reason != nullptr && !pointOK)
+				*reason = SHAPE_MUST_BE_POINT;
+
+		    return pointOK;
 		break;
 
 		case VECT:
-		    return (rows == 1 || cols == 1);
+			vectOK = (rows == 1 || cols == 1);
+
+			if (reason != nullptr && !vectOK)
+				*reason = SHAPE_MUST_BE_VECT;
+
+		    return vectOK;
 		break;
 
 		case ROW_VECT:
-		    return (rows == 1);
+			rowOK = (rows == 1);
+
+			if (reason != nullptr && !rowOK)
+				*reason = SHAPE_MUST_BE_ROW_VECT;
+
+		    return rowOK;
 		break;
 
 		case COL_VECT:
-		    return (cols == 1);
+			colOK = (cols == 1);
+
+			if (reason != nullptr && !colOK)
+				*reason = SHAPE_MUST_BE_COL_VECT;
+
+		    return colOK;
 		break;
 
 		default:
+			if (reason != nullptr)
+				*reason = INVALID_INVALID_REASON;
+
 		    return false;
 	}
 }
-//*/

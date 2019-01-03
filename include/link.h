@@ -24,67 +24,72 @@ Q_DECLARE_METATYPE(Connectivity);
 
 class Link : public QObject, public QGraphicsItem
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent = 0);
+	explicit Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent = 0);
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
-    QPainterPath shape() const;
-    bool isStringLink();
+	QRectF boundingRect() const;
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+	QPainterPath shape() const;
+	bool isStringLink();
+	void updateTooltip();
 
-    void addLinesToScene();
+	void addLinesToScene();
 
-    void updateLines();
+	void updateLines();
 
-    bool checkIfInvalid();
+	bool checkIfInvalid();
 
-    QUuid uuid() const;
-    void setUuid(const QUuid &uuid);
+	QUuid uuid() const;
+	void setUuid(const QUuid &uuid);
 
-    OutputSlot *from() const;
-    void setFrom(OutputSlot *from);
+	OutputSlot *from() const;
+	void setFrom(OutputSlot *from);
 
-    InputSlot *to() const;
-    void setTo(InputSlot *to);
+	InputSlot *to() const;
+	void setTo(InputSlot *to);
 
-    bool secondary() const;
-    void setSecondary(bool secondary);
+	bool secondary() const;
+	void setSecondary(bool secondary);
 
-    qreal weight() const;
-    void setWeight(const qreal &weight);
+	qreal weight() const;
+	void setWeight(const qreal &weight);
 
-    bool isInvalid() const;
-    void setIsInvalid(bool isInvalid);
+	bool isInvalid() const;
+	void setIsInvalid(bool isInvalid);
 
-    bool selfLoop() const;
+	bool selfLoop() const;
 
-    QString value() const;
-    void setValue(const QString &value);
+	QString value() const;
+	void setValue(const QString &value);
 
-    Connectivity connectivity() const;
-    void setConnectivity(const Connectivity &connectivity);
+	Connectivity connectivity() const;
+	void setConnectivity(const Connectivity &connectivity);
+
+	InvalidReason invalidReason() const;
+	void setInvalidReason(const InvalidReason &invalidReason);
 
 private:
-    bool checkIfSelfLoop();
+	bool checkIfSelfLoop();
 
-    QUuid m_uuid;           // Unique identifier
-    OutputSlot *m_from;     // The OutputSlot this link goes from
-    InputSlot *m_to;        // The InputSlot this link goes to
-    bool m_secondary;       // Tells whether a link is a secondary link
-    bool m_selfLoop;        // Tells whether a link loop back to the same function
+	QUuid m_uuid;           // Unique identifier
+	OutputSlot *m_from;     // The OutputSlot this link goes from
+	InputSlot *m_to;        // The InputSlot this link goes to
+	bool m_secondary;       // Tells whether a link is a secondary link
+	bool m_selfLoop;        // Tells whether a link loop back to the same function
 
-    QGraphicsLineItem m_line;          // Main line that represents the link
-    QGraphicsLineItem m_rightSegment;  // Right segment (for secondary links)
-    QGraphicsLineItem m_leftSegment;   // Left segment (for secondary links)
+	QGraphicsLineItem m_line;          // Main line that represents the link
+	QGraphicsLineItem m_rightSegment;  // Right segment (for secondary links)
+	QGraphicsLineItem m_leftSegment;   // Left segment (for secondary links)
 
-    qreal m_weight;            // The weight associated to this link
-    QString m_value;           // The string value associated to this link (when between strings)
+	qreal m_weight;            // The weight associated to this link
+	QString m_value;           // The string value associated to this link (when between strings)
 
-    bool m_isInvalid; // Tells that this link is currently not valid (error in type, in sizes, etc.)
+	bool m_isInvalid; // Tells that this link is currently not valid (error in type, in sizes, etc.)
+	InvalidReason m_invalidReason; // Tell why a link is invalid
 
-    Connectivity m_connectivity; // Only viable for MATRIX_MATRIX
+	Connectivity m_connectivity; // Only viable for MATRIX_MATRIX
 };
 
 #endif // LINK_H

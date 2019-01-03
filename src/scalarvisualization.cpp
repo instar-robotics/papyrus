@@ -43,8 +43,8 @@ ScalarVisualization::ScalarVisualization(QWidget *parent, QGraphicsScene *scene,
 void ScalarVisualization::mousePressEvent(QMouseEvent *evt)
 {
 	Q_UNUSED(evt);
-	qDebug() << "Click detected, what to do?^^";
-	qDebug() << "Layout Content Margins:" << layout()->contentsMargins();
+//	qDebug() << "Click detected, what to do?^^";
+//	qDebug() << "Layout Content Margins:" << layout()->contentsMargins();
 }
 
 void ScalarVisualization::updateBarValues(const std::vector<qreal> &values)
@@ -155,7 +155,8 @@ void ScalarVisualization::createCharts()
 
 	m_barChart = new QChart;
 	m_barChart->addSeries(m_barSeries);
-	m_barChart->setAnimationOptions(QChart::SeriesAnimations);
+//	m_barChart->setAnimationOptions(QChart::SeriesAnimations);
+	m_barChart->setAnimationOptions(QChart::NoAnimation);
 	m_barChart->createDefaultAxes();
 
 	m_barAxisY = new QValueAxis;

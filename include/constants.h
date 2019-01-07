@@ -55,8 +55,11 @@
 // Define the z-value for the data visualization windows (above boxes and links)
 #define DATA_Z_VALUE 10
 
-// Define the x-value for the rectangular comments (under everything)
+// Define the z-value for the rectangular comments (under everything)
 #define COMMENTS_Z_VALUE -10.0
+
+// Define the z-value for the neural boxes
+#define BOXES_Z_VALUE 5
 
 // Define the time (in minutes) after which the user is notified about modified, unsaved scripts
 #define TIME_WARN_MODIFIED 10

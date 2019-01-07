@@ -1,3 +1,12 @@
 Papyrus.pro.user*
 *.autosave
 shell.nix
+*.supp
+qtcreator.sh
+notes.md
+QtProject/
+CMakeLists.txt.original
+.qmake.stash
+iv
+key
+to-trash/

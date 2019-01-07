@@ -47,7 +47,8 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_sizeIcon(nullptr),
                                                 m_dataVis(nullptr),
                                                 m_dataProxy(nullptr),
-                                                m_isInvalid(false)
+                                                m_isInvalid(false),
+                                                m_swapCandidate(false)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -109,6 +110,8 @@ DiagramBox::DiagramBox(const QString &name,
 		inputSlot->setPos(g);
 		g.ry() += s;
 	}
+
+	setZValue(BOXES_Z_VALUE);
 }
 
 DiagramBox::~DiagramBox()
@@ -175,6 +178,21 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+bool DiagramBox::swapCandidate() const
+{
+	return m_swapCandidate;
+}
+
+void DiagramBox::setSwapCandidate(bool swapCandidate)
+{
+	m_swapCandidate = swapCandidate;
+}
+
+void DiagramBox::setUuid(const QUuid &uuid)
+{
+	m_uuid = uuid;
 }
 
 BoxInvalidReason DiagramBox::invalidReason() const
@@ -473,7 +491,13 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	// Fill enclosure (use a QPainterPath because there's no fillRoundedRect()
 	QPainterPath encPath;
 	encPath.addRoundedRect(QRectF(x0, y0, w, h), 7, 7);
-	painter->fillPath(encPath, Qt::white);
+
+	// Hint functions that are swap candidates
+	if (m_swapCandidate) {
+		QColor c(153, 102, 255, 100);
+		painter->fillPath(encPath, QBrush(c));
+	} else
+		painter->fillPath(encPath, Qt::white);
 
 	// Draw vertical lines to create compartments
 	painter->drawLine(QLineF(m_bWidth / 2.0 - width / 2.0, 1.5 * width, m_bWidth / 2.0 - width / 2.0, m_bHeight - m_tHeight - width));

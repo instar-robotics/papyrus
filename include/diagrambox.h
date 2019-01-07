@@ -57,6 +57,7 @@ public:
 	void setName(const QString &name);
 
 	QUuid uuid() const;
+	void setUuid(const QUuid &uuid);
 
 	int type();
 
@@ -120,6 +121,9 @@ public:
 	BoxInvalidReason invalidReason() const;
 	void setInvalidReason(const BoxInvalidReason &invalidReason);
 
+	bool swapCandidate() const;
+	void setSwapCandidate(bool swapCandidate);
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -164,6 +168,7 @@ private:
 
 	bool m_isInvalid; // Whether this box is invalid
 	BoxInvalidReason m_invalidReason; // Why this box is invalid
+	bool m_swapCandidate; // Set to true when the user is dropping another box on top of this one
 
 private slots:
 	void onDataVisClosed();

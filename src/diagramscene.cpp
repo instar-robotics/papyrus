@@ -25,6 +25,7 @@
 #include <QDockWidget>
 #include <QMenuBar>
 #include <QCursor>
+#include <QMessageBox>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_mainWindow(nullptr),
@@ -419,6 +420,34 @@ void DiagramScene::dragLeaveEvent(QGraphicsSceneDragDropEvent *evt)
 void DiagramScene::dragMoveEvent(QGraphicsSceneDragDropEvent *evt)
 {
 	if (evt->mimeData()->hasFormat(LibraryPanel::libraryItemMimeType())) {
+		// Mark boxes under cursor as drop candidates
+		QList<QGraphicsView *> vs = views();
+		// At the moment, for simplicity, we suppose there is only one view (that will change when
+		// we introduce the minimap
+		if (vs.count() != 1)
+			informUserAndCrash(tr("Only one view is supported at this moment (DiagramScene::mouseMoveEvent"));
+
+		QWidget *viewport = vs[0]->viewport();
+		QRect viewportRect(0, 0, viewport->width(), viewport->height());
+		QRectF visibleArea = vs[0]->mapToScene(viewportRect).boundingRect();
+
+		// First reset all visibles boxes as not swap candidate
+		foreach(QGraphicsItem *item, items(visibleArea)) {
+			DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+			if (box != nullptr) {
+				box->setSwapCandidate(false);
+				box->update();
+			}
+		}
+
+		// Thend check if there is a new swap candidate
+		foreach (QGraphicsItem *item, items(evt->scenePos())) {
+			DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(item);
+			if (maybeBox != nullptr) {
+				maybeBox->setSwapCandidate(true);
+				maybeBox->update();
+			}
+		}
 	} else {
 		evt->ignore();
 		emit(displayStatusMessage("Unsupported drop event, discarding."));
@@ -499,11 +528,107 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		newBox->setIconFilepath(iconFilepath);
 		newBox->setLibname(libname);
 		newBox->setMatrixShape(matrixShape);
-		addBox(newBox, evt->scenePos());
-		m_script->setStatusModified(true);
-		setBackgroundBrush(QBrush(Qt::white));
-		QString str(tr("Function '%1' added in script").arg(name));
-		emit(displayStatusMessage(str));
+
+		// Check if we should swap boxes or not
+		DiagramBox *toSwap = nullptr;
+		QList<QGraphicsItem *>maybeItems = items(evt->scenePos());
+		foreach (QGraphicsItem *item, maybeItems) {
+			DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(item);
+
+			if (maybeBox != nullptr) {
+				toSwap = maybeBox;
+				break;
+			}
+		}
+
+		// If no box was found to swap, simply add the box as normal
+		if (toSwap == nullptr) {
+			addBox(newBox, evt->scenePos());
+			m_script->setStatusModified(true);
+			setBackgroundBrush(QBrush(Qt::white));
+
+			QString str(tr("Function '%1' added in script").arg(name));
+			emit(displayStatusMessage(str));
+		} else {
+			switch (QMessageBox::question(nullptr, tr("Swap boxes?"),
+			                      tr("You dropped box %1 on top of box %2, do you want to swap them?")
+			                              .arg(newBox->name(), toSwap->name()))) {
+				case QMessageBox::Yes:
+					// Add the new box in place of the box to swap
+					addBox(newBox, toSwap->scenePos());
+
+					// Substitute the box information
+					newBox->setUuid(toSwap->uuid());
+					newBox->setSaveActivity(toSwap->saveActivity());
+					newBox->setPublish(toSwap->publish());
+					newBox->setTopic(toSwap->topic());
+					newBox->setTitle(toSwap->title());
+					// Rows and cols are copied (valid for matrix, and ignored for scalar)
+					newBox->setRows(toSwap->rows());
+					newBox->setCols(toSwap->cols());
+
+					// Now we transfer as much links as possible from the "old box" (toSwap)
+					// to the new one. The idea is to keep all links from the inputs who have the
+					// same name, and discard the others.
+					// Be warned, though: same name doesn't necessarily imply same type, so the
+					// copies links might be invalid.
+					foreach (InputSlot *iSlot, newBox->inputSlots()) {
+						if (iSlot == nullptr) {
+							qWarning() << "Null pointer found in new, freshly dropped box while "
+							              "trying to swap";
+							continue;
+						}
+						// For each input of the new box, look in toSwap's inputs for similarly-named
+						// This is N*M, which is ugly :/
+						foreach (InputSlot *swapSlot, toSwap->inputSlots()) {
+							if (swapSlot == nullptr) {
+								qWarning() << "Null pointer found in box to be swapped.";
+								continue;
+							}
+
+							if (swapSlot->name() != iSlot->name())
+								continue;
+
+							// We found an input slot named similarly, so now, transfer all links
+							foreach (Link *link, swapSlot->inputs()) {
+								// First, if this is a self-link, update the origin
+								if (link->from()->box() == toSwap) {
+									toSwap->outputSlot()->removeOutput(link);
+
+									link->setFrom(newBox->outputSlot());
+									newBox->outputSlot()->addOutput(link);
+								}
+
+								// Now update the destination box (should be done after, because
+								// 'setTo()' checks origin box to set 'isSelfLoop'
+								link->setTo(iSlot);
+
+								// Remove this link from the inputs of the box to swap
+								swapSlot->removeInput(link);
+
+								// Add this link as inputs for the new box
+								iSlot->addInput(link);
+							}
+						}
+					}
+
+					// Then delete swap box
+					deleteItem(toSwap);
+					emit displayStatusMessage(tr("Boxes swapped!"));
+				break;
+
+				case QMessageBox::No:
+					// Mark the box as not a swap candidate anymore
+					toSwap->setSwapCandidate(false);
+					toSwap->update();
+					emit displayStatusMessage(tr("Swapping cancelled."));
+				break;
+
+				default:
+					emit displayStatusMessage(tr("Swapping cancelled."));
+			}
+		}
+
 	} else {
 		evt->ignore();
 		emit(displayStatusMessage("Unsupported drop event, discarding."), MSG_WARNING);

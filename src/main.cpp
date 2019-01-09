@@ -15,6 +15,8 @@ int main(int argc, char *argv[])
 
 	ros::init(argc, argv, "Papyrus");
 
+	ros::NodeHandle nh; // Creating this node handles fully initializes ROS ressources
+
 	PapyrusWindow mainWindow(argc, argv);
 	mainWindow.setWindowTitle(APP_NAME);
 	mainWindow.setWindowIcon(QIcon(":/icons/icons/papyrus.svg"));

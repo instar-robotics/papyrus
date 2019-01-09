@@ -516,13 +516,20 @@ QString Script::name() const
 
 void Script::setName(const QString &name)
 {
+	// Prevent logic with ROS Session to happen since the name is empty
+	if (name.isEmpty()) {
+		return;
+	}
 	m_name = name;
 
 	// Also set the ROS node name
-	m_nodeName = QString("/kheops_%1").arg(sanitizeTopicName(m_name));
+	QString sanitizedTopicName = sanitizeTopicName(m_name);
+	if (!sanitizedTopicName.isEmpty())
+		m_nodeName = QString("/kheops_%1").arg(sanitizedTopicName);
 
 	// And then (re)create a ROSSession with the new name
 	if (m_rosSession != nullptr) {
+		qDebug() << "\tStop currently active session";
 		m_rosSession->setShouldQuit(true);
 		m_rosSession->wait(500);
 		delete m_rosSession;
@@ -896,6 +903,9 @@ ScriptStatus Script::queryScriptStatus()
  */
 void Script::setupROSSession()
 {
+	if (m_nodeName.isEmpty()) {
+		return;
+	}
 	m_rosSession = new ROSSession(m_nodeName);
 
 	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));

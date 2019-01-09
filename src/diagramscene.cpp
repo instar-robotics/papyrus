@@ -608,6 +608,10 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 
 								// Add this link as inputs for the new box
 								iSlot->addInput(link, true);
+
+								// Check if this new link is invalid
+								if (link->checkIfInvalid() && m_script != nullptr)
+									m_script->setIsInvalid(true);
 							}
 						}
 					}
@@ -622,7 +626,15 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 						toSwap->outputSlot()->removeOutput(link);
 						newBox->outputSlot()->addOutput(link);
 						link->setFrom(newBox->outputSlot());
+
+						// Check if this new link is invalid
+						if (link->checkIfInvalid() && m_script != nullptr)
+							m_script->setIsInvalid(true);
 					}
+
+					// Check if the new box is invalid
+					if (newBox->checkIfBoxInvalid() && m_script != nullptr)
+						m_script->setIsInvalid(true);
 
 					// Then delete swap box
 					deleteItem(toSwap);

@@ -31,7 +31,7 @@ public:
 
 	std::vector<Link *> inputs() const;
 
-	void addInput(Link *input);
+	void addInput(Link *input, bool ignoreFull = false);
 	void removeInput(Link *input);
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;

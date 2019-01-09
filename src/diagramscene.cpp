@@ -607,9 +607,21 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 								swapSlot->removeInput(link);
 
 								// Add this link as inputs for the new box
-								iSlot->addInput(link);
+								iSlot->addInput(link, true);
 							}
 						}
+					}
+
+					// Also re-link all outputs
+					foreach (Link *link, toSwap->outputSlot()->outputs()) {
+						if (link == nullptr) {
+							qWarning() << "Null pointer found in output slot of a box to swap";
+							continue;
+						}
+
+						toSwap->outputSlot()->removeOutput(link);
+						newBox->outputSlot()->addOutput(link);
+						link->setFrom(newBox->outputSlot());
 					}
 
 					// Then delete swap box

@@ -64,14 +64,18 @@ std::vector<Link *> InputSlot::inputs() const
 /**
  * @brief Add a new input Link to this slot
  * @param input: the new input to add
+ * @param ignoreFull: normally when adding a new link to an input slot that has "multiple=false"
+ * cannot be done: it triggers a "slotFull" event. When "ignoreFull=true" this check is ignored and
+ * the link **will** be added anyway (this is done so that we can use the function swapping feature,
+ * which is then responsible for checking is the box and links are invalid or not)
  */
-void InputSlot::addInput(Link *input)
+void InputSlot::addInput(Link *input, bool ignoreFull)
 {
 	if (input == NULL)
 		return;
 
 	// If the input slot is set not to allow multiple values, only add if the set is empty
-	if (!m_multiple && !m_inputs.empty()) {
+	if (!ignoreFull && !m_multiple && !m_inputs.empty()) {
 		emit slotFull();
 		return;
 	}

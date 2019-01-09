@@ -58,7 +58,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_actionRelease(NULL),
     m_actionDebug(NULL),
     m_lastDir(QDir::homePath()),
-    m_checkVersionTimer(nullptr)
+    m_checkVersionTimer(nullptr),
+    m_preventROSPopup(true)
 {
 	// First of all set the UI according to the UI file (MUST be called before the rest)
 	m_ui->setupUi(this);
@@ -300,6 +301,9 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
 	// Show the changelog
 	QTimer::singleShot(100, this, SLOT(onLaunched()));
+
+	// Re-enable ROS pop-ups
+	QTimer::singleShot(1050, this, SLOT(reEnableROSPopUp()));
 }
 
 PapyrusWindow::~PapyrusWindow()
@@ -740,19 +744,21 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
 		m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
 		m_ui->statusBar->showMessage(tr("The ROS master just went online"));
 
-		trayIcon->showMessage(tr("ROS Master just went back up!"),
-		                      tr("The ROS Master just went back online!\nSo connections with "
-		                         "services and topics should be available again."),
-		                      QSystemTrayIcon::Information);
+		if (!m_preventROSPopup)
+			trayIcon->showMessage(tr("ROS Master just went back up!"),
+			                      tr("The ROS Master just went back online!\nSo connections with "
+			                         "services and topics should be available again."),
+			                      QSystemTrayIcon::Information);
 	} else {
 		QIcon rosMasterIconOFF(":/icons/icons/ros-master-off.svg");
 		m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
 		m_ui->statusBar->showMessage(tr("The ROS master just went offline"));
 
-		trayIcon->showMessage(tr("ROS Master just went down"),
-		                      tr("The ROS Master just went offline, so connection with every ROS "
-		                         "topics or services are currently unavailable!"),
-		                      QSystemTrayIcon::Warning);
+		if (!m_preventROSPopup)
+			trayIcon->showMessage(tr("ROS Master just went down"),
+			                      tr("The ROS Master just went offline, so connection with every ROS "
+			                         "topics or services are currently unavailable!"),
+			                      QSystemTrayIcon::Warning);
 
 		// Stop the current thread, and recreate one (to re-init ROS, etc.)
 		delete m_rosnode;
@@ -1363,6 +1369,17 @@ void PapyrusWindow::checkForNewRelease()
 			                                                              QString::number(newReleaseBugfix))));
 		}
 	}
+}
+
+/**
+ * @brief PapyrusWindow::reEnableROSPopUp re-enables the ROS pop-ups to be displayed. To prevent an
+ * initial pop-up saying that the ROS master has come back up (there'an initial trigger of the event)
+ * which would be displayed every time Papyrus starts, we disable the display of these pop-ups.
+ * This function re-enables them
+ */
+void PapyrusWindow::reEnableROSPopUp()
+{
+	m_preventROSPopup = false;
 }
 
 /**

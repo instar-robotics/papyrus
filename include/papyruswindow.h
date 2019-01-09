@@ -147,6 +147,7 @@ private:
 	QTimer *m_autoSaveTimer;    // Timer to trigger auto save for scripts
 	QString m_changelogVersion; // Used to know if we should show the changelog on launch
 	QTimer *m_checkVersionTimer; // Timer that periodically check for new version release
+	bool m_preventROSPopup;     // Prevents displaying ROS master pop-ups
 
 signals:
 	void toggleDisplayGrid(bool);
@@ -168,6 +169,7 @@ private slots:
 	void onLaunched();
 	void openScript(QString path = "");
 	void checkForNewRelease();
+	void reEnableROSPopUp();
 
 	void on_actionExit_triggered();
 

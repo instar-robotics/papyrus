@@ -56,7 +56,9 @@ HEADERS += include/category.h \
            include/zone.h \
            include/setcolorbutton.h \
            include/changelog.h \
-           include/token.h
+           include/token.h \
+           include/proplineedit.h \
+           include/propdoublespinbox.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -96,6 +98,8 @@ SOURCES += src/category.cpp \
            src/matrixfetcher.cpp \
            src/matrixvisualization.cpp \
            src/zone.cpp \
-           src/setcolorbutton.cpp
+           src/setcolorbutton.cpp \
+           src/proplineedit.cpp \
+           src/propdoublespinbox.cpp
 
 RESOURCES += icons.qrc

@@ -6,6 +6,8 @@
 #include "script.h"
 #include "zone.h"
 #include "setcolorbutton.h"
+#include "proplineedit.h"
+#include "propdoublespinbox.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -65,8 +67,8 @@ public:
 	QLabel *scriptName() const;
 	void setScriptName(QLabel *scriptName);
 
-	QDoubleSpinBox *timeValue() const;
-	void setTimeValue(QDoubleSpinBox *timeValue);
+	PropDoubleSpinBox *timeValue() const;
+	void setTimeValue(PropDoubleSpinBox *timeValue);
 
 	QComboBox *timeUnit() const;
 	void setTimeUnit(QComboBox *timeUnit);
@@ -77,14 +79,14 @@ public:
 	QPushButton *displayVisu() const;
 	void setDisplayVisu(QPushButton *displayVisu);
 
-	QLineEdit *zoneTitle() const;
-	void setZoneTitle(QLineEdit *zoneTitle);
+	PropLineEdit *zoneTitle() const;
+	void setZoneTitle(PropLineEdit *zoneTitle);
 
 	SetColorButton *zoneColor() const;
 	void setZoneColor(SetColorButton *zoneColor);
 
-	QLineEdit *boxTitle() const;
-	void setBoxTitle(QLineEdit *boxTitle);
+	PropLineEdit *boxTitle() const;
+	void setBoxTitle(PropLineEdit *boxTitle);
 
 	QLabel *boxMatrixShape() const;
 	void setBoxMatrixShape(QLabel *boxMatrixShape);
@@ -94,21 +96,21 @@ private:
 	QFrame *m_scriptFrame;       // Container for script's properties
 	QLabel *m_scriptName;        // Label used to change the script (and tab) name
 	QLabel *m_timeLabel;         // Contains either "frequency" or "period"
-	QDoubleSpinBox *m_timeValue; // Used to input the script's frequency (or period)
+	PropDoubleSpinBox *m_timeValue; // Used to input the script's frequency (or period)
 	QComboBox *m_timeUnit;       // Used to select the unit (in Hz or ms)
 	QCheckBox *m_encrypt;        // Whether or not the file is encrypted on save
 
 	QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
 	QFrame *m_boxFrame;        // Container for box's properties
 	QLabel *m_boxName;         // Display the name of the box
-	QLineEdit *m_boxTitle;     // Allow to see or change the box's custom name
+	PropLineEdit *m_boxTitle;     // Allow to see or change the box's custom name
 	QLabel *m_boxOutputType;   // Display the box's output type (scalar, matrix)
 	QLabel *m_boxMatrixShape;  // Display the shape of the function (when matrix)
 	QSpinBox *m_rowsInput;     // Spin box to input number of rows in the output (if matrix)
 	QSpinBox *m_colsInput;     // Spin box to input number of columns in the output (if matrix)
 	QCheckBox *m_saveActivity; // To enable saving the activity of the box
 	QCheckBox *m_publish;      // To enable publish the output of the function
-	QLineEdit *m_topic;        // To input the topic name for publishing
+	PropLineEdit *m_topic;        // To input the topic name for publishing
 	QPushButton *m_displayVisu; // (TEMP) display the box's data vizualisation
 
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
@@ -120,7 +122,7 @@ private:
 
 	QFormLayout *m_zoneLayout;     // Contains the layout to display comment zone's properties
 	QFrame *m_zoneFrame;           // Container for zone's properties
-	QLineEdit *m_zoneTitle;        // The comment zone's title
+	PropLineEdit *m_zoneTitle;        // The comment zone's title
 	SetColorButton *m_zoneColor;     // Holds the color of the comment zone
 
 	// Will contain the sizes of connected matrix when the link is SPARSE_MATRIX

@@ -68,7 +68,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	scriptTitle.setFont(scriptFont);
 	m_scriptName = new QLabel;
 	m_timeLabel = new QLabel(tr("Freq:"));
-	m_timeValue = new QDoubleSpinBox;
+	m_timeValue = new PropDoubleSpinBox;
 	m_timeUnit = new QComboBox;
 	m_encrypt = new QCheckBox;
 
@@ -77,10 +77,10 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_timeValue->setRange(MIN_TIME_VALUE, MAX_TIME_VALUE);
 	m_timeValue->setDecimals(3);
 	m_timeValue->setSuffix(" Hz");
+	m_timeValue->setFixedWidth(130);
 	m_timeUnit->addItem("Hz", HZ);
 	m_timeUnit->addItem("ms", MS);
 	connect(m_timeUnit, SIGNAL(currentIndexChanged(int)), SLOT(convertTimeValues(int)));
-	m_timeValue->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_timeUnit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	// Add fields to layout
@@ -88,21 +88,21 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	scriptLayout->addRow(tr("Name:"), m_scriptName);
 	scriptLayout->addRow(m_timeLabel, m_timeValue);
 	scriptLayout->addRow(tr("Unit:"), m_timeUnit);
-	scriptLayout->addRow(tr("Encrypted:"), m_encrypt);
+	scriptLayout->addRow(tr("Crypted:"), m_encrypt);
 
 	m_scriptFrame->setLayout(scriptLayout);
 
 	// Create the layout for the frames
 	m_boxLayout = new QFormLayout;
 	m_boxName = new QLabel;
-	m_boxTitle = new QLineEdit;
+	m_boxTitle = new PropLineEdit;
 	m_boxOutputType = new QLabel;
 	m_boxMatrixShape = new QLabel;
 	m_rowsInput = new QSpinBox;
 	m_colsInput = new QSpinBox;
 	m_saveActivity = new QCheckBox(tr("Save Activity"));
 	m_publish = new QCheckBox(tr("Publish output"));
-	m_topic = new QLineEdit;
+	m_topic = new PropLineEdit;
 	m_displayVisu = new QPushButton(tr("Display Visualization"));
 
 	// Parameterize the fields
@@ -111,6 +111,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	QFont f(m_boxName->font());
 	f.setBold(true);
 	m_boxName->setFont(f);
+	m_boxTitle->setSizeHint(QSize(170, 35));
+	m_topic->setSizeHint(QSize(170, 35));
 	m_rowsInput->setRange(1, MAX_ROWS);
 	m_colsInput->setRange(1, MAX_COLS);
 	m_rowsInput->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -161,9 +163,10 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	// Create the layout for the zone
 	m_zoneLayout = new QFormLayout;
 	m_zoneLayout->setContentsMargins(0, 0, 0, 0);
-	m_zoneTitle = new QLineEdit;
+	m_zoneTitle = new PropLineEdit;
 	m_zoneColor = new SetColorButton;
 
+	m_zoneTitle->setSizeHint(QSize(170, 35));
 	m_zoneLayout->addRow(tr("Title:"), m_zoneTitle);
 	m_zoneLayout->addRow(tr("Color:"), m_zoneColor);
 
@@ -275,12 +278,12 @@ void PropertiesPanel::setScriptName(QLabel *scriptName)
 	m_scriptName = scriptName;
 }
 
-QDoubleSpinBox *PropertiesPanel::timeValue() const
+PropDoubleSpinBox *PropertiesPanel::timeValue() const
 {
 	return m_timeValue;
 }
 
-void PropertiesPanel::setTimeValue(QDoubleSpinBox *timeValue)
+void PropertiesPanel::setTimeValue(PropDoubleSpinBox *timeValue)
 {
 	m_timeValue = timeValue;
 }
@@ -315,12 +318,12 @@ void PropertiesPanel::setDisplayVisu(QPushButton *displayVisu)
 	m_displayVisu = displayVisu;
 }
 
-QLineEdit *PropertiesPanel::zoneTitle() const
+PropLineEdit *PropertiesPanel::zoneTitle() const
 {
 	return m_zoneTitle;
 }
 
-void PropertiesPanel::setZoneTitle(QLineEdit *zoneTitle)
+void PropertiesPanel::setZoneTitle(PropLineEdit *zoneTitle)
 {
 	m_zoneTitle = zoneTitle;
 }
@@ -335,12 +338,12 @@ void PropertiesPanel::setZoneColor(SetColorButton *zoneColor)
 	m_zoneColor = zoneColor;
 }
 
-QLineEdit *PropertiesPanel::boxTitle() const
+PropLineEdit *PropertiesPanel::boxTitle() const
 {
 	return m_boxTitle;
 }
 
-void PropertiesPanel::setBoxTitle(QLineEdit *boxTitle)
+void PropertiesPanel::setBoxTitle(PropLineEdit *boxTitle)
 {
 	m_boxTitle = boxTitle;
 }
@@ -575,6 +578,10 @@ void PropertiesPanel::displayScriptProperties(Script *script)
 	m_scriptFrame->show();
 	m_okBtn->show();
 	m_cancelBtn->show();
+
+	m_timeValue->adjustSize();
+	qDebug() << "Size Hint:" << m_timeValue->sizeHint();
+	qDebug() << "Size:" << m_timeValue->size();
 }
 
 void PropertiesPanel::displayZoneProperties(Zone *zone)

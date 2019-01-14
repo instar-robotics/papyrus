@@ -59,7 +59,8 @@ HEADERS += include/category.h \
            include/token.h \
            include/proplineedit.h \
            include/propdoublespinbox.h \
-           include/movecommand.h
+           include/movecommand.h \
+           include/addboxcommand.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -102,6 +103,7 @@ SOURCES += src/category.cpp \
            src/setcolorbutton.cpp \
            src/proplineedit.cpp \
            src/propdoublespinbox.cpp \
-           src/movecommand.cpp
+           src/movecommand.cpp \
+           src/addboxcommand.cpp
 
 RESOURCES += icons.qrc

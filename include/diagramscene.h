@@ -36,6 +36,8 @@ public:
 	bool shouldDrawGrid() const;
 	void setShouldDrawGrid(bool shouldDrawGrid);
 
+	void removeItem(QGraphicsItem *item);
+
 	int gridSize() const;
 
 	Script *script() const;
@@ -78,8 +80,6 @@ protected:
 	void deleteItem(Link *link);
 	void deleteItem(DiagramBox *box);
 	void deleteItem(Zone *zone);
-
-	void removeItem(QGraphicsItem *item);
 
 	void drawBackground(QPainter *painter, const QRectF &rect);
 

@@ -10,6 +10,7 @@
 #include "script.h"
 #include "constantdiagrambox.h"
 #include "datavisualization.h"
+#include "addboxcommand.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -554,7 +555,14 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 
 		// If no box was found to swap, simply add the box as normal
 		if (toSwap == nullptr) {
-			addBox(newBox, evt->scenePos());
+//			addBox(newBox, evt->scenePos());
+			AddBoxCommand *addBoxCommand = new AddBoxCommand(this, newBox, evt->scenePos());
+			if (m_undoStack == nullptr) {
+				qWarning() << "[DiagramScene::dropEvent] cannot add box to scene: no undo stack!";
+				return;
+			}
+			m_undoStack->push(addBoxCommand);
+
 			m_script->setStatusModified(true);
 			setBackgroundBrush(QBrush(Qt::white));
 

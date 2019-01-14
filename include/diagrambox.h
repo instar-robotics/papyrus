@@ -43,6 +43,7 @@ public:
 	QRectF boundingRect() const override;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	Script *getScript();
 	bool checkIfBoxInvalid();
@@ -169,6 +170,8 @@ private:
 	bool m_isInvalid; // Whether this box is invalid
 	BoxInvalidReason m_invalidReason; // Why this box is invalid
 	bool m_swapCandidate; // Set to true when the user is dropping another box on top of this one
+
+	QPointF m_oldPos; // Start position when moved (to enable undo)
 
 private slots:
 	void onDataVisClosed();

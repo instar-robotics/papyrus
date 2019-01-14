@@ -32,6 +32,8 @@
         <file>icons/hide.svg</file>
         <file>icons/shortcut.svg</file>
         <file>icons/changelog.svg</file>
+        <file>icons/undo.svg</file>
+        <file>icons/redo.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

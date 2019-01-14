@@ -9,6 +9,7 @@
 
 #include <QGraphicsScene>
 #include <QUuid>
+#include <QUndoStack>
 
 // Forward declaration because of recursive include
 class Script;
@@ -55,6 +56,9 @@ public:
 	QGraphicsRectItem *rect() const;
 	void setRect(QGraphicsRectItem *rect);
 
+	QUndoStack *undoStack() const;
+	void setUndoStack(QUndoStack *undoStack);
+
 public slots:
 	void toggleDisplayGrid(bool shouldDraw);
 	void onOkBtnClicked(bool);
@@ -65,6 +69,7 @@ protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *evt);
 	void dragEnterEvent(QGraphicsSceneDragDropEvent *evt);
 	void dragLeaveEvent(QGraphicsSceneDragDropEvent *evt);
 	void dragMoveEvent(QGraphicsSceneDragDropEvent *evt);
@@ -91,6 +96,7 @@ private:
 	Script *m_script;        // The script to which this scene is associated
 	bool m_displayLabels;    // Whether or not to display input slots's names
 	bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
+	QUndoStack *m_undoStack; // The stack to allow for undo / redo commands
 
 private slots:
 	void onSelectionChanged();

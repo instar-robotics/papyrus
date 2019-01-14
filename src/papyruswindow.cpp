@@ -2068,3 +2068,43 @@ void PapyrusWindow::on_actionReopen_last_scripts_triggered()
 {
 
 }
+
+void PapyrusWindow::on_actionUndo_triggered()
+{
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("Can't undo: no active script!"), MSG_ERROR);
+		return;
+	}
+
+	if (m_activeScript->scene() == nullptr) {
+		emit displayStatusMessage(tr("Can't undo: no scene in active script!"), MSG_ERROR);
+		return;
+	}
+
+	if (m_activeScript->scene()->undoStack() == nullptr) {
+		emit displayStatusMessage(tr("Can't undo: no undo stack in active script's scene!"), MSG_ERROR);
+		return;
+	}
+
+	m_activeScript->scene()->undoStack()->undo();
+}
+
+void PapyrusWindow::on_actionRedo_triggered()
+{
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("Can't redo: no active script!"), MSG_ERROR);
+		return;
+	}
+
+	if (m_activeScript->scene() == nullptr) {
+		emit displayStatusMessage(tr("Can't redo: no scene in active script!"), MSG_ERROR);
+		return;
+	}
+
+	if (m_activeScript->scene()->undoStack() == nullptr) {
+		emit displayStatusMessage(tr("Can't redo: no undo stack in active script's scene!"), MSG_ERROR);
+		return;
+	}
+
+	m_activeScript->scene()->undoStack()->redo();
+}

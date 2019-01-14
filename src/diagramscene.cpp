@@ -38,11 +38,14 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_rect(nullptr),
                                             m_oSlot(nullptr),
                                             m_script(nullptr),
-                                            m_displayLabels(false)
+                                            m_displayLabels(false),
+                                            m_undoStack(nullptr)
 {
 	m_mainWindow = getMainWindow();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
+
+	m_undoStack = new QUndoStack(this);
 
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
@@ -61,6 +64,8 @@ DiagramScene::~DiagramScene()
 	// do not call delete on m_oSlot because it's only a cast and not something we created
 	delete m_script;
 	m_script = nullptr;
+
+	delete m_undoStack;
 }
 
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
@@ -377,6 +382,12 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
 	// Important! Otherwise the box's position doesn't get updated.
 	QGraphicsScene::mouseReleaseEvent(evt);
+}
+
+void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *evt)
+{
+	qDebug() << "Items in stack:" << m_undoStack->count();
+	qDebug() << "Index:" << m_undoStack->index();
 }
 
 void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
@@ -834,6 +845,16 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
 	}
 
 	painter->drawPoints(dots.data(), dots.size());
+}
+
+QUndoStack *DiagramScene::undoStack() const
+{
+	return m_undoStack;
+}
+
+void DiagramScene::setUndoStack(QUndoStack *undoStack)
+{
+	m_undoStack = undoStack;
 }
 
 QGraphicsRectItem *DiagramScene::rect() const

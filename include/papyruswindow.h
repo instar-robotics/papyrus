@@ -217,6 +217,8 @@ private slots:
 	void on_actionList_shortcuts_triggered();
 	void on_actionChangelog_triggered(bool isNewRelease = false);
 	void on_actionReopen_last_scripts_triggered();
+	void on_actionUndo_triggered();
+	void on_actionRedo_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

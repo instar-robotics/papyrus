@@ -7,6 +7,7 @@
 #include "vectorvisualization.h"
 #include "matrixvisualization.h"
 #include "zone.h"
+#include "movecommand.h"
 
 #include <iostream>
 
@@ -527,6 +528,13 @@ void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsItem::mouseDoubleClickEvent(event);
 }
 
+void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
+{
+	Q_UNUSED(evt);
+
+	m_oldPos = scenePos();
+}
+
 /**
  * @brief DiagramBox::mouseReleaseEvent check if this @DiagramBox was moved _outside_ a @Zone, and
  * if yes, it removes itself from this @Zone's children
@@ -534,6 +542,9 @@ void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
  */
 void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+	QPointF newPos = scenePos();
+	bool moved = (m_oldPos != newPos);
+
 	QList<QGraphicsItem *> colliding = collidingItems();
 	bool onZone = false;
 
@@ -560,6 +571,20 @@ void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 		foreach (InputSlot *iSlot, inputSlots()) {
 			iSlot->updateLinks();
 		}
+	}
+
+	if (moved) {
+		qDebug() << "Adding the move to the Undo stack";
+		MoveCommand *moveCommand = new MoveCommand(this, m_oldPos);
+
+		DiagramScene *dScene = dynamic_cast<DiagramScene *>(scene());
+		if (dScene == nullptr) {
+			qWarning() << "[DiagramBox::mouseReleaseEvent] cannot add MoveCommand to undo stack: no "
+			              "scene found!";
+			return QGraphicsItem::mouseReleaseEvent(event);
+		}
+
+		dScene->undoStack()->push(moveCommand);
 	}
 
 	QGraphicsItem::mouseReleaseEvent(event);

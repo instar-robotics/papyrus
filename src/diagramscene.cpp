@@ -12,6 +12,7 @@
 #include "datavisualization.h"
 #include "addboxcommand.h"
 #include "swapboxescommand.h"
+#include "addlinkcommand.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -341,14 +342,20 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 						// Finally, check that the slot destination is not full
 						if (!isFull(maybeSlot)) {
 							Link *zelda = new Link(m_oSlot, maybeSlot);
-							addItem(zelda); // Important to add the Link to the scene first
-							zelda->addLinesToScene(); // And then it's important to call this to add the segments to the scene
-							if (zelda->checkIfInvalid()) {
-								emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
-								script()->setIsInvalid(true);
-							}
+//							addItem(zelda); // Important to add the Link to the scene first
+//							zelda->addLinesToScene(); // And then it's important to call this to add the segments to the scene
+//							if (zelda->checkIfInvalid()) {
+//								emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
+//								script()->setIsInvalid(true);
+//							}
 
-							zelda->setZValue(LINKS_Z_VALUE);
+//							zelda->setZValue(LINKS_Z_VALUE);
+							AddLinkCommand *addLinkCommand = new AddLinkCommand(this, zelda);
+							if (m_undoStack == nullptr) {
+								qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add link to scene: no undo stack!";
+								return;
+							}
+							m_undoStack->push(addLinkCommand);
 
 							emit displayStatusMessage(tr("New link created."));
 							script()->setStatusModified(true);

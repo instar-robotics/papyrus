@@ -21,7 +21,7 @@ public:
 private:
 	DiagramScene *m_scene; // The scene in which the box should be added
 	DiagramBox *m_box;     // The DiagramBox to add to the scene
-	QPointF m_initialPos;    // The initial position at which the box is added
+	QPointF m_initialPos;  // The initial position at which the box is added
 };
 
 #endif // ADDBOXCOMMAND_H

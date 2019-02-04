@@ -43,7 +43,8 @@ InputSlot::InputSlot(const QString &name) : InputSlot()
 
 InputSlot::~InputSlot()
 {
-	delete m_label;
+	if (m_label != nullptr)
+		delete m_label;
 }
 
 bool InputSlot::multiple() const

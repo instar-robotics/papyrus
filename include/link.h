@@ -36,6 +36,7 @@ public:
 	void updateTooltip();
 
 	void addLinesToScene();
+	void removeLinesFromScene();
 
 	void updateLines();
 

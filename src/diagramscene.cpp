@@ -11,6 +11,7 @@
 #include "constantdiagrambox.h"
 #include "datavisualization.h"
 #include "addboxcommand.h"
+#include "swapboxescommand.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -387,6 +388,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
 void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *evt)
 {
+	Q_UNUSED(evt);
 	qDebug() << "Items in stack:" << m_undoStack->count();
 	qDebug() << "Index:" << m_undoStack->index();
 }
@@ -569,32 +571,46 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 			QString str(tr("Function '%1' added in script").arg(name));
 			emit(displayStatusMessage(str));
 		} else {
+			SwapBoxesCommand *swapBoxesCommand = nullptr;
 			switch (QMessageBox::question(nullptr, tr("Swap boxes?"),
 			                      tr("You dropped box %1 on top of box %2, do you want to swap them?")
 			                              .arg(newBox->name(), toSwap->name()))) {
 				case QMessageBox::Yes:
+					//*
+					swapBoxesCommand = new SwapBoxesCommand(this,
+					                                        toSwap,
+					                                        newBox);
+
+					if (m_undoStack == nullptr) {
+						qWarning() << "[DiagramScene::dropEvent] cannot swap boxes: no undo stack!";
+						return;
+					}
+					m_undoStack->push(swapBoxesCommand);
+				break;
+					//*/
 					// Add the new box in place of the box to swap
-					addBox(newBox, toSwap->scenePos());
+//					addBox(newBox, toSwap->scenePos());
 
 					// Substitute the box information
-					newBox->setUuid(toSwap->uuid());
-					newBox->setSaveActivity(toSwap->saveActivity());
-					newBox->setPublish(toSwap->publish());
-					newBox->setTopic(toSwap->topic());
-					newBox->setTitle(toSwap->title());
+//					newBox->setUuid(toSwap->uuid());
+//					newBox->setSaveActivity(toSwap->saveActivity());
+//					newBox->setPublish(toSwap->publish());
+//					newBox->setTopic(toSwap->topic());
+//					newBox->setTitle(toSwap->title());
 					// Rows and cols are copied (valid for matrix, and ignored for scalar)
-					newBox->setRows(toSwap->rows());
-					newBox->setCols(toSwap->cols());
+//					newBox->setRows(toSwap->rows());
+//					newBox->setCols(toSwap->cols());
 
 					// Now we transfer as much links as possible from the "old box" (toSwap)
 					// to the new one. The idea is to keep all links from the inputs who have the
 					// same name, and discard the others.
 					// Be warned, though: same name doesn't necessarily imply same type, so the
 					// copies links might be invalid.
+					/*
 					foreach (InputSlot *iSlot, newBox->inputSlots()) {
 						if (iSlot == nullptr) {
 							qWarning() << "Null pointer found in new, freshly dropped box while "
-							              "trying to swap";
+										  "trying to swap";
 							continue;
 						}
 						// For each input of the new box, look in toSwap's inputs for similarly-named
@@ -658,7 +674,8 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 					// Then delete swap box
 					deleteItem(toSwap);
 					emit displayStatusMessage(tr("Boxes swapped!"));
-				break;
+					//*/
+//				break;
 
 				case QMessageBox::No:
 					// Mark the box as not a swap candidate anymore

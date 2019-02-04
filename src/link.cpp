@@ -224,6 +224,21 @@ void Link::addLinesToScene()
 	updateLines();
 }
 
+void Link::removeLinesFromScene()
+{
+	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
+	if (dscene == NULL)
+		informUserAndCrash("Could not cast scene in DiagramScene");
+
+	if (!m_selfLoop) {
+		dscene->removeItem(&m_line);
+	} else {
+		dscene->removeItem(&m_leftSegment);
+		dscene->removeItem(&m_line);
+		dscene->removeItem(&m_rightSegment);
+	}
+}
+
 QUuid Link::uuid() const
 {
 	return m_uuid;

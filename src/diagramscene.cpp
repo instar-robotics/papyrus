@@ -13,6 +13,7 @@
 #include "addboxcommand.h"
 #include "swapboxescommand.h"
 #include "addlinkcommand.h"
+#include "addzonecommand.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -342,14 +343,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 						// Finally, check that the slot destination is not full
 						if (!isFull(maybeSlot)) {
 							Link *zelda = new Link(m_oSlot, maybeSlot);
-//							addItem(zelda); // Important to add the Link to the scene first
-//							zelda->addLinesToScene(); // And then it's important to call this to add the segments to the scene
-//							if (zelda->checkIfInvalid()) {
-//								emit displayStatusMessage(tr("Warning: sizes do not correspond!"));
-//								script()->setIsInvalid(true);
-//							}
-
-//							zelda->setZValue(LINKS_Z_VALUE);
 							AddLinkCommand *addLinkCommand = new AddLinkCommand(this, zelda);
 							if (m_undoStack == nullptr) {
 								qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add link to scene: no undo stack!";
@@ -379,8 +372,12 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 			QRectF r = m_rect->rect();
 
 			Zone *z = new Zone(r.x(), r.y(), r.width(), r.height());
-			addItem(z);
-			z->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
+			AddZoneCommand *addZoneCommand = new AddZoneCommand(this, z);
+			if (m_undoStack == nullptr) {
+				qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add zone to scene: no undo stack!";
+				return;
+			}
+			m_undoStack->push(addZoneCommand);
 
 			delete m_rect;
 			m_rect = nullptr;
@@ -835,7 +832,7 @@ void DiagramScene::deleteItem(Zone *zone)
 		return;
 	}
 
-	// First, remove itself as a parent from all childs
+	// First, remove itself as a parent from all children
 	foreach (QGraphicsItem *child, zone->childItems()) {
 		QPointF savedPos = child->scenePos();
 		child->setParentItem(nullptr);

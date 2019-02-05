@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "connectivitywindow.h"
 #include "constantdiagrambox.h"
+#include "updateboxcommand.h"
 
 #include <QVBoxLayout>
 #include <QDebug>
@@ -358,6 +359,26 @@ void PropertiesPanel::setBoxMatrixShape(QLabel *boxMatrixShape)
 	m_boxMatrixShape = boxMatrixShape;
 }
 
+QCheckBox *PropertiesPanel::publish() const
+{
+	return m_publish;
+}
+
+void PropertiesPanel::setPublish(QCheckBox *publish)
+{
+	m_publish = publish;
+}
+
+PropLineEdit *PropertiesPanel::topic() const
+{
+	return m_topic;
+}
+
+void PropertiesPanel::setTopic(PropLineEdit *topic)
+{
+	m_topic = topic;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -646,6 +667,21 @@ void PropertiesPanel::onTopicChanged(const QString &topic)
  */
 void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
+	UpdateBoxCommand *updateCommand = new UpdateBoxCommand(this, box);
+
+	DiagramScene *dScene = dynamic_cast<DiagramScene *>(box->scene());
+	if (dScene == nullptr) {
+		qWarning() << "Cannot update box's properties: no scene!";
+		return;
+	}
+
+	if (dScene->undoStack() == nullptr) {
+		qWarning() << "Cannot update box's properties: no undo stack!";
+		return;
+	}
+
+	dScene->undoStack()->push(updateCommand);
+	/*
 	if (box == NULL)
 		informUserAndCrash(tr("Cannot update box's properties: box is null!"));
 
@@ -683,8 +719,8 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 		if (constantBox == nullptr) {
 		updateSizeIcon(box);
 		rescaleSvgItem(box->sizeIcon(),
-		               QSizeF(box->bWidth() / 2 - 1.5, box->bHeight() - box->tHeight() - 2.5),
-		               QPointF(box->bWidth() / 2, 1.5));
+					   QSizeF(box->bWidth() / 2 - 1.5, box->bHeight() - box->tHeight() - 2.5),
+					   QPointF(box->bWidth() / 2, 1.5));
 		}
 	}
 
@@ -708,6 +744,7 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 		m_topic->setStyleSheet("color: black;"); // restore normal, black color
 	} else
 		m_topic->setStyleSheet("color: red;"); // mark invalid topic name in red (and don't update it)
+	*/
 }
 
 void PropertiesPanel::updateLinkProperties(Link *link)

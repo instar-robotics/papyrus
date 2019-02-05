@@ -91,6 +91,12 @@ public:
 	QLabel *boxMatrixShape() const;
 	void setBoxMatrixShape(QLabel *boxMatrixShape);
 
+	QCheckBox *publish() const;
+	void setPublish(QCheckBox *publish);
+
+	PropLineEdit *topic() const;
+	void setTopic(PropLineEdit *topic);
+
 private:
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame *m_scriptFrame;       // Container for script's properties

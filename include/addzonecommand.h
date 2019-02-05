@@ -7,7 +7,7 @@
 #include <QUndoCommand>
 
 /**
- * @brief The AddZoneCommand class represents adding a @Zone to aa @DiagramScene. This is used
+ * @brief The AddZoneCommand class represents adding a @Zone to a @DiagramScene. This is used
  * to provide Undo/Redo functionality.
  */
 class AddZoneCommand : public QUndoCommand

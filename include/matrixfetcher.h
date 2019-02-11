@@ -24,7 +24,7 @@ public:
 
 protected:
 	void run() override;
-	void fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr& scalar);
+	void fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr& mat);
 
 private:
 	ScalarVisualization *m_scalarVisualization;

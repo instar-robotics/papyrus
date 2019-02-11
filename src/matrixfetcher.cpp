@@ -78,26 +78,28 @@ void MatrixFetcher::run()
 	}
 }
 
-void MatrixFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &scalar)
+void MatrixFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &mat)
 {
 	switch (m_visType) {
 		case BAR:
 			if (m_scalarVisualization != nullptr) {
-				m_scalarVisualization->updateBarValues(scalar->data);
+				m_scalarVisualization->updateBarValues(mat->data);
 			}
 		break;
 
 		case GRAPH:
 			if (m_scalarVisualization != nullptr) {
-				m_scalarVisualization->pushGraphValues(scalar->data);
+				m_scalarVisualization->pushGraphValues(mat->data);
 			}
 		break;
 
 		case GRAYSCALE:
 			if (m_matrixVisualization != nullptr) {
 				m_dataList.clear();
-				for(unsigned int i = 0; i < scalar->data.size(); i += 1)
-					m_dataList.append(scalar->data.at(i));
+
+				for(unsigned int i = 0; i < mat->data.size(); i += 1) {
+					m_dataList.append(mat->data.at(i));
+				}
 
 				emit newMatrix(&m_dataList);
 			}

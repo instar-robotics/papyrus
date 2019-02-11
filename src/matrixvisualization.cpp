@@ -53,7 +53,8 @@ void MatrixVisualization::updateGrayscale(QList<double> *values)
 	if (values->size() == cols * rows) {
 		for (int i = 0; i < cols; i += 1) {
 			for (int j = 0; j < rows; j += 1) {
-				int idx = values->at(i + j) * 255;
+//				int idx = values->at(i + j) * 255;
+				int idx = values->at(j*cols + i) * 255;
 				if (idx > 255)
 					idx = 255;
 				if (idx < 0)

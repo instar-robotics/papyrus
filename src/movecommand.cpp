@@ -13,8 +13,6 @@ MoveCommand::MoveCommand(DiagramBox *box, const QPointF &oldPos, QUndoCommand *p
 		return;
 	}
 
-	qDebug() << "[MoveCommand] created";
-
 	m_newPos = box->scenePos();
 }
 
@@ -25,7 +23,6 @@ void MoveCommand::undo()
 		return;
 	}
 
-	qDebug() << "[MoveCommand] undo()";
 	m_box->setPos(m_oldPos);
 
 	if (m_box->scene() == nullptr) {
@@ -46,7 +43,6 @@ void MoveCommand::redo()
 		return;
 	}
 
-	qDebug() << "[MoveCommand] redo()";
 	m_box->setPos(m_newPos);
 
 	if (m_box->scene() == nullptr) {

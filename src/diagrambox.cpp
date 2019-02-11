@@ -574,7 +574,6 @@ void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	}
 
 	if (moved) {
-		qDebug() << "Adding the move to the Undo stack";
 		MoveCommand *moveCommand = new MoveCommand(this, m_oldPos);
 
 		DiagramScene *dScene = dynamic_cast<DiagramScene *>(scene());

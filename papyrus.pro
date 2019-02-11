@@ -64,7 +64,8 @@ HEADERS += include/category.h \
            include/swapboxescommand.h \
            include/addlinkcommand.h \
            include/addzonecommand.h \
-           include/updateboxcommand.h
+           include/updateboxcommand.h \
+           include/updatelinkcommand.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -112,6 +113,7 @@ SOURCES += src/category.cpp \
            src/swapboxescommand.cpp \
            src/addlinkcommand.cpp \
            src/addzonecommand.cpp \
-           src/updateboxcommand.cpp
+           src/updateboxcommand.cpp \
+           src/updatelinkcommand.cpp
 
 RESOURCES += icons.qrc

@@ -4,6 +4,7 @@
 #include "connectivitywindow.h"
 #include "constantdiagrambox.h"
 #include "updateboxcommand.h"
+#include "updatelinkcommand.h"
 
 #include <QVBoxLayout>
 #include <QDebug>
@@ -379,6 +380,16 @@ void PropertiesPanel::setTopic(PropLineEdit *topic)
 	m_topic = topic;
 }
 
+QCheckBox *PropertiesPanel::linkSecondary() const
+{
+	return m_linkSecondary;
+}
+
+void PropertiesPanel::setLinkSecondary(QCheckBox *linkSecondary)
+{
+	m_linkSecondary = linkSecondary;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -601,8 +612,6 @@ void PropertiesPanel::displayScriptProperties(Script *script)
 	m_cancelBtn->show();
 
 	m_timeValue->adjustSize();
-	qDebug() << "Size Hint:" << m_timeValue->sizeHint();
-	qDebug() << "Size:" << m_timeValue->size();
 }
 
 void PropertiesPanel::displayZoneProperties(Zone *zone)
@@ -749,6 +758,21 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 
 void PropertiesPanel::updateLinkProperties(Link *link)
 {
+	UpdateLinkCommand *updateCommand = new UpdateLinkCommand(this, link);
+
+	DiagramScene *dScene = dynamic_cast<DiagramScene *>(link->to()->box()->scene());
+	if (dScene == nullptr) {
+		qWarning() << "Cannot update link's properties: no scene!";
+		return;
+	}
+
+	if (dScene->undoStack() == nullptr) {
+		qWarning() << "Cannot update link's properties: no undo stack!";
+		return;
+	}
+
+	dScene->undoStack()->push(updateCommand);
+	/*
 	if (link == NULL)
 		informUserAndCrash(tr("Cannot update link's properties: link is null!"));
 
@@ -759,6 +783,7 @@ void PropertiesPanel::updateLinkProperties(Link *link)
 		link->setWeight(m_linkWeight->value());
 
 	link->setSecondary(m_linkSecondary->isChecked());
+	*/
 }
 
 /**

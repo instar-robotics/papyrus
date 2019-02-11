@@ -5,6 +5,7 @@
 #include "constantdiagrambox.h"
 #include "updateboxcommand.h"
 #include "updatelinkcommand.h"
+#include "updatezonecommand.h"
 
 #include <QVBoxLayout>
 #include <QDebug>
@@ -806,8 +807,27 @@ void PropertiesPanel::updateZoneProperties(Zone *zone)
 	if (zone == nullptr)
 		informUserAndCrash(tr("Cannot update zone's properties: script is null!"));
 
+	UpdateZoneCommand *updateCommand = new UpdateZoneCommand(this, zone);
+
+	DiagramScene *dScene = dynamic_cast<DiagramScene *>(zone->scene());
+	if (dScene == nullptr) {
+		qWarning() << "Cannot update link's properties: no scene!";
+		return;
+	}
+
+	if (dScene->undoStack() == nullptr) {
+		qWarning() << "Cannot update link's properties: no undo stack!";
+		return;
+	}
+
+	dScene->undoStack()->push(updateCommand);
+	/*
+	if (zone == nullptr)
+		informUserAndCrash(tr("Cannot update zone's properties: script is null!"));
+
 	zone->setTitle(m_zoneTitle->text());
 	zone->setColor(m_zoneColor->color());
+	*/
 }
 
 /**

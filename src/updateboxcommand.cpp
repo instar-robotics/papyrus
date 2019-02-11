@@ -37,7 +37,6 @@ UpdateBoxCommand::UpdateBoxCommand(PropertiesPanel *panel, DiagramBox *box, QUnd
 
 void UpdateBoxCommand::undo()
 {
-	qDebug() << "updatebox undo";
 	// Simply reset all parameters to their old values
 	m_box->setTitle(m_oldTitle);
 	m_box->setRows(m_oldRows);
@@ -48,13 +47,21 @@ void UpdateBoxCommand::undo()
 
 	m_box->update();
 
+	// Also update all links from and to this box, because size, type, etc. might have been changed
+	foreach (InputSlot *iSlot, m_box->inputSlots()) {
+		foreach (Link *link, iSlot->inputs())
+			link->update();
+	}
+
+	foreach (Link *link, m_box->outputSlot()->outputs())
+		link->update();
+
 	if (m_box->getScript() != nullptr)
 		m_box->getScript()->setStatusModified(true);
 }
 
 void UpdateBoxCommand::redo()
 {
-	qDebug() << "Updatebox redo";
 	if (m_panel == nullptr) {
 		qWarning() << "[UpdateBoxCommand] cannot undo: null pointer for panel!";
 		return;
@@ -129,6 +136,15 @@ void UpdateBoxCommand::redo()
 		m_panel->topic()->setStyleSheet("color: red;"); // mark invalid topic name in red (and don't update it)
 
 	m_box->update();
+
+	// Also update all links from and to this box, because size, type, etc. might have been changed
+	foreach (InputSlot *iSlot, m_box->inputSlots()) {
+		foreach (Link *link, iSlot->inputs())
+			link->update();
+	}
+
+	foreach (Link *link, m_box->outputSlot()->outputs())
+		link->update();
 
 	if (m_box->getScript() != nullptr)
 		m_box->getScript()->setStatusModified(true);

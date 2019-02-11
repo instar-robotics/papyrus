@@ -97,6 +97,9 @@ public:
 	PropLineEdit *topic() const;
 	void setTopic(PropLineEdit *topic);
 
+	QCheckBox *linkSecondary() const;
+	void setLinkSecondary(QCheckBox *linkSecondary);
+
 private:
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame *m_scriptFrame;       // Container for script's properties

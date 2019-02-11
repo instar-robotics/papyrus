@@ -6,6 +6,7 @@
 #include "updateboxcommand.h"
 #include "updatelinkcommand.h"
 #include "updatezonecommand.h"
+#include "updatescriptcommand.h"
 
 #include <QVBoxLayout>
 #include <QDebug>
@@ -389,6 +390,16 @@ QCheckBox *PropertiesPanel::linkSecondary() const
 void PropertiesPanel::setLinkSecondary(QCheckBox *linkSecondary)
 {
 	m_linkSecondary = linkSecondary;
+}
+
+QCheckBox *PropertiesPanel::encrypt() const
+{
+	return m_encrypt;
+}
+
+void PropertiesPanel::setEncrypt(QCheckBox *encrypt)
+{
+	m_encrypt = encrypt;
 }
 
 /**
@@ -797,9 +808,19 @@ void PropertiesPanel::updateScriptProperties(Script *script)
 	if (script == NULL)
 		informUserAndCrash(tr("Cannot update script's properties: script is null!"));
 
+	UpdateScriptCommand *updateCommand = new UpdateScriptCommand(this, script);
+	if (script->scene() == nullptr) {
+		qWarning() << "Cannot update script's properties: no scene!";
+		return;
+	}
+
+	script->scene()->undoStack()->push(updateCommand);
+
+	/*
 	script->setTimeValue(m_timeValue->value());
 	script->setTimeUnit(m_timeUnit->currentData().value<TimeUnit>());
 	script->setEncrypt(m_encrypt->isChecked());
+	*/
 }
 
 void PropertiesPanel::updateZoneProperties(Zone *zone)

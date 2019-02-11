@@ -100,6 +100,9 @@ public:
 	QCheckBox *linkSecondary() const;
 	void setLinkSecondary(QCheckBox *linkSecondary);
 
+	QCheckBox *encrypt() const;
+	void setEncrypt(QCheckBox *encrypt);
+
 private:
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame *m_scriptFrame;       // Container for script's properties

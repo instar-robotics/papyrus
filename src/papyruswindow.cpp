@@ -1080,12 +1080,6 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 	// Create the scene and script objets, which will be used by the XmlReader
 	DiagramScene *openScene = new DiagramScene;
 	Script *openScript = new Script(openScene);
-//	connect(openScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
-//	        SLOT(displayStatusMessage(QString,MessageUrgency)));
-//	connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
-//	connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
-//	connect(openScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
-	//    connect(openScript, SIGNAL(timeElapsed(int,int,int,int)), this,
 	//            SLOT(updateStopWatch(int,int,int,int)));
 
 	Q_ASSERT(openScene->script() != NULL);

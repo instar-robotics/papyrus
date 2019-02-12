@@ -30,6 +30,7 @@ public:
 	void addBox(DiagramBox *newBox, const QPointF &position);
 
 	bool checkForInvalidLinks();
+	bool checkForInvalidity();
 
 	void updateSceneRect();
 

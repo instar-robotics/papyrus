@@ -129,7 +129,7 @@ bool DiagramScene::checkForInvalidLinks()
 	// all links because we want all invalid links to be displayed red.
 	foreach (QGraphicsItem *item, allItems) {
 		Link *link = dynamic_cast<Link *>(item);
-		if (link != NULL) {
+		if (link != nullptr) {
 			foundInvalidLinks = foundInvalidLinks || link->checkIfInvalid();
 		}
 	}
@@ -138,6 +138,34 @@ bool DiagramScene::checkForInvalidLinks()
 	m_script->setIsInvalid(foundInvalidLinks);
 
 	return foundInvalidLinks;
+}
+
+bool DiagramScene::checkForInvalidity()
+{
+	QList<QGraphicsItem *> allItems = items();
+	bool foundInvalid = false;
+
+	// NOTE: we do NOT 'break' after we found a link that is invalid, because 'checkIfInvalid()'
+	// will also set the link to be displayed in red when invalid. So we DO want to iterate through
+	// all links because we want all invalid links to be displayed red.
+	foreach (QGraphicsItem *item, allItems) {
+		Link *link = dynamic_cast<Link *>(item);
+		if (link != nullptr) {
+			foundInvalid = link->checkIfInvalid() || foundInvalid;
+			continue;
+		}
+
+		DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+		if (box != nullptr) {
+			foundInvalid = box->checkIfBoxInvalid() || foundInvalid;
+			continue;
+		}
+	}
+
+	// Update script's status and tab text color based on the result
+	m_script->setIsInvalid(foundInvalid);
+
+	return foundInvalid;
 }
 
 /*
@@ -738,6 +766,9 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 		if (nbItems > 0) {
 			m_script->setStatusModified(true);
 			emit displayStatusMessage(tr("Deleted ") + nbItems + " items.");
+
+			// Also recheck for invalidity
+			m_script->setIsInvalid(checkForInvalidity());
 		}
 	} else if (key == Qt::Key_T) {
 		// Toggle displaying input slot names when 'T' is pressed

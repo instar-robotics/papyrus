@@ -60,20 +60,20 @@ void MatrixVisualization::updateGrayscale(QList<double> *values)
 	int rows = m_box->rows();
 
 	if (values->size() == cols * rows) {
-		for (int i = 0; i < cols; i += 1) {
-			for (int j = 0; j < rows; j += 1) {
-//				int idx = values->at(i + j) * 255;
-				int idx = values->at(j*cols + i) * 255;
+		for (int i = 0; i < rows; i += 1) {
+			for (int j = 0; j < cols; j += 1) {
+				int idx = values->at(j*rows + i) * 255;
 				if (idx > 255)
 					idx = 255;
 				if (idx < 0)
 					idx = 0;
-				m_grayImage.setPixel(i, j, idx);
+				m_grayImage.setPixel(j, i, idx);
 			}
 		}
 		m_grayImageLabel->setPixmap(QPixmap::fromImage(m_grayImage));
 	} else {
-		qWarning() << "Invalid number of data to update grayscale image";
+		qWarning() << "Invalid number of data to update grayscale image: "
+		           << values->size() << "data points for" << rows << "x" << cols;
 	}
 }
 

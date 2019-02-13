@@ -2,6 +2,7 @@
 #define MATRIXVISUALIZATION_H
 
 #include "datavisualization.h"
+#include "rossession.h"
 
 #include <QImage>
 #include <QLabel>
@@ -12,7 +13,10 @@ class MatrixVisualization : public DataVisualization
 {
 	Q_OBJECT
 public:
-	explicit MatrixVisualization(QWidget *parent = nullptr, QGraphicsScene *scene = nullptr, DiagramBox *box = nullptr);
+	explicit MatrixVisualization(QWidget *parent = nullptr,
+	                             ROSSession *rosSession = nullptr,
+	                             QGraphicsScene *scene = nullptr,
+	                             DiagramBox *box = nullptr);
 
 private:
 	QLabel *m_grayImageLabel;

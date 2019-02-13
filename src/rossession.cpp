@@ -1,11 +1,13 @@
 #include "rossession.h"
 #include "helpers.h"
 #include "papyruswindow.h"
+#include "hieroglyph/ArgCmd.h"
 
 ROSSession::ROSSession(const QString &nodeName, QObject *parent)
     : QThread(parent),
       m_shouldQuit(false),
-      m_nodeName(nodeName)
+      m_nodeName(nodeName),
+      m_isFirstRun(true)
 {
 	start();
 }
@@ -13,6 +15,46 @@ ROSSession::ROSSession(const QString &nodeName, QObject *parent)
 ROSSession::~ROSSession()
 {
 
+}
+
+/**
+ * @brief ROSSession::addToHotList add a function to the list of functions for which we want to
+ * activate the output when the script is run. Basically it waits for the script to be started, and
+ * call @activateOutput() on each items.
+ * If called when the script is already running, then also call @activateOutput() directly
+ * @param uuid
+ */
+void ROSSession::addToHotList(QUuid uuid)
+{
+	if (!uuid.isNull()) {
+		m_hotList.insert(uuid);
+
+		// If the script has already been launched, then activate output immediately
+		if (!m_isFirstRun)
+			activateOutput(uuid);
+	}
+}
+
+/**
+ * @brief ROSSession::activateOutput issue a ROS service call to activate a function's output (i.e.
+ * make this function publish its output on the bus)
+ * IMPORTANT: this requires the script to be running. This is meant to be used internally. Users
+ * should
+ * @param uuid the UUID of the function which output we want to activate
+ * @return whether it succeeded or not
+ */
+void ROSSession::activateOutput(QUuid uuid)
+{
+	QString srvName = m_nodeName + "/output";
+	ros::NodeHandle nh;
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
+	hieroglyph::ArgCmd srv;
+	srv.request.cmd = "start";
+	srv.request.arg = uuid.toString().toStdString();
+
+	if (!client.call(srv)) {
+		qWarning() << "Failed to activate output on uuid" << uuid.toString() << "on node name" << m_nodeName;
+	}
 }
 
 bool ROSSession::shouldQuit() const
@@ -77,12 +119,24 @@ void ROSSession::handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr &m
 	QString value = QString::fromStdString(msg->value).toLower();
 
 	if (key == "control") {
-		if (value == "resume")
+		if (value == "resume") {
+			// When the script is first run, activate all functions if the hot list
+			if (m_isFirstRun) {
+				foreach (QUuid uuid, m_hotList) {
+					qDebug() << "activate output on" << uuid.toString();
+					activateOutput(uuid);
+				}
+			}
+			m_isFirstRun = false;
 			emit scriptResumed();
+		}
 		else if (value == "pause")
 			emit scriptPaused();
-		else if (value == "quit")
+		else if (value == "quit") {
 			emit scriptStopped();
+			// Restore the first run status
+			m_isFirstRun = true;
+		}
 		else
 			emit displayStatusMessage(tr("Unknown script status \"") + value + tr("\" received."),
 		                              MSG_WARNING);

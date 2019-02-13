@@ -8,8 +8,11 @@
 #include <QPainter>
 #include <QColor>
 
-ScalarVisualization::ScalarVisualization(QWidget *parent, QGraphicsScene *scene, DiagramBox *box) :
-    DataVisualization(parent, scene, box),
+ScalarVisualization::ScalarVisualization(QWidget *parent,
+                                         ROSSession *rosSession,
+                                         QGraphicsScene *scene,
+                                         DiagramBox *box) :
+    DataVisualization(parent, rosSession, scene, box),
     m_idx(0),
     m_barMin(-1),
     m_barMax(1),
@@ -31,10 +34,25 @@ ScalarVisualization::ScalarVisualization(QWidget *parent, QGraphicsScene *scene,
 	setLayout(m_vLayout);
 
 	// Create the appropriate fetcher
-	if (m_box->outputType() == SCALAR)
-		m_dataFetcher = new ScalarFetcher(m_box->topic(), this, BAR);
+	if (m_box->outputType() == SCALAR) {
+		// Give the correct topic name (either one which is set on the box's parameters, or the
+		// computed topic name, if the topic is not published)
+		if (m_box->publish())
+			m_dataFetcher = new ScalarFetcher(m_box->topic(), this, BAR);
+		else {
+			m_dataFetcher = new ScalarFetcher(ensureSlashPrefix(mkTopicName(m_box->scriptName(), m_box->uuid().toString())), this, BAR);
+			// Activate the topic
+			m_rosSession->addToHotList(m_box->uuid());
+		}
+	}
 	else if (m_box->outputType() == MATRIX)
-		m_dataFetcher = new MatrixFetcher(m_box->topic(), this, BAR);
+		if (m_box->publish())
+			m_dataFetcher = new MatrixFetcher(m_box->topic(), this, BAR);
+		else {
+			m_dataFetcher = new MatrixFetcher(ensureSlashPrefix(mkTopicName(m_box->scriptName(), m_box->uuid().toString())), this, BAR);
+			// Activate the topic
+			m_rosSession->addToHotList(m_box->uuid());
+		}
 	else
 		informUserAndCrash(tr("[ScalarVisualization] Output type not supported, supported are SCALAR"
 		                      " and MATRIX"));

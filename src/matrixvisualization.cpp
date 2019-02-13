@@ -7,8 +7,11 @@
 #include <QVector>
 #include <QPainter>
 
-MatrixVisualization::MatrixVisualization(QWidget *parent, QGraphicsScene *scene, DiagramBox *box) :
-    DataVisualization(parent, scene, box),
+MatrixVisualization::MatrixVisualization(QWidget *parent,
+                                         ROSSession *rosSession,
+                                         QGraphicsScene *scene,
+                                         DiagramBox *box) :
+    DataVisualization(parent, rosSession, scene, box),
     m_grayImageLabel(nullptr),
 //    m_grayImage(QImage(100, 100, QImage::Format_Indexed8))
     m_grayImage(QImage(box->cols(), box->rows(), QImage::Format_Indexed8)) // nullptr checked in parent
@@ -41,7 +44,13 @@ MatrixVisualization::MatrixVisualization(QWidget *parent, QGraphicsScene *scene,
 	m_vLayout->setContentsMargins(0, 35, 0, 0);
 	setLayout(m_vLayout);
 
-	m_dataFetcher = new MatrixFetcher(m_box->topic(), this, GRAYSCALE);
+	if (m_box->publish())
+		m_dataFetcher = new MatrixFetcher(m_box->topic(), this, GRAYSCALE);
+	else {
+		m_dataFetcher = new MatrixFetcher(ensureSlashPrefix(mkTopicName(m_box->scriptName(), m_box->uuid().toString())), this, GRAYSCALE);
+		m_rosSession->addToHotList(m_box->uuid());
+	}
+
 	connect(m_dataFetcher, SIGNAL(newMatrix(QList<double>*)), this, SLOT(updateGrayscale(QList<double>*)));
 }
 
@@ -64,7 +73,7 @@ void MatrixVisualization::updateGrayscale(QList<double> *values)
 		}
 		m_grayImageLabel->setPixmap(QPixmap::fromImage(m_grayImage));
 	} else {
-		qCritical() << "Invalid number of data to update grayscale image";
+		qWarning() << "Invalid number of data to update grayscale image";
 	}
 }
 

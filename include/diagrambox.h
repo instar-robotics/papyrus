@@ -6,6 +6,7 @@
 #include "outputslot.h"
 #include "inputslot.h"
 #include "datavisualization.h"
+#include "rossession.h"
 
 #include <set>
 
@@ -49,7 +50,7 @@ public:
 	bool checkIfBoxInvalid();
 	void updateTooltip();
 
-	void showDataVis();
+	void showDataVis(ROSSession *rosSession);
 	void setOutputSlotPos();
 
 	QString scriptName();

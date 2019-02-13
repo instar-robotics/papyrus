@@ -2,6 +2,7 @@
 #define SCALARVISUALIZATION_H
 
 #include "datavisualization.h"
+#include "rossession.h"
 
 #include <QBarSet>
 #include <QBarSeries>
@@ -20,7 +21,10 @@ class ScalarVisualization : public DataVisualization
 {
 	Q_OBJECT
 public:
-	ScalarVisualization(QWidget *parent = nullptr, QGraphicsScene *scene = nullptr, DiagramBox *box = nullptr);
+	ScalarVisualization(QWidget *parent = nullptr,
+	                    ROSSession *rosSession = nullptr,
+	                    QGraphicsScene *scene = nullptr,
+	                    DiagramBox *box = nullptr);
 	void mousePressEvent(QMouseEvent *evt);
 
 	void updateBarValues(const std::vector<qreal> &values);

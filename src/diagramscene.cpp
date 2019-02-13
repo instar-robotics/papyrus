@@ -1191,7 +1191,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 	QList<QGraphicsItem *> sItems = selectedItems();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
-	if (propPanel == NULL)
+	if (propPanel == nullptr)
 		informUserAndCrash(tr("Impossible to fetch the properties panel!"));
 
 	if (sItems.count() == 0) {
@@ -1200,8 +1200,8 @@ void DiagramScene::onDisplayVisuClicked(bool)
 	} else if (sItems.count() == 1) {
 		QGraphicsItem *item = sItems.at(0);
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
-		if (selectedBox != NULL) {
-			selectedBox->showDataVis();
+		if (selectedBox != nullptr) {
+			selectedBox->showDataVis(m_script->rosSession());
 		}
 	}
 }

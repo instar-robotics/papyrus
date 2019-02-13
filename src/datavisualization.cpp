@@ -19,8 +19,12 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-DataVisualization::DataVisualization(QWidget *parent, QGraphicsScene *scene, DiagramBox *box) :
+DataVisualization::DataVisualization(QWidget *parent,
+                                     ROSSession *rosSession,
+                                     QGraphicsScene *scene,
+                                     DiagramBox *box) :
     QWidget(parent),
+    m_rosSession(rosSession),
     m_scene(scene),
     m_box(box),
     m_dataFetcher(nullptr)
@@ -29,6 +33,11 @@ DataVisualization::DataVisualization(QWidget *parent, QGraphicsScene *scene, Dia
 		informUserAndCrash(tr("Data visualization has no box!"),
 		                   tr("A DataVisualization was created without a DiagramBox. This should not"
 		                      " happen."));
+
+	if (m_rosSession == nullptr)
+		informUserAndCrash(tr("No associated ROS Session"),
+		                   tr("A DataVisualization was created without a ROSSession. This should not"
+		                      " happen"));
 
 //	m_menuBar = new QMenuBar;
 	m_menuBar = new QMenuBar(this);

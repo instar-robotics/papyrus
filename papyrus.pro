@@ -49,7 +49,7 @@ HEADERS += include/category.h \
            include/datavisualization.h \
            include/datafetcher.h \
            include/scalarvisualization.h \
-           include/vectorvisualization.h \
+#           include/vectorvisualization.h \
            include/scalarfetcher.h \
            include/matrixfetcher.h \
            include/matrixvisualization.h \
@@ -102,7 +102,7 @@ SOURCES += src/category.cpp \
            src/datavisualization.cpp \
            src/datafetcher.cpp \
            src/scalarvisualization.cpp \
-           src/vectorvisualization.cpp \
+#           src/vectorvisualization.cpp \
            src/scalarfetcher.cpp \
            src/matrixfetcher.cpp \
            src/matrixvisualization.cpp \

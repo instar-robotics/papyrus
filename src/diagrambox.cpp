@@ -4,7 +4,7 @@
 #include "helpers.h"
 #include "constants.h"
 #include "scalarvisualization.h"
-#include "vectorvisualization.h"
+//#include "vectorvisualization.h"
 #include "matrixvisualization.h"
 #include "zone.h"
 #include "movecommand.h"
@@ -676,7 +676,7 @@ void DiagramBox::updateTooltip()
 	setToolTip(str);
 }
 
-void DiagramBox::showDataVis()
+void DiagramBox::showDataVis(ROSSession *rosSession)
 {
 	// First check that there isn't already a visualization window, otherwise do nothing
 	if (m_dataVis != nullptr)
@@ -684,19 +684,30 @@ void DiagramBox::showDataVis()
 
 	// Otherwise, create the DataVisualization and add it to the scene
 //	m_dataVis = new DataVisualization(nullptr, scene(), this);
+
+	QString winTitle = "Visualization";
+
 	switch (outputType()) {
+
 		case SCALAR:
-			m_dataVis = new ScalarVisualization(nullptr, scene(), this);
+			m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
+			winTitle = "Scalar visualization";
 		break;
 
 		case MATRIX:
 			// Discriminate between (1,1) (treat as scalar), rows and cols
-			if (m_rows == 1 && m_cols == 1)
-				m_dataVis = new ScalarVisualization(nullptr, scene(), this);
-			else if (m_rows == 1 || m_cols == 1)
-				m_dataVis = new ScalarVisualization(nullptr, scene(), this);
-			else
-				m_dataVis = new MatrixVisualization(nullptr, scene(), this);
+			if (m_rows == 1 && m_cols == 1) {
+				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
+				winTitle = "Scalar visualization";
+			}
+			else if (m_rows == 1 || m_cols == 1) {
+				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
+				winTitle = "Scalar visualization";
+			}
+			else {
+				m_dataVis = new MatrixVisualization(nullptr, rosSession, scene(), this);
+				winTitle = "Matrix visualization";
+			}
 		break;
 
 		default:
@@ -706,14 +717,14 @@ void DiagramBox::showDataVis()
 	}
 
 	m_dataProxy = scene()->addWidget(m_dataVis, Qt::Window);
-	m_dataProxy->setWindowTitle("Visualization");
+	m_dataProxy->setWindowTitle(winTitle);
 	m_dataProxy->setGeometry(QRectF(0, 0, 400, 400 / 1.618));
 
 	connect(m_dataProxy, SIGNAL(visibleChanged()), this, SLOT(onDataVisClosed()));
 
 	QPointF p = scenePos();
 
-	p.ry() -= (400 / 1.618);
+	p.ry() -= (400 / 1.618); // to place the visu window above the box
 	m_dataProxy->setPos(p);
 	m_dataProxy->setFlags(QGraphicsItem::ItemIsSelectable
 	                      | QGraphicsItem::ItemIsMovable

@@ -2,6 +2,7 @@
 #define DATAVISUALIZATION_H
 
 #include "datafetcher.h"
+#include "rossession.h"
 
 #include <QWidget>
 #include <QMenuBar>
@@ -20,10 +21,14 @@ class DataVisualization : public QWidget
 	Q_OBJECT
 
 public:
-	DataVisualization(QWidget *parent = nullptr, QGraphicsScene *scene = nullptr, DiagramBox *box = nullptr);
+	DataVisualization(QWidget *parent = nullptr,
+	                  ROSSession *rosSession = nullptr,
+	                  QGraphicsScene *scene = nullptr,
+	                  DiagramBox *box = nullptr);
 	~DataVisualization();
 
 protected:
+	ROSSession *m_rosSession;
 	QGraphicsScene *m_scene;
 	DiagramBox *m_box;
 	QMenuBar *m_menuBar;

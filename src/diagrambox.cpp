@@ -137,7 +137,8 @@ DiagramBox::~DiagramBox()
 
 QRectF DiagramBox::boundingRect() const
 {
-	return QRectF(0, 0, m_bWidth, m_bHeight);
+	// +7 are there to include the publish logo on the bottom right
+	return QRectF(0, 0, m_bWidth + 7, m_bHeight + 7);
 }
 
 /*
@@ -493,6 +494,39 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QPainterPath encPath;
 	encPath.addRoundedRect(QRectF(x0, y0, w, h), 7, 7);
 
+	// Draw a little arrow when the box is set to publish its output
+	if (m_publish) {
+		// Save pen width
+		qreal origPenWidth = pen.widthF();
+		QColor origPenColor = pen.color();
+		pen.setWidthF(2.0);
+		pen.setColor(QColor(0, 128, 128));
+		painter->setPen(pen);
+
+		// Arc
+		qreal rectStartX = m_bWidth - 15;
+		qreal rectStartY = m_bHeight - 15;
+		qreal rectWidth   = 17;
+		qreal rectHeight  = 17;
+
+		QRectF arcRec(rectStartX,
+		              rectStartY,
+		              rectWidth,
+		              rectHeight);
+
+		int startAngle = 0 * 16;
+		int stopAngle  = -90 * 16;
+
+		painter->drawArc(arcRec, startAngle, stopAngle);
+		arcRec.adjust(-4, -4, 4, 4);
+		painter->drawArc(arcRec, startAngle, stopAngle);
+
+		// Restore pen's width
+		pen.setWidthF(origPenWidth);
+		pen.setColor(origPenColor);
+		painter->setPen(pen);
+	}
+
 	// Hint functions that are swap candidates
 	if (m_swapCandidate) {
 		QColor c(153, 102, 255, 100);
@@ -737,7 +771,8 @@ void DiagramBox::showDataVis(ROSSession *rosSession)
 void DiagramBox::setOutputSlotPos()
 {
 	QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
-	p.rx() += 5; // Set a bit of margin to the right to prevent the diamon-shape to overlap
+	p.rx() -= 7; // Offset by 7px because the bounding rect of a box is offset to include the publish icon
+	p.rx() += 5; // Set a bit of margin to the right to prevent the round-shape to overlap
 	m_outputSlot->setPos(p);
 }
 

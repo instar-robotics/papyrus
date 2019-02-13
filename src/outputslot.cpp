@@ -68,7 +68,7 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QGraphicsScene *scene_ = scene();
 	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene_);
 
-	if (dscene == NULL) {
+	if (dscene == nullptr) {
 		qFatal("Could not cast the scene into a DiagramScene!");
 	}
 
@@ -83,7 +83,7 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		ry += pow(sizeOffset, 2) / 6;
 	}
 
-	// Subtract the half the line's width to prevetn drawing outside the boudingRect
+	// Subtract the half the line's width to prevent drawing outside the boudingRect
 	rx -= width / 2.0;
 	ry -= width / 2.0;
 

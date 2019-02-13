@@ -883,7 +883,7 @@ ScriptStatus Script::queryScriptStatus()
 	srv.request.cmd = "status";
 
 	if (client.call(srv)) {
-		QString response = QString::fromStdString(srv.response.ret);;
+		QString response = QString::fromStdString(srv.response.ret);
 
 		if (response == "run")
 			return SCRIPT_RUNNING;

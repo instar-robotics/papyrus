@@ -30,6 +30,7 @@
 #include <QMenuBar>
 #include <QCursor>
 #include <QMessageBox>
+#include <QInputDialog>
 
 DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_mainWindow(nullptr),
@@ -376,6 +377,16 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 								qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add link to scene: no undo stack!";
 								return;
 							}
+
+							qreal initialWeight = QInputDialog::getDouble(nullptr,
+							                                              tr("Link's initial weight"),
+							                                              tr("Weight:"),
+							                                              1.0,
+							                                              MIN_WEIGHT,
+							                                              MAX_WEIGHT,
+							                                              LINKS_NB_DECIMALS);
+
+							zelda->setWeight(initialWeight);
 							m_undoStack->push(addLinkCommand);
 
 							emit displayStatusMessage(tr("New link created."));

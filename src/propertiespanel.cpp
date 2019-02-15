@@ -150,7 +150,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_linkSecondary = new QCheckBox(tr("Secondary"));
 	m_linkWeight = new QDoubleSpinBox();
 	m_linkWeight->setRange(MIN_WEIGHT, MAX_WEIGHT);
-	m_linkWeight->setDecimals(6);
+	m_linkWeight->setDecimals(LINKS_NB_DECIMALS);
 	m_linkWeight->setFixedWidth(150);
 	m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_linkValue = new QLineEdit;

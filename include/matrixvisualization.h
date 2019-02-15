@@ -19,15 +19,15 @@ public:
 	                             DiagramBox *box = nullptr);
 
 private:
-	QLabel *m_grayImageLabel;
-	QImage m_grayImage;
+	QLabel *m_thermalImageLabel;
+	QImage m_thermalImage;
 	QVBoxLayout *m_vLayout;
 
 private slots:
-	void switchToGrayscale();
+	void switchToThermal();
 	void switchToImage();
 	void switchToLandscape();
-	void updateGrayscale(QList<double> *values);
+	void updateThermal(QList<double> *values);
 };
 
 #endif // MATRIXVISUALIZATION_H

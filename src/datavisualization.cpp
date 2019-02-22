@@ -42,7 +42,7 @@ DataVisualization::DataVisualization(QWidget *parent,
 //	m_menuBar = new QMenuBar;
 	m_menuBar = new QMenuBar(this);
 //	m_menuBar->setMinimumHeight(30);
-	m_menuBar->setFixedHeight(35);
+	m_menuBar->setFixedHeight(40);
 	m_typeMenu = m_menuBar->addMenu(tr("Type"));
 }
 

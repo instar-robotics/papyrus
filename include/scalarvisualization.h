@@ -1,11 +1,13 @@
 #ifndef SCALARVISUALIZATION_H
 #define SCALARVISUALIZATION_H
 
+#include "types.h"
 #include "datavisualization.h"
 #include "rossession.h"
 
 #include <QBarSet>
 #include <QBarSeries>
+#include <QHorizontalBarSeries>
 #include <QChart>
 #include <QChartView>
 #include <QSplineSeries>
@@ -36,13 +38,16 @@ protected:
 	int m_size;
 	int m_idx;
 
-	QList<QBarSet *> m_barSets;
+	QBarSet *m_barSet;
 	QBarSeries *m_barSeries;
+	QHorizontalBarSeries *m_horizontalBarSeries;
 	QChart *m_barChart;
 	QValueAxis *m_barAxisY;
+	QValueAxis *m_barAxisX;
 	QChartView *m_barView;
 	qreal m_barMin;
 	qreal m_barMax;
+	MatrixShape m_matrixShape;  // used to determine wether to display a ROW or COL vector (when applicable)
 
 	QList<QSplineSeries *> m_graphSeries;
 	QChart *m_graphChart;

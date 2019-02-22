@@ -30,7 +30,8 @@ ScalarVisualization::ScalarVisualization(QWidget *parent,
 	m_vLayout->addWidget(m_barView);
 	m_vLayout->addWidget(m_graphView);
 	m_graphView->hide();
-	m_vLayout->setContentsMargins(0, 35, 0, 0);
+//	m_vLayout->setContentsMargins(0, 35, 0, 0);
+	m_vLayout->setContentsMargins(0, 40, 0, 0);
 	setLayout(m_vLayout);
 
 	// Create the appropriate fetcher
@@ -72,7 +73,7 @@ void ScalarVisualization::updateBarValues(const std::vector<qreal> &values)
 	qreal thisMin = values.at(0);
 
 	for (unsigned int i = 0; i < values.size(); i += 1) {
-		m_barSets.at(i)->replace(0, values.at(i));
+		m_barSet->replace(i, values.at(i));
 
 		if (values.at(i) > thisMax)
 			thisMax = values.at(i);
@@ -95,7 +96,13 @@ void ScalarVisualization::updateBarValues(const std::vector<qreal> &values)
 
 	if (rangeChanged) {
 		qreal bound = qrealAbsMax(m_barMin, m_barMax);
-		m_barAxisY->setRange(-bound, bound);
+
+		if (m_matrixShape == POINT || m_matrixShape == ROW_VECT)
+			m_barAxisY->setRange(-bound, bound);
+		else if (m_matrixShape == COL_VECT)
+			m_barAxisX->setRange(-bound, bound);
+		else
+			informUserAndCrash(tr("Unsupported matrix shape when pushing bar balues"));
 	}
 }
 
@@ -143,47 +150,65 @@ void ScalarVisualization::createCharts()
 {
 	// First, check the size
 	if (m_box == nullptr) {
-		qCritical() << "Cannot create charts: no box";
+		informUserAndCrash(tr("Cannot create charts: no box"));
 		return;
 	}
 
 	if (m_box->outputType() == SCALAR) {
 		m_size = 1;
+		m_matrixShape = POINT;
 	} else if (m_box->outputType() == MATRIX && m_box->rows() == 1) {
 		m_size = m_box->cols();
+		m_matrixShape = ROW_VECT;
 	} else if (m_box->outputType() == MATRIX && m_box->cols() == 1) {
 		m_size = m_box->rows();
+		m_matrixShape = COL_VECT;
 	} else {
-		qCritical() << "Cannot create charts: not a scalar nor a vector!";
-		qDebug() << "rows:" << m_box->rows() << "cols:" << m_box->cols();
+		informUserAndCrash(tr("Cannot create charts: not a scalar nor a vector!"));
 		return;
 	}
 
 	// Create the chart for BAR mode
+	m_barSet = new QBarSet("Neurons");
+	m_barSet->setColor(QColor(51, 153, 255));
 	for (int i = 0; i < m_size; i += 1) {
-		QBarSet *s = new QBarSet(QString::number(i));
-		QColor barColor(51, 153, 255);
-		s->setColor(barColor);
-		*s << 0;
-		m_barSets.append(s);
+		*m_barSet << 0; // initialize values at zero
 	}
 
-	m_barSeries = new QBarSeries;
-	m_barSeries->append(m_barSets);
-
 	m_barChart = new QChart;
-	m_barChart->addSeries(m_barSeries);
-//	m_barChart->setAnimationOptions(QChart::SeriesAnimations);
+
+	// VERTICAL (row vector)
+	if (m_box->outputType() == MATRIX && m_box->rows() == 1) {
+		m_barSeries = new QBarSeries;
+		m_barSeries->append(m_barSet);
+		m_barSeries->setLabelsVisible(false);
+
+
+		m_barChart->addSeries(m_barSeries);
+
+		m_barAxisY = new QValueAxis;
+		m_barAxisY->setRange(m_barMin, m_barMax);
+		m_barAxisY->setTickCount(9);
+
+		m_barChart->setAxisY(m_barAxisY, m_barSeries);
+	} else if (m_box->outputType() == MATRIX && m_box->cols() == 1) {
+		m_horizontalBarSeries = new QHorizontalBarSeries;
+		m_horizontalBarSeries->append(m_barSet);
+		m_horizontalBarSeries->setLabelsVisible(false);
+
+		m_barChart->addSeries(m_horizontalBarSeries);
+
+		m_barAxisX = new QValueAxis;
+		m_barAxisX->setRange(m_barMin, m_barMax);
+		m_barAxisX->setTickCount(9);
+
+		m_barChart->setAxisX(m_barAxisX, m_horizontalBarSeries);
+	}
+
 	m_barChart->setAnimationOptions(QChart::NoAnimation);
-	m_barChart->createDefaultAxes();
 
-	m_barAxisY = new QValueAxis;
-	m_barAxisY->setRange(m_barMin, m_barMax);
-	m_barAxisY->setTickCount(5);
-
-	m_barChart->setAxisY(m_barAxisY, m_barSeries);
 	m_barChart->legend()->hide();
-	m_barChart->setMargins(QMargins(2, 2, 2, 2));
+	m_barChart->setMargins(QMargins(0, 0, 0, 0));
 
 	m_barView = new QChartView(m_barChart);
 	m_barView->setRenderHint(QPainter::Antialiasing);

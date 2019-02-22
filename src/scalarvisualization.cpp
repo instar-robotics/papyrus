@@ -178,7 +178,7 @@ void ScalarVisualization::createCharts()
 	m_barChart = new QChart;
 
 	// VERTICAL (row vector)
-	if (m_box->outputType() == MATRIX && m_box->rows() == 1) {
+	if (m_matrixShape == POINT || m_matrixShape == ROW_VECT) {
 		m_barSeries = new QBarSeries;
 		m_barSeries->append(m_barSet);
 		m_barSeries->setLabelsVisible(false);
@@ -191,7 +191,7 @@ void ScalarVisualization::createCharts()
 		m_barAxisY->setTickCount(9);
 
 		m_barChart->setAxisY(m_barAxisY, m_barSeries);
-	} else if (m_box->outputType() == MATRIX && m_box->cols() == 1) {
+	} else if (m_matrixShape == COL_VECT) {
 		m_horizontalBarSeries = new QHorizontalBarSeries;
 		m_horizontalBarSeries->append(m_barSet);
 		m_horizontalBarSeries->setLabelsVisible(false);

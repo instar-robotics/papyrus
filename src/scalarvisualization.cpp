@@ -62,8 +62,6 @@ ScalarVisualization::ScalarVisualization(QWidget *parent,
 void ScalarVisualization::mousePressEvent(QMouseEvent *evt)
 {
 	Q_UNUSED(evt);
-//	qDebug() << "Click detected, what to do?^^";
-//	qDebug() << "Layout Content Margins:" << layout()->contentsMargins();
 }
 
 void ScalarVisualization::updateBarValues(const std::vector<qreal> &values)
@@ -72,15 +70,27 @@ void ScalarVisualization::updateBarValues(const std::vector<qreal> &values)
 	qreal thisMax = values.at(0);
 	qreal thisMin = values.at(0);
 
-	for (unsigned int i = 0; i < values.size(); i += 1) {
-		m_barSet->replace(i, values.at(i));
+	// We use "double-buffering"-style and do NOT modify the values in-place, otherwise the
+	// QChart will trigger a repaint for EACH VALUE.
+
+	// Build a new list "double buffering"-style with the new data points
+	QList<qreal> list;
+	int cnt = values.size();
+	for (int i = 0; i < cnt; i += 1) {
+		list << values.at(i);
 
 		if (values.at(i) > thisMax)
 			thisMax = values.at(i);
 		if (values.at(i) < thisMin)
 			thisMin = values.at(i);
-
 	}
+
+	// Remove the current (old) data points
+	m_barSet->remove(0, values.size());
+
+	// And insert the new list
+	m_barSet->append(list);
+
 	// Update the range (for now, range doesn't shrink back)
 	if (thisMax > m_barMax) {
 		m_barMax = 1.2 * thisMax;
@@ -117,7 +127,7 @@ void ScalarVisualization::pushGraphValues(const std::vector<qreal> &values)
 	m_idx += (m_graphAxisX->max() - m_graphAxisX->min()) / (500);
 	m_graphChart->scroll(dx, 0);
 
-	// Append values to the the series
+	// Append values to the series
 	for (unsigned int i = 0; i < values.size(); i += 1) {
 		m_graphSeries.at(i)->append(m_idx, values.at(i));
 

@@ -248,8 +248,6 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	leftSizes << libSize << propertiesSize;
 	leftSplitter->setSizes(leftSizes);
 
-	leftSplitter->setChildrenCollapsible(false);
-
 	QSizePolicy splitterPolicy = leftSplitter->sizePolicy();
 	splitterPolicy.setHorizontalPolicy(QSizePolicy::Fixed);
 	leftSplitter->setSizePolicy(splitterPolicy);

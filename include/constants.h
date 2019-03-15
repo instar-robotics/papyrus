@@ -42,11 +42,11 @@
 #define MAX_COLS 100000
 
 // Define the minimum and maximum allowed weight (for the double spinbox)
-#define MIN_WEIGHT -10000
-#define MAX_WEIGHT 10000
+#define MIN_WEIGHT -10000000
+#define MAX_WEIGHT 10000000
 
 // Define the number of decimals for the double spinbox for link's weight
-#define LINKS_NB_DECIMALS 6
+#define LINKS_NB_DECIMALS 8
 
 // Define the minimum and maximum time value (for the double spinbox)
 #define MIN_TIME_VALUE 0 //0.001

@@ -67,7 +67,8 @@ HEADERS += include/category.h \
            include/updateboxcommand.h \
            include/updatelinkcommand.h \
            include/updatezonecommand.h \
-           include/udpatescriptcommand.h
+           include/udpatescriptcommand.h \
+           include/diagramchart.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -118,6 +119,7 @@ SOURCES += src/category.cpp \
            src/updateboxcommand.cpp \
            src/updatelinkcommand.cpp \
            src/updatezonecommand.cpp \
-           src/updatescriptcommand.cpp
+           src/updatescriptcommand.cpp \
+           src/diagramchart.cpp
 
 RESOURCES += icons.qrc

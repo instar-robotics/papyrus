@@ -68,7 +68,8 @@ HEADERS += include/category.h \
            include/updatelinkcommand.h \
            include/updatezonecommand.h \
            include/udpatescriptcommand.h \
-           include/diagramchart.h
+           include/diagramchart.h \
+           include/activityfetcher.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -103,7 +104,6 @@ SOURCES += src/category.cpp \
            src/datavisualization.cpp \
            src/datafetcher.cpp \
            src/scalarvisualization.cpp \
-#           src/vectorvisualization.cpp \
            src/scalarfetcher.cpp \
            src/matrixfetcher.cpp \
            src/matrixvisualization.cpp \
@@ -120,6 +120,7 @@ SOURCES += src/category.cpp \
            src/updatelinkcommand.cpp \
            src/updatezonecommand.cpp \
            src/updatescriptcommand.cpp \
-           src/diagramchart.cpp
+           src/diagramchart.cpp \
+           src/activityfetcher.cpp
 
 RESOURCES += icons.qrc

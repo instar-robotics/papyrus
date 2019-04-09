@@ -14,6 +14,8 @@
 #include "swapboxescommand.h"
 #include "addlinkcommand.h"
 #include "addzonecommand.h"
+#include "diagramchart.h"
+#include "activityfetcher.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -432,8 +434,35 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *evt)
 {
 	Q_UNUSED(evt);
-	qDebug() << "Items in stack:" << m_undoStack->count();
-	qDebug() << "Index:" << m_undoStack->index();
+
+	/*
+	qDebug() << "Creating chart at position" << evt->scenePos();
+	QChart *chart = new QChart;
+	QBarSeries *series = new QBarSeries;
+	QBarSet *set = new QBarSet("Foo");
+	QValueAxis *yAxis = new QValueAxis;
+	yAxis->setRange(-1, 1);
+	yAxis->setTickCount(9);
+
+	for (int i = 0; i < 100; i += 1)
+		*set << i / 100.;
+
+	series->append(set);
+	series->setLabelsVisible(false);
+
+	chart->addSeries(series);
+	chart->setAxisY(yAxis, series);
+	chart->legend()->hide();
+	chart->setTitle("Chart's title");
+	chart->setFlags(QGraphicsItem::ItemIsSelectable
+					| QGraphicsItem::ItemIsMovable
+					| QGraphicsItem::ItemSendsScenePositionChanges);
+//	chart->setBackgroundBrush(QBrush(QColor(180, 180, 180)));
+	chart->setAcceptHoverEvents(true);
+	chart->setZValue(DATA_Z_VALUE);
+	chart->setGeometry(evt->scenePos().x(), evt->scenePos().y(), 600, 400);
+	addItem(chart);
+	//*/
 }
 
 void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
@@ -1212,7 +1241,71 @@ void DiagramScene::onDisplayVisuClicked(bool)
 		QGraphicsItem *item = sItems.at(0);
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
-			selectedBox->showDataVis(m_script->rosSession());
+			// First check that we don't already have enabled data visualization for this box
+			if (selectedBox->isActivityVisuEnabled()) {
+				emit displayStatusMessage("Visualization is already enabled for this box");
+				return;
+			}
+
+			selectedBox->setIsActivityVisuEnabled(true);
+
+			qDebug() << "Showing data visualization for box" << selectedBox->name() << "(" << selectedBox->title() << ")";
+
+			// Create the activity fetcher with the topic name
+			ActivityFetcher *fetcher = nullptr;
+			if (selectedBox->publish()) {
+				fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
+			} else {
+				fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
+				                                                            selectedBox->uuid().toString())),
+				                              selectedBox);
+				m_script->rosSession()->addToHotList(selectedBox->uuid());
+			}
+
+			DiagramChart *chart = nullptr;
+			switch (selectedBox->outputType()) {
+				case SCALAR:
+					qDebug() << "\tType is SCALAR: creating QChart";
+					chart = new DiagramChart(selectedBox);
+					addItem(chart);
+				break;
+
+				case MATRIX:
+					// (1,1) matrix is treated as a scalar
+					if (selectedBox->rows() == 1 && selectedBox->cols() == 1) {
+						qDebug() << "\tType is MATRIX, dimensions are (1,1): creating QChart";
+						chart = new DiagramChart(selectedBox);
+						addItem(chart);
+						//				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
+					}
+					// (1,N) and (N,1) are vectors: they are displayed as several scalars
+					else if (selectedBox->rows() == 1 || selectedBox->cols() == 1) {
+						qDebug() << "\tType is MATRIX, dimensions are vector: creating QChart";
+						chart = new DiagramChart(selectedBox);
+						qDebug() << "connecting";
+						connect(fetcher, SIGNAL(newMatrix(const QList<qreal>&)), chart, SLOT(updateBarValues(const QList<qreal>&)));
+						addItem(chart);
+					}
+					else {
+						qDebug() << "\tType is MATRIX, dimensions are (N,M): creating Thermal";
+					}
+				break;
+
+				default:
+					qDebug() << "Ouput type not supported for visualization";
+				return;
+				break;
+			}
+
+
+
+//			selectedBox->showDataVis(m_script->rosSession());
+
+			/*
+			DiagramChart *dChart = new DiagramChart(selectedBox);
+			dChart->setPos(selectedBox->pos().x(), selectedBox->pos().y() - 200);
+			addItem(dChart);
+			//*/
 		}
 	}
 }

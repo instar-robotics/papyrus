@@ -4,10 +4,10 @@
 #include "helpers.h"
 #include "constants.h"
 #include "scalarvisualization.h"
-//#include "vectorvisualization.h"
 #include "matrixvisualization.h"
 #include "zone.h"
 #include "movecommand.h"
+#include "diagramchart.h"
 
 #include <iostream>
 
@@ -48,6 +48,9 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_sizeIcon(nullptr),
                                                 m_dataVis(nullptr),
                                                 m_dataProxy(nullptr),
+                                                m_IsActivityVisuEnabled(false),
+//                                                m_activityFetcher(nullptr),
+//                                                m_activityChart(nullptr),
                                                 m_isInvalid(false),
                                                 m_swapCandidate(false)
 {
@@ -180,6 +183,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+bool DiagramBox::isActivityVisuEnabled() const
+{
+	return m_IsActivityVisuEnabled;
+}
+
+void DiagramBox::setIsActivityVisuEnabled(bool IsActivityVisuEnabled)
+{
+	m_IsActivityVisuEnabled = IsActivityVisuEnabled;
 }
 
 bool DiagramBox::swapCandidate() const
@@ -710,6 +723,10 @@ void DiagramBox::updateTooltip()
 	setToolTip(str);
 }
 
+// TODO: do not pass the ROSSession, instead add the function to the hotlist from here!
+
+
+/*
 void DiagramBox::showDataVis(ROSSession *rosSession)
 {
 	// First check that there isn't already a visualization window, otherwise do nothing
@@ -746,7 +763,7 @@ void DiagramBox::showDataVis(ROSSession *rosSession)
 
 		default:
 			qDebug() << "Ouput type not supported for visualization";
-		    return;
+			return;
 		break;
 	}
 
@@ -761,11 +778,69 @@ void DiagramBox::showDataVis(ROSSession *rosSession)
 	p.ry() -= (400 / 1.618); // to place the visu window above the box
 	m_dataProxy->setPos(p);
 	m_dataProxy->setFlags(QGraphicsItem::ItemIsSelectable
-	                      | QGraphicsItem::ItemIsMovable
-	                      | QGraphicsItem::ItemSendsScenePositionChanges);
+						  | QGraphicsItem::ItemIsMovable
+						  | QGraphicsItem::ItemSendsScenePositionChanges);
 	m_dataProxy->setAcceptHoverEvents(true);
 
 	m_dataProxy->setZValue(DATA_Z_VALUE);
+}
+//*/
+
+// TODO: add box to hotList from here if needed
+void DiagramBox::showDataVis(ROSSession *rosSession)
+{
+	Q_UNUSED(rosSession);
+	qWarning() << "showDataVis should not be called";
+	/*
+	// First check that we don't already have enabled data visualization for this box
+	if (m_IsActivityVisuEnabled)
+		return;
+
+	m_IsActivityVisuEnabled = true;
+
+	qDebug() << "Showing data visualization for box" << m_name << "(" << m_title << ")";
+
+	// Check if we should create a Chart, a Thermal or smth else
+	switch (outputType()) {
+		case SCALAR:
+			qDebug() << "\tType is SCALAR: creating QChart";
+			m_activityChart = new DiagramChart(this);
+			scene()->addItem(m_activityChart);
+		break;
+
+		case MATRIX:
+			// (1,1) matrix is treated as a scalar
+			if (m_rows == 1 && m_cols == 1) {
+				qDebug() << "\tType is MATRIX, dimensions are (1,1): creating QChart";
+				m_activityChart = new DiagramChart(this);
+				scene()->addItem(m_activityChart);
+//				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
+			}
+			// (1,N) and (N,1) are vectors: they are displayed as several scalars
+			else if (m_rows == 1 || m_cols == 1) {
+				qDebug() << "\tType is MATRIX, dimensions are vector: creating QChart";
+				m_activityChart = new DiagramChart(this);
+				scene()->addItem(m_activityChart);
+			}
+			else {
+				qDebug() << "\tType is MATRIX, dimensions are (N,M): creating Thermal";
+			}
+		break;
+
+		default:
+			qDebug() << "Ouput type not supported for visualization";
+		return;
+		break;
+	}
+
+	// Create the activity fetcher with the topic name
+	if (m_publish) {
+		m_activityFetcher = new ActivityFetcher(m_topic, this);
+	} else {
+		m_activityFetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(scriptName(), m_uuid.toString())), this);
+		rosSession->addToHotList(m_uuid);
+	}
+	//*/
 }
 
 void DiagramBox::setOutputSlotPos()

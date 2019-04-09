@@ -7,6 +7,8 @@
 #include "inputslot.h"
 #include "datavisualization.h"
 #include "rossession.h"
+//#include "diagramchart.h"
+//#include "activityfetcher.h"
 
 #include <set>
 
@@ -46,11 +48,13 @@ public:
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
 	Script *getScript();
 	bool checkIfBoxInvalid();
 	void updateTooltip();
 
 	void showDataVis(ROSSession *rosSession);
+	void showDataVis();
 	void setOutputSlotPos();
 
 	QString scriptName();
@@ -126,6 +130,9 @@ public:
 	bool swapCandidate() const;
 	void setSwapCandidate(bool swapCandidate);
 
+	bool isActivityVisuEnabled() const;
+	void setIsActivityVisuEnabled(bool IsActivityVisuEnabled);
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -167,6 +174,10 @@ private:
 
 	DataVisualization *m_dataVis; // The data visualization window for this box
 	QGraphicsProxyWidget *m_dataProxy; // The proxy for the data visualization window
+
+	bool m_IsActivityVisuEnabled;  // Wether or not we are visualizing this box's activity
+//	ActivityFetcher *m_activityFetcher; // The thread that subscribes to ROS topics
+//	DiagramChart *m_activityChart; // A Chart to display this box's activity
 
 	bool m_isInvalid; // Whether this box is invalid
 	BoxInvalidReason m_invalidReason; // Why this box is invalid

@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -28,7 +28,8 @@ DiagramChart::DiagramChart(DiagramBox *box,
                            Qt::WindowFlags wFlags)
     : QChart(parent, wFlags),
       m_box(box),
-      m_barSet(""),
+      m_matrixShape(ROW_VECT),
+      m_barSet("Neurons"),
       m_barMin(-1),
       m_barMax(1),
       m_resizeType(NO_RESIZE)
@@ -78,7 +79,8 @@ DiagramChart::DiagramChart(DiagramBox *box,
 
 		axis = &m_yAxis;
 
-		addAxis(&m_yAxis, Qt::AlignLeft);
+		setAxisY(&m_yAxis, &m_barSeries);
+//		addAxis(&m_yAxis, Qt::AlignLeft);
 	}
 	// Display bars vertically for COL_VECT shape
 	else if (m_matrixShape == COL_VECT) {
@@ -89,7 +91,8 @@ DiagramChart::DiagramChart(DiagramBox *box,
 
 		axis = &m_xAxis;
 
-		addAxis(&m_xAxis, Qt::AlignBottom);
+		setAxisX(&m_xAxis, &m_barSeries);
+//		addAxis(&m_xAxis, Qt::AlignBottom);
 	} else {
 		informUserAndCrash(tr("DiagramChart only supports POINT, ROW_VECT and COL_VECT shapes!"));
 		return;
@@ -240,7 +243,57 @@ void DiagramChart::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 }
 
 // TODO: use pointers instead of copy?
-void DiagramChart::updateBarValues(const QList<qreal> matrix&)
+void DiagramChart::updateBarValues(QList<qreal> *matrix)
 {
-	qDebug() << "[DiagramChart] received" << matrix.size() << "values in a matrix";
+	bool rangeChanged = false;
+	qreal thisMax = matrix->at(0);
+	qreal thisMin = matrix->at(0);
+
+	// We use "double-buffering"-style and do NOT modify the values in-place, otherwise the
+	// QChart will trigger a repaint for EACH VALUE.
+
+	// Build a new list "double buffering"-style with the new data points
+	QList<qreal> list;
+	int cnt = matrix->size();
+	for (int i = 0; i < cnt; i += 1) {
+		list << matrix->at(i);
+
+		if (matrix->at(i) > thisMax)
+			thisMax = matrix->at(i);
+		if (matrix->at(i) < thisMin)
+			thisMin = matrix->at(i);
+	}
+
+	// Remove the current (old) data points
+	m_barSet.remove(0, matrix->size());
+
+	// And insert the new list
+	m_barSet.append(list);
+
+	// Update the range (for now, range doesn't shrink back)
+	if (thisMax > m_barMax) {
+		m_barMax = 1.2 * thisMax;
+		rangeChanged = true;
+	}
+
+	if (thisMin < m_barMin) {
+		if (thisMin < 0)
+			m_barMin = 1.2 * thisMin;
+		else
+			m_barMin = 0.8 * thisMin;
+		rangeChanged = true;
+	}
+
+	if (rangeChanged) {
+		qreal bound = qrealAbsMax(m_barMin, m_barMax);
+
+		if (m_matrixShape == POINT || m_matrixShape == ROW_VECT)
+			m_yAxis.setRange(-bound, bound);
+		else if (m_matrixShape == COL_VECT)
+			m_xAxis.setRange(-bound, bound);
+		else
+			informUserAndCrash(tr("Unsupported matrix shape when pushing bar balues"));
+	}
+
+	delete matrix;
 }

@@ -1,18 +1,12 @@
 #ifndef ZONE_H
 #define ZONE_H
 
+#include "types.h"
+
 #include <QGraphicsObject>
 #include <QGraphicsItem>
 #include <QColor>
 #include <QGraphicsItemGroup>
-
-enum ResizeType {
-	NO_RESIZE,
-	RESIZE_TOP,
-	RESIZE_RIGHT,
-	RESIZE_BOTTOM,
-	RESIZE_LEFT
-};
 
 class Zone : public QGraphicsObject
 {

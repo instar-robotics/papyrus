@@ -104,4 +104,17 @@ inline BoxInvalidReason operator&(BoxInvalidReason a, BoxInvalidReason b) {
 	return static_cast<BoxInvalidReason>(static_cast<int>(a) & static_cast<int>(b));
 }
 
+// Define the type of resizing for items we re-implement resizing
+enum ResizeType {
+	NO_RESIZE,
+	RESIZE_TOP,
+	RESIZE_RIGHT,
+	RESIZE_BOTTOM,
+	RESIZE_LEFT,
+	RESIZE_TOP_LEFT,
+	RESIZE_TOP_RIGHT,
+	RESIZE_BOTTOM_RIGHT,
+	RESIZE_BOTTOM_LEFT
+};
+
 #endif // TYPES_H

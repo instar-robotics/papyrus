@@ -1,4 +1,4 @@
-![Alt text](icon/papyrus_icon.png?raw=true "Title")
+![Alt text](icons/papyrus_icon.png?raw=true "Title")
 
 # Papyrus
 

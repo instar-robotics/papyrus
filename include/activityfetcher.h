@@ -40,7 +40,6 @@ class ActivityFetcher : public QThread
 	Q_OBJECT
 public:
 	explicit ActivityFetcher(const QString &topicName, DiagramBox *box, QObject *parent = nullptr);
-//	explicit ActivityFetcher(const QString &topicName, DiagramBox *box, ActivityVisualizer *vis, QObject *parent = nullptr);
 	~ActivityFetcher();
 
 	void run() override;
@@ -55,7 +54,6 @@ private:
 
 signals:
 	void newScalar(qreal scalar);
-//	void newMatrix(QList<qreal> *matrix);
 	void newMatrix(QVector<qreal> *mat);
 };
 

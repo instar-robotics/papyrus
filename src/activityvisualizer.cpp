@@ -11,16 +11,16 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
       m_height(100),
       m_cols(box->cols()),
       m_rows(box->rows()),
-      m_image(QImage(box->cols(), 100, QImage::Format_RGB32)),
+      m_scaleMargin(100),
+      m_nameMargin(40),
+      m_image(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
+//      m_image2(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
+//      m_doubleBufferFlag(false),
       m_resizeType(NO_RESIZE)
 {
-	qDebug() << "ActivityVisualizer created with size" << m_image.size() << "(" << m_width << "x" << m_height << ") and SCALED";
-
 	// Fill background with a light gray
 	m_image.fill(qRgb(239, 239, 239));
-
-	// Set the pixmap from the image
-	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, 100));
+//	m_image2.fill(qRgb(239, 239, 239));
 
 	// Position the visualizer slighty above its associated box
 	qreal x = m_box->scenePos().x();
@@ -32,6 +32,23 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 	setFlag(QGraphicsItem::ItemIsMovable);
 	setFlag(QGraphicsItem::ItemIsSelectable);
 	setAcceptHoverEvents(true);
+
+	m_painter.begin(&m_image);
+//	m_painter2.begin(&m_image2);
+
+	// Draw the scale
+	m_painter.fillRect(QRect(QPoint(m_scaleMargin - 7, 0), QPoint(m_scaleMargin - 5, 100)), Qt::black);
+	QFont font = m_painter.font();
+	qDebug() << "usign font:" << font;
+//	font.setPointSize(font.pointSize() + 2);
+//	m_painter.setFont(font);
+//	m_painter.drawText(20, 55, "0");
+	QRect r(0, 45, m_scaleMargin, 55);
+	m_painter.drawText(r, Qt::AlignCenter, "0");
+	m_painter.drawRect(r);
+
+	// Set the pixmap from the image
+	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, 100));
 }
 
 /**
@@ -200,10 +217,21 @@ void ActivityVisualizer::updateMatrix(QVector<qreal> *mat)
 	int rows = m_box->rows();
 	int cols = m_box->cols();
 
-	QColor color(51, 153, 255);
+	QColor blue(51, 153, 255);
+	QColor red(246, 2, 2);
+
+	// Define pointer accordingly to double buffering
+//	QImage *image = m_doubleBufferFlag ? &m_image2 : &m_image;
+//	QPainter *painter = m_doubleBufferFlag ? &m_painter2 : &m_painter;
+	QImage *image = &m_image;
+	QPainter *painter = &m_painter;
+
+	// Switch double buffering
+//	m_doubleBufferFlag = !m_doubleBufferFlag;
 
 	// Erase previous display
-	m_image.fill(qRgb(239, 239, 239));
+//	m_image.fill(qRgb(239, 239, 239));
+	painter->fillRect(QRect(m_scaleMargin, 0, cols, 100), QColor(239, 239, 239));
 
 	// Update pixels in the QImage
 	for (int i = 0; i < cols; i += 1) {
@@ -216,18 +244,18 @@ void ActivityVisualizer::updateMatrix(QVector<qreal> *mat)
 
 		if (capped >= 0) {
 			for (int j = 0; j < capped * 50; j += 1) {
-				m_image.setPixel(i, 50-j, color.rgb());
+				image->setPixel(m_scaleMargin + i, 50-j, blue.rgb());
 			}
 		} else {
 			for (int j = 0; j < -capped * 50; j += 1) {
-				m_image.setPixel(i, 50+j, color.rgb());
+				image->setPixel(m_scaleMargin + i, 50+j, red.rgb());
 			}
 		}
 	}
 
 	// Update pixmap from image
-	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+	setPixmap(QPixmap::fromImage(*image).scaled(m_width, m_height));
 
-	// DONT FORGET TO DELETE THE MATRIX POINTER
+	// Don't forget to delete matrix pointer to avoid memory leak
 	delete mat;
 }

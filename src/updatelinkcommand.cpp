@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -42,11 +42,15 @@ UpdateLinkCommand::UpdateLinkCommand(PropertiesPanel *panel, Link *link, QUndoCo
 	m_oldWeight = m_link->weight();
 	m_oldValue = m_link->value();
 	m_oldSecondary = m_link->secondary();
+	m_oldConnectivity = m_link->connectivity();
+	m_oldRegexes = m_link->regexes();
 
 	// Save new parameter values
 	m_newWeight = m_panel->linkWeight()->value();
 	m_newValue = m_panel->linkValue()->text();
 	m_newSecondary = m_panel->linkSecondary()->isChecked();
+	m_newConnectivity = m_panel->linkConnectivity()->currentData().value<Connectivity>();
+	m_newRegexes = m_panel->linkRegexes()->toPlainText();
 }
 
 void UpdateLinkCommand::undo()
@@ -66,6 +70,9 @@ void UpdateLinkCommand::undo()
 		if (dScene != nullptr && dScene->script() != nullptr)
 			dScene->script()->setStatusModified(true);
 	}
+
+	m_link->setConnectivity(m_oldConnectivity);
+	m_link->setRegexes(m_oldRegexes);
 }
 
 void UpdateLinkCommand::redo()
@@ -95,4 +102,7 @@ void UpdateLinkCommand::redo()
 		if (dScene != nullptr && dScene->script() != nullptr)
 			dScene->script()->setStatusModified(true);
 	}
+
+	m_link->setConnectivity(m_newConnectivity);
+	m_link->setRegexes(m_newRegexes);
 }

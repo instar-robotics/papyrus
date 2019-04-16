@@ -384,10 +384,19 @@ void Script::save(const QString &basePath, bool isAutoSave)
 					// Be careful to use the box's uuid and not the slot's
 					stream.writeTextElement("from", link->from()->box()->uuid().toString());
 
-					// Write the connecvitity if the link is of type MATRIX_MATRIX
+					// Write the connectivity if the link is of type MATRIX_MATRIX
 					if (link->to()->inputType() == MATRIX_MATRIX) {
+						Connectivity connectivity = link->connectivity();
 						stream.writeStartElement("connectivity");
-						stream.writeAttribute("type", connectivityToString(link->connectivity()));
+						stream.writeAttribute("type", connectivityToString(connectivity));
+
+						// When connectivity is ONE_TO_NEI, include the regexes
+						if (connectivity == ONE_TO_NEI) {
+							QStringList regexes = link->regexes().split('\n', QString::SkipEmptyParts);
+							foreach (QString regex, regexes) {
+								stream.writeTextElement("expression", regex);
+							}
+						}
 						stream.writeEndElement(); // connectivity
 					}
 

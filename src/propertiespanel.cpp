@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -59,6 +59,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_linkSecondary(NULL),
                                                     m_linkWeight(NULL),
                                                     m_linkValue(NULL),
+                                                    m_linkConnectivity(nullptr),
+                                                    m_linkRegexes(nullptr),
                                                     m_okBtn(NULL),
                                                     m_cancelBtn(NULL)
 {
@@ -175,11 +177,20 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_linkWeight->setFixedWidth(150);
 	m_linkWeight->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_linkValue = new QLineEdit;
+	m_linkConnectivity = new QComboBox;
+	m_linkConnectivity->addItem("One", ONE_TO_ONE);
+	m_linkConnectivity->addItem("All", ONE_TO_ALL);
+	m_linkConnectivity->addItem("Neighbors", ONE_TO_NEI);
+	connect(m_linkConnectivity, SIGNAL(currentIndexChanged(int)), this, SLOT(onConnectivityChanged(int)));
+	m_linkRegexes = new QTextEdit;
+	m_linkRegexes->setPlaceholderText(tr("Connectivity regexes"));
 
 	m_linkLayout->addRow(m_linkType);
 	m_linkLayout->addRow(tr("Weight:"), m_linkWeight);
 	m_linkLayout->addRow(tr("Value:"), m_linkValue);
 	m_linkLayout->addRow(m_linkSecondary);
+	m_linkLayout->addRow(tr("One to"), m_linkConnectivity);
+	m_linkLayout->addRow(m_linkRegexes);
 
 	m_linkFrame->setLayout(m_linkLayout);
 
@@ -197,6 +208,10 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
 	m_zoneFrame->setLayout(m_zoneLayout);
 
+	// Decrease slightly the font size for the whole panel, because it's quite big
+	QFont panelFont = font();
+	panelFont.setPointSize(panelFont.pointSize() - 2);
+	setFont(panelFont);
 
 	// By default, hide the frames and the buttons
 	hideAllFrames(true);
@@ -423,6 +438,26 @@ void PropertiesPanel::setEncrypt(QCheckBox *encrypt)
 	m_encrypt = encrypt;
 }
 
+QComboBox *PropertiesPanel::linkConnectivity() const
+{
+	return m_linkConnectivity;
+}
+
+void PropertiesPanel::setLinkConnectivity(QComboBox *linkConnectivity)
+{
+	m_linkConnectivity = linkConnectivity;
+}
+
+QTextEdit *PropertiesPanel::linkRegexes() const
+{
+	return m_linkRegexes;
+}
+
+void PropertiesPanel::setLinkRegexes(QTextEdit *linkRegexes)
+{
+	m_linkRegexes = linkRegexes;
+}
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -603,6 +638,48 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 	else
 		m_linkSecondary->setEnabled(true);
 
+	// Show the connectivity button for links of type MATRIX_MATRIX
+	QWidget *linkConnectivityLabel = m_linkLayout->labelForField(m_linkConnectivity);
+	if (linkType == MATRIX_MATRIX) {
+		m_linkConnectivity->show();
+
+		if (linkConnectivityLabel != nullptr)
+			linkConnectivityLabel->show();
+
+		// Hide the regexes (will be shown only when necessary)
+		m_linkRegexes->hide();
+		m_linkRegexes->clear();
+
+		switch (link->connectivity()) {
+			case ONE_TO_ONE:
+				m_linkConnectivity->setCurrentIndex(0);
+			break;
+
+			case ONE_TO_ALL:
+				m_linkConnectivity->setCurrentIndex(1);
+			break;
+
+			case ONE_TO_NEI:
+				m_linkConnectivity->setCurrentIndex(2);
+				m_linkRegexes->show();
+				m_linkRegexes->setPlainText(link->regexes());
+			break;
+
+			default:
+				emit displayStatusMessage(tr("Unsupported connectivity."));
+				m_linkConnectivity->hide();
+				if (linkConnectivityLabel != nullptr)
+					linkConnectivityLabel->hide();
+		}
+	} else {
+		m_linkConnectivity->hide();
+
+		if (linkConnectivityLabel != nullptr)
+			linkConnectivityLabel->hide();
+
+		m_linkRegexes->hide();
+	}
+
 	// Show the link frame
 	m_linkFrame->show();
 	m_okBtn->show();
@@ -698,6 +775,29 @@ void PropertiesPanel::onTopicChanged(const QString &topic)
 		m_topic->setStyleSheet("color: black;");
 	} else {
 		m_topic->setStyleSheet("color: red;");
+	}
+}
+
+/**
+ * @brief PropertiesPanel::onConnectivityChanged is called when the user changes the connectivity
+ * type of a MATRIX_MATRIX @Link. It is used to show or hide the QTextEdit in which connectivity
+ * regexes are typed in.
+ * @param idx
+ */
+void PropertiesPanel::onConnectivityChanged(int idx)
+{
+	Q_UNUSED(idx);
+
+	Connectivity connectivity = m_linkConnectivity->currentData().value<Connectivity>();
+
+	// If the user selected ONE_TO_NEI, then show the text edit and populate with current value
+	if (connectivity == ONE_TO_NEI) {
+		m_linkRegexes->clear(); // Since we don't have access to the Link, start with blank
+		m_linkRegexes->show();
+	}
+	// If the user selected another connectivity, hide the text edit
+	else {
+		m_linkRegexes->hide();
 	}
 }
 
@@ -805,18 +905,6 @@ void PropertiesPanel::updateLinkProperties(Link *link)
 	}
 
 	dScene->undoStack()->push(updateCommand);
-	/*
-	if (link == NULL)
-		informUserAndCrash(tr("Cannot update link's properties: link is null!"));
-
-	// Update either the weight or the value based on the link being a string link or not
-	if (link->isStringLink())
-		link->setValue(m_linkValue->text());
-	else
-		link->setWeight(m_linkWeight->value());
-
-	link->setSecondary(m_linkSecondary->isChecked());
-	*/
 }
 
 /**

@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -40,6 +40,7 @@
 #include <QDoubleSpinBox>
 #include <QComboBox>
 #include <QFormLayout>
+#include <QTextEdit>
 
 /**
  * @brief The PropertiesPanel class is used to display (and modify) the properties of selected
@@ -124,7 +125,14 @@ public:
 	QCheckBox *encrypt() const;
 	void setEncrypt(QCheckBox *encrypt);
 
+	QComboBox *linkConnectivity() const;
+	void setLinkConnectivity(QComboBox *linkConnectivity);
+
+	QTextEdit *linkRegexes() const;
+	void setLinkRegexes(QTextEdit *linkRegexes);
+
 private:
+	// Script
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame *m_scriptFrame;       // Container for script's properties
 	QLabel *m_scriptName;        // Label used to change the script (and tab) name
@@ -133,6 +141,7 @@ private:
 	QComboBox *m_timeUnit;       // Used to select the unit (in Hz or ms)
 	QCheckBox *m_encrypt;        // Whether or not the file is encrypted on save
 
+	// Box
 	QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
 	QFrame *m_boxFrame;        // Container for box's properties
 	QLabel *m_boxName;         // Display the name of the box
@@ -146,13 +155,17 @@ private:
 	PropLineEdit *m_topic;        // To input the topic name for publishing
 	QPushButton *m_displayVisu; // (TEMP) display the box's data vizualisation
 
+	// Link
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
 	QFrame *m_linkFrame;          // Container for link's properties
 	QLabel *m_linkType;           // Display the type of the link
 	QCheckBox *m_linkSecondary;   // Will display if the link is secondary or not
 	QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
 	QLineEdit *m_linkValue;       // Text field to enter the link's value (for string links)
+	QComboBox *m_linkConnectivity; // Change the connectivity of the link (for MATRIX_MATRIX)
+	QTextEdit *m_linkRegexes;      // The ONE_TO_NEI regexes to define neighbors
 
+	// Zone
 	QFormLayout *m_zoneLayout;     // Contains the layout to display comment zone's properties
 	QFrame *m_zoneFrame;           // Container for zone's properties
 	PropLineEdit *m_zoneTitle;        // The comment zone's title
@@ -162,6 +175,7 @@ private:
 	QSize m_inputSize;
 	QSize m_outputSize;
 
+	// Buttons
 	QPushButton *m_okBtn;      // Button used to validate changes in parameters
 	QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
 
@@ -175,6 +189,7 @@ public slots:
 
 private slots:
 	void onTopicChanged(const QString &topic);
+	void onConnectivityChanged(int idx);
 
 signals:
 	void enterPressed();

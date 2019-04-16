@@ -259,6 +259,9 @@ void Script::save(const QString &basePath, bool isAutoSave)
 	stream.writeStartDocument();             // start the XML document
 	stream.setAutoFormatting(true);          // Make it human-readable
 	stream.writeStartElement("script");      // Write the root tag
+	stream.writeAttribute("papyrus", QString("%1.%2.%3").arg(QString::number(MAJOR_VERSION),
+	                                                         QString::number(MINOR_VERSION),
+	                                                         QString::number(BUGFIX_VERSION)));
 	stream.writeTextElement("name", name()); // Write the name of the script
 
 	// Write the RT token parameters

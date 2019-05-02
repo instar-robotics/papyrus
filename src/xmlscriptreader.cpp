@@ -633,8 +633,24 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 			}
 		} else if (reader.name() == "connectivity") {
 			if (reader.attributes().hasAttribute("type")) {
-				link->setConnectivity(stringToConnectivity(reader.attributes().value("type").toString()));
-				reader.skipCurrentElement(); // To consume the tag!
+				Connectivity connectivity = stringToConnectivity(reader.attributes().value("type").toString());
+				link->setConnectivity(connectivity);
+
+				// Parse the regexes for links with connectivity ONE_TO_NEI
+				if (connectivity == ONE_TO_NEI) {
+					QStringList regexes;
+					while(reader.readNextStartElement()) {
+						if (reader.name() == "expression") {
+							regexes << reader.readElementText();
+						} else {
+							reader.skipCurrentElement();
+						}
+					}
+					link->setRegexes(regexes.join('\n'));
+				}
+				// Otherwise, consume the tag (it's crucial: otherwise we can't parse the rest!)
+				else
+					reader.skipCurrentElement();
 			} else {
 				qWarning() << "Missing attribute 'type' for <connectivity>";
 				reader.raiseError(QObject::tr("Missing attribute 'type' for <connectivity>"));

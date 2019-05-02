@@ -1,3 +1,5 @@
+![Alt text](icons/papyrus_icon.png?raw=true "Title")
+
 # Papyrus
 
 `Papyrus` is `kehops`'s GUI program to create and edit neural networks to produce Artificial

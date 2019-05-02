@@ -323,6 +323,16 @@ bool Link::checkIfSelfLoop()
 	}
 }
 
+QString Link::regexes() const
+{
+	return m_regexes;
+}
+
+void Link::setRegexes(const QString &regexes)
+{
+	m_regexes = regexes;
+}
+
 LinkInvalidReason Link::invalidReason() const
 {
 	return m_invalidReason;

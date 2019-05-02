@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -92,6 +92,9 @@ public:
 	LinkInvalidReason invalidReason() const;
 	void setInvalidReason(const LinkInvalidReason &invalidReason);
 
+	QString regexes() const;
+	void setRegexes(const QString &regexes);
+
 private:
 	bool checkIfSelfLoop();
 
@@ -112,6 +115,7 @@ private:
 	LinkInvalidReason m_invalidReason; // Tell why a link is invalid
 
 	Connectivity m_connectivity; // Only viable for MATRIX_MATRIX
+	QString m_regexes;           // Connectivity regexes for ONE_TO_NEI
 };
 
 #endif // LINK_H

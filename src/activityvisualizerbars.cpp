@@ -156,11 +156,10 @@ void ActivityVisualizerBars::keyPressEvent(QKeyEvent *evt)
 			m_activityFetcher->setShouldQuit(true);
 			m_activityFetcher->wait(500);
 			delete m_activityFetcher;
-
-			m_box->setIsActivityVisuEnabled(false);
-
-			delete this;
 		}
+
+		m_box->setIsActivityVisuEnabled(false);
+		delete this;
 	}
 
 	QGraphicsPixmapItem::keyPressEvent(evt);

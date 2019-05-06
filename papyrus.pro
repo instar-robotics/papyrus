@@ -71,7 +71,8 @@ HEADERS += include/category.h \
            include/diagramchart.h \
            include/activityfetcher.h \
            include/activityvisualizer.h \
-           include/activityvisualizerbars.h
+           include/activityvisualizerbars.h \
+           include/activityvisualizerthermal.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -125,6 +126,7 @@ SOURCES += src/category.cpp \
            src/diagramchart.cpp \
            src/activityfetcher.cpp \
            src/activityvisualizer.cpp \
-           src/activityvisualizerbars.cpp
+           src/activityvisualizerbars.cpp \
+           src/activityvisualizerthermal.cpp
 
 RESOURCES += icons.qrc

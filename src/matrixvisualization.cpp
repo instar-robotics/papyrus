@@ -71,12 +71,12 @@ MatrixVisualization::MatrixVisualization(QWidget *parent,
 }
 
 // For {0 <= x <= 0.5}
-double eq1(double x) {
+static double eq1(double x) {
 	return 1 / (20 * (x - 0.586)) + 0.58;
 }
 
 // For {0.5 < x <= 1}
-double eq2(double x) {
+static double eq2(double x) {
 	return -1 / (20 * (x - 0.414)) + 0.58;
 }
 

@@ -39,6 +39,7 @@
 #include "activityfetcher.h"
 #include "activityvisualizer.h"
 #include "activityvisualizerbars.h"
+#include "activityvisualizerthermal.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -1291,7 +1292,8 @@ void DiagramScene::onDisplayVisuClicked(bool)
 						addItem(vis);
 					}
 					else {
-						qWarning() << "\tType is MATRIX, dimensions are (N,M): should create Thermal but it's not implemented yet";
+						vis = new ActivityVisualizerThermal(selectedBox);
+						addItem(vis);
 					}
 				break;
 
@@ -1313,12 +1315,15 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			}
 
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);
+			ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
 			if (visBar != nullptr) {
 				visBar->setActivityFetcher(fetcher);
 				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBar, SLOT(updateBars(QVector<qreal>*)));
-			} else {
-				qWarning() << "Should connected fetcher's signal but missing implementation for now!";
-			}
+			} else if (visTh != nullptr) {
+				visTh->setActivityFetcher(fetcher);
+				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visTh, SLOT(updateThermal(QVector<qreal>*)));
+			} else
+				qWarning() << "Only Bars and Thermal visualizers are supported for now!";
 //			connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), vis, SLOT(updateMatrix(QVector<qreal>*)));
 
 //			selectedBox->showDataVis(m_script->rosSession());

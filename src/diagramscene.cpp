@@ -1313,9 +1313,10 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			}
 
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);
-			if (visBar != nullptr)
+			if (visBar != nullptr) {
+				visBar->setActivityFetcher(fetcher);
 				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBar, SLOT(updateBars(QVector<qreal>*)));
-			else {
+			} else {
 				qWarning() << "Should connected fetcher's signal but missing implementation for now!";
 			}
 //			connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), vis, SLOT(updateMatrix(QVector<qreal>*)));

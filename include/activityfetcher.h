@@ -40,9 +40,11 @@ class ActivityFetcher : public QThread
 	Q_OBJECT
 public:
 	explicit ActivityFetcher(const QString &topicName, DiagramBox *box, QObject *parent = nullptr);
-	~ActivityFetcher();
 
 	void run() override;
+
+	bool shouldQuit() const;
+	void setShouldQuit(bool shouldQuit);
 
 private:
 	void fetchScalar(const std_msgs::Float64::ConstPtr& scalar);

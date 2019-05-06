@@ -35,11 +35,6 @@ ActivityFetcher::ActivityFetcher(const QString &topicName, DiagramBox *box, QObj
 	start();
 }
 
-ActivityFetcher::~ActivityFetcher()
-{
-	qDebug() << "[ActivityFetcher] destructor: SHOULD disable activity on box";
-}
-
 void ActivityFetcher::run()
 {
 	// Wait for the ROS master to become online
@@ -102,4 +97,14 @@ void ActivityFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &m
 		*matrix << mat->data.at(i);
 
 	emit newMatrix(matrix);
+}
+
+bool ActivityFetcher::shouldQuit() const
+{
+	return m_shouldQuit;
+}
+
+void ActivityFetcher::setShouldQuit(bool shouldQuit)
+{
+	m_shouldQuit = shouldQuit;
 }

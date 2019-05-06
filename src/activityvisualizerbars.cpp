@@ -142,6 +142,30 @@ void ActivityVisualizerBars::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
 
+/**
+ * @brief ActivityVisualizerBars::keyPressEvent is used to match on a press to ESCAPE, to close
+ * this visualizer.
+ * @param evt
+ */
+void ActivityVisualizerBars::keyPressEvent(QKeyEvent *evt)
+{
+	int key = evt->key();
+
+	if (key == Qt::Key_Escape || key == Qt::Key_Delete) {
+		if (m_activityFetcher != nullptr) {
+			m_activityFetcher->setShouldQuit(true);
+			m_activityFetcher->wait(500);
+			delete m_activityFetcher;
+
+			m_box->setIsActivityVisuEnabled(false);
+
+			delete this;
+		}
+	}
+
+	QGraphicsPixmapItem::keyPressEvent(evt);
+}
+
 // TODO: can we implement double-buffering using two QImages?
 // TODO: we can use QPaint to paint directly on the pixmap, let's try painting directly the columns
 // of pixels instead

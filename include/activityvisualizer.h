@@ -2,6 +2,7 @@
 #define ACTIVITYVISUALIZER_H
 
 #include "diagrambox.h"
+#include "activityfetcher.h"
 
 #include <QGraphicsPixmapItem>
 #include <QImage>
@@ -31,6 +32,9 @@ public:
 	QImage image() const;
 	void setImage(const QImage &image);
 
+	ActivityFetcher *activityFetcher() const;
+	void setActivityFetcher(ActivityFetcher *activityFetcher);
+
 protected:
 	DiagramBox *m_box;
 
@@ -53,6 +57,8 @@ protected:
 
 	qreal m_minWidth;
 	qreal m_minHeight;
+
+	ActivityFetcher *m_activityFetcher;
 
 signals:
 //	void sizeChanged();

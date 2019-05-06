@@ -29,6 +29,7 @@ public:
 	~ActivityVisualizerBars();
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
+	void keyPressEvent(QKeyEvent *evt);
 
 private:
 	int m_scaleMargin; // Left / top margin used to draw scale on the graph

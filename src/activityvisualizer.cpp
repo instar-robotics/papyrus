@@ -18,20 +18,22 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
       m_visuTitle(this),
       m_range(1.0),
       m_minWidth(100),
-      m_minHeight(100)
+      m_minHeight(100),
+      m_activityFetcher(nullptr)
 {
 	// Fill background with white
 	m_image.fill(qRgb(255, 255, 255));
 
-	// Position the visualizer slighty above its associated box
+	// Position the visualizer slightly above its associated box
 	qreal x = m_box->scenePos().x();
 	qreal y = m_box->scenePos().y() - m_height - 10;
 	setPos(x, y);
 
-	setFlag(QGraphicsItem::ItemSendsGeometryChanges);
-	setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
+//	setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+//	setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
 	setFlag(QGraphicsItem::ItemIsMovable);
 	setFlag(QGraphicsItem::ItemIsSelectable);
+	setFlag(QGraphicsItem::ItemIsFocusable);
 	setAcceptHoverEvents(true);
 
 	// By default, the font is too big, reduce it
@@ -190,6 +192,16 @@ QImage ActivityVisualizer::image() const
 void ActivityVisualizer::setImage(const QImage &image)
 {
 	m_image = image;
+}
+
+ActivityFetcher *ActivityVisualizer::activityFetcher() const
+{
+	return m_activityFetcher;
+}
+
+void ActivityVisualizer::setActivityFetcher(ActivityFetcher *activityFetcher)
+{
+	m_activityFetcher = activityFetcher;
 }
 
 /**

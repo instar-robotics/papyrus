@@ -49,6 +49,7 @@ int DiagramBox::getType()
 
 DiagramBox::DiagramBox(const QString &name,
                        const QIcon &icon,
+                       const QString &description,
                        OutputSlot *outputSlot,
                        std::vector<InputSlot *> inputSlots,
                        const QUuid &uuid,
@@ -60,6 +61,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_matrixShape(SHAPE_NONE),
                                                 m_uuid(uuid),
                                                 m_icon(icon),
+                                                m_description(description),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
                                                 m_rows(1),
@@ -81,6 +83,7 @@ DiagramBox::DiagramBox(const QString &name,
 	       | QGraphicsItem::ItemSendsScenePositionChanges);
 	setAcceptHoverEvents(true);
 
+	setToolTip(description);
 	// Make this the parent item of the output slot, so that it follow drags, etc.
 	m_outputSlot->setParentItem(this);
 	m_outputSlot->setBox(this);
@@ -467,6 +470,16 @@ QString DiagramBox::name() const
 	return m_name;
 }
 
+QString DiagramBox::description() const
+{
+	return m_description;
+}
+
+void DiagramBox::setDescription(const QString &description)
+{
+	m_description = description;
+}
+
 /**
  * @brief DiagramBox::paint draw the function box: its shape, bold when selected, function's icon,
  * function's name, etc.
@@ -707,7 +720,7 @@ bool DiagramBox::checkIfBoxInvalid()
 
 /**
  * @brief DiagramBox::updateTooltip update the tooltip of the box, based on the reason why it's
- * invalid. Set the tooltip to empty string if valid
+ * invalid. Reset the tooltip to description string if valid
  */
 void DiagramBox::updateTooltip()
 {
@@ -727,6 +740,8 @@ void DiagramBox::updateTooltip()
 
 	if (!str.isEmpty())
 		str = tr("Box is <strong>invalid</strong>:<ul>") + str + "</ul>";
+	else
+		str = description();
 
 	setToolTip(str);
 }

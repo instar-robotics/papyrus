@@ -269,6 +269,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QString name;
 	QString title;
 	QString libname;
+	QString description;
 	MatrixShape matrixShape = SHAPE_NONE;
 	bool save = false;
 	OutputSlot *outputSlot = new OutputSlot;
@@ -336,6 +337,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				// Extract DiagrambBox's information
 				icon = QIcon(f->iconFilepath());
 				iconFilePath = f->iconFilepath();
+				description = f->description();
 				libname = f->libName();
 				matrixShape = f->matrixShape();
 
@@ -372,9 +374,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 	DiagramBox *b;
 	if (reader.name() == "constant")
-		b = new ConstantDiagramBox(name, icon, outputSlot, uuid);
+		b = new ConstantDiagramBox(name, icon, description, outputSlot, uuid);
 	else {
-		b = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
+		b = new DiagramBox(name, icon, description, outputSlot, inputSlots, uuid);
 
 		b->setTitle(title);
 		b->setLibname(libname);

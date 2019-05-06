@@ -70,7 +70,8 @@ HEADERS += include/category.h \
            include/udpatescriptcommand.h \
            include/diagramchart.h \
            include/activityfetcher.h \
-           include/activityvisualizer.h
+           include/activityvisualizer.h \
+           include/activityvisualizerbars.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -123,6 +124,7 @@ SOURCES += src/category.cpp \
            src/updatescriptcommand.cpp \
            src/diagramchart.cpp \
            src/activityfetcher.cpp \
-           src/activityvisualizer.cpp
+           src/activityvisualizer.cpp \
+           src/activityvisualizerbars.cpp
 
 RESOURCES += icons.qrc

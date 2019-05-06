@@ -19,7 +19,6 @@ class ActivityVisualizer : public QObject, public QGraphicsPixmapItem
 
 public:
 	explicit ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent = nullptr);
-	~ActivityVisualizer();
 
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *evt);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
@@ -32,17 +31,13 @@ public:
 	QImage image() const;
 	void setImage(const QImage &image);
 
-	void updateVisu(QList<qreal>* mat);
-
-private:
+protected:
 	DiagramBox *m_box;
 
 	int m_width;   // The width of the display (in px)
 	int m_height;  // The height of the display (in px)
 	int m_cols;    // The number of neurons horizontally
 	int m_rows;    // The number of neurons vertically
-
-	int m_scaleMargin; // Left / top margin used to draw scale on the graph
 
 	QImage m_image;
 //	QImage m_image2;
@@ -52,23 +47,18 @@ private:
 	QPainter m_painter;
 //	QPainter m_painter2;
 
-	QGraphicsLineItem m_hLine;
-	QGraphicsLineItem m_vLine;
 	QGraphicsTextItem m_visuTitle;
 
-	int m_nbTicks;
-	QList<QGraphicsLineItem *> m_ticks;  // List of ticks on the axis
-
 	qreal m_range;
-	QList<QGraphicsTextItem *> m_labels; // List of labels for the ticks
+
+	qreal m_minWidth;
+	qreal m_minHeight;
 
 signals:
-//	void sizeChanged(QSize newSize);
-	void sizeChanged();
+//	void sizeChanged();
 
-private slots:
-	void updateMatrix(QVector<qreal> *mat);
-	void updateAxes();
+protected slots:
+//	void onSizeChanged();
 };
 
 #endif // ACTIVITYVISUALIZER_H

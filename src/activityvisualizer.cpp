@@ -11,22 +11,17 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
       m_height(101),
       m_cols(box->cols()),
       m_rows(box->rows()),
-      m_scaleMargin(10),
-//      m_image(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
       m_image(QImage(box->cols(), 101, QImage::Format_RGB32)),
 //      m_image2(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
 //      m_doubleBufferFlag(false),
       m_resizeType(NO_RESIZE),
-      m_hLine(this),
-      m_vLine(this),
       m_visuTitle(this),
-      m_nbTicks(5), // keep it odd to have 0 displayed
-      m_range(1.0)
+      m_range(1.0),
+      m_minWidth(100),
+      m_minHeight(100)
 {
 	// Fill background with white
-//	m_image.fill(qRgb(239, 239, 239));
 	m_image.fill(qRgb(255, 255, 255));
-//	m_image2.fill(qRgb(239, 239, 239));
 
 	// Position the visualizer slighty above its associated box
 	qreal x = m_box->scenePos().x();
@@ -39,6 +34,12 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 	setFlag(QGraphicsItem::ItemIsSelectable);
 	setAcceptHoverEvents(true);
 
+	// By default, the font is too big, reduce it
+//	QFont titleFont = m_visuTitle.font();
+//	titleFont.setPointSize(titleFont.pointSize() - 4);
+//	m_visuTitle.setFont(titleFont);
+
+	/*
 	m_painter.begin(&m_image);
 //	m_painter2.begin(&m_image2);
 
@@ -49,10 +50,6 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 	m_visuTitle.setHtml(QString("<center>%1</center>").arg(m_box->name()));
 	if (!m_box->title().isEmpty())
 		m_visuTitle.setHtml(QString("<center>%1</center>").arg(m_box->title()));
-
-	QFont titleFont = m_visuTitle.font();
-	titleFont.setPointSize(titleFont.pointSize() - 4);
-	m_visuTitle.setFont(titleFont);
 
 	// Create the ticks & labels
 	for (int i = 0; i < m_nbTicks; i += 1) {
@@ -69,14 +66,8 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 	// Create the horizontal and vertical lines (axes)
 	updateAxes();
 
-	connect(this, SIGNAL(sizeChanged()), this, SLOT(updateAxes()));
-}
-
-ActivityVisualizer::~ActivityVisualizer()
-{
-	for (int i = 0; i < m_nbTicks; i += 1) {
-		delete m_ticks.at(i);
-	}
+	connect(this, SIGNAL(sizeChanged()), this, SLOT(onSizeChanged()));
+	//*/
 }
 
 /**
@@ -149,36 +140,33 @@ void ActivityVisualizer::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt)
 void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
 	// Define some minimum dimensions so we can't make charts too small
-	qreal minWidth = 100;
-	qreal minHeight = 100;
 	qreal newWidth, newHeight;
 
 	switch (m_resizeType) {
 		case RESIZE_RIGHT:
 			newWidth = evt->scenePos().x() - scenePos().x();
-			m_width = newWidth >= minWidth ? newWidth : minWidth;
-			emit sizeChanged();
+			m_width = newWidth >= m_minWidth ? newWidth : m_minWidth;
+//			emit sizeChanged();
 		break;
 
 		case RESIZE_BOTTOM:
 			newHeight = evt->scenePos().y() - scenePos().y();
-			m_height = newHeight >= minHeight ? newHeight : minHeight;
-			emit sizeChanged();
+			m_height = newHeight >= m_minHeight ? newHeight : m_minHeight;
+//			emit sizeChanged();
 		break;
 
 		case RESIZE_BOTTOM_RIGHT:
 			newWidth = evt->scenePos().x() - scenePos().x();
-			m_width = newWidth >= minWidth ? newWidth : minWidth;
+			m_width = newWidth >= m_minWidth ? newWidth : m_minWidth;
 			newHeight = evt->scenePos().y() - scenePos().y();
-			m_height = newHeight >= minHeight ? newHeight : minHeight;
-			emit sizeChanged();
+			m_height = newHeight >= m_minHeight ? newHeight : m_minHeight;
+//			emit sizeChanged();
 		break;
 
 		default:
 			;
 	}
 
-//	resize(m_width, m_height);
 	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
@@ -204,98 +192,11 @@ void ActivityVisualizer::setImage(const QImage &image)
 	m_image = image;
 }
 
-void ActivityVisualizer::updateVisu(QList<qreal> *mat)
-{
-	/*
-	int rows = m_box->rows();
-	int cols = m_box->cols();
-
-	QColor color(51, 153, 255);
-
-	// Update pixels in the QImage
-	for (int i = 0; i < cols; i += 1) {
-		// Make sure the value is comprised between [-1; +1]
-		double capped = mat->at(i);
-		capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
-
-		// Normalize the value between [0; 1] for multiplication
-		//		double normalizedValue = (capped - 1.0) / (-2.0);
-
-		if (capped >= 0) {
-			for (int j = 0; j < capped * 50; j += 1) {
-				m_image.setPixel(i, 50-j, color.rgb());
-			}
-		} else {
-			for (int j = 0; j < -capped * 50; j += 1) {
-				m_image.setPixel(i, 50+j, color.rgb());
-			}
-		}
-	}
-	//*/
-
-	// Update pixmap from image
-
-	// CANNOT be called from another thread.
-	// So goes either SIGNALS / SLOTS or QCoreApplication::postEvent()
-	setPixmap(QPixmap::fromImage(m_image));
-}
-
-// TODO: can we implement double-buffering using two QImages?
-// TODO: we can use QPaint to paint directly on the pixmal, let's try painting directly the columns
-// of pixels instead
-void ActivityVisualizer::updateMatrix(QVector<qreal> *mat)
-{
-	int rows = m_box->rows();
-	int cols = m_box->cols();
-
-	QColor blue(51, 153, 255);
-	QColor red(246, 2, 2);
-
-	// Define pointer accordingly to double buffering
-//	QImage *image = m_doubleBufferFlag ? &m_image2 : &m_image;
-//	QPainter *painter = m_doubleBufferFlag ? &m_painter2 : &m_painter;
-	QImage *image = &m_image;
-	QPainter *painter = &m_painter;
-
-	// Switch double buffering
-//	m_doubleBufferFlag = !m_doubleBufferFlag;
-
-	// Erase previous display
-//	m_image.fill(qRgb(239, 239, 239));
-//	painter->fillRect(QRect(0, 0, cols, 100), QColor(239, 239, 239));
-	painter->fillRect(QRect(0, 0, cols, m_height), QColor(255, 255, 255));
-
-	// Update pixels in the QImage
-	for (int i = 0; i < cols; i += 1) {
-		// Make sure the value is comprised between [-1; +1]
-		double capped = mat->at(i);
-		capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
-
-		// Normalize the value between [0; 1] for multiplication
-//		double normalizedValue = (capped - 1.0) / (-2.0);
-
-		if (capped >= 0) {
-			for (int j = 0; j < capped * 50; j += 1) {
-				image->setPixel(i, 50-j, blue.rgb());
-			}
-		} else {
-			for (int j = 0; j < -capped * 50; j += 1) {
-				image->setPixel(i, 50+j, red.rgb());
-			}
-		}
-	}
-
-	// Update pixmap from image
-	setPixmap(QPixmap::fromImage(*image).scaled(m_width, m_height));
-
-	// Don't forget to delete matrix pointer to avoid memory leak
-	delete mat;
-}
-
 /**
  * @brief ActivityVisualizer::updateLines is called when the graph window is resized.
  */
-void ActivityVisualizer::updateAxes()
+/*
+void ActivityVisualizer::onSizeChanged()
 {
 	// Create a horizontal line (axis)
 	m_hLine.setLine(-m_scaleMargin, m_height / 2, m_width + m_scaleMargin, m_height / 2);
@@ -312,13 +213,14 @@ void ActivityVisualizer::updateAxes()
 	qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
 	for (int i = 0; i < m_nbTicks; i += 1) {
 		m_ticks.at(i)->setLine(-m_scaleMargin,
-		                       i * dist,
-		                       -m_scaleMargin / 2,
-		                       i * dist);
+							   i * dist,
+							   -m_scaleMargin / 2,
+							   i * dist);
 
 		m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff));
 		QRectF r = m_labels.at(i)->boundingRect();
 		m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
-		                               i * dist - r.height() / 2); // middle align
+									   i * dist - r.height() / 2); // middle align
 	}
 }
+	//*/

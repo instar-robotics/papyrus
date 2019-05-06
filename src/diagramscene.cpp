@@ -38,6 +38,7 @@
 #include "diagramchart.h"
 #include "activityfetcher.h"
 #include "activityvisualizer.h"
+#include "activityvisualizerbars.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -1277,7 +1278,9 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			ActivityVisualizer *vis = nullptr;
 			switch (selectedBox->outputType()) {
 				case SCALAR:
-					qDebug() << "\tType is SCALAR: creating QChart";
+					qDebug() << "\tType is SCALAR: creating VisualizerBars (HORIZONTAL)";
+					vis = new ActivityVisualizerBars(selectedBox);
+					addItem(vis);
 //					chart = new DiagramChart(selectedBox);
 //					addItem(chart);
 				break;
@@ -1285,15 +1288,17 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				case MATRIX:
 					// (1,1) matrix is treated as a scalar
 					if (selectedBox->rows() == 1 && selectedBox->cols() == 1) {
-						qDebug() << "\tType is MATRIX, dimensions are (1,1): creating QChart";
+						qDebug() << "\tType is MATRIX, dimensions are (1,1): creating VisualizerBars (HORIZONTAL)";
+						vis = new ActivityVisualizerBars(selectedBox);
+						addItem(vis);
 //						chart = new DiagramChart(selectedBox);
 //						addItem(chart);
 						//				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
 					}
 					// (1,N) and (N,1) are vectors: they are displayed as several scalars
 					else if (selectedBox->rows() == 1 || selectedBox->cols() == 1) {
-						qDebug() << "\tType is MATRIX, dimensions are vector: creating ActivityVisualizer";
-						vis = new ActivityVisualizer(selectedBox);
+						qDebug() << "\tType is MATRIX, dimensions are vector: creating VisualizerBars (HORIZ or VERT)";
+						vis = new ActivityVisualizerBars(selectedBox);
 						addItem(vis);
 //						chart = new DiagramChart(selectedBox);
 
@@ -1301,7 +1306,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 //						addItem(chart);
 					}
 					else {
-						qDebug() << "\tType is MATRIX, dimensions are (N,M): creating Thermal";
+						qWarning() << "\tType is MATRIX, dimensions are (N,M): should create Thermal but it's not implemented yet";
 					}
 				break;
 
@@ -1322,7 +1327,13 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				m_script->rosSession()->addToHotList(selectedBox->uuid());
 			}
 
-			connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), vis, SLOT(updateMatrix(QVector<qreal>*)));
+			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);
+			if (visBar != nullptr)
+				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBar, SLOT(updateBars(QVector<qreal>*)));
+			else {
+				qWarning() << "Should connected fetcher's signal but missing implementation for now!";
+			}
+//			connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), vis, SLOT(updateMatrix(QVector<qreal>*)));
 
 //			selectedBox->showDataVis(m_script->rosSession());
 

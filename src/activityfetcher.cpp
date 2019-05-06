@@ -32,8 +32,6 @@ ActivityFetcher::ActivityFetcher(const QString &topicName, DiagramBox *box, QObj
 	if (m_box == nullptr)
 		informUserAndCrash(tr("ActivityFetcher created without a DiagramBox, crashing."));
 
-	qDebug() << "ActivityFetcher created on topic" << topicName;
-
 	start();
 }
 
@@ -92,53 +90,16 @@ void ActivityFetcher::run()
 
 void ActivityFetcher::fetchScalar(const std_msgs::Float64::ConstPtr &scalar)
 {
-	qDebug() << "Fetched scalar:" << scalar->data;
 	emit newScalar(scalar->data);
 }
 
-// TODO: pass pointer instead of copy?
 void ActivityFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &mat)
 {
-//	QList<qreal> *matrix = new QList<qreal>;
 	QVector<qreal> *matrix = new QVector<qreal>;
 	int size = mat->data.size();
 
 	for (int i = 0; i < size; i += 1)
 		*matrix << mat->data.at(i);
 
-//	m_vis->updateVisu(matrix);
-
 	emit newMatrix(matrix);
-
-	/*
-	int rows = m_vis->box()->rows();
-	int cols = m_vis->box()->cols();
-
-	QColor color(51, 153, 255);
-
-	// Update pixels in the QImage
-	for (int i = 0; i < rows; i += 1) {
-		// Make sure the value is comprised between [-1; +1]
-		double capped = mat->data.at(i);
-		capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
-
-		// Normalize the value between [0; 1] for multiplication
-//		double normalizedValue = (capped - 1.0) / (-2.0);
-
-		if (capped >= 0) {
-			for (int j = 0; j < capped * 50; j += 1) {
-				m_vis->image().setPixel(i, 50-j, color.rgb());
-			}
-		} else {
-			for (int j = 0; j < -capped * 50; j += 1) {
-				m_vis->image().setPixel(i, 50+j, color.rgb());
-			}
-		}
-	}
-
-	// Update pixmap from image
-	m_vis->setPixmap(QPixmap::fromImage(m_vis->image()));
-
-//	emit newMatrix(matrix);
-//*/
 }

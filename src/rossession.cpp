@@ -144,7 +144,6 @@ void ROSSession::handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr &m
 			// When the script is first run, activate all functions if the hot list
 			if (m_isFirstRun) {
 				foreach (QUuid uuid, m_hotList) {
-					qDebug() << "activate output on" << uuid.toString();
 					activateOutput(uuid);
 				}
 			}

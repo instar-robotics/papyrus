@@ -1272,38 +1272,23 @@ void DiagramScene::onDisplayVisuClicked(bool)
 
 			selectedBox->setIsActivityVisuEnabled(true);
 
-			qDebug() << "Showing data visualization for box" << selectedBox->name() << "(" << selectedBox->title() << ")";
-
-//			DiagramChart *chart = nullptr;
 			ActivityVisualizer *vis = nullptr;
 			switch (selectedBox->outputType()) {
 				case SCALAR:
-					qDebug() << "\tType is SCALAR: creating VisualizerBars (HORIZONTAL)";
 					vis = new ActivityVisualizerBars(selectedBox);
 					addItem(vis);
-//					chart = new DiagramChart(selectedBox);
-//					addItem(chart);
 				break;
 
 				case MATRIX:
 					// (1,1) matrix is treated as a scalar
 					if (selectedBox->rows() == 1 && selectedBox->cols() == 1) {
-						qDebug() << "\tType is MATRIX, dimensions are (1,1): creating VisualizerBars (HORIZONTAL)";
 						vis = new ActivityVisualizerBars(selectedBox);
 						addItem(vis);
-//						chart = new DiagramChart(selectedBox);
-//						addItem(chart);
-						//				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
 					}
 					// (1,N) and (N,1) are vectors: they are displayed as several scalars
 					else if (selectedBox->rows() == 1 || selectedBox->cols() == 1) {
-						qDebug() << "\tType is MATRIX, dimensions are vector: creating VisualizerBars (HORIZ or VERT)";
 						vis = new ActivityVisualizerBars(selectedBox);
 						addItem(vis);
-//						chart = new DiagramChart(selectedBox);
-
-//						connect(fetcher, SIGNAL(newMatrix(QList<qreal>*)), chart, SLOT(updateBarValues(QList<qreal>*)));
-//						addItem(chart);
 					}
 					else {
 						qWarning() << "\tType is MATRIX, dimensions are (N,M): should create Thermal but it's not implemented yet";

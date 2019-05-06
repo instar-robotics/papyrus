@@ -19,6 +19,7 @@ class ActivityVisualizer : public QObject, public QGraphicsPixmapItem
 
 public:
 	explicit ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent = nullptr);
+	~ActivityVisualizer();
 
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *evt);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
@@ -42,7 +43,6 @@ private:
 	int m_rows;    // The number of neurons vertically
 
 	int m_scaleMargin; // Left / top margin used to draw scale on the graph
-	int m_nameMargin;  // Bottom margin to display the function's name
 
 	QImage m_image;
 //	QImage m_image2;
@@ -52,9 +52,23 @@ private:
 	QPainter m_painter;
 //	QPainter m_painter2;
 
+	QGraphicsLineItem m_hLine;
+	QGraphicsLineItem m_vLine;
+	QGraphicsTextItem m_visuTitle;
+
+	int m_nbTicks;
+	QList<QGraphicsLineItem *> m_ticks;  // List of ticks on the axis
+
+	qreal m_range;
+	QList<QGraphicsTextItem *> m_labels; // List of labels for the ticks
+
+signals:
+//	void sizeChanged(QSize newSize);
+	void sizeChanged();
 
 private slots:
 	void updateMatrix(QVector<qreal> *mat);
+	void updateAxes();
 };
 
 #endif // ACTIVITYVISUALIZER_H

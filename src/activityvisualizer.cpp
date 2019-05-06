@@ -8,18 +8,24 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),
       m_box(box),
       m_width(300),
-      m_height(100),
+      m_height(101),
       m_cols(box->cols()),
       m_rows(box->rows()),
-      m_scaleMargin(100),
-      m_nameMargin(40),
-      m_image(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
+      m_scaleMargin(10),
+//      m_image(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
+      m_image(QImage(box->cols(), 101, QImage::Format_RGB32)),
 //      m_image2(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
 //      m_doubleBufferFlag(false),
-      m_resizeType(NO_RESIZE)
+      m_resizeType(NO_RESIZE),
+      m_hLine(this),
+      m_vLine(this),
+      m_visuTitle(this),
+      m_nbTicks(5), // keep it odd to have 0 displayed
+      m_range(1.0)
 {
-	// Fill background with a light gray
-	m_image.fill(qRgb(239, 239, 239));
+	// Fill background with white
+//	m_image.fill(qRgb(239, 239, 239));
+	m_image.fill(qRgb(255, 255, 255));
 //	m_image2.fill(qRgb(239, 239, 239));
 
 	// Position the visualizer slighty above its associated box
@@ -36,19 +42,41 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 	m_painter.begin(&m_image);
 //	m_painter2.begin(&m_image2);
 
-	// Draw the scale
-	m_painter.fillRect(QRect(QPoint(m_scaleMargin - 7, 0), QPoint(m_scaleMargin - 5, 100)), Qt::black);
-	QFont font = m_painter.font();
-	qDebug() << "usign font:" << font;
-//	font.setPointSize(font.pointSize() + 2);
-//	m_painter.setFont(font);
-//	m_painter.drawText(20, 55, "0");
-	QRect r(0, 45, m_scaleMargin, 55);
-	m_painter.drawText(r, Qt::AlignCenter, "0");
-	m_painter.drawRect(r);
-
 	// Set the pixmap from the image
-	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, 100));
+	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+
+	// Create a text item to display the function's name
+	m_visuTitle.setHtml(QString("<center>%1</center>").arg(m_box->name()));
+	if (!m_box->title().isEmpty())
+		m_visuTitle.setHtml(QString("<center>%1</center>").arg(m_box->title()));
+
+	QFont titleFont = m_visuTitle.font();
+	titleFont.setPointSize(titleFont.pointSize() - 4);
+	m_visuTitle.setFont(titleFont);
+
+	// Create the ticks & labels
+	for (int i = 0; i < m_nbTicks; i += 1) {
+		QGraphicsLineItem *tick = new QGraphicsLineItem(this);
+		m_ticks << tick;
+
+		QGraphicsTextItem *label = new QGraphicsTextItem(this);
+		QFont labelFont = label->font();
+		labelFont.setPointSizeF(labelFont.pointSizeF() - 4);
+		label->setFont(labelFont);
+		m_labels << label;
+	}
+
+	// Create the horizontal and vertical lines (axes)
+	updateAxes();
+
+	connect(this, SIGNAL(sizeChanged()), this, SLOT(updateAxes()));
+}
+
+ActivityVisualizer::~ActivityVisualizer()
+{
+	for (int i = 0; i < m_nbTicks; i += 1) {
+		delete m_ticks.at(i);
+	}
 }
 
 /**
@@ -60,7 +88,7 @@ void ActivityVisualizer::hoverMoveEvent(QGraphicsSceneHoverEvent *evt)
 {
 	qreal mouseX = evt->pos().x();
 	qreal mouseY = evt->pos().y();
-	qreal margin = 20;
+	qreal margin = 5;
 
 	if (mouseX >= m_width - margin && mouseY >= m_height - margin)
 		setCursor(Qt::SizeFDiagCursor);
@@ -83,7 +111,7 @@ void ActivityVisualizer::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
 	qreal mouseX = evt->pos().x();
 	qreal mouseY = evt->pos().y();
-	qreal margin = 20;
+	qreal margin = 5;
 
 	if (mouseX >= m_width - margin && mouseY >= m_height - margin)
 		m_resizeType = RESIZE_BOTTOM_RIGHT;
@@ -129,11 +157,13 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		case RESIZE_RIGHT:
 			newWidth = evt->scenePos().x() - scenePos().x();
 			m_width = newWidth >= minWidth ? newWidth : minWidth;
+			emit sizeChanged();
 		break;
 
 		case RESIZE_BOTTOM:
 			newHeight = evt->scenePos().y() - scenePos().y();
 			m_height = newHeight >= minHeight ? newHeight : minHeight;
+			emit sizeChanged();
 		break;
 
 		case RESIZE_BOTTOM_RIGHT:
@@ -141,6 +171,7 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 			m_width = newWidth >= minWidth ? newWidth : minWidth;
 			newHeight = evt->scenePos().y() - scenePos().y();
 			m_height = newHeight >= minHeight ? newHeight : minHeight;
+			emit sizeChanged();
 		break;
 
 		default:
@@ -231,7 +262,8 @@ void ActivityVisualizer::updateMatrix(QVector<qreal> *mat)
 
 	// Erase previous display
 //	m_image.fill(qRgb(239, 239, 239));
-	painter->fillRect(QRect(m_scaleMargin, 0, cols, 100), QColor(239, 239, 239));
+//	painter->fillRect(QRect(0, 0, cols, 100), QColor(239, 239, 239));
+	painter->fillRect(QRect(0, 0, cols, m_height), QColor(255, 255, 255));
 
 	// Update pixels in the QImage
 	for (int i = 0; i < cols; i += 1) {
@@ -240,15 +272,15 @@ void ActivityVisualizer::updateMatrix(QVector<qreal> *mat)
 		capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
 
 		// Normalize the value between [0; 1] for multiplication
-		//		double normalizedValue = (capped - 1.0) / (-2.0);
+//		double normalizedValue = (capped - 1.0) / (-2.0);
 
 		if (capped >= 0) {
 			for (int j = 0; j < capped * 50; j += 1) {
-				image->setPixel(m_scaleMargin + i, 50-j, blue.rgb());
+				image->setPixel(i, 50-j, blue.rgb());
 			}
 		} else {
 			for (int j = 0; j < -capped * 50; j += 1) {
-				image->setPixel(m_scaleMargin + i, 50+j, red.rgb());
+				image->setPixel(i, 50+j, red.rgb());
 			}
 		}
 	}
@@ -258,4 +290,35 @@ void ActivityVisualizer::updateMatrix(QVector<qreal> *mat)
 
 	// Don't forget to delete matrix pointer to avoid memory leak
 	delete mat;
+}
+
+/**
+ * @brief ActivityVisualizer::updateLines is called when the graph window is resized.
+ */
+void ActivityVisualizer::updateAxes()
+{
+	// Create a horizontal line (axis)
+	m_hLine.setLine(-m_scaleMargin, m_height / 2, m_width + m_scaleMargin, m_height / 2);
+
+	// Create a vertical line (axis)
+	m_vLine.setLine(-m_scaleMargin, -m_scaleMargin, -m_scaleMargin, m_height + m_scaleMargin);
+
+	// The only way to center text is to use setHtml() AND set the TextWidth
+	m_visuTitle.setTextWidth(m_width);
+
+	m_visuTitle.setPos(0, m_height);
+
+	qreal dist = m_height / (m_nbTicks - 1);
+	qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
+	for (int i = 0; i < m_nbTicks; i += 1) {
+		m_ticks.at(i)->setLine(-m_scaleMargin,
+		                       i * dist,
+		                       -m_scaleMargin / 2,
+		                       i * dist);
+
+		m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff));
+		QRectF r = m_labels.at(i)->boundingRect();
+		m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
+		                               i * dist - r.height() / 2); // middle align
+	}
 }

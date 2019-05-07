@@ -13,7 +13,8 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
       m_hLine(this),
       m_vLine(this),
       m_nbTicks(5), // keep it odd to have 0 displayed
-      m_range(1.0)
+      m_range(1.0),
+      m_lastMat(nullptr)
 {
 	// Define orientation based on the box's dimensions
 	if (m_box->outputType() == SCALAR) {
@@ -102,6 +103,9 @@ ActivityVisualizerBars::~ActivityVisualizerBars()
 		delete m_ticks.at(i);
 		delete m_labels.at(i);
 	}
+
+	if (m_lastMat != nullptr)
+		delete m_lastMat;
 }
 
 /**
@@ -159,6 +163,26 @@ void ActivityVisualizerBars::keyPressEvent(QKeyEvent *evt)
 	QGraphicsPixmapItem::keyPressEvent(evt);
 }
 
+/**
+ * @brief ActivityVisualizerBars::wheelEvent is used to zoom or dezoom the scale, when SHIFT is
+ * held and the wheel is scrolled
+ * @param evt
+ */
+void ActivityVisualizerBars::wheelEvent(QGraphicsSceneWheelEvent *evt)
+{
+	// Only do something if we pressed SHIFT
+	if (evt->modifiers() & Qt::ShiftModifier) {
+		if (evt->delta() > 0)
+			m_range *= 1.1;
+		else
+			m_range /= 1.1;
+
+		onSizeChanged();
+		updateBars(m_lastMat);
+	} else
+		QGraphicsPixmapItem::wheelEvent(evt);
+}
+
 // TODO: can we implement double-buffering using two QImages?
 // TODO: we can use QPaint to paint directly on the pixmap, let's try painting directly the columns
 // of pixels instead
@@ -200,16 +224,16 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 
 			// Update pixels in the QImage
 			for (int i = 0; i < cols; i += 1) {
-				// Make sure the value is comprised between [-1; +1]
+				// Make sure the value is comprised between [-range; +range]
 				double capped = mat->at(i);
-				capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
+				capped = capped > m_range ? m_range : (capped < -m_range ? -m_range : capped);
 
 				if (capped >= 0) {
-					for (int j = 0; j < capped * 50; j += 1) {
+					for (int j = 0; j < capped * 50 / m_range; j += 1) {
 						image->setPixel(i, 50-j, blue.rgb());
 					}
 				} else {
-					for (int j = 0; j < -capped * 50; j += 1) {
+					for (int j = 0; j < -capped * 50 / m_range; j += 1) {
 						image->setPixel(i, 50+j, red.rgb());
 					}
 				}
@@ -219,16 +243,16 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 
 			// Update pixels in the QImage
 			for (int j = 0; j < rows; j += 1) {
-				// Make sure the value is comprised between [-1; +1]
+				// Make sure the value is comprised between [-range; +range]
 				double capped = mat->at(j);
-				capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
+				capped = capped > m_range ? m_range : (capped < -m_range ? -m_range : capped);
 
 				if (capped >= 0) {
-					for (int i = 0; i < capped * 50; i += 1) {
+					for (int i = 0; i < capped * 50 / m_range; i += 1) {
 						image->setPixel(50-i, j, red.rgb());
 					}
 				} else {
-					for (int i = 0; i < -capped * 50; i += 1) {
+					for (int i = 0; i < -capped * 50 / m_range; i += 1) {
 						image->setPixel(50+i, j, blue.rgb());
 					}
 				}
@@ -243,8 +267,12 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 		           << mat->size() << "data points for" << rows << "x" << cols;
 	}
 
-	// Don't forget to delete matrix pointer to avoid memory leak
-	delete mat;
+
+	// Delete the last store matrix and replace with this one, if they are not the same
+	if (m_lastMat != mat) {
+		delete m_lastMat;
+		m_lastMat = mat;
+	}
 }
 
 /**
@@ -271,7 +299,7 @@ void ActivityVisualizerBars::onSizeChanged()
 		                       -m_scaleMargin / 2,
 		                       i * dist);
 
-		m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff));
+		m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff, 'g', 3));
 		QRectF r = m_labels.at(i)->boundingRect();
 		m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
 		                               i * dist - r.height() / 2); // middle align

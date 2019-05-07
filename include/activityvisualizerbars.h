@@ -30,6 +30,7 @@ public:
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
 	void keyPressEvent(QKeyEvent *evt);
+	void wheelEvent(QGraphicsSceneWheelEvent *evt);
 
 private:
 	int m_scaleMargin; // Left / top margin used to draw scale on the graph
@@ -44,6 +45,8 @@ private:
 	QList<QGraphicsTextItem *> m_labels; // List of labels for the ticks
 
 	BarsOrientation m_barsOrientation;
+
+	QVector<qreal> *m_lastMat; // Keep the last used matrix to be able to redraw when adjusting size
 
 signals:
 	void sizeChanged();

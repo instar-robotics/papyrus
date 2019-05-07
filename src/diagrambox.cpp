@@ -73,7 +73,8 @@ DiagramBox::DiagramBox(const QString &name,
 //                                                m_activityFetcher(nullptr),
 //                                                m_activityChart(nullptr),
                                                 m_isInvalid(false),
-                                                m_swapCandidate(false)
+                                                m_swapCandidate(false),
+                                                m_activityVisualizer(nullptr)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -204,6 +205,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+ActivityVisualizer *DiagramBox::activityVisualizer() const
+{
+	return m_activityVisualizer;
+}
+
+void DiagramBox::setActivityVisualizer(ActivityVisualizer *activityVisualizer)
+{
+	m_activityVisualizer = activityVisualizer;
 }
 
 bool DiagramBox::isActivityVisuEnabled() const

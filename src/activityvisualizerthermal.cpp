@@ -22,7 +22,8 @@ ActivityVisualizerThermal::ActivityVisualizerThermal(DiagramBox *box, QGraphicsI
 //	m_painter.begin(&m_image);
 
 	// Set the pixmap from the image
-	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+//	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+	updatePixmap();
 
 	// Create a text item to display the function's name
 	m_visuTitle.setHtml(QString("<center>%1</center>").arg(m_box->name()));
@@ -73,7 +74,8 @@ void ActivityVisualizerThermal::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 			;
 	}
 
-	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+//	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+	updatePixmap();
 
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
@@ -82,16 +84,8 @@ void ActivityVisualizerThermal::keyPressEvent(QKeyEvent *evt)
 {
 	int key = evt->key();
 
-	if (key == Qt::Key_Escape || key == Qt::Key_Delete) {
-		if (m_activityFetcher != nullptr) {
-			m_activityFetcher->setShouldQuit(true);
-			m_activityFetcher->wait(500);
-			delete m_activityFetcher;
-		}
-
-		m_box->setIsActivityVisuEnabled(false);
+	if (key == Qt::Key_Escape || key == Qt::Key_Delete)
 		delete this;
-	}
 
 	QGraphicsPixmapItem::keyPressEvent(evt);
 }
@@ -166,7 +160,8 @@ void ActivityVisualizerThermal::updateThermal(QVector<qreal> *mat)
 		}
 
 		// Update pixmap from image
-		setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+//		setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+		updatePixmap();
 	} else {
 		qWarning() << "Invalid number of data to update thermal image: "
 		           << mat->size() << "data points for" << rows << "x" << cols;

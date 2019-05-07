@@ -21,6 +21,9 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
       m_minHeight(100),
       m_activityFetcher(nullptr)
 {
+	m_box->setActivityVisualizer(this);
+	m_box->setIsActivityVisuEnabled(true);
+
 	// Fill background with white
 	m_image.fill(qRgb(255, 255, 255));
 
@@ -70,6 +73,22 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 
 	connect(this, SIGNAL(sizeChanged()), this, SLOT(onSizeChanged()));
 	//*/
+}
+
+ActivityVisualizer::~ActivityVisualizer()
+{
+	if (m_activityFetcher != nullptr) {
+		if (m_activityFetcher != nullptr) {
+			m_activityFetcher->setShouldQuit(true);
+			m_activityFetcher->wait(500);
+			delete m_activityFetcher;
+		}
+	}
+
+	if (m_box != nullptr) {
+		m_box->setActivityVisualizer(nullptr);
+		m_box->setIsActivityVisuEnabled(false);
+	}
 }
 
 /**
@@ -174,6 +193,11 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
 
+void ActivityVisualizer::updatePixmap()
+{
+	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+}
+
 DiagramBox *ActivityVisualizer::box() const
 {
 	return m_box;
@@ -202,6 +226,26 @@ ActivityFetcher *ActivityVisualizer::activityFetcher() const
 void ActivityVisualizer::setActivityFetcher(ActivityFetcher *activityFetcher)
 {
 	m_activityFetcher = activityFetcher;
+}
+
+int ActivityVisualizer::width() const
+{
+	return m_width;
+}
+
+void ActivityVisualizer::setWidth(int width)
+{
+	m_width = width;
+}
+
+int ActivityVisualizer::height() const
+{
+	return m_height;
+}
+
+void ActivityVisualizer::setHeight(int height)
+{
+	m_height = height;
 }
 
 /**

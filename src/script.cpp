@@ -28,6 +28,7 @@
 #include "constantdiagrambox.h"
 #include "zone.h"
 #include "hieroglyph/SimpleCmd.h"
+#include "activityvisualizer.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -427,6 +428,25 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		stream.writeTextElement("x", QString::number(pos.x()));
 		stream.writeTextElement("y", QString::number(pos.y()));
 		stream.writeEndElement(); // position
+
+		// Save position of the activity visualizer if it was displayed
+		if (!constant && item->activityVisualizer() != nullptr) {
+			ActivityVisualizer *vis = item->activityVisualizer();
+			stream.writeStartElement("visualizer");
+			stream.writeTextElement("visible", vis->isVisible() ? "true" : "false");
+
+			stream.writeStartElement("position");
+			stream.writeTextElement("x", QString::number(vis->scenePos().x()));
+			stream.writeTextElement("y", QString::number(vis->scenePos().y()));
+			stream.writeEndElement(); // position
+
+			stream.writeStartElement("size");
+			stream.writeTextElement("width", QString::number(vis->width()));
+			stream.writeTextElement("height", QString::number(vis->height()));
+			stream.writeEndElement(); // position
+
+			stream.writeEndElement(); // visualizer
+		}
 
 		stream.writeEndElement(); // function
 	}

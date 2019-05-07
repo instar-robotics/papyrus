@@ -24,6 +24,8 @@ signals:
 
 private slots:
 	void updateThermal(QVector<qreal> *mat);
+
+public slots:
 	void onSizeChanged();
 };
 

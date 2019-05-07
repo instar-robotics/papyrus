@@ -23,6 +23,10 @@
 #include "helpers.h"
 #include "constants.h"
 #include "constantdiagrambox.h"
+#include "activityvisualizer.h"
+#include "activityvisualizerbars.h"
+#include "activityvisualizerthermal.h"
+#include "activityfetcher.h"
 
 #include <QDebug>
 #include <iostream>
@@ -279,6 +283,10 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QString topic;
 	QString iconFilePath = ":icons/icons/missing-icon.svg";
 	bool publish;
+	bool createVisualizer = false;
+	bool visuVisible;
+	QPointF visuPos;
+	QSizeF visuSize;
 
 	readUUID(&uuid);
 
@@ -300,6 +308,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			readOutputSlot(outputSlot, &rows, &cols);
 		else if (reader.name() == "position")
 			readPosition(&pos);
+		else if (reader.name() == "visualizer")
+			readVisualizer(createVisualizer, visuVisible, visuPos, visuSize);
 		else if (reader.name() == "libname")
 			reader.skipCurrentElement(); // Silently skip <libname>
 		else {
@@ -389,6 +399,79 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	b->setCols(cols);
 	b->setMatrixShape(matrixShape);
 	m_script->scene()->addBox(b, pos);
+
+	// Check whether we should create the visualizer, and if yes, check which one
+	// WARNING: this is code duplication from diagramscene.cpp, we should factor out this code!
+	if (createVisualizer && reader.name() != "constant") {
+		ActivityVisualizer *vis = nullptr;
+		switch (b->outputType()) {
+			case SCALAR:
+				vis = new ActivityVisualizerBars(b);
+				m_script->scene()->addItem(vis);
+			break;
+
+			case MATRIX:
+				// (1,1) matrix is treated as a scalar
+				if (b->rows() == 1 && b->cols() == 1) {
+					vis = new ActivityVisualizerBars(b);
+					m_script->scene()->addItem(vis);
+				}
+				// (1,N) and (N,1) are vectors: they are displayed as several scalars
+				else if (b->rows() == 1 || b->cols() == 1) {
+					vis = new ActivityVisualizerBars(b);
+					m_script->scene()->addItem(vis);
+				}
+				else {
+					vis = new ActivityVisualizerThermal(b);
+					m_script->scene()->addItem(vis);
+				}
+			break;
+
+			default:
+				qDebug() << "Ouput type not supported for visualization";
+			return;
+			break;
+		}
+
+		if (vis != nullptr) {
+			vis->setPos(visuPos);
+			vis->setWidth(visuSize.width());
+			vis->setHeight(visuSize.height());
+			vis->setVisible(visuVisible);
+			vis->updatePixmap();
+
+			// Create the activity fetcher with the topic name
+			ActivityFetcher *fetcher = nullptr;
+			if (b->publish()) {
+				fetcher = new ActivityFetcher(b->topic(), b);
+			} else {
+				fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(b->scriptName(),
+				                                                            b->uuid().toString())),
+				                              b);
+				m_script->rosSession()->addToHotList(b->uuid());
+			}
+
+			// This is dirty, but this is used to trigger the correct onSizeChanged() event (the
+			// child's one, not the mother class) to repaint correctly the axes, the function name,
+			// etc. This must be refactored to be cleaner!
+			ActivityVisualizerBars *visBars = dynamic_cast<ActivityVisualizerBars *>(vis);
+			if (visBars != nullptr) {
+				visBars->onSizeChanged();
+				visBars->setActivityFetcher(fetcher);
+				QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBars, SLOT(updateBars(QVector<qreal>*)));
+			} else {
+				ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
+				if (visTh != nullptr) {
+					visTh->onSizeChanged();
+					visTh->setActivityFetcher(fetcher);
+					QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visTh, SLOT(updateThermal(QVector<qreal>*)));
+				}
+				else
+					qWarning() << "Only Bars and Thermal visualizers are supported for now!";
+			}
+
+		}
+	}
 
 	// TODO: check all links for invalidity and set script's invalidity
 
@@ -711,6 +794,54 @@ void XmlScriptReader::readZone()
 	zone->setTitle(title);
 	m_script->scene()->addItem(zone);
 	zone->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
+}
+
+void XmlScriptReader::readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize)
+{
+	Q_ASSERT(reader.isStartElement() && reader.name() == "visualizer");
+
+	while (reader.readNextStartElement()) {
+		if (reader.name() == "visible") {
+			QString visible = reader.readElementText();
+			if (visible.toLower() == "true")
+				visuVisible = true;
+			else if (visible.toLower() == "false")
+				visuVisible = false;
+			else {
+				reader.raiseError(QObject::tr("Invalid value for <visible> flag, accepted are 'true' and 'false'"));
+				reader.skipCurrentElement();
+			}
+		} else if (reader.name() == "position") {
+			while (reader.readNextStartElement()) {
+				if (reader.name() == "x") {
+					qreal x = reader.readElementText().toDouble();
+					visuPos.setX(x);
+				} else if (reader.name() == "y") {
+					qreal y = reader.readElementText().toDouble();
+					visuPos.setY(y);
+				} else
+					reader.skipCurrentElement();
+			}
+		} else if (reader.name() == "size") {
+			while (reader.readNextStartElement()) {
+				if (reader.name() == "width") {
+					qreal width = reader.readElementText().toDouble();
+					visuSize.setWidth(width);
+				} else if (reader.name() == "height") {
+					qreal height = reader.readElementText().toDouble();
+					visuSize.setHeight(height);
+				} else
+					reader.skipCurrentElement();
+			}
+		} else {
+			reader.skipCurrentElement();
+		}
+	}
+
+	// For now, if this function is called, it means we will create the visualizer.
+	// But we need to make additional checks to be sure it's valid/
+	// This is also true for every parsing function here :/
+	createVisualizer = true;
 }
 
 void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

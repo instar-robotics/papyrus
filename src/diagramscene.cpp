@@ -1271,12 +1271,14 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				return;
 			}
 
-			selectedBox->setIsActivityVisuEnabled(true);
+//			selectedBox->setIsActivityVisuEnabled(true);
 
+			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
 			ActivityVisualizer *vis = nullptr;
 			switch (selectedBox->outputType()) {
 				case SCALAR:
 					vis = new ActivityVisualizerBars(selectedBox);
+//					selectedBox->setActivityVisualizer(vis);
 					addItem(vis);
 				break;
 
@@ -1284,15 +1286,18 @@ void DiagramScene::onDisplayVisuClicked(bool)
 					// (1,1) matrix is treated as a scalar
 					if (selectedBox->rows() == 1 && selectedBox->cols() == 1) {
 						vis = new ActivityVisualizerBars(selectedBox);
+//						selectedBox->setActivityVisualizer(vis);
 						addItem(vis);
 					}
 					// (1,N) and (N,1) are vectors: they are displayed as several scalars
 					else if (selectedBox->rows() == 1 || selectedBox->cols() == 1) {
 						vis = new ActivityVisualizerBars(selectedBox);
+//						selectedBox->setActivityVisualizer(vis);
 						addItem(vis);
 					}
 					else {
 						vis = new ActivityVisualizerThermal(selectedBox);
+//						selectedBox->setActivityVisualizer(vis);
 						addItem(vis);
 					}
 				break;

@@ -50,6 +50,8 @@ signals:
 
 private slots:
 	void updateBars(QVector<qreal> *mat);
+
+public slots:
 	void onSizeChanged();
 };
 

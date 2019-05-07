@@ -20,11 +20,14 @@ class ActivityVisualizer : public QObject, public QGraphicsPixmapItem
 
 public:
 	explicit ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent = nullptr);
+	~ActivityVisualizer();
 
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *evt);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
+
+	void updatePixmap();
 
 	DiagramBox *box() const;
 	void setBox(DiagramBox *box);
@@ -34,6 +37,12 @@ public:
 
 	ActivityFetcher *activityFetcher() const;
 	void setActivityFetcher(ActivityFetcher *activityFetcher);
+
+	int width() const;
+	void setWidth(int width);
+
+	int height() const;
+	void setHeight(int height);
 
 protected:
 	DiagramBox *m_box;
@@ -63,7 +72,7 @@ protected:
 signals:
 //	void sizeChanged();
 
-protected slots:
+public slots:
 //	void onSizeChanged();
 };
 

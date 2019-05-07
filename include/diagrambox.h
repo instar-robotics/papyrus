@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -28,8 +28,6 @@
 #include "inputslot.h"
 #include "datavisualization.h"
 #include "rossession.h"
-//#include "diagramchart.h"
-//#include "activityfetcher.h"
 
 #include <set>
 
@@ -40,6 +38,7 @@
 #include <QGraphicsProxyWidget>
 
 class Script;
+class ActivityVisualizer;
 
 /**
  * @brief The DiagramBox class is the main class that represents a "box" or "neural function".
@@ -154,6 +153,9 @@ public:
 	bool isActivityVisuEnabled() const;
 	void setIsActivityVisuEnabled(bool IsActivityVisuEnabled);
 
+	ActivityVisualizer *activityVisualizer() const;
+	void setActivityVisualizer(ActivityVisualizer *activityVisualizer);
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -205,6 +207,8 @@ private:
 	bool m_swapCandidate; // Set to true when the user is dropping another box on top of this one
 
 	QPointF m_oldPos; // Start position when moved (to enable undo)
+
+	ActivityVisualizer *m_activityVisualizer;
 
 private slots:
 	void onDataVisClosed();

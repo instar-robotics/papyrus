@@ -171,66 +171,82 @@ void ActivityVisualizerBars::keyPressEvent(QKeyEvent *evt)
 // TODO: support higher values that 1 and update scale dynamically
 void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 {
+	if (mat == nullptr) {
+		qWarning() << "[updateBars] got no data";
+		return;
+	}
+
+	// Don't do anything is we're hidden (no need to take up resources)
+	if (!isVisible()) {
+		delete mat;
+		return;
+	}
+
 	int rows = m_box->rows();
 	int cols = m_box->cols();
 
-	QColor blue(51, 153, 255);
-	QColor red(246, 2, 2);
+	if (mat->size() == rows * cols) {
+		QColor blue(51, 153, 255);
+		QColor red(246, 2, 2);
 
-	// Define pointer accordingly to double buffering
-//	QImage *image = m_doubleBufferFlag ? &m_image2 : &m_image;
-//	QPainter *painter = m_doubleBufferFlag ? &m_painter2 : &m_painter;
-	QImage *image = &m_image;
-	QPainter *painter = &m_painter;
+		// Define pointer accordingly to double buffering
+		//	QImage *image = m_doubleBufferFlag ? &m_image2 : &m_image;
+		//	QPainter *painter = m_doubleBufferFlag ? &m_painter2 : &m_painter;
+		QImage *image = &m_image;
+		QPainter *painter = &m_painter;
 
-	// Swap the buffers
-//	m_doubleBufferFlag = !m_doubleBufferFlag;
+		// Swap the buffers
+		//	m_doubleBufferFlag = !m_doubleBufferFlag;
 
-	// Erase previous display
-//	m_image.fill(qRgb(239, 239, 239));
-//	painter->fillRect(QRect(0, 0, cols, 100), QColor(239, 239, 239));
-	if (m_barsOrientation == HORIZONTAL) {
-		painter->fillRect(QRect(0, 0, cols, m_height), QColor(255, 255, 255));
+		// Erase previous display
+		//	m_image.fill(qRgb(239, 239, 239));
+		//	painter->fillRect(QRect(0, 0, cols, 100), QColor(239, 239, 239));
+		if (m_barsOrientation == HORIZONTAL) {
+			painter->fillRect(QRect(0, 0, cols, m_height), QColor(255, 255, 255));
 
-		// Update pixels in the QImage
-		for (int i = 0; i < cols; i += 1) {
-			// Make sure the value is comprised between [-1; +1]
-			double capped = mat->at(i);
-			capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
+			// Update pixels in the QImage
+			for (int i = 0; i < cols; i += 1) {
+				// Make sure the value is comprised between [-1; +1]
+				double capped = mat->at(i);
+				capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
 
-			if (capped >= 0) {
-				for (int j = 0; j < capped * 50; j += 1) {
-					image->setPixel(i, 50-j, blue.rgb());
+				if (capped >= 0) {
+					for (int j = 0; j < capped * 50; j += 1) {
+						image->setPixel(i, 50-j, blue.rgb());
+					}
+				} else {
+					for (int j = 0; j < -capped * 50; j += 1) {
+						image->setPixel(i, 50+j, red.rgb());
+					}
 				}
-			} else {
-				for (int j = 0; j < -capped * 50; j += 1) {
-					image->setPixel(i, 50+j, red.rgb());
+			}
+		} else {
+			painter->fillRect(QRect(0, 0, m_width, rows), QColor(255, 255, 255));
+
+			// Update pixels in the QImage
+			for (int j = 0; j < rows; j += 1) {
+				// Make sure the value is comprised between [-1; +1]
+				double capped = mat->at(j);
+				capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
+
+				if (capped >= 0) {
+					for (int i = 0; i < capped * 50; i += 1) {
+						image->setPixel(50-i, j, red.rgb());
+					}
+				} else {
+					for (int i = 0; i < -capped * 50; i += 1) {
+						image->setPixel(50+i, j, blue.rgb());
+					}
 				}
 			}
 		}
+
+		// Update pixmap from image
+		setPixmap(QPixmap::fromImage(*image).scaled(m_width, m_height));
 	} else {
-		painter->fillRect(QRect(0, 0, m_width, rows), QColor(255, 255, 255));
-
-		// Update pixels in the QImage
-		for (int j = 0; j < rows; j += 1) {
-			// Make sure the value is comprised between [-1; +1]
-			double capped = mat->at(j);
-			capped = capped > 1.0 ? 1.0 : (capped < -1.0 ? -1.0 : capped);
-
-			if (capped >= 0) {
-				for (int i = 0; i < capped * 50; i += 1) {
-					image->setPixel(50-i, j, red.rgb());
-				}
-			} else {
-				for (int i = 0; i < -capped * 50; i += 1) {
-					image->setPixel(50+i, j, blue.rgb());
-				}
-			}
-		}
+		qWarning() << "Invalid number of data to update bars: "
+		           << mat->size() << "data points for" << rows << "x" << cols;
 	}
-
-	// Update pixmap from image
-	setPixmap(QPixmap::fromImage(*image).scaled(m_width, m_height));
 
 	// Don't forget to delete matrix pointer to avoid memory leak
 	delete mat;

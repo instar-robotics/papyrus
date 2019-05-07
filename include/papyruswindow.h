@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -233,13 +233,13 @@ private slots:
 	void on_actionStop_triggered();
 	void on_actionScope_triggered();
 	void on_actionEdit_paths_triggered();
-	void on_actionShow_all_outputs_triggered();
-	void on_actionHide_all_outputs_triggered();
 	void on_actionList_shortcuts_triggered();
 	void on_actionChangelog_triggered(bool isNewRelease = false);
 	void on_actionReopen_last_scripts_triggered();
 	void on_actionUndo_triggered();
 	void on_actionRedo_triggered();
+	void on_actionShow_outputs_triggered();
+	void on_actionHide_outputs_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

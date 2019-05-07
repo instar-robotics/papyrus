@@ -94,8 +94,8 @@
     <addaction name="actionStop"/>
     <addaction name="actionScope"/>
     <addaction name="separator"/>
-    <addaction name="actionShow_all_outputs"/>
-    <addaction name="actionHide_all_outputs"/>
+    <addaction name="actionHide_outputs"/>
+    <addaction name="actionShow_outputs"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -367,28 +367,28 @@
     <string>Edit paths</string>
    </property>
   </action>
-  <action name="actionShow_all_outputs">
+  <action name="actionShow_outputs">
    <property name="icon">
     <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/show.svg</normaloff>:/icons/icons/show.svg</iconset>
    </property>
    <property name="text">
-    <string>Show all outputs</string>
+    <string>Show outputs</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+H</string>
+    <string>Ctrl+Shift+H</string>
    </property>
   </action>
-  <action name="actionHide_all_outputs">
+  <action name="actionHide_outputs">
    <property name="icon">
     <iconset resource="../icons.qrc">
      <normaloff>:/icons/icons/hide.svg</normaloff>:/icons/icons/hide.svg</iconset>
    </property>
    <property name="text">
-    <string>Hide all outputs</string>
+    <string>Hide outputs</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+H</string>
+    <string>Ctrl+H</string>
    </property>
   </action>
   <action name="actionList_shortcuts">

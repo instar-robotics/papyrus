@@ -113,6 +113,12 @@ void ActivityVisualizerThermal::updateThermal(QVector<qreal> *mat)
 		return;
 	}
 
+	// Don't do anything is we're hidden (no need to take up resources)
+	if (!isVisible()) {
+		delete mat;
+		return;
+	}
+
 	int cols = m_box->cols();
 	int rows = m_box->rows();
 
@@ -158,13 +164,13 @@ void ActivityVisualizerThermal::updateThermal(QVector<qreal> *mat)
 				m_image.setPixel(j, i, value.rgb());
 			}
 		}
+
+		// Update pixmap from image
+		setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 	} else {
 		qWarning() << "Invalid number of data to update thermal image: "
 		           << mat->size() << "data points for" << rows << "x" << cols;
 	}
-
-	// Update pixmap from image
-	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 
 	// Don't forget to delete matrix pointer to avoid memory leak
 	delete mat;

@@ -30,6 +30,7 @@
 #include "nodeschooser.h"
 #include "constantfunction.h"
 #include "changelog.h"
+#include "activityvisualizer.h"
 
 #include <cryptopp/filters.h>
 #include <cryptopp/aes.h>
@@ -2013,16 +2014,6 @@ void PapyrusWindow::on_actionEdit_paths_triggered()
 	qDebug() << "Should edit path";
 }
 
-void PapyrusWindow::on_actionShow_all_outputs_triggered()
-{
-	qDebug() << "Show all outputs";
-}
-
-void PapyrusWindow::on_actionHide_all_outputs_triggered()
-{
-	qDebug() << "Hide all outputs";
-}
-
 void PapyrusWindow::on_actionList_shortcuts_triggered()
 {
 	QString title(tr("%1's shortcuts").arg(APP_NAME));
@@ -2120,4 +2111,72 @@ void PapyrusWindow::on_actionRedo_triggered()
 	}
 
 	m_activeScript->scene()->undoStack()->redo();
+}
+
+/**
+ * @brief PapyrusWindow::on_actionShow_outputs_triggered show the activity visualizers that were hidden.
+ */
+void PapyrusWindow::on_actionShow_outputs_triggered()
+{
+	DiagramView *dView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
+	if (dView == nullptr) {
+		displayStatusMessage(tr("No script active: cannot hide outputs!"), MSG_WARNING);
+		return;
+	}
+
+	DiagramScene *dScene = dynamic_cast<DiagramScene *>(dView->scene());
+	if (dScene == nullptr) {
+		qWarning() << "Failed to get the scene from a view.";
+		displayStatusMessage(tr("Could not find a scene for this script."), MSG_ERROR);
+		return;
+	}
+
+	// Hide all outputs
+	int count = 0;
+	foreach (QGraphicsItem *item, dScene->items()) {
+		ActivityVisualizer *vis = dynamic_cast<ActivityVisualizer *>(item);
+		if (vis == nullptr)
+			continue;
+
+		if (!vis->isVisible()) {
+			vis->setVisible(true);
+			count += 1;
+		}
+	}
+
+	displayStatusMessage(tr("Showed %1 outputs.").arg(count), MSG_INFO);
+}
+
+/**
+ * @brief PapyrusWindow::on_actionHide_outputs_triggered hides the activity visualizers that are shown.
+ */
+void PapyrusWindow::on_actionHide_outputs_triggered()
+{
+	DiagramView *dView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
+	if (dView == nullptr) {
+		displayStatusMessage(tr("No script active: cannot hide outputs!"), MSG_WARNING);
+		return;
+	}
+
+	DiagramScene *dScene = dynamic_cast<DiagramScene *>(dView->scene());
+	if (dScene == nullptr) {
+		qWarning() << "Failed to get the scene from a view.";
+		displayStatusMessage(tr("Could not find a scene for this script."), MSG_ERROR);
+		return;
+	}
+
+	// Hide all outputs
+	int count = 0;
+	foreach (QGraphicsItem *item, dScene->items()) {
+		ActivityVisualizer *vis = dynamic_cast<ActivityVisualizer *>(item);
+		if (vis == nullptr)
+			continue;
+
+		if (vis->isVisible()) {
+			vis->setVisible(false);
+			count += 1;
+		}
+	}
+
+	displayStatusMessage(tr("Hid %1 outputs.").arg(count), MSG_INFO);
 }

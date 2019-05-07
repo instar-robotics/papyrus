@@ -183,6 +183,16 @@ void ActivityVisualizerBars::wheelEvent(QGraphicsSceneWheelEvent *evt)
 		QGraphicsPixmapItem::wheelEvent(evt);
 }
 
+void ActivityVisualizerBars::mousePressEvent(QGraphicsSceneMouseEvent *evt)
+{
+	if (evt->button() & Qt::MiddleButton) {
+		m_range = 1.0;
+		onSizeChanged();
+		updateBars(m_lastMat);
+	} else
+		ActivityVisualizer::mousePressEvent(evt);
+}
+
 // TODO: can we implement double-buffering using two QImages?
 // TODO: we can use QPaint to paint directly on the pixmap, let's try painting directly the columns
 // of pixels instead

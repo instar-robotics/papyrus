@@ -31,6 +31,7 @@ public:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
 	void keyPressEvent(QKeyEvent *evt);
 	void wheelEvent(QGraphicsSceneWheelEvent *evt);
+	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 
 private:
 	int m_scaleMargin; // Left / top margin used to draw scale on the graph

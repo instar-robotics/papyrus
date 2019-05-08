@@ -95,6 +95,7 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 	onSizeChanged();
 
 	connect(this, SIGNAL(sizeChanged()), this, SLOT(onSizeChanged()));
+	connect(m_box, SIGNAL(boxDeleted()), this, SLOT(onBoxDeleted()));
 }
 
 ActivityVisualizerBars::~ActivityVisualizerBars()
@@ -283,6 +284,11 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 		delete m_lastMat;
 		m_lastMat = mat;
 	}
+}
+
+void ActivityVisualizerBars::onBoxDeleted()
+{
+	delete this;
 }
 
 /**

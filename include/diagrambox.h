@@ -212,8 +212,10 @@ private:
 
 private slots:
 	void onDataVisClosed();
+
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)
+	void boxDeleted();
 };
 
 #endif // DIAGRAMBOX_H

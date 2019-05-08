@@ -37,11 +37,7 @@ ActivityVisualizerThermal::ActivityVisualizerThermal(DiagramBox *box, QGraphicsI
 	onSizeChanged();
 
 	connect(this, SIGNAL(sizeChanged()), this, SLOT(onSizeChanged()));
-}
-
-ActivityVisualizerThermal::~ActivityVisualizerThermal()
-{
-
+	connect(m_box, SIGNAL(boxDeleted()), this, SLOT(onBoxDeleted()));
 }
 
 void ActivityVisualizerThermal::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
@@ -177,4 +173,9 @@ void ActivityVisualizerThermal::onSizeChanged()
 	m_visuTitle.setTextWidth(m_width);
 
 	m_visuTitle.setPos(0, m_height);
+}
+
+void ActivityVisualizerThermal::onBoxDeleted()
+{
+	delete this;
 }

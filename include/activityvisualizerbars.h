@@ -54,6 +54,7 @@ signals:
 
 private slots:
 	void updateBars(QVector<qreal> *mat);
+	void onBoxDeleted();
 
 public slots:
 	void onSizeChanged();

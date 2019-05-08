@@ -142,6 +142,8 @@ DiagramBox::DiagramBox(const QString &name,
 
 DiagramBox::~DiagramBox()
 {
+	emit boxDeleted();
+
 	// Normally, upon deletion, the box should not have any remaining Link connected
 	if (!m_outputSlot->outputs().empty())
 		qWarning() << "WARNING: DiagramBox(" << m_name << ") is being destructed, but there remains Links on its OutputSlot";
@@ -158,6 +160,7 @@ DiagramBox::~DiagramBox()
 	m_inputSlots.clear();
 
 	delete m_sizeIcon;
+
 }
 
 QRectF DiagramBox::boundingRect() const

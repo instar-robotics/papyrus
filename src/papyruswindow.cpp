@@ -1533,6 +1533,11 @@ void PapyrusWindow::openScript(QString path)
 		}
 	}
 
+	// If the user chose not to open the .autosave version, then delete it
+	if (autoSavedFile.exists() && !scriptPath.contains(".autosave")) {
+		QFile::remove(autoSavedFile.fileName());
+	}
+
 	// Check if the file is an encrypted file, and if yes, decrypt it
 	QFileInfo fi(scriptPath);
 	if (fi.completeSuffix() == "xml.crypted") {

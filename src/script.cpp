@@ -109,10 +109,6 @@ void Script::save(const QString &basePath, bool isAutoSave)
 {
 	QString scriptfilePath;
 
-	// Add some debug in order to try and catch segfaults that appear "while doing nothing" (#95)
-	if (isAutoSave)
-		qDebug() << "[Script::save] autosave";
-
 	// Allow saving in invalid state if this is an auto save
 	if (!isAutoSave) {
 		// Prevent saving when the script doesn't have a name
@@ -519,10 +515,6 @@ void Script::save(const QString &basePath, bool isAutoSave)
 	}
 
 	emit displayStatusMessage(msg, MSG_INFO);
-
-	// Add some debug in order to try and catch segfaults that appear "while doing nothing" (#95)
-	if (isAutoSave)
-		qDebug() << "[Script::save] autosave done.";
 }
 
 /**
@@ -678,11 +670,9 @@ void Script::setUuid(const QUuid &uuid)
 
 void Script::warnAboutModifiedScript()
 {
-	qDebug() << "Warn Modified START";
 	QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
 	QString msg(tr("You should save it to prevent data loss."));
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
-	qDebug() << "Warn Modified END";
 }
 
 QString Script::nodeName() const

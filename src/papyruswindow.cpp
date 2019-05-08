@@ -930,7 +930,7 @@ void PapyrusWindow::on_actionAbout_Papyrus_triggered()
 	desc += "Graphical programming application to easily create neural networks to be run by "
 	        "kheops<br><br>";
 	desc += "<strong>Author:</strong> Nicolas SCHOEMAEKER <pre><a href='mailto:nschoe@protonmail.com'>nschoe@protonmail.com</a></pre>";
-	desc += "<strong>Source:<strong> <a href='https://instar-robotics.com'>[Insert github link here]</a>";
+	desc += "<strong>Source:<strong> <a href='https://github.com/instar-robotics/papyrus/'>https://github.com/instar-robotics/papyrus/</a>";
 
 	QMessageBox::about(this, title, desc);
 }

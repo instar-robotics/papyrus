@@ -31,7 +31,6 @@
 #include "rossession.h"
 #include "types.h"
 #include "xmldescriptionreader.h"
-#include "token.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>

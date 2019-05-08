@@ -56,7 +56,6 @@ HEADERS += include/category.h \
            include/zone.h \
            include/setcolorbutton.h \
            include/changelog.h \
-           include/token.h \
            include/proplineedit.h \
            include/propdoublespinbox.h \
            include/movecommand.h \

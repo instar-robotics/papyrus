@@ -1327,6 +1327,11 @@ void PapyrusWindow::updateButtonsState()
 	}
 }
 
+/**
+ * @brief PapyrusWindow::checkForNewRelease is called periocially and check the github repository
+ * for a new release of papyrus (a git tag in the form MAJOR.MINOR.BUGFIX). When it finds one, it
+ * opens a pop-up to warn the user that an update is available.
+ */
 void PapyrusWindow::checkForNewRelease()
 {
 	int fullV = MAJOR_VERSION * 100 + MINOR_VERSION * 10 + BUGFIX_VERSION;
@@ -1335,9 +1340,7 @@ void PapyrusWindow::checkForNewRelease()
 
 	QString cmd = "git";
 	QStringList args;
-	args << "ls-remote" << "--tags"
-	     << QString("https://%1:%2@git.instar-robotics.com/software/NeuralNetwork/papyrus.git")
-	        .arg(GITLAB_TOKEN, GITLAB_PWD);
+	args << "ls-remote" << "--tags" << REPO_URL;
 
 	QProcess *process = new QProcess(this);
 	process->start(cmd, args);

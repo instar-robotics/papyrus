@@ -1,9 +1,11 @@
 #+TITLE: Papyrus User Guide
 #+STARTUP: inlineimages
+#+OPTIONS: toc:t
 
 [[./papyrus-icon.png]]
 
-/(An HTML version of this =README= is available [[./README.html][here]] if you prefer)/
+/(An HTML of this =README= is available [[./README.html][here]] if you prefer)/
+
 * Introduction
 [[https://github.com/instar-robotics/papyrus][Papyrus]] is [[https://github.com/instar-robotics/kheops][Kheops]]'s GUI program to create, edit and debug neural network to produce Artificial
 Intelligence robotics behaviors.
@@ -592,7 +594,6 @@ effect.
 You can show the =About= dialog in =Help > About Papyrus= or hit =CTRL + ?=.
 
 *** Creating a Link
-	(talk about invalid link and invalid boxes)
 In order to connect the output of a Function to the input of another, you need to create a Link. To
 create a Link, simply click on the /Output slot/ of a box and drag until you reach the desired
 /Input slot/ of another box.
@@ -616,6 +617,32 @@ change it later by selecting the Link and editing its Link in the properties pan
 #+CAPTION: Demonstration of the creating of a Link
 #+NAME: fig.demolink
 [[./demo-link.gif]]
+
+*** Inhibition Inputs
+All Functions have an additional input, which is not described in its XML description file: the
+inhibition input. It's called =inhib= and is of type =SCALAR=.
+
+This input slot is situated near the output slot, and is almost invisible most of the time. It only
+becomes visible when you are creating a new Link, and while you are dragging the Link, you need to
+come close to it (remember: it's located near the output slot). When you have Links connected to
+this inhibition input, it also becomes permanently visible.
+
+The goal of this input is, as its name implies, to /inhibit/ the activity of this Function. When no
+Link are present on =inhib=, or if the value is =0=, then the activity of the Function is unchanged.
+But when the Link on =inhib= takes values between =0= and =1=, the activity is linearly inhibited
+correspondingly (/i.e./ multiplied by =1 - inhib=). So the closer you are to a value of =1=, the
+closer the activity of this Function falls to =0=. This setup is there to mimic neural inhibition
+where some Function can decrease the value of another when it fires.
+
+For almost all purposes, you can see this =inhib= entry as a standard multiplication with =SMul= by
+the value (only it's =1 - inhib=). With *one* difference: when =inhib= reaches =1.0=, the inhibited
+Function actually *stops publishing its activity on the ROS bus* (contrary to a simple =SMul=).
+
+You can see the =inhib= input in the [[fig.demoinhib][video below]].
+
+#+CAPTION: The inhib input slot is situated near the output slot and is mostly invisible expected when approached
+#+NAME: fig.demoinhib
+[[./demoinhib.gif]]
 
 *** Swapping Functions
 Sometimes when you are in the process of creating a script you want to test some new Functions in

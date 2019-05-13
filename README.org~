@@ -1,0 +1,152 @@
+#+TITLE: Papyrus User Guide
+#+STARTUP: inlineimages
+
+[[./papyrus-icon.png]]
+
+* Introduction
+[[https://github.com/instar-robotics/papyrus][Papyrus]] is [[https://github.com/instar-robotics/kheops][Kheops]]'s GUI program to create, edit and debug neural network to produce Artificial
+Intelligence robotics behaviors.
+
+Here's a (non-exhaustive) list of features =Papyrus= offer:
+- It allows you to create complex, neural-network based artificial intelligence robotic behaviors
+  easily.
+- It allows you to do so /without any programming required/: [[https://github.com/instar-robotics/alexandria][Alexandria]] is a library of function
+  that we have developed ; in order to create a /neural script/ all that is needed is to drag and
+  drop some functions, and link them together.
+- It allows you to interactively launch, pause, stop and restart scripts (which are run with [[https://github.com/instar-robotics/kheops][Kheops]])
+  all from the =Papyrus= GUI.
+- It allows you to /connect/ to a running =Kheops= script and administer it in the same way.
+- It provides /live visualization/ of any function's output, right into the GUI: the script is
+  running with =kheops= at its own rate, =papyrus= allows you to look at the output values in real
+  time, without the need to stop and relaunch =kheops= ; it's all done /live/ (which is very
+  convenient as sometimes you notice your robot is doing something funny and if you had to
+  stop-and-restart in order to enable live visualization, the funny behavior would certainly go
+  away!).
+
+* How to install
+The suite (=Papyrus=, =Kheops=, =Alexandria= and [[https://github.com/instar-robotics/hieroglyph][Hieroglyph]]) are based on ROS:
+- scripts communicate with one another through ROS topics
+- live visualization is achieved by having functions publish their outputs in a ROS topic
+- ROS services are used to control scripts from the GUI
+
+=Papyrus='s GUI is based on Qt 5.
+
+As an indicator, =Papyrus= was successfully compiled and run on Ubuntu 18.04, and nixOS (starting
+from 18.09, though it needs some adjustments for the ROS packages).
+
+=Papyrus= and =Kheops= are fully independent one from each other (and it's important to keep it that
+way) which allows us to have =Kheops= only installed on robot (especially if those robots have a
+non-graphical installation) and =Papyrus= installed on the diagnostic / development machines.
+
+** Dependencies
+In order to build and run =Papyrus=, you will need those dependencies:
+- System:
+  * [[https://www.qt.io/][=Qt5=]] (=>=5.10=) and the following Qt modules (or the fully Qt installation if you prefer):
+	* =Qt5::Widgets=
+	* =Qt5::Svg=
+  * [[https://cmake.org/][=CMake=]] (=>=3.1.0=)
+  * [[https://www.cryptopp.com/][=crypto++=]] (=>=5.6.5=)
+- ROS:
+  * [[https://wiki.ros.org/Documentation][ROS]] (at least =lunar=, but we recommend using =melodic= if you can)
+  * [[https://wiki.ros.org/roscpp][=roscpp=]]
+  * [[https://wiki.ros.org/std_msgs][=std_msgs]]
+- Suite (we recommend to put them in the same catkin workspace):
+  * [[http://github.com/instar-robotics/hieroglyph][=hieroglyph]]
+  * [[http://github.com/instar-robotics/alexandria][=alexandria=]]
+
+For the system and ROS dependencies, we let the user install the packages using his linux
+distribution specifics.
+
+Below we explain how to build the dependencies from our suite (namely =Papyrus=, =Alexandria= and =Hieroglyph=).
+
+** Fetching the sources and building
+/*Note*: we assume the user has sourced the ROS =setup.bash= (typically =source
+/opt/ros/<distro>/setup.bash=) before issuing the following commands./
+- First we have to create a =catkin= workspace:
+
+#+BEGIN_SRC Shell-script
+
+#+END_SRC
+
+* How to use
+
+* How to contribute
+
+# Papyrus
+
+`Papyrus` is `kehops`'s GUI program to create and edit neural networks to produce Artificial
+Intelligence scripts.
+It uses `ROS` in order to communicate with `kehops`, sending commands, fetching data, updating
+scripts, etc.
+
+## How to install
+`Papyrus` is a Qt GUI program that interfaces with ROS. It is separate from `kehops`. We designed
+the program to be a `catkin` package, and thus be compiled with `catkin_make` or `cmake` directly.
+
+### Dependencies
+Here are the dependencies necessary to build and run `Papyrus`:
+
+- Qt5.10 or above (in particular modules `Qt5::Widgets` and `Qt5::Svg`)
+- CMake version 3.1.0 or above
+- ROS Lunar or above
+
+### Fetching the source
+- First, it is necessary to create a `catkin` workspace:
+  ```
+  $> source /opt/ros/<distro>/setup.bash
+  $> mkdir -p ~/workspace/catkin_ws/src
+  $> cd ~/workspace/catkin_ws/src
+  $> catkin_init_workspace
+  ```
+  This should result in a `CMakeLists.txt` symlink in `~/workspace/catkin_ws/src`.
+- Second, build the workspace:
+  ```
+  $> cd ~/workspace/catkin_ws
+  $> catkin_make
+  ```
+  This should produce two directories next to `src/`, which are: `build/` and `devel/`.
+- Then source your workspace environment script:
+  ```
+  $> source devel/setup.bash
+  ```
+  You will need to source this file everytime you want to work with `papyrus`
+- Next, it's time to fetch the source for `papyrus`:
+  ```
+  $> cd ~/workspace/catkin_ws/src
+  $> git clone git@git.instar-robotics.com:software/NeuralNetwork/papyrus.git
+  ```
+  This should give you a `papyrus` directory
+- Now it's time to build `papyrus`, for that, it is necessary to be in the catkin workspace (and
+  **not** in the `papyrus` directory) so
+  ```
+  $> cd ~/workspace/catkin_ws/
+  ```
+- And now we have two possibilities: either compile all packages in the workspace or compile only
+  `papyrus` (it's equivalent if you have only `papyrus` in your workspace):
+  ```
+  $> catkin_make
+  ```
+  will build all packages in the workspace (_make sure to run this command from the catkin
+  workspace_)
+  or
+  ```
+  $> catkin_make --pkgs papyrus
+  ```
+  will build only package `papyrus`
+- And finally launch `papyrus` with:
+  ```
+  $> rosrun papyrus papyrus
+  ```
+  Yes you have to repeat `papyrus` twice: the first one is the name of the package, and the second
+  one is the name of the executable we want to launch in the package (it happens to be the same
+  here, that's all).
+  Note that when typing this command, `TAB` should auto-complete the `papyrus` name. It's a good
+  indicator that the environment is sourced correctly. If it does not auto-complete, chances are you
+  forgot you `source devel/setup.bash`.
+
+
+And you should have something like this:
+![preview][1]
+
+
+[1]: ./papyrus_preview.png

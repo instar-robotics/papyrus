@@ -175,6 +175,10 @@ DiagramBox::~DiagramBox()
 	}
 	m_inputSlots.clear();
 
+	// Also delete the inhibition input
+	if (m_inhibInput != nullptr)
+		delete m_inhibInput;
+
 	delete m_sizeIcon;
 
 }

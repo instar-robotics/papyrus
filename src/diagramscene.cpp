@@ -911,6 +911,12 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		}
 	}
 
+	// Also delete the links to its inhib input
+	if (box->inhibInput() != nullptr) {
+		foreach(Link *inhibLink, box->inhibInput()->inputs())
+			deleteItem(inhibLink);
+	}
+
 	// Finally, delete the box (the QGraphicsScene will take care of removing the box)
 	delete box;
 }

@@ -260,11 +260,11 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 
 				if (capped >= 0) {
 					for (int i = 0; i < capped * 50 / m_range; i += 1) {
-						image->setPixel(50-i, j, red.rgb());
+						image->setPixel(50+i, j, blue.rgb());
 					}
 				} else {
 					for (int i = 0; i < -capped * 50 / m_range; i += 1) {
-						image->setPixel(50+i, j, blue.rgb());
+						image->setPixel(50-i, j, red.rgb());
 					}
 				}
 			}
@@ -296,28 +296,51 @@ void ActivityVisualizerBars::onBoxDeleted()
  */
 void ActivityVisualizerBars::onSizeChanged()
 {
-	// Create a horizontal line (axis)
-	m_hLine.setLine(-m_scaleMargin, m_height / 2, m_width + m_scaleMargin, m_height / 2);
+	if (m_barsOrientation == HORIZONTAL) {
+		// Create a horizontal line (axis)
+		m_hLine.setLine(-m_scaleMargin, m_height / 2, m_width + m_scaleMargin, m_height / 2);
 
-	// Create a vertical line (axis)
-	m_vLine.setLine(-m_scaleMargin, -m_scaleMargin, -m_scaleMargin, m_height + m_scaleMargin);
+		// Create a vertical line (axis)
+		m_vLine.setLine(-m_scaleMargin, -m_scaleMargin, -m_scaleMargin, m_height + m_scaleMargin);
+
+		qreal dist = m_height / (m_nbTicks - 1);
+		qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
+		for (int i = 0; i < m_nbTicks; i += 1) {
+			m_ticks.at(i)->setLine(-m_scaleMargin,
+			                       i * dist,
+			                       -m_scaleMargin / 2,
+			                       i * dist);
+
+			m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff, 'g', 3));
+			QRectF r = m_labels.at(i)->boundingRect();
+			m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
+			                       i * dist - r.height() / 2); // middle align
+		}
+	} else {
+		// Create a vertical line (axis)
+		m_hLine.setLine(m_width / 2, -m_scaleMargin, m_width / 2, m_height + m_scaleMargin);
+
+		// Create a horitzontal line (axis)
+		m_vLine.setLine(-m_scaleMargin, -m_scaleMargin, m_width + m_scaleMargin, -m_scaleMargin);
+
+		qreal dist = m_width / (m_nbTicks - 1);
+		qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
+		for (int i = 0; i < m_nbTicks; i += 1) {
+			m_ticks.at(i)->setLine(i * dist,
+			                       -m_scaleMargin,
+			                       i * dist,
+			                       -m_scaleMargin / 2);
+
+			m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff, 'g', 3));
+			QRectF r = m_labels.at(i)->boundingRect();
+			m_labels.at(i)->setRotation(90);
+			m_labels.at(i)->setPos((m_nbTicks - i) * dist - r.height() / 2,      // middle align
+			                       -m_scaleMargin - r.width()); // bottom align
+		}
+	}
 
 	// The only way to center text is to use setHtml() AND set the TextWidth
 	m_visuTitle.setTextWidth(m_width);
 
 	m_visuTitle.setPos(0, m_height);
-
-	qreal dist = m_height / (m_nbTicks - 1);
-	qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
-	for (int i = 0; i < m_nbTicks; i += 1) {
-		m_ticks.at(i)->setLine(-m_scaleMargin,
-		                       i * dist,
-		                       -m_scaleMargin / 2,
-		                       i * dist);
-
-		m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff, 'g', 3));
-		QRectF r = m_labels.at(i)->boundingRect();
-		m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
-		                               i * dist - r.height() / 2); // middle align
-	}
 }

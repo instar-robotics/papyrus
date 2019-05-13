@@ -101,5 +101,11 @@
 // URL of the main repository for Papyrus source code
 #define REPO_URL "https://github.com/instar-robotics/papyrus.git"
 
+// The name of the special inhibition input, common to all boxes.
+#define INHIBITION_INPUT_NAME "inhib"
+
+// An inhibition input will only be displayed when we are creating a link and are within this distance
+#define DISTANCE_SHOW_INHIBITION 200
+
 #endif // CONSTANTS
 

@@ -380,11 +380,25 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		}
 	}
 
+	// We need to single out the inhib input slot
+	std::vector<InputSlot *> inputSlotsWithoutInhib;
+	InhibInput *inhib = nullptr;
+	foreach (InputSlot *iSlot, inputSlots) {
+		if (iSlot->name() != INHIBITION_INPUT_NAME)
+			inputSlotsWithoutInhib.push_back(iSlot);
+		else {
+			inhib = dynamic_cast<InhibInput *>(iSlot);
+			if (inhib == nullptr) {
+				informUserAndCrash(QObject::tr("Failed to cast InputSlot to InhibInput!"));
+			}
+		}
+	}
+
 	DiagramBox *b;
 	if (reader.name() == "constant")
 		b = new ConstantDiagramBox(name, icon, outputSlot, uuid);
 	else {
-		b = new DiagramBox(name, icon, outputSlot, inputSlots, uuid);
+		b = new DiagramBox(name, icon, outputSlot, inputSlotsWithoutInhib, uuid, inhib);
 
 		b->setTitle(title);
 		b->setLibname(libname);
@@ -393,6 +407,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		if (!topic.isEmpty())
 			b->setTopic(topic);
 	}
+
 
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
@@ -536,6 +551,12 @@ void XmlScriptReader::readPublishTopic(QString &topic, bool *publish)
 	}
 }
 
+/**
+ * @brief XmlScriptReader::readInputSlots parses the <inputs> tag in XML script file.
+ * @param inputSlots
+ * @param allBoxes
+ * @param incompleteLinks
+ */
 void XmlScriptReader::readInputSlots(std::vector<InputSlot *> *inputSlots,
                                      std::map<QUuid, DiagramBox *> *allBoxes,
                                      std::set<std::pair<QUuid, Link *>> *incompleteLinks)
@@ -569,11 +590,14 @@ void XmlScriptReader::readInputSlots(std::vector<InputSlot *> *inputSlots,
 			QString strUuid = attributes.value("uuid").toString();
 
 			// WARNING: this will segfault when <links> are before <name>
-			InputSlot *inputSlot = NULL;
+			InputSlot *inputSlot = nullptr;
 			while (reader.readNextStartElement()) {
 				if (reader.name() == "name") {
 					QString inputName = reader.readElementText();
-					inputSlot = new InputSlot(inputName);
+					if (inputName == INHIBITION_INPUT_NAME)
+						inputSlot = new InhibInput;
+					else
+						inputSlot = new InputSlot(inputName);
 					inputSlot->setMultiple(multiple);
 					inputSlot->setInputType(iType);
 					inputSlot->setUuid(QUuid(strUuid));

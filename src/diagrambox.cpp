@@ -52,6 +52,7 @@ DiagramBox::DiagramBox(const QString &name,
                        OutputSlot *outputSlot,
                        std::vector<InputSlot *> inputSlots,
                        const QUuid &uuid,
+                       InhibInput *inhibInput,
                        QGraphicsItem *parent) : QGraphicsItem(parent),
                                                 m_name(name),
                                                 m_bWidth(120),
@@ -62,6 +63,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_icon(icon),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
+//                                                m_inhibInput(INHIBITION_INPUT_NAME),
                                                 m_rows(1),
                                                 m_cols(1),
                                                 m_saveActivity(false),
@@ -137,6 +139,20 @@ DiagramBox::DiagramBox(const QString &name,
 		g.ry() += s;
 	}
 
+	// Crate and position the inhibition slot
+	if (inhibInput == nullptr)
+		m_inhibInput = new InhibInput;
+	else
+		m_inhibInput = inhibInput;
+	QPointF inhibPos = boundingRect().bottomRight();
+	inhibPos.rx() -= 2;
+	m_inhibInput->setParentItem(this);
+	m_inhibInput->setBox(this);
+	m_inhibInput->setAcceptHoverEvents(true);
+	m_inhibInput->setPos(inhibPos);
+	m_inhibInput->setInputType(SCALAR_SCALAR);
+//	m_inhibInput.setVisible(false); // By default, inhibition inputs are invisible
+
 	setZValue(BOXES_Z_VALUE);
 }
 
@@ -201,6 +217,9 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 			inputSlot->updateLinks();
 		}
 
+		// Also move the links connected to its inhibition input
+		m_inhibInput->updateLinks();
+
 		// Set the script to which this item's scene is associated as modified
 		theScene->script()->setStatusModified(true);
 
@@ -208,6 +227,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+InhibInput *DiagramBox::inhibInput() const
+{
+	return m_inhibInput;
+}
+
+void DiagramBox::setInhibInput(InhibInput *inhibInput)
+{
+	m_inhibInput = inhibInput;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const

@@ -28,6 +28,7 @@
 #include "inputslot.h"
 #include "datavisualization.h"
 #include "rossession.h"
+#include "inhibinput.h"
 
 #include <set>
 
@@ -60,6 +61,7 @@ public:
 	                    OutputSlot *outputSlot,
 	                    std::vector<InputSlot *> inputSlots,
 	                    const QUuid &uuid = 0,
+	                    InhibInput *inhibInput = nullptr,
 	                    QGraphicsItem *parent = 0);
 	~DiagramBox();
 
@@ -156,6 +158,9 @@ public:
 	ActivityVisualizer *activityVisualizer() const;
 	void setActivityVisualizer(ActivityVisualizer *activityVisualizer);
 
+	InhibInput *inhibInput() const;
+	void setInhibInput(InhibInput *inhibInput);
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -177,6 +182,7 @@ private:
 
 	OutputSlot *m_outputSlot;  // The output slot for this function's box
 	std::vector<InputSlot *> m_inputSlots; // The set of input slots for this function's box
+	InhibInput *m_inhibInput;              // Special inhibition input, common to all boxes
 
 	int m_rows;              // Number of rows in the output (if matrix)
 	int m_cols;              // Number of columns in the output (if matrix)

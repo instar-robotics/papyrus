@@ -350,6 +350,8 @@ void Script::save(const QString &basePath, bool isAutoSave)
 
 			// Save input slots
 			stream.writeStartElement("inputs");
+//			inputSlots << item->inhibInput();
+			inputSlots.push_back(item->inhibInput());
 			foreach (InputSlot *inputSlot, inputSlots) {
 				stream.writeStartElement("input");
 				stream.writeAttribute("type", inputTypeToString(inputSlot->inputType()));

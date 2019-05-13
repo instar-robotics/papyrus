@@ -29,7 +29,7 @@ ConstantDiagramBox::ConstantDiagramBox(const QString &name,
                                        OutputSlot *outputSlot,
                                        const QUuid &uuid,
                                        QGraphicsItem *parent) :
-    DiagramBox(name, icon, outputSlot, std::vector<InputSlot *>(), uuid, parent)
+    DiagramBox(name, icon, outputSlot, std::vector<InputSlot *>(), uuid, nullptr, parent)
 {
 	m_bWidth = 70;
 

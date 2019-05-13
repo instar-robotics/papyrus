@@ -230,66 +230,6 @@ for the JavaScript code in this tag.
 <body>
 <div id="content">
 <h1 class="title">Papyrus User Guide</h1>
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#org2fd6f6e">1. Introduction</a></li>
-<li><a href="#org49bb90f">2. How to install</a>
-<ul>
-<li><a href="#org2582606">2.1. Dependencies</a></li>
-<li><a href="#orgfbf37ff">2.2. Fetching the sources and building</a></li>
-<li><a href="#org52afb4a">2.3. Launching &amp; running</a></li>
-</ul>
-</li>
-<li><a href="#org9969718">3. How to use</a>
-<ul>
-<li><a href="#org8f5960a">3.1. First launch</a></li>
-<li><a href="#org7859fec">3.2. The main window</a>
-<ul>
-<li><a href="#org10c4270">3.2.1. 1. The tool bar</a></li>
-<li><a href="#org2d005dc">3.2.2. 2. The library panel</a></li>
-<li><a href="#org370177c">3.2.3. 3. The properties panel</a></li>
-<li><a href="#orgd9ddb20">3.2.4. 4. The scene</a></li>
-<li><a href="#orgee5c526">3.2.5. 5. The status bar</a></li>
-<li><a href="#orgfd78700">3.2.6. 6. The ROS-master indicator</a></li>
-</ul>
-</li>
-<li><a href="#orgf461af0">3.3. Manual</a>
-<ul>
-<li><a href="#orgae19fee">3.3.1. Create a new script</a></li>
-<li><a href="#orgfa2fd51">3.3.2. Open an existing script</a></li>
-<li><a href="#org9dae0b0">3.3.3. Save current script</a></li>
-<li><a href="#org3359b8a">3.3.4. Close current script</a></li>
-<li><a href="#org066a245">3.3.5. Undo / redo actions</a></li>
-<li><a href="#org96406ea">3.3.6. Reopen last opened scripts</a></li>
-<li><a href="#orgf4e660a">3.3.7. Zooming the scene</a></li>
-<li><a href="#org785ed52">3.3.8. Antialiasing</a></li>
-<li><a href="#org3296e49">3.3.9. Display the grid</a></li>
-<li><a href="#orgdf389b2">3.3.10. Connect to a running <code>Kheops</code> script</a></li>
-<li><a href="#orgab38dde">3.3.11. Launch/pause/resume/stop a script</a></li>
-<li><a href="#org113fc55">3.3.12. Display a Function&rsquo;s activity</a></li>
-<li><a href="#org7daff82">3.3.13. Hiding / showing all outputs</a></li>
-<li><a href="#orgefc94a4">3.3.14. Listing shortcuts</a></li>
-<li><a href="#org812ec05">3.3.15. See the CHANGELOG</a></li>
-<li><a href="#org84ae47e">3.3.16. See the About dialog</a></li>
-<li><a href="#org97288a8">3.3.17. Creating a Link</a></li>
-<li><a href="#orgcd06f89">3.3.18. Inhibition Inputs</a></li>
-<li><a href="#orgaecdfa8">3.3.19. Swapping Functions</a></li>
-<li><a href="#orgcd4bfc7">3.3.20. Creating comment zones</a></li>
-<li><a href="#org52f28bb">3.3.21. Color code for types</a></li>
-<li><a href="#orgd483dd0">3.3.22. Seeing the input names</a></li>
-<li><a href="#org64563ca">3.3.23. Icon reflects type and matrix size</a></li>
-<li><a href="#org885ce6c">3.3.24. Name conventions</a></li>
-<li><a href="#org71243da">3.3.25. Function documentation</a></li>
-<li><a href="#org9a97029">3.3.26. Error indicators</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
 
 <div class="figure">
 <p><img src="./papyrus-icon.png" alt="papyrus-icon.png" />
@@ -300,8 +240,8 @@ for the JavaScript code in this tag.
 <i>(An HTML of this <code>README</code> is available <a href="./README.html">here</a> if you prefer)</i>
 </p>
 
-<div id="outline-container-org2fd6f6e" class="outline-2">
-<h2 id="org2fd6f6e"><span class="section-number-2">1</span> Introduction</h2>
+<div id="outline-container-org3969639" class="outline-2">
+<h2 id="org3969639"><span class="section-number-2">1</span> Introduction</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 <a href="https://github.com/instar-robotics/papyrus">Papyrus</a> is <a href="https://github.com/instar-robotics/kheops">Kheops</a>&rsquo;s GUI program to create, edit and debug neural network to produce Artificial
@@ -330,8 +270,8 @@ away!).</li>
 </div>
 </div>
 
-<div id="outline-container-org49bb90f" class="outline-2">
-<h2 id="org49bb90f"><span class="section-number-2">2</span> How to install</h2>
+<div id="outline-container-org40d59d1" class="outline-2">
+<h2 id="org40d59d1"><span class="section-number-2">2</span> How to install</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The suite (<code>Papyrus</code>, <a href="https://github.com/instar-robotics/kheops">Kheops</a>, <a href="https://github.com/instar-robotics/alexandria">Alexandria</a> and <a href="https://github.com/instar-robotics/hieroglyph">Hieroglyph</a>) are based on ROS:
@@ -358,8 +298,8 @@ non-graphical installation) and <code>Papyrus</code> installed on the diagnostic
 </p>
 </div>
 
-<div id="outline-container-org2582606" class="outline-3">
-<h3 id="org2582606"><span class="section-number-3">2.1</span> Dependencies</h3>
+<div id="outline-container-orga4b27fc" class="outline-3">
+<h3 id="orga4b27fc"><span class="section-number-3">2.1</span> Dependencies</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 In order to build and run <code>Papyrus</code>, you will need those dependencies:
@@ -399,8 +339,8 @@ Below we explain how to build the dependencies from our suite (namely <code>Papy
 </div>
 </div>
 
-<div id="outline-container-orgfbf37ff" class="outline-3">
-<h3 id="orgfbf37ff"><span class="section-number-3">2.2</span> Fetching the sources and building</h3>
+<div id="outline-container-orgcc90e89" class="outline-3">
+<h3 id="orgcc90e89"><span class="section-number-3">2.2</span> Fetching the sources and building</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 <i><b>Note</b>: we assume the user has sourced the ROS <code>setup.bash</code> (typically <code>source
@@ -505,8 +445,8 @@ But you don&rsquo;t have to worry about this if you are only using <code>Papyrus
 </div>
 </div>
 
-<div id="outline-container-org52afb4a" class="outline-3">
-<h3 id="org52afb4a"><span class="section-number-3">2.3</span> Launching &amp; running</h3>
+<div id="outline-container-org2f9eb42" class="outline-3">
+<h3 id="org2f9eb42"><span class="section-number-3">2.3</span> Launching &amp; running</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
 Being a ROS package, you can launch <code>Papyrus</code> from anywhere (you don&rsquo;t need to be in your catkin
@@ -538,7 +478,7 @@ If everything went well, you should have something like this:
 </p>
 
 
-<div id="org49ff092" class="figure">
+<div id="orge6f8525" class="figure">
 <p><img src="./papyrus-preview.png" alt="papyrus-preview.png" />
 </p>
 <p><span class="figure-number">Figure 2: </span>Papyrus home page</p>
@@ -551,8 +491,8 @@ Congrats! <code>Papyrus</code> is now build and installed!
 </div>
 </div>
 
-<div id="outline-container-org9969718" class="outline-2">
-<h2 id="org9969718"><span class="section-number-2">3</span> How to use</h2>
+<div id="outline-container-org29e9b3f" class="outline-2">
+<h2 id="org29e9b3f"><span class="section-number-2">3</span> How to use</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Here&rsquo;s a quick tutorial on how to use <code>Papyrus</code>. We will try to keep this section updated as we
@@ -561,8 +501,8 @@ develop new features, but if you are a <code>Papyrus</code> user and you wrote a
 </p>
 </div>
 
-<div id="outline-container-org8f5960a" class="outline-3">
-<h3 id="org8f5960a"><span class="section-number-3">3.1</span> First launch</h3>
+<div id="outline-container-org6987c19" class="outline-3">
+<h3 id="org6987c19"><span class="section-number-3">3.1</span> First launch</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 <code>Papyrus</code> needs to be given two path to work correctly. The first one is the path to the XML
@@ -606,15 +546,15 @@ located at <code>~/.config/INSTAR Robotics/Papyrus.conf</code>.
 </div>
 </div>
 
-<div id="outline-container-org7859fec" class="outline-3">
-<h3 id="org7859fec"><span class="section-number-3">3.2</span> The main window</h3>
+<div id="outline-container-org2709caa" class="outline-3">
+<h3 id="org2709caa"><span class="section-number-3">3.2</span> The main window</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 <code>Papyrus</code>&rsquo;s main GUI window is roughly divided into <b>6</b> areas, as shown here:
 </p>
 
 
-<div id="orgd48e74d" class="figure">
+<div id="orgc03a849" class="figure">
 <p><img src="./papyrus-gui-1.png" alt="papyrus-gui-1.png" />
 </p>
 <p><span class="figure-number">Figure 3: </span>The main window</p>
@@ -625,8 +565,8 @@ We&rsquo;ll describe the features of the areas briefly, before going into more d
 </p>
 </div>
 
-<div id="outline-container-org10c4270" class="outline-4">
-<h4 id="org10c4270"><span class="section-number-4">3.2.1</span> 1. The tool bar</h4>
+<div id="outline-container-org73f9ea8" class="outline-4">
+<h4 id="org73f9ea8"><span class="section-number-4">3.2.1</span> 1. The tool bar</h4>
 <div class="outline-text-4" id="text-3-2-1">
 <p>
 This is standard GUI toolbar like you expect. It provides quick access to commonly-used items in the
@@ -661,8 +601,8 @@ discover new ones.
 </div>
 </div>
 
-<div id="outline-container-org2d005dc" class="outline-4">
-<h4 id="org2d005dc"><span class="section-number-4">3.2.2</span> 2. The library panel</h4>
+<div id="outline-container-org049d983" class="outline-4">
+<h4 id="org049d983"><span class="section-number-4">3.2.2</span> 2. The library panel</h4>
 <div class="outline-text-4" id="text-3-2-2">
 <p>
 This library panel contains the current loaded Functions (in <code>Alexandria</code>). Those are all the
@@ -692,8 +632,8 @@ To add a Function into the script, simply drag it from this library panel and dr
 </div>
 </div>
 
-<div id="outline-container-org370177c" class="outline-4">
-<h4 id="org370177c"><span class="section-number-4">3.2.3</span> 3. The properties panel</h4>
+<div id="outline-container-org26d3678" class="outline-4">
+<h4 id="org26d3678"><span class="section-number-4">3.2.3</span> 3. The properties panel</h4>
 <div class="outline-text-4" id="text-3-2-3">
 <p>
 This panel is used to display the properties of the currently-selected object in the scene (see
@@ -718,7 +658,7 @@ panel will be restored to the one the object currently has.
 </p>
 
 <p>
-In the <a href="#orgd48e74d">above screenshot</a> a Function&rsquo;s properties are displayed and can be modified:
+In the <a href="#orgc03a849">above screenshot</a> a Function&rsquo;s properties are displayed and can be modified:
 </p>
 <ul class="org-ul">
 <li><code>Title</code>: is a pretty name you can give a Function. It is optional and defaults to an empty value.
@@ -814,7 +754,7 @@ Here&rsquo;s a demonstration of a live visualization in action:
 </p>
 
 
-<div id="org4d87036" class="figure">
+<div id="org7c6c190" class="figure">
 <p><img src="./demo-live-visualization.gif" alt="demo-live-visualization.gif" />
 </p>
 <p><span class="figure-number">Figure 4: </span>Demonstration of enabling live visualization for a Function</p>
@@ -826,12 +766,12 @@ effectively paused, resumed and stopped.
 </p>
 
 <p>
-In <a href="#orge2b4233">this screenshot</a> you can see how the properties panel looks when you have clicked on an empty space
+In <a href="#org2c2d760">this screenshot</a> you can see how the properties panel looks when you have clicked on an empty space
 in the scene, which means you display the properties of the current script.
 </p>
 
 
-<div id="orge2b4233" class="figure">
+<div id="org2c2d760" class="figure">
 <p><img src="./properties-script.png" alt="properties-script.png" />
 </p>
 <p><span class="figure-number">Figure 5: </span>Properties panel for a script</p>
@@ -873,11 +813,11 @@ for now.</li>
 </ul>
 
 <p>
-In <a href="#org18907fd">this screenshot</a> you can see how the properties panel looks when you have a Link selected.
+In <a href="#orgcc8f2d2">this screenshot</a> you can see how the properties panel looks when you have a Link selected.
 </p>
 
 
-<div id="org18907fd" class="figure">
+<div id="orgcc8f2d2" class="figure">
 <p><img src="./properties-link.png" alt="properties-link.png" />
 </p>
 <p><span class="figure-number">Figure 6: </span>Properties panel for a link</p>
@@ -934,8 +874,8 @@ hand, one regex per line in the <code>Connectivity regexes</code> text field.</l
 </div>
 </div>
 
-<div id="outline-container-orgd9ddb20" class="outline-4">
-<h4 id="orgd9ddb20"><span class="section-number-4">3.2.4</span> 4. The scene</h4>
+<div id="outline-container-org2303bb9" class="outline-4">
+<h4 id="org2303bb9"><span class="section-number-4">3.2.4</span> 4. The scene</h4>
 <div class="outline-text-4" id="text-3-2-4">
 <p>
 The scene is the main <code>Papyrus</code> area. It corresponds to the script you are writing. This is where
@@ -975,13 +915,13 @@ the scene to contain all elements (this is useful when you get lost in a scroll 
 </div>
 </div>
 
-<div id="outline-container-orgee5c526" class="outline-4">
-<h4 id="orgee5c526"><span class="section-number-4">3.2.5</span> 5. The status bar</h4>
+<div id="outline-container-orgd92083f" class="outline-4">
+<h4 id="orgd92083f"><span class="section-number-4">3.2.5</span> 5. The status bar</h4>
 <div class="outline-text-4" id="text-3-2-5">
 <p>
-The bottom left corner of the window is the status bar (currently empty in <a href="#orgd48e74d">the
-main window</a>, but you can see some message in <a href="#org49ff092">the first picture</a> or even see it in action
-<a href="#org4d87036">in the live demo</a>).
+The bottom left corner of the window is the status bar (currently empty in <a href="#orgc03a849">the
+main window</a>, but you can see some message in <a href="#orge6f8525">the first picture</a> or even see it in action
+<a href="#org7c6c190">in the live demo</a>).
 </p>
 
 <p>
@@ -999,8 +939,8 @@ your action is not possible.</li>
 </div>
 </div>
 
-<div id="outline-container-orgfd78700" class="outline-4">
-<h4 id="orgfd78700"><span class="section-number-4">3.2.6</span> 6. The ROS-master indicator</h4>
+<div id="outline-container-org264bb48" class="outline-4">
+<h4 id="org264bb48"><span class="section-number-4">3.2.6</span> 6. The ROS-master indicator</h4>
 <div class="outline-text-4" id="text-3-2-6">
 <p>
 This ROS icon is just here as a convenience to tell you the current status of the ROS master. It&rsquo;s
@@ -1014,12 +954,12 @@ ROS master is not running, those are either not running either, or not reachable
 </div>
 
 
-<div id="outline-container-orgf461af0" class="outline-3">
-<h3 id="orgf461af0"><span class="section-number-3">3.3</span> Manual</h3>
+<div id="outline-container-org51e32cf" class="outline-3">
+<h3 id="org51e32cf"><span class="section-number-3">3.3</span> Manual</h3>
 <div class="outline-text-3" id="text-3-3">
 </div>
-<div id="outline-container-orgae19fee" class="outline-4">
-<h4 id="orgae19fee"><span class="section-number-4">3.3.1</span> Create a new script</h4>
+<div id="outline-container-orgdb3632d" class="outline-4">
+<h4 id="orgdb3632d"><span class="section-number-4">3.3.1</span> Create a new script</h4>
 <div class="outline-text-4" id="text-3-3-1">
 <p>
 You can create a new script by clicking <code>File &gt; New Script</code>, or clicking the <code>New Script</code> icon or
@@ -1039,8 +979,8 @@ You can cancel the creation of a new script by clicking <code>Cancel</code> or h
 </div>
 </div>
 
-<div id="outline-container-orgfa2fd51" class="outline-4">
-<h4 id="orgfa2fd51"><span class="section-number-4">3.3.2</span> Open an existing script</h4>
+<div id="outline-container-org1a28545" class="outline-4">
+<h4 id="org1a28545"><span class="section-number-4">3.3.2</span> Open an existing script</h4>
 <div class="outline-text-4" id="text-3-3-2">
 <p>
 You can open a script by clicking <code>File &gt; Open Script</code>, clicking on the <code>Open Script</code> icon. You&rsquo;ve
@@ -1050,8 +990,8 @@ a new tab in the scene.
 </div>
 </div>
 
-<div id="outline-container-org9dae0b0" class="outline-4">
-<h4 id="org9dae0b0"><span class="section-number-4">3.3.3</span> Save current script</h4>
+<div id="outline-container-orgdb0ffe5" class="outline-4">
+<h4 id="orgdb0ffe5"><span class="section-number-4">3.3.3</span> Save current script</h4>
 <div class="outline-text-4" id="text-3-3-3">
 <p>
 You can save the current script by clicking <code>File &gt; Save Script</code>, by clicking the <code>Save Script</code> icon
@@ -1066,8 +1006,8 @@ Script that were modified by not saved have a little star next to their name in 
 </div>
 </div>
 
-<div id="outline-container-org3359b8a" class="outline-4">
-<h4 id="org3359b8a"><span class="section-number-4">3.3.4</span> Close current script</h4>
+<div id="outline-container-org4571768" class="outline-4">
+<h4 id="org4571768"><span class="section-number-4">3.3.4</span> Close current script</h4>
 <div class="outline-text-4" id="text-3-3-4">
 <p>
 You can close the current script by clicking <code>File &gt; Close Script</code> or better, by hitting <code>CTRL + W</code>.
@@ -1076,8 +1016,8 @@ If the file was modified, it will first ask you if you want to save it.
 </div>
 </div>
 
-<div id="outline-container-org066a245" class="outline-4">
-<h4 id="org066a245"><span class="section-number-4">3.3.5</span> Undo / redo actions</h4>
+<div id="outline-container-org14d89ba" class="outline-4">
+<h4 id="org14d89ba"><span class="section-number-4">3.3.5</span> Undo / redo actions</h4>
 <div class="outline-text-4" id="text-3-3-5">
 <p>
 you can undo or redo last actions by clicking <code>Edit &gt; Undo / Redo</code> or better, hit <code>CTRL + Z</code>,
@@ -1086,8 +1026,8 @@ you can undo or redo last actions by clicking <code>Edit &gt; Undo / Redo</code>
 </div>
 </div>
 
-<div id="outline-container-org96406ea" class="outline-4">
-<h4 id="org96406ea"><span class="section-number-4">3.3.6</span> Reopen last opened scripts</h4>
+<div id="outline-container-orgfaf2bab" class="outline-4">
+<h4 id="orgfaf2bab"><span class="section-number-4">3.3.6</span> Reopen last opened scripts</h4>
 <div class="outline-text-4" id="text-3-3-6">
 <p>
 If you want <code>Papyrus</code> to remember which scripts were opened when you closed it, you need to check
@@ -1096,8 +1036,8 @@ the option in <code>Options &gt; Reopen last scripts</code>.
 </div>
 </div>
 
-<div id="outline-container-orgf4e660a" class="outline-4">
-<h4 id="orgf4e660a"><span class="section-number-4">3.3.7</span> Zooming the scene</h4>
+<div id="outline-container-org50b5a7c" class="outline-4">
+<h4 id="org50b5a7c"><span class="section-number-4">3.3.7</span> Zooming the scene</h4>
 <div class="outline-text-4" id="text-3-3-7">
 <p>
 You can zoom in, out or zoom fit the scene in the menu <code>View &gt; Zoom in/out/fit</code>, or clicking the
@@ -1106,8 +1046,8 @@ corresponding icons on the tool bar, or better, by hitting <code>CTRL + +</code>
 </div>
 </div>
 
-<div id="outline-container-org785ed52" class="outline-4">
-<h4 id="org785ed52"><span class="section-number-4">3.3.8</span> Antialiasing</h4>
+<div id="outline-container-orgc9a44b4" class="outline-4">
+<h4 id="orgc9a44b4"><span class="section-number-4">3.3.8</span> Antialiasing</h4>
 <div class="outline-text-4" id="text-3-3-8">
 <p>
 You can toggle antialiasing in the menu <code>View &gt; Antialiasing</code> or better, by hitting <code>CTRL + SHIFT +
@@ -1116,8 +1056,8 @@ A</code>.
 </div>
 </div>
 
-<div id="outline-container-org3296e49" class="outline-4">
-<h4 id="org3296e49"><span class="section-number-4">3.3.9</span> Display the grid</h4>
+<div id="outline-container-orgf6742a5" class="outline-4">
+<h4 id="orgf6742a5"><span class="section-number-4">3.3.9</span> Display the grid</h4>
 <div class="outline-text-4" id="text-3-3-9">
 <p>
 You can toggle the display of the grid (the little dots on the scene) in the menu <code>View &gt; Display
@@ -1128,8 +1068,8 @@ want to see it or not.
 </div>
 </div>
 
-<div id="outline-container-orgdf389b2" class="outline-4">
-<h4 id="orgdf389b2"><span class="section-number-4">3.3.10</span> Connect to a running <code>Kheops</code> script</h4>
+<div id="outline-container-orgc1438d8" class="outline-4">
+<h4 id="orgc1438d8"><span class="section-number-4">3.3.10</span> Connect to a running <code>Kheops</code> script</h4>
 <div class="outline-text-4" id="text-3-3-10">
 <p>
 You can connect <code>Papyrus</code> to a running <code>Kheops</code> script by clicking on <code>Kheops &gt; Connect</code>, the
@@ -1146,8 +1086,8 @@ is coming).
 </div>
 </div>
 
-<div id="outline-container-orgab38dde" class="outline-4">
-<h4 id="orgab38dde"><span class="section-number-4">3.3.11</span> Launch/pause/resume/stop a script</h4>
+<div id="outline-container-org19acd1b" class="outline-4">
+<h4 id="org19acd1b"><span class="section-number-4">3.3.11</span> Launch/pause/resume/stop a script</h4>
 <div class="outline-text-4" id="text-3-3-11">
 <p>
 Whether you have connected to a script or if you are creating a script, you can launch it, pause it,
@@ -1168,8 +1108,8 @@ the same time without an issue.
 </div>
 </div>
 
-<div id="outline-container-org113fc55" class="outline-4">
-<h4 id="org113fc55"><span class="section-number-4">3.3.12</span> Display a Function&rsquo;s activity</h4>
+<div id="outline-container-org2c47056" class="outline-4">
+<h4 id="org2c47056"><span class="section-number-4">3.3.12</span> Display a Function&rsquo;s activity</h4>
 <div class="outline-text-4" id="text-3-3-12">
 <p>
 You can display a Function&rsquo;s activity (remember &ldquo;activity&rdquo; and &ldquo;output&rdquo; are the same thing) by
@@ -1196,8 +1136,8 @@ You can close a Function&rsquo;s activity visualizer by selecting it (clicking o
 </div>
 </div>
 
-<div id="outline-container-org7daff82" class="outline-4">
-<h4 id="org7daff82"><span class="section-number-4">3.3.13</span> Hiding / showing all outputs</h4>
+<div id="outline-container-org0d7348b" class="outline-4">
+<h4 id="org0d7348b"><span class="section-number-4">3.3.13</span> Hiding / showing all outputs</h4>
 <div class="outline-text-4" id="text-3-3-13">
 <p>
 If you want to quickly <i>hide</i> (not close) all visible Activity visualizers, you can click <code>Kheops &gt;
@@ -1211,8 +1151,8 @@ You can show them back with <code>Kheops -&gt; Show outputs</code> or hit <code>
 </div>
 </div>
 
-<div id="outline-container-orgefc94a4" class="outline-4">
-<h4 id="orgefc94a4"><span class="section-number-4">3.3.14</span> Listing shortcuts</h4>
+<div id="outline-container-org0016bd1" class="outline-4">
+<h4 id="org0016bd1"><span class="section-number-4">3.3.14</span> Listing shortcuts</h4>
 <div class="outline-text-4" id="text-3-3-14">
 <p>
 You can have a list of shortcuts and a quick cheat sheet by clicking <code>Help &gt; List shortcuts</code>.
@@ -1220,8 +1160,8 @@ You can have a list of shortcuts and a quick cheat sheet by clicking <code>Help 
 </div>
 </div>
 
-<div id="outline-container-org812ec05" class="outline-4">
-<h4 id="org812ec05"><span class="section-number-4">3.3.15</span> See the CHANGELOG</h4>
+<div id="outline-container-org465c785" class="outline-4">
+<h4 id="org465c785"><span class="section-number-4">3.3.15</span> See the CHANGELOG</h4>
 <div class="outline-text-4" id="text-3-3-15">
 <p>
 You can see the <code>CHANGELOG</code> for the different versions of <code>Papyrus</code> by clicking <code>Help &gt; CHANGELOG</code>.
@@ -1248,8 +1188,8 @@ effect.
 </div>
 </div>
 
-<div id="outline-container-org84ae47e" class="outline-4">
-<h4 id="org84ae47e"><span class="section-number-4">3.3.16</span> See the About dialog</h4>
+<div id="outline-container-org8d71cae" class="outline-4">
+<h4 id="org8d71cae"><span class="section-number-4">3.3.16</span> See the About dialog</h4>
 <div class="outline-text-4" id="text-3-3-16">
 <p>
 You can show the <code>About</code> dialog in <code>Help &gt; About Papyrus</code> or hit <code>CTRL + ?</code>.
@@ -1257,8 +1197,8 @@ You can show the <code>About</code> dialog in <code>Help &gt; About Papyrus</cod
 </div>
 </div>
 
-<div id="outline-container-org97288a8" class="outline-4">
-<h4 id="org97288a8"><span class="section-number-4">3.3.17</span> Creating a Link</h4>
+<div id="outline-container-org6eb2e0e" class="outline-4">
+<h4 id="org6eb2e0e"><span class="section-number-4">3.3.17</span> Creating a Link</h4>
 <div class="outline-text-4" id="text-3-3-17">
 <p>
 In order to connect the output of a Function to the input of another, you need to create a Link. To
@@ -1279,7 +1219,7 @@ approach then, while invalid input slots for this Link will stay grayed out.
 </p>
 
 <p>
-You can see the creation of a Link in action <a href="#org51027b6">below</a>. You can see that I first start to create an
+You can see the creation of a Link in action <a href="#orga858d6a">below</a>. You can see that I first start to create an
 invalid Link (twice): the Link turns red and when I release my mouse, the link is not created. This
 is because I&rsquo;m trying to link a <code>MATRIX</code> type Function to a <code>SCALAR</code> type input.
 </p>
@@ -1291,7 +1231,7 @@ change it later by selecting the Link and editing its Link in the properties pan
 </p>
 
 
-<div id="org51027b6" class="figure">
+<div id="orga858d6a" class="figure">
 <p><img src="./demo-link.gif" alt="demo-link.gif" />
 </p>
 <p><span class="figure-number">Figure 7: </span>Demonstration of the creating of a Link</p>
@@ -1299,8 +1239,8 @@ change it later by selecting the Link and editing its Link in the properties pan
 </div>
 </div>
 
-<div id="outline-container-orgcd06f89" class="outline-4">
-<h4 id="orgcd06f89"><span class="section-number-4">3.3.18</span> Inhibition Inputs</h4>
+<div id="outline-container-orgfe54e85" class="outline-4">
+<h4 id="orgfe54e85"><span class="section-number-4">3.3.18</span> Inhibition Inputs</h4>
 <div class="outline-text-4" id="text-3-3-18">
 <p>
 All Functions have an additional input, which is not described in its XML description file: the
@@ -1330,11 +1270,11 @@ Function actually <b>stops publishing its activity on the ROS bus</b> (contrary 
 </p>
 
 <p>
-You can see the <code>inhib</code> input in the <a href="#orgd06d542">video below</a>.
+You can see the <code>inhib</code> input in the <a href="#org8f0c697">video below</a>.
 </p>
 
 
-<div id="orgd06d542" class="figure">
+<div id="org8f0c697" class="figure">
 <p><img src="./demoinhib.gif" alt="demoinhib.gif" />
 </p>
 <p><span class="figure-number">Figure 8: </span>The inhib input slot is situated near the output slot and is mostly invisible expected when approached</p>
@@ -1342,8 +1282,8 @@ You can see the <code>inhib</code> input in the <a href="#orgd06d542">video belo
 </div>
 </div>
 
-<div id="outline-container-orgaecdfa8" class="outline-4">
-<h4 id="orgaecdfa8"><span class="section-number-4">3.3.19</span> Swapping Functions</h4>
+<div id="outline-container-org86e2426" class="outline-4">
+<h4 id="org86e2426"><span class="section-number-4">3.3.19</span> Swapping Functions</h4>
 <div class="outline-text-4" id="text-3-3-19">
 <p>
 Sometimes when you are in the process of creating a script you want to test some new Functions in
@@ -1377,7 +1317,7 @@ lines that were listening to it, you don&rsquo;t have to change anything</li>
 </ul>
 
 <p>
-You can see the Function swap in action <a href="#orga93c6ea">below</a>. I start with a <code>SSum</code> Function which is a simply
+You can see the Function swap in action <a href="#org11cef82">below</a>. I start with a <code>SSum</code> Function which is a simply
 addition of scalars. I am giving it a <code>Title</code>, I check the <code>Save activity</code> property and I show you
 its topic name (which is based on its UUID since I did not enter anything specific).
 </p>
@@ -1395,7 +1335,7 @@ it kept the same <code>Title</code>, the same <code>Save activity</code> checked
 </p>
 
 
-<div id="orga93c6ea" class="figure">
+<div id="org11cef82" class="figure">
 <p><img src="./demo-swap.gif" alt="demo-swap.gif" />
 </p>
 <p><span class="figure-number">Figure 9: </span>Demonstration of the Function swap feature</p>
@@ -1408,8 +1348,8 @@ your graph&rsquo;s integrity.
 </div>
 </div>
 
-<div id="outline-container-orgcd4bfc7" class="outline-4">
-<h4 id="orgcd4bfc7"><span class="section-number-4">3.3.20</span> Creating comment zones</h4>
+<div id="outline-container-orgfb893d8" class="outline-4">
+<h4 id="orgfb893d8"><span class="section-number-4">3.3.20</span> Creating comment zones</h4>
 <div class="outline-text-4" id="text-3-3-20">
 <p>
 When your scripts become to have a good number of Functions and a Links, it might become a bit
@@ -1430,7 +1370,7 @@ will only delete the <code>Zone</code>, not the Functions inside.
 </p>
 
 <p>
-You can see the creation of a <code>Zone</code> and how to add a small comment and change its color <a href="#org548a781">below</a>. As
+You can see the creation of a <code>Zone</code> and how to add a small comment and change its color <a href="#org0dad4f2">below</a>. As
 you can see: once a Function is inside the Zone, it moves with it, but if you get it out, it is free
 again.
 </p>
@@ -1440,7 +1380,7 @@ Use <code>Zones</code> with colors to group your scripts in sensible, logical, m
 </p>
 
 
-<div id="org548a781" class="figure">
+<div id="org0dad4f2" class="figure">
 <p><img src="./demo-zone.gif" alt="demo-zone.gif" />
 </p>
 <p><span class="figure-number">Figure 10: </span>Demonstration of the creation of basic features of a <code>Zone</code></p>
@@ -1448,12 +1388,12 @@ Use <code>Zones</code> with colors to group your scripts in sensible, logical, m
 </div>
 </div>
 
-<div id="outline-container-org52f28bb" class="outline-4">
-<h4 id="org52f28bb"><span class="section-number-4">3.3.21</span> Color code for types</h4>
+<div id="outline-container-orgef543a3" class="outline-4">
+<h4 id="orgef543a3"><span class="section-number-4">3.3.21</span> Color code for types</h4>
 <div class="outline-text-4" id="text-3-3-21">
 <p>
 To help you quickly identify which slots can be linked together, there is a basic color coding for
-the type of slots (both inputs and output). As you can see <a href="#org445a72d">in this picture</a> :
+the type of slots (both inputs and output). As you can see <a href="#org014162b">in this picture</a> :
 </p>
 <ul class="org-ul">
 <li><code>SCALAR</code> types are white</li>
@@ -1462,7 +1402,7 @@ the type of slots (both inputs and output). As you can see <a href="#org445a72d"
 </ul>
 
 
-<div id="org445a72d" class="figure">
+<div id="org014162b" class="figure">
 <p><img src="./color-types.png" alt="color-types.png" />
 </p>
 <p><span class="figure-number">Figure 11: </span>Illustration of the three colors for the three types</p>
@@ -1475,8 +1415,8 @@ background white in the library panel.
 </div>
 </div>
 
-<div id="outline-container-orgd483dd0" class="outline-4">
-<h4 id="orgd483dd0"><span class="section-number-4">3.3.22</span> Seeing the input names</h4>
+<div id="outline-container-org3e9bb50" class="outline-4">
+<h4 id="org3e9bb50"><span class="section-number-4">3.3.22</span> Seeing the input names</h4>
 <div class="outline-text-4" id="text-3-3-22">
 <p>
 the moment you start creating a Link from a Function in the scene, all input slots&rsquo;s name will
@@ -1490,12 +1430,12 @@ pressing <code>&lt;T&gt;</code> on the scene.
 </p>
 
 <p>
-You can see it in action <a href="#org7abbbc5">below</a>. When I press <code>&lt;T&gt;</code> the names appear and stay on, when I press <code>&lt;T&gt;</code>
+You can see it in action <a href="#orgf7e9e80">below</a>. When I press <code>&lt;T&gt;</code> the names appear and stay on, when I press <code>&lt;T&gt;</code>
 again they disappear.
 </p>
 
 
-<div id="org7abbbc5" class="figure">
+<div id="orgf7e9e80" class="figure">
 <p><img src="./demo-toggle.gif" alt="demo-toggle.gif" />
 </p>
 <p><span class="figure-number">Figure 12: </span>Input slots names can be toggled on and off by pressing <code>&lt;T&gt;</code></p>
@@ -1503,8 +1443,8 @@ again they disappear.
 </div>
 </div>
 
-<div id="outline-container-org64563ca" class="outline-4">
-<h4 id="org64563ca"><span class="section-number-4">3.3.23</span> Icon reflects type and matrix size</h4>
+<div id="outline-container-org1ab4a3a" class="outline-4">
+<h4 id="org1ab4a3a"><span class="section-number-4">3.3.23</span> Icon reflects type and matrix size</h4>
 <div class="outline-text-4" id="text-3-3-23">
 <p>
 In order to quickly get a sense of what Functions outputs (whether it&rsquo;s a scalar, or a matrix and
@@ -1513,7 +1453,7 @@ reflects the Function&rsquo;s output.
 </p>
 
 <p>
-In <a href="#org9f9b53c">this picture</a> you can see :
+In <a href="#org5531b22">this picture</a> you can see :
 </p>
 <ul class="org-ul">
 <li>The <code>SSUM</code> Function is <code>SCALAR</code>: it has a small &ldquo;dot&rdquo; neuron of its right part</li>
@@ -1532,7 +1472,7 @@ for <code>Kheops</code>.
 </p>
 
 
-<div id="org9f9b53c" class="figure">
+<div id="org5531b22" class="figure">
 <p><img src="./shapes.png" alt="shapes.png" />
 </p>
 <p><span class="figure-number">Figure 13: </span>The three different icon indicators for the Functions output</p>
@@ -1541,8 +1481,8 @@ for <code>Kheops</code>.
 </div>
 
 
-<div id="outline-container-org885ce6c" class="outline-4">
-<h4 id="org885ce6c"><span class="section-number-4">3.3.24</span> Name conventions</h4>
+<div id="outline-container-org58a3509" class="outline-4">
+<h4 id="org58a3509"><span class="section-number-4">3.3.24</span> Name conventions</h4>
 <div class="outline-text-4" id="text-3-3-24">
 <p>
 Since we made the choice to have a strongly typed system, we needed to identify Functions. For
@@ -1577,8 +1517,8 @@ explicitness, and length. After a few days of tinkering with <code>Papyrus</code
 </div>
 </div>
 
-<div id="outline-container-org71243da" class="outline-4">
-<h4 id="org71243da"><span class="section-number-4">3.3.25</span> Function documentation</h4>
+<div id="outline-container-org4efe25b" class="outline-4">
+<h4 id="org4efe25b"><span class="section-number-4">3.3.25</span> Function documentation</h4>
 <div class="outline-text-4" id="text-3-3-25">
 <p>
 In order to have some information about what a Function does, and what its inputs are, you can hover
@@ -1587,11 +1527,11 @@ developer wrote in the XML description file.
 </p>
 
 <p>
-See it in action <a href="#org3e6b851">here</a>:
+See it in action <a href="#org140714c">here</a>:
 </p>
 
 
-<div id="org3e6b851" class="figure">
+<div id="org140714c" class="figure">
 <p><img src="./demo-tooltip.gif" alt="demo-tooltip.gif" />
 </p>
 <p><span class="figure-number">Figure 14: </span>Functions in the library panel show their documentation</p>
@@ -1604,8 +1544,8 @@ If some information is missing, wrong or unclear, please make an issue
 </div>
 </div>
 
-<div id="outline-container-org9a97029" class="outline-4">
-<h4 id="org9a97029"><span class="section-number-4">3.3.26</span> Error indicators</h4>
+<div id="outline-container-org0c7caf9" class="outline-4">
+<h4 id="org0c7caf9"><span class="section-number-4">3.3.26</span> Error indicators</h4>
 <div class="outline-text-4" id="text-3-3-26">
 <p>
 <code>Papyrus</code> tries its best to warn you when you make mistakes. For instance, when a Link is invalid,
@@ -1613,13 +1553,13 @@ it turns red and if you hover your mouse on it, a tooltip will explain the cause
 </p>
 
 <p>
-In <a href="#org93e39b3">this gif</a> you see I am creating a Matrix which is not a vector, so it complains (because there&rsquo;s a
+In <a href="#orgb26c5df">this gif</a> you see I am creating a Matrix which is not a vector, so it complains (because there&rsquo;s a
 requirement in the input for its incoming Matrix to be a vector). When I hover the link, it tells me
 what the problem is, I fix it, and the Link turns back normal blue.
 </p>
 
 
-<div id="org93e39b3" class="figure">
+<div id="orgb26c5df" class="figure">
 <p><img src="./demo-faillink.gif" alt="demo-faillink.gif" />
 </p>
 <p><span class="figure-number">Figure 15: </span><code>Papyrus</code> warns you about invalid Links</p>

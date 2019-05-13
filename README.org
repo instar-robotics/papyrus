@@ -25,7 +25,7 @@ Here's a (non-exhaustive) list of features =Papyrus= offer:
   away!).
 
 * How to install
-The suite (=Papyrus=, [[https://github.com/instar-robotics/kheops][Kheops], [[https://github.com/instar-robotics/alexandria][Alexandria] and [[https://github.com/instar-robotics/hieroglyph][Hieroglyph]]) are based on ROS:
+The suite (=Papyrus=, [[https://github.com/instar-robotics/kheops][Kheops]], [[https://github.com/instar-robotics/alexandria][Alexandria]] and [[https://github.com/instar-robotics/hieroglyph][Hieroglyph]]) are based on ROS:
 - scripts communicate with one another through ROS topics
 - live visualization is achieved by having functions publish their outputs in a ROS topic
 - ROS services are used to control scripts from the GUI

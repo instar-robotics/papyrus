@@ -201,8 +201,10 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -Wall -Wextra -msse2 -mtune=native -march=native -pipe")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O2 -Wall -Wextra -msse2 -mtune=native -march=native -pipe")
 # set(CMAKE_CXX_FLAGS "-std=c++17 -O0 -g") # For debug
+
+find_library(LIBRARIES cryptopp)
 
 ###############
 #  Qt related #
@@ -239,6 +241,10 @@ file(GLOB HEADERS "include/*.h")
 file(GLOB RESOURCES "*.qrc")
 
 add_executable(papyrus ${SOURCES} ${HEADERS} ${RESOURCES})
-target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts cryptopp)
+# target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts cryptopp)
+# target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts ${LIBRARIES})
+target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts ${LIBRARIES})
+
+target_include_directories(papyrus PRIVATE include)
 
 add_dependencies(papyrus ${hieroglyph_EXPORTED_TARGETS} ${alexandria_EXPORTED_TARGETS})

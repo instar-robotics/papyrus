@@ -101,7 +101,8 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 		// Paint the weight
 //        if (!isStringLink() && (m_to->inputType() == SCALAR_SCALAR || m_to->inputType() == SCALAR_MATRIX)) {
-		if (isStringLink() || m_to->inputType() == SCALAR_SCALAR || m_to->inputType() == SCALAR_MATRIX) {
+		if (isStringLink() || m_to->inputType() == SCALAR_SCALAR
+		    || m_to->inputType() == SCALAR_MATRIX || m_to->inputType() == MATRIX_MATRIX) {
 			QPen currPen = painter->pen();
 
 			// Paint the weight a different color when it's negative
@@ -143,7 +144,9 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 		}
 
 		// Paint the weight
-		if (isStringLink() || m_to->inputType() == SCALAR_SCALAR || m_to->inputType() == SCALAR_MATRIX) {
+		if (isStringLink() || m_to->inputType() == SCALAR_SCALAR
+		    || m_to->inputType() == SCALAR_MATRIX || m_to->inputType() == MATRIX_MATRIX) {
+			qDebug() << "link type is:" << m_to->inputType() << "weight is:" << m_weight;
 			QRectF r = m_line.boundingRect();
 			r.setTop(r.top() - 30);
 

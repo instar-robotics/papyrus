@@ -61,6 +61,7 @@
 #include <QPlainTextEdit>
 #include <QRegularExpression>
 #include <QProcess>
+#include <QRegularExpression>
 
 #include "hieroglyph/SimpleCmd.h"
 
@@ -1750,6 +1751,24 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
 			m_propertiesPanel->displayScriptProperties(scene->script());
 		} else {
 			str += ".";
+		}
+
+		// Now rename all default topics for functions
+		if (newScriptName != currentName) {
+			// Traverse all Function boxes, check if their names follow the default naming scheme,
+			// And rename them with the new, corrected script name component.
+			foreach (QGraphicsItem *item, scene->items()) {
+				DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+				if (box == nullptr)
+					continue;
+
+				// Apply this transformation function, which ignores all custom topics, and change
+				// the default function's topic name to update with the new script name
+				QString topic = box->topic();
+				topic.replace(QString("/kheops_%1/function_%2").arg(currentName).arg(sanitizeTopicName(box->uuid().toString())),
+				              QString("/kheops_%1/function_%2").arg(newScriptName).arg(sanitizeTopicName(box->uuid().toString())));
+				box->setTopic(topic);
+			}
 		}
 
 		m_ui->statusBar->showMessage(str);

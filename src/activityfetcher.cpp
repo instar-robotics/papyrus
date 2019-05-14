@@ -83,11 +83,27 @@ void ActivityFetcher::run()
 	}
 }
 
+/**
+ * @brief ActivityFetcher::fetchScalar is the ROS callback when subscribed to a topic that publishes
+ * a single scalar. For now, make it a one-value matrix and emit it as 'newMatrix'.
+ * This is not much more costly (we are talking about one value!) and make code simpler because we
+ * don't have to check whether it's a matrix or a scalar to listen for the Qt slot.
+ * @param scalar
+ */
 void ActivityFetcher::fetchScalar(const std_msgs::Float64::ConstPtr &scalar)
 {
-	emit newScalar(scalar->data);
+//	emit newScalar(scalar->data);
+	QVector<qreal> *oneValueMatrix = new QVector<qreal>;
+	*oneValueMatrix << scalar->data;
+
+	emit newMatrix(oneValueMatrix);
 }
 
+/**
+ * @brief ActivityFetcher::fetchMatrix is the ROS callback when subscribed to a topic that publishes
+ * a matrix activity.
+ * @param mat
+ */
 void ActivityFetcher::fetchMatrix(const std_msgs::Float64MultiArray::ConstPtr &mat)
 {
 	QVector<qreal> *matrix = new QVector<qreal>;

@@ -276,8 +276,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	MatrixShape matrixShape = SHAPE_NONE;
 	bool save = false;
 	OutputSlot *outputSlot = new OutputSlot;
-	int rows = 0;
-	int cols = 0;
+	int rows = 1;
+	int cols = 1;
 	std::vector<InputSlot *> inputSlots;
 	QUuid uuid;
 	QString topic;

@@ -334,7 +334,7 @@ void ActivityVisualizerBars::onSizeChanged()
 			m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff, 'g', 3));
 			QRectF r = m_labels.at(i)->boundingRect();
 			m_labels.at(i)->setRotation(90);
-			m_labels.at(i)->setPos((m_nbTicks - i) * dist - r.height() / 2,      // middle align
+			m_labels.at(i)->setPos((m_nbTicks - 1 - i) * dist + r.height() / 2,      // middle align
 			                       -m_scaleMargin - r.width()); // bottom align
 		}
 	}

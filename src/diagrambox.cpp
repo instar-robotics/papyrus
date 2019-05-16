@@ -196,8 +196,19 @@ QRectF DiagramBox::boundingRect() const
  */
 QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
+	if (change == QGraphicsItem::ItemParentChange || change == QGraphicsItem::ItemParentHasChanged) {
+		// Prompt the output slot and all inputs slots to update their connected links
+		m_outputSlot->updateLinks();
+		foreach (InputSlot *inputSlot, m_inputSlots) {
+			inputSlot->updateLinks();
+		}
+
+		// Also move the links connected to its inhibition input
+		m_inhibInput->updateLinks();
+	}
+
 	// When it is moved, we need to move its connected Links
-	if (change == QGraphicsItem::ItemPositionChange && scene()) {
+	if ((change == QGraphicsItem::ItemPositionChange || change == QGraphicsItem::ItemScenePositionHasChanged) && scene()) {
 		// Get coordinate of the target new position
 		QPointF targetPos = value.toPointF();
 
@@ -648,6 +659,12 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 	Q_UNUSED(evt);
 
 	m_oldPos = scenePos();
+
+	// Deactivate the ability of the Zone to move while moving a box
+	Zone *zone = dynamic_cast<Zone *>(parentItem());
+	if (zone != nullptr) {
+		zone->setFlag(QGraphicsItem::ItemIsMovable, false);
+	}
 }
 
 /**
@@ -657,36 +674,14 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
  */
 void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+	// Reactivate the ability of the Zone to move after moving a box
+	Zone *zone = dynamic_cast<Zone *>(parentItem());
+	if (zone != nullptr) {
+		zone->setFlag(QGraphicsItem::ItemIsMovable, true);
+	}
+
 	QPointF newPos = scenePos();
 	bool moved = (m_oldPos != newPos);
-
-	QList<QGraphicsItem *> colliding = collidingItems();
-	bool onZone = false;
-
-	foreach (QGraphicsItem *item, colliding) {
-		Zone *z = dynamic_cast<Zone *>(item);
-
-		if (z != nullptr) {
-			onZone = true;
-			break;
-		}
-	}
-
-	// If the box had been dropped outside a zone, make sure we don't have a parent anymore
-	if (!onZone && parentItem() != nullptr) {
-		QPointF savedPos = parentItem()->mapToScene(pos());
-		setParentItem(nullptr);
-		setPos(savedPos);
-
-		// And then update the displaying of its links because otherwise they go back to pointing
-		// to some weird location
-		if (outputSlot() != nullptr)
-			outputSlot()->updateLinks();
-
-		foreach (InputSlot *iSlot, inputSlots()) {
-			iSlot->updateLinks();
-		}
-	}
 
 	if (moved) {
 		MoveCommand *moveCommand = new MoveCommand(this, m_oldPos);

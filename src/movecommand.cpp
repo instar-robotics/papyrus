@@ -20,9 +20,9 @@
 */
 
 #include "movecommand.h"
+#include "zone.h"
 
 #include <QDebug>
-
 
 MoveCommand::MoveCommand(DiagramBox *box, const QPointF &oldPos, QUndoCommand *parent)
  : QUndoCommand(parent),
@@ -44,17 +44,14 @@ void MoveCommand::undo()
 		return;
 	}
 
-	m_box->setPos(m_oldPos);
-
-	if (m_box->scene() == nullptr) {
-		qWarning() << "[MoveCommand] cannot undo operation: box's scene is null!";
-		return;
+	if (m_box->parentItem() != nullptr) {
+		QPointF pPos = m_box->parentItem()->scenePos();
+		m_box->setPos(m_oldPos - pPos);
+	} else {
+		m_box->setPos(m_oldPos);
 	}
 
-	m_box->scene()->update();
-	// Dirty trick to trigger the itemPositionChange event and have links updated
-	m_box->moveBy(0, 0);
-	m_box->moveBy(-0.1,0);
+	handleZone();
 }
 
 void MoveCommand::redo()
@@ -64,15 +61,34 @@ void MoveCommand::redo()
 		return;
 	}
 
-	m_box->setPos(m_newPos);
-
-	if (m_box->scene() == nullptr) {
-		qWarning() << "[MoveCommand] cannot redo operation: box's scene is null!";
-		return;
+	if (m_box->parentItem() != nullptr) {
+		QPointF pPos = m_box->parentItem()->scenePos();
+		m_box->setPos(m_newPos - pPos);
+	} else {
+		m_box->setPos(m_newPos);
 	}
 
-	m_box->scene()->update();
-	// Dirty trick to trigger the itemPositionChange event and have links updated
-	m_box->moveBy(0.1, 0);
-	m_box->moveBy(-0.1,0);
+	handleZone();
+}
+
+void MoveCommand::handleZone()
+{
+	Zone *zone = nullptr;
+
+	// First remove itself from the current zone, to handle cases when we want to take a box outside
+	// its zone
+	zone = dynamic_cast<Zone *>(m_box->parentItem());
+	if (zone != nullptr)
+		zone->removeFromGroup(m_box);
+	zone = nullptr;
+
+	// Handle adding to/removing from zones
+	foreach (QGraphicsItem *item, m_box->collidingItems()) {
+		zone = dynamic_cast<Zone *>(item);
+		if (zone != nullptr) {
+			zone->addToGroup(m_box);
+			m_box->setSelected(false);
+			break;
+		}
+	}
 }

@@ -27,6 +27,9 @@
 #include "inputslot.h"
 #include "diagrambox.h"
 #include "zone.h"
+#include "openglmatrix.h"
+#include "openglbox.h"
+#include "openglproxy.h"
 
 #include <QGraphicsScene>
 #include <QUuid>
@@ -88,6 +91,7 @@ public slots:
 	void onOkBtnClicked(bool);
 	void onCancelBtnClicked(bool);
 	void onDisplayVisuClicked(bool);
+	void updateProxy();
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
@@ -120,6 +124,8 @@ private:
 	bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
 	QUndoStack *m_undoStack; // The stack to allow for undo / redo commands
 
+	QGraphicsProxyWidget * m_proxy;
+	OpenGLMatrix *m_matrix;
 private slots:
 	void onSelectionChanged();
 

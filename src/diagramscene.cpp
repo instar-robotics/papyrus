@@ -78,10 +78,22 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
 	m_undoStack = new QUndoStack(this);
 
+	OpenGLMatrix *matrix = new OpenGLMatrix(100,100);
+	matrix->initializeGL();
+	OpenGLProxy *proxy = new OpenGLProxy();
+	proxy->connectProxy(matrix);
+	addItem(proxy);
+
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
 	connect(propPanel->displayVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
+}
+
+void DiagramScene::updateProxy()
+{
+	qDebug() << "update";
+	//m_proxy->update();
 }
 
 /**
@@ -200,6 +212,7 @@ bool DiagramScene::checkForInvalidity()
  * Default to a minimum size of the container widget's size (this is to prevent weird behavior
  * when trying to add items in a small scene: the items won't be placed under the mouse)
  */
+
 void DiagramScene::updateSceneRect()
 {
 	if (m_mainWindow) {

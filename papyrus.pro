@@ -72,7 +72,17 @@ HEADERS += include/category.h \
            include/activityvisualizer.h \
            include/activityvisualizerbars.h \
            include/activityvisualizerthermal.h \
-           include/inhibinput.h
+           include/inhibinput.h \
+    openglwidget.h \
+    include/mathtransfo.h \
+    include/openglmatrix.h \
+    include/openglwidget.h \
+    include/mathtransfo.h \
+    include/openglmatrix.h \
+    include/openglwidget.h \
+    src/openglbox.h \
+    include/openglbox.h \
+    include/openglproxy.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -128,6 +138,13 @@ SOURCES += src/category.cpp \
            src/activityvisualizer.cpp \
            src/activityvisualizerbars.cpp \
            src/activityvisualizerthermal.cpp \
-           src/inhibinput.cpp
+           src/inhibinput.cpp \
+    openglwidget.cpp \
+    src/mathtransfo.cpp \
+    src/openglmatrix.cpp \
+    src/openglwidget.cpp \
+    src/openglbox.cpp \
+    include/openglproxy.cpp \
+    src/openglproxy.cpp
 
 RESOURCES += icons.qrc

@@ -26,7 +26,6 @@
 #include "slot.h"
 #include "outputslot.h"
 #include "inputslot.h"
-#include "datavisualization.h"
 #include "rossession.h"
 #include "inhibinput.h"
 
@@ -75,8 +74,6 @@ public:
 	bool checkIfBoxInvalid();
 	void updateTooltip();
 
-	void showDataVis(ROSSession *rosSession);
-	void showDataVis();
 	void setOutputSlotPos();
 
 	QString scriptName();
@@ -133,9 +130,6 @@ public:
 
 	QString libname() const;
 	void setLibname(const QString &libname);
-
-	DataVisualization *dataVis() const;
-	void setDataVis(DataVisualization *dataVis);
 
 	QString title() const;
 	void setTitle(const QString &title);
@@ -201,9 +195,6 @@ private:
 	QString m_iconFilepath;         // Filepath of the icon used (needed to create the svg)
 	QGraphicsSvgItem *m_sizeIcon; // Contains the svg that hints the box's size
 
-	DataVisualization *m_dataVis; // The data visualization window for this box
-	QGraphicsProxyWidget *m_dataProxy; // The proxy for the data visualization window
-
 	bool m_IsActivityVisuEnabled;  // Wether or not we are visualizing this box's activity
 //	ActivityFetcher *m_activityFetcher; // The thread that subscribes to ROS topics
 //	DiagramChart *m_activityChart; // A Chart to display this box's activity
@@ -217,7 +208,6 @@ private:
 	ActivityVisualizer *m_activityVisualizer;
 
 private slots:
-	void onDataVisClosed();
 
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)

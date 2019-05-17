@@ -115,6 +115,7 @@ DiagramBox::DiagramBox(const QString &name,
 
 		if (propertiesPanel == NULL)
 			qFatal("PropertiesPanel doesn't exist!");
+
 		connect(this, SIGNAL(boxSelected(DiagramBox *)), propertiesPanel, SLOT(displayBoxProperties(DiagramBox *)));
 	}
 
@@ -646,9 +647,10 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
 	Q_UNUSED(evt);
 
-	m_oldPos = scenePos();
 	if (evt->buttons() & Qt::RightButton)
 		emit rightClicked(this);
+
+	m_oldPos = scenePos();
 
 	// Deactivate the ability of the Zone to move while moving a box
 	Zone *zone = dynamic_cast<Zone *>(parentItem());

@@ -229,7 +229,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Svg REQUIRED)
 
 # Add Qt5's charts module
-# find_package(Qt5Charts REQUIRED)
+find_package(Qt5Charts REQUIRED)
 
 # Add Qt5's OpenGL module
 find_package(Qt5OpenGL REQUIRED)

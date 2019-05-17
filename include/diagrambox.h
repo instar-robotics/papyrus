@@ -37,6 +37,7 @@
 #include <QUuid>
 #include <QGraphicsSvgItem>
 #include <QGraphicsProxyWidget>
+#include <QGraphicsSceneMouseEvent>
 
 class Script;
 class ActivityVisualizer;
@@ -218,7 +219,6 @@ private:
 	OpenGLProxy *m_displayedProxy; //pointer to opengl display
 
 private slots:
-	void onDataVisClosed();
 	void deleteOpenGLDisplay();
 
 signals:

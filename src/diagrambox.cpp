@@ -76,7 +76,8 @@ DiagramBox::DiagramBox(const QString &name,
 //                                                m_activityChart(nullptr),
                                                 m_isInvalid(false),
                                                 m_swapCandidate(false),
-                                                m_activityVisualizer(nullptr)
+                                                m_activityVisualizer(nullptr),
+                                                m_displayedProxy(nullptr)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -119,7 +120,6 @@ DiagramBox::DiagramBox(const QString &name,
 
 		if (propertiesPanel == NULL)
 			qFatal("PropertiesPanel doesn't exist!");
-
 		connect(this, SIGNAL(boxSelected(DiagramBox *)), propertiesPanel, SLOT(displayBoxProperties(DiagramBox *)));
 	}
 
@@ -180,7 +180,7 @@ DiagramBox::~DiagramBox()
 		delete m_inhibInput;
 
 	delete m_sizeIcon;
-
+	delete m_displayedProxy;
 }
 
 QRectF DiagramBox::boundingRect() const
@@ -231,6 +231,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+OpenGLProxy *DiagramBox::getDisplayedProxy() const
+{
+	return m_displayedProxy;
+}
+
+void DiagramBox::setDisplayedProxy(OpenGLProxy *displayedProxy)
+{
+	m_displayedProxy = displayedProxy;
 }
 
 InhibInput *DiagramBox::inhibInput() const
@@ -648,6 +658,8 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 	Q_UNUSED(evt);
 
 	m_oldPos = scenePos();
+	if (evt->buttons() & Qt::RightButton)
+		emit rightClicked(this);
 }
 
 /**
@@ -940,3 +952,9 @@ QString DiagramBox::scriptName()
 
 	return script->name();
 }
+
+void DiagramBox::deleteOpenGLDisplay()
+{
+	m_displayedProxy = nullptr;
+}
+

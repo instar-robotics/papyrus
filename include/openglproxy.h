@@ -8,13 +8,17 @@ class OpenGLProxy : public QGraphicsProxyWidget
 {
 	Q_OBJECT
 public:
-	void connectProxy(OpenGLWidget *widget);
+	OpenGLProxy(OpenGLWidget *widget);
+	~OpenGLProxy();
 
 signals:
-	void proxyDeleted();
+	void proxyDestroyed();
 
 public slots:
 	void updateProxy();
+
+private:
+	OpenGLWidget *m_widget;
 };
 
 #endif // OPENGLPROXY_H

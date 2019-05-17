@@ -29,6 +29,7 @@
 #include "datavisualization.h"
 #include "rossession.h"
 #include "inhibinput.h"
+#include "openglproxy.h"
 
 #include <set>
 
@@ -161,6 +162,14 @@ public:
 	InhibInput *inhibInput() const;
 	void setInhibInput(InhibInput *inhibInput);
 
+	void setDisplayedProxy(OpenGLProxy *displayed_proxy);
+
+	OpenGLProxy *getProxy() const;
+
+	void setProxy(OpenGLProxy *value);
+
+	OpenGLProxy *getDisplayedProxy() const;
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -215,13 +224,16 @@ private:
 	QPointF m_oldPos; // Start position when moved (to enable undo)
 
 	ActivityVisualizer *m_activityVisualizer;
+	OpenGLProxy *m_displayedProxy; //pointer to opengl display
 
 private slots:
 	void onDataVisClosed();
+	void deleteOpenGLDisplay();
 
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)
 	void boxDeleted();
+	void rightClicked(DiagramBox *);
 };
 
 #endif // DIAGRAMBOX_H

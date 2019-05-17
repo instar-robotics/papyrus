@@ -78,24 +78,11 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
 	m_undoStack = new QUndoStack(this);
 
-	OpenGLMatrix *matrix = new OpenGLMatrix(100,100);
-	matrix->initializeGL();
-	OpenGLProxy *proxy = new OpenGLProxy();
-	proxy->connectProxy(matrix);
-	addItem(proxy);
-
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
 	connect(propPanel->displayVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
-
-void DiagramScene::updateProxy()
-{
-	qDebug() << "update";
-	//m_proxy->update();
-}
-
 /**
  * @brief DiagramScene::~DiagramScene cleans up
  * Reminder: it has ownership of the @Script
@@ -111,6 +98,19 @@ DiagramScene::~DiagramScene()
 	delete m_undoStack;
 }
 
+void DiagramScene::createOpenGLWidget(DiagramBox * box)
+{
+	if(box->getDisplayedProxy() == nullptr)
+	{
+		OpenGLMatrix *matrix = new OpenGLMatrix(100,100);
+		matrix->initializeGL();
+		OpenGLProxy *proxy = new OpenGLProxy(matrix);
+		addItem(proxy);
+		box->setDisplayedProxy(proxy);
+		connect(proxy, SIGNAL(proxyDestroyed()), box, SLOT(deleteOpenGLDisplay()));
+		box->setDisplayedProxy(proxy);
+	}
+}
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 {
 	Q_ASSERT(newBox->outputSlot() != NULL);
@@ -150,6 +150,8 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 		newBox->setTopic(ensureSlashPrefix(mkTopicName(newBox->scriptName(), newBox->uuid().toString())));
 	}
 	newBox->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
+
+	connect(newBox, SIGNAL(rightClicked(DiagramBox *)), this, SLOT(createOpenGLWidget(DiagramBox *)));
 }
 
 /**

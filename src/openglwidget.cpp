@@ -96,7 +96,6 @@ void OpenGLWidget::keyPressEvent(QKeyEvent* event) {
 	QKeyEvent* key = static_cast<QKeyEvent*>(event);
 	if(key->key()==Qt::Key_Space)
 	{
-		qDebug() << "key pressed";
 		reinitializeView();
 	}
 }

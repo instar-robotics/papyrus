@@ -30,12 +30,10 @@
 #include "diagrambox.h"
 #include "script.h"
 #include "constantdiagrambox.h"
-#include "datavisualization.h"
 #include "addboxcommand.h"
 #include "swapboxescommand.h"
 #include "addlinkcommand.h"
 #include "addzonecommand.h"
-#include "diagramchart.h"
 #include "activityfetcher.h"
 #include "activityvisualizer.h"
 #include "activityvisualizerbars.h"
@@ -950,9 +948,8 @@ void DiagramScene::deleteItem(Zone *zone)
 
 	// First, remove itself as a parent from all children
 	foreach (QGraphicsItem *child, zone->childItems()) {
-		QPointF savedPos = child->scenePos();
-		child->setParentItem(nullptr);
-		child->setPos(savedPos);
+		zone->removeFromGroup(child);
+		child->setSelected(false);
 	}
 
 	// Finally delete the zone (the QGraphicsScene will take care of removing the zone)

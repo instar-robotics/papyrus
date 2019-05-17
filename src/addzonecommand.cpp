@@ -45,13 +45,11 @@ void AddZoneCommand::undo()
 
 	// First, remove the zone as a parent from all its children
 	foreach (QGraphicsItem *child, m_zone->childItems()) {
-		QPointF savedPos = child->scenePos();
-		child->setParentItem(nullptr);
-		child->setPos(savedPos);
+		m_zone->removeFromGroup(child);
+		child->setSelected(false);
 	}
 
 	m_scene->removeItem(m_zone);
-	m_scene->update();
 
 	if (m_scene->script() != nullptr)
 		m_scene->script()->setStatusModified(true);
@@ -70,7 +68,12 @@ void AddZoneCommand::redo()
 	}
 
 	m_scene->addItem(m_zone);
+	m_zone->updateGroup();
+
 	m_zone->moveBy(0.1, 0); // Dirty trick to trigger the itemChange() and snap position on the grid
+	foreach (QGraphicsItem *item, m_zone->childItems()) {
+		item->setSelected(false);
+	}
 
 	if (m_scene->script() != nullptr)
 		m_scene->script()->setStatusModified(true);

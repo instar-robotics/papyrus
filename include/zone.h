@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -25,27 +25,26 @@
 #include "types.h"
 
 #include <QGraphicsObject>
-#include <QGraphicsItem>
 #include <QColor>
 #include <QGraphicsItemGroup>
 
-class Zone : public QGraphicsObject
+class Zone : public QGraphicsItemGroup
 {
 public:
-	explicit Zone(QGraphicsObject *parent = nullptr);
-	explicit Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsObject *parent = nullptr);
-	~Zone();
+	explicit Zone(QGraphicsItemGroup *parent = nullptr);
+	explicit Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsItemGroup *parent = nullptr);
+//	~Zone();
 
 	QRectF boundingRect() const override;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
 
-	void updateGroup(bool startFromScratch = false);
-	void updateLinks();
+	void updateGroup();
+
+	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	// Getters / Setters
 

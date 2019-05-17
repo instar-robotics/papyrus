@@ -1,6 +1,7 @@
 #include "activityvisualizer.h"
 
 #include <QDebug>
+#include <QCursor>
 
 // I know there is potentially a segfault here if box == nullptr. But I did not want to use a
 // pointer for the QImage. Potential solution is to manually include width and height as params
@@ -103,13 +104,13 @@ void ActivityVisualizer::hoverMoveEvent(QGraphicsSceneHoverEvent *evt)
 	qreal margin = 5;
 
 	if (mouseX >= m_width - margin && mouseY >= m_height - margin)
-		setCursor(Qt::SizeFDiagCursor);
+		setCursor(QCursor(Qt::SizeFDiagCursor));
 	else if (mouseX >= m_width - margin)
-		setCursor(Qt::SizeHorCursor);
+		setCursor(QCursor(Qt::SizeHorCursor));
 	else if (mouseY >= m_height - margin)
-		setCursor(Qt::SizeVerCursor);
+		setCursor(QCursor(Qt::SizeVerCursor));
 	else
-		setCursor(Qt::ArrowCursor);
+		setCursor(QCursor(Qt::ArrowCursor));
 
 	QGraphicsPixmapItem::hoverMoveEvent(evt);
 }

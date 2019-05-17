@@ -817,7 +817,7 @@ void XmlScriptReader::readZone()
 	zone->setColor(QColor(r, g, b, a));
 	zone->setTitle(title);
 	m_script->scene()->addItem(zone);
-	zone->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
+	zone->updateGroup();
 }
 
 void XmlScriptReader::readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize)

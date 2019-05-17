@@ -24,11 +24,8 @@
 #include "papyruswindow.h"
 #include "helpers.h"
 #include "constants.h"
-#include "scalarvisualization.h"
-#include "matrixvisualization.h"
 #include "zone.h"
 #include "movecommand.h"
-#include "diagramchart.h"
 
 #include <iostream>
 
@@ -69,8 +66,6 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_saveActivity(false),
                                                 m_publish(false),
                                                 m_sizeIcon(nullptr),
-                                                m_dataVis(nullptr),
-                                                m_dataProxy(nullptr),
                                                 m_IsActivityVisuEnabled(false),
 //                                                m_activityFetcher(nullptr),
 //                                                m_activityChart(nullptr),
@@ -196,8 +191,19 @@ QRectF DiagramBox::boundingRect() const
  */
 QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
+	if (change == QGraphicsItem::ItemParentChange || change == QGraphicsItem::ItemParentHasChanged) {
+		// Prompt the output slot and all inputs slots to update their connected links
+		m_outputSlot->updateLinks();
+		foreach (InputSlot *inputSlot, m_inputSlots) {
+			inputSlot->updateLinks();
+		}
+
+		// Also move the links connected to its inhibition input
+		m_inhibInput->updateLinks();
+	}
+
 	// When it is moved, we need to move its connected Links
-	if (change == QGraphicsItem::ItemPositionChange && scene()) {
+	if ((change == QGraphicsItem::ItemPositionChange || change == QGraphicsItem::ItemScenePositionHasChanged) && scene()) {
 		// Get coordinate of the target new position
 		QPointF targetPos = value.toPointF();
 
@@ -336,23 +342,6 @@ QString DiagramBox::title() const
 void DiagramBox::setTitle(const QString &title)
 {
 	m_title = title;
-}
-
-void DiagramBox::onDataVisClosed()
-{
-	delete m_dataProxy;    // also deletes the widget
-	m_dataProxy = nullptr;
-	m_dataVis = nullptr;
-}
-
-DataVisualization *DiagramBox::dataVis() const
-{
-	return m_dataVis;
-}
-
-void DiagramBox::setDataVis(DataVisualization *dataVis)
-{
-	m_dataVis = dataVis;
 }
 
 QString DiagramBox::libname() const
@@ -660,6 +649,12 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 	m_oldPos = scenePos();
 	if (evt->buttons() & Qt::RightButton)
 		emit rightClicked(this);
+
+	// Deactivate the ability of the Zone to move while moving a box
+	Zone *zone = dynamic_cast<Zone *>(parentItem());
+	if (zone != nullptr) {
+		zone->setFlag(QGraphicsItem::ItemIsMovable, false);
+	}
 }
 
 /**
@@ -669,36 +664,14 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
  */
 void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+	// Reactivate the ability of the Zone to move after moving a box
+	Zone *zone = dynamic_cast<Zone *>(parentItem());
+	if (zone != nullptr) {
+		zone->setFlag(QGraphicsItem::ItemIsMovable, true);
+	}
+
 	QPointF newPos = scenePos();
 	bool moved = (m_oldPos != newPos);
-
-	QList<QGraphicsItem *> colliding = collidingItems();
-	bool onZone = false;
-
-	foreach (QGraphicsItem *item, colliding) {
-		Zone *z = dynamic_cast<Zone *>(item);
-
-		if (z != nullptr) {
-			onZone = true;
-			break;
-		}
-	}
-
-	// If the box had been dropped outside a zone, make sure we don't have a parent anymore
-	if (!onZone && parentItem() != nullptr) {
-		QPointF savedPos = parentItem()->mapToScene(pos());
-		setParentItem(nullptr);
-		setPos(savedPos);
-
-		// And then update the displaying of its links because otherwise they go back to pointing
-		// to some weird location
-		if (outputSlot() != nullptr)
-			outputSlot()->updateLinks();
-
-		foreach (InputSlot *iSlot, inputSlots()) {
-			iSlot->updateLinks();
-		}
-	}
 
 	if (moved) {
 		MoveCommand *moveCommand = new MoveCommand(this, m_oldPos);
@@ -803,126 +776,6 @@ void DiagramBox::updateTooltip()
 	setToolTip(str);
 }
 
-// TODO: do not pass the ROSSession, instead add the function to the hotlist from here!
-
-
-/*
-void DiagramBox::showDataVis(ROSSession *rosSession)
-{
-	// First check that there isn't already a visualization window, otherwise do nothing
-	if (m_dataVis != nullptr)
-		return;
-
-	// Otherwise, create the DataVisualization and add it to the scene
-//	m_dataVis = new DataVisualization(nullptr, scene(), this);
-
-	QString winTitle = "Visualization";
-
-	switch (outputType()) {
-
-		case SCALAR:
-			m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
-			winTitle = "Scalar visualization";
-		break;
-
-		case MATRIX:
-			// Discriminate between (1,1) (treat as scalar), rows and cols
-			if (m_rows == 1 && m_cols == 1) {
-				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
-				winTitle = "Scalar visualization";
-			}
-			else if (m_rows == 1 || m_cols == 1) {
-				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
-				winTitle = "Scalar visualization";
-			}
-			else {
-				m_dataVis = new MatrixVisualization(nullptr, rosSession, scene(), this);
-				winTitle = "Matrix visualization";
-			}
-		break;
-
-		default:
-			qDebug() << "Ouput type not supported for visualization";
-			return;
-		break;
-	}
-
-	m_dataProxy = scene()->addWidget(m_dataVis, Qt::Window);
-	m_dataProxy->setWindowTitle(winTitle);
-	m_dataProxy->setGeometry(QRectF(0, 0, 400, 400 / 1.618));
-
-	connect(m_dataProxy, SIGNAL(visibleChanged()), this, SLOT(onDataVisClosed()));
-
-	QPointF p = scenePos();
-
-	p.ry() -= (400 / 1.618); // to place the visu window above the box
-	m_dataProxy->setPos(p);
-	m_dataProxy->setFlags(QGraphicsItem::ItemIsSelectable
-						  | QGraphicsItem::ItemIsMovable
-						  | QGraphicsItem::ItemSendsScenePositionChanges);
-	m_dataProxy->setAcceptHoverEvents(true);
-
-	m_dataProxy->setZValue(DATA_Z_VALUE);
-}
-//*/
-
-// TODO: add box to hotList from here if needed
-void DiagramBox::showDataVis(ROSSession *rosSession)
-{
-	Q_UNUSED(rosSession);
-	qWarning() << "showDataVis should not be called";
-	/*
-	// First check that we don't already have enabled data visualization for this box
-	if (m_IsActivityVisuEnabled)
-		return;
-
-	m_IsActivityVisuEnabled = true;
-
-	qDebug() << "Showing data visualization for box" << m_name << "(" << m_title << ")";
-
-	// Check if we should create a Chart, a Thermal or smth else
-	switch (outputType()) {
-		case SCALAR:
-			qDebug() << "\tType is SCALAR: creating QChart";
-			m_activityChart = new DiagramChart(this);
-			scene()->addItem(m_activityChart);
-		break;
-
-		case MATRIX:
-			// (1,1) matrix is treated as a scalar
-			if (m_rows == 1 && m_cols == 1) {
-				qDebug() << "\tType is MATRIX, dimensions are (1,1): creating QChart";
-				m_activityChart = new DiagramChart(this);
-				scene()->addItem(m_activityChart);
-//				m_dataVis = new ScalarVisualization(nullptr, rosSession, scene(), this);
-			}
-			// (1,N) and (N,1) are vectors: they are displayed as several scalars
-			else if (m_rows == 1 || m_cols == 1) {
-				qDebug() << "\tType is MATRIX, dimensions are vector: creating QChart";
-				m_activityChart = new DiagramChart(this);
-				scene()->addItem(m_activityChart);
-			}
-			else {
-				qDebug() << "\tType is MATRIX, dimensions are (N,M): creating Thermal";
-			}
-		break;
-
-		default:
-			qDebug() << "Ouput type not supported for visualization";
-		return;
-		break;
-	}
-
-	// Create the activity fetcher with the topic name
-	if (m_publish) {
-		m_activityFetcher = new ActivityFetcher(m_topic, this);
-	} else {
-		m_activityFetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(scriptName(), m_uuid.toString())), this);
-		rosSession->addToHotList(m_uuid);
-	}
-	//*/
-}
-
 void DiagramBox::setOutputSlotPos()
 {
 	QPointF p = (boundingRect().bottomRight() + boundingRect().topRight()) / 2;
@@ -957,4 +810,3 @@ void DiagramBox::deleteOpenGLDisplay()
 {
 	m_displayedProxy = nullptr;
 }
-

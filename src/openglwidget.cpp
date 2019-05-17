@@ -93,11 +93,15 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 }
 
 void OpenGLWidget::keyPressEvent(QKeyEvent* event) {
-	QKeyEvent* key = static_cast<QKeyEvent*>(event);
-	if(key->key()==Qt::Key_Space)
-	{
+	m_keyPressed = static_cast<QKeyEvent*>(event);
+	if(m_keyPressed->key()==Qt::Key_Space)
 		reinitializeView();
-	}
+}
+
+
+void OpenGLWidget::keyReleaseEvent(QKeyEvent* event)
+{
+	m_keyPressed = nullptr;
 }
 
 void OpenGLWidget::rotateView(int x, int y, int z)

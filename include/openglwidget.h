@@ -59,6 +59,7 @@ public:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void keyPressEvent(QKeyEvent* event);
+	void keyReleaseEvent(QKeyEvent* event);
 
 	void rotateView(int x, int y, int z);
 	void translateView(int x, int y, int z);
@@ -99,6 +100,7 @@ protected:
 	int m_current_frame_count;
 	QPoint m_last_pos;
 	QGraphicsProxyWidget *m_proxy;
+	QKeyEvent* m_keyPressed;
 };
 
 #endif // OPENGLWIDGET_H

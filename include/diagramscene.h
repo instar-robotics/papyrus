@@ -28,7 +28,6 @@
 #include "diagrambox.h"
 #include "zone.h"
 #include "openglmatrix.h"
-#include "openglbox.h"
 #include "openglproxy.h"
 
 #include <QGraphicsScene>

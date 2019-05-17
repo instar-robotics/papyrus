@@ -100,13 +100,20 @@ void DiagramScene::createOpenGLWidget(DiagramBox * box)
 {
 	if(box->getDisplayedProxy() == nullptr)
 	{
+
+
+		// Insert the widget
+
 		OpenGLMatrix *matrix = new OpenGLMatrix(100,100);
 		matrix->initializeGL();
-		OpenGLProxy *proxy = new OpenGLProxy(matrix);
+		QGraphicsRectItem *proxyMoveBar = new QGraphicsRectItem();
+		OpenGLProxy *proxy = new OpenGLProxy(matrix, proxyMoveBar);
+
+		proxy->setPos(0, proxyMoveBar->rect().height());
+		addItem(proxyMoveBar);
 		addItem(proxy);
 		box->setDisplayedProxy(proxy);
 		connect(proxy, SIGNAL(proxyDestroyed()), box, SLOT(deleteOpenGLDisplay()));
-		box->setDisplayedProxy(proxy);
 	}
 }
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)

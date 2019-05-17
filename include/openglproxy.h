@@ -2,14 +2,17 @@
 #define OPENGLPROXY_H
 
 #include <QGraphicsProxyWidget>
+#include <QGraphicsRectItem>
 #include "openglwidget.h"
 
 class OpenGLProxy : public QGraphicsProxyWidget
 {
 	Q_OBJECT
 public:
-	OpenGLProxy(OpenGLWidget *widget);
+	OpenGLProxy(OpenGLWidget *widget, QGraphicsRectItem *moveBar);
 	~OpenGLProxy();
+
+	QGraphicsRectItem *moveBar() const;
 
 signals:
 	void proxyDestroyed();
@@ -19,6 +22,7 @@ public slots:
 
 private:
 	OpenGLWidget *m_widget;
+	QGraphicsRectItem *m_moveBar;
 };
 
 #endif // OPENGLPROXY_H

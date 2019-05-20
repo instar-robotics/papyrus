@@ -1344,7 +1344,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			if(proxy != nullptr)
 			{
 				proxy->setActivityFetcher(fetcher);
-				//connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
 			}
 			if (visBar != nullptr) {
 				visBar->setActivityFetcher(fetcher);

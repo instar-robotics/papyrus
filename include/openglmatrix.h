@@ -35,7 +35,8 @@ private :
 	int m_min_rng = -1;
 	int m_max_rng = 1;
 	int m_refresh_time = 100;
-	float m_range = 2.0f;
+	float m_range = 5.0f;
+	float m_distance = 6.0f;
 };
 
 #endif // OPENGLMATRIX_H

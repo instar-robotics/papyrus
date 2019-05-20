@@ -17,12 +17,12 @@ OpenGLMatrix::~OpenGLMatrix()
 }
 float OpenGLMatrix::calculateXcoord(int i)
 {
-	return (float)(-m_x_size/2+i)+0.5f;
+	return (float)(-m_x_size/2+i)+0.05f;
 }
 
 float OpenGLMatrix::calculateYcoord(int j)
 {
-	return (float)(-m_y_size/2+j)+0.5f;
+	return (float)(-m_y_size/2+j)+0.05f;
 }
 
 void OpenGLMatrix::initMatrix()
@@ -69,7 +69,7 @@ void OpenGLMatrix::paint3dObjects()
 			y_coord = calculateYcoord(j);
 			QColor color = calculateColor(m_matrix[i][j], m_max_rng, m_min_rng);
 			glColor3ub(color.red(),color.green(),color.blue());
-			display3dBar(x_coord/2, y_coord/2, 0, m_matrix[i][j]);
+			display3dBar(x_coord/m_distance, y_coord/m_distance, 0, m_matrix[i][j]);
 		}
 	}
 }
@@ -81,6 +81,7 @@ void OpenGLMatrix::calculation()
 void OpenGLMatrix::display3dBar(float x_center, float y_center, float bottom, float top)
 {
 	top*=m_range;
+	y_center *= -1;
 	glBegin(GL_QUADS);
 	    //bottom
 	    glVertex3f(x_center-0.05f, y_center-0.05f, bottom);
@@ -135,11 +136,11 @@ void OpenGLMatrix::updateValues(QVector<qreal> *values)
 {
 	if(values->size() == m_x_size * m_y_size)
 	{
-//		for(int i = 0; i<m_x_size; i++){
-//			for(int j = 0; j<m_y_size; j++){
-//				//m_matrix[i][j] = values->at(i*m_y_size+j);
-//			}
-//		}
+		for(int i = 0; i<m_x_size; i++){
+			for(int j = 0; j<m_y_size; j++){
+				m_matrix[i][j] = values->at(i*m_y_size+j);
+			}
+		}
 	}
 }
 

@@ -1,15 +1,15 @@
 #include "openglmatrix.h"
 
-OpenGLMatrix::OpenGLMatrix(int x_size, int y_size)
+OpenGLMatrix::OpenGLMatrix(int x_size, int y_size): m_x_size(x_size), m_y_size(y_size)
 {
-	initMatrix(x_size, y_size);
-	connect(&m_timer_rng, SIGNAL(timeout()), this, SLOT(refreshValues()));
-	m_timer_rng.start(m_refresh_time);
+	initMatrix();
+//	connect(&m_timer_rng, SIGNAL(timeout()), this, SLOT(refreshValues()));
+//	m_timer_rng.start(m_refresh_time);
 }
 
 OpenGLMatrix::~OpenGLMatrix()
 {
-	for(int i = 0; i < m_y_size; i++)
+	for(int i = 0; i < m_x_size; i++)
 	{
 		delete [] m_matrix[i];
 	}
@@ -25,10 +25,8 @@ float OpenGLMatrix::calculateYcoord(int j)
 	return (float)(-m_y_size/2+j)+0.5f;
 }
 
-void OpenGLMatrix::initMatrix(int x_size, int y_size)
+void OpenGLMatrix::initMatrix()
 {
-	m_x_size = x_size;
-	m_y_size = y_size;
 	m_matrix = new float *[m_x_size];
 	for(int i = 0; i < m_x_size; i++)
 	{
@@ -130,6 +128,18 @@ void OpenGLMatrix::refreshValues()
 			m_matrix[i][j] = 0.0f;
 			//m_matrix[i][j] = (float)((rand()%2001)-1000)/1000;
 		}
+	}
+}
+
+void OpenGLMatrix::updateValues(QVector<qreal> *values)
+{
+	if(values->size() == m_x_size * m_y_size)
+	{
+//		for(int i = 0; i<m_x_size; i++){
+//			for(int j = 0; j<m_y_size; j++){
+//				//m_matrix[i][j] = values->at(i*m_y_size+j);
+//			}
+//		}
 	}
 }
 

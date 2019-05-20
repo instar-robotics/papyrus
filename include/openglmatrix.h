@@ -9,10 +9,11 @@ using namespace std;
 class OpenGLMatrix : public OpenGLWidget
 {
 	Q_OBJECT
+
 public:
 	OpenGLMatrix(int x_size, int y_size);
 	~OpenGLMatrix();
-	void initMatrix(int x_size, int y_size);
+	void initMatrix();
 	virtual void paint3dObjects();
 	//virtual void paintHUD();
 	virtual void calculation();
@@ -20,6 +21,8 @@ public:
 
 	float calculateXcoord(int i);
 	float calculateYcoord(int j);
+
+	virtual void updateValues(QVector<qreal>* values);
 
 public slots:
 	void refreshValues();

@@ -90,7 +90,6 @@ public slots:
 	void onOkBtnClicked(bool);
 	void onCancelBtnClicked(bool);
 	void onDisplayVisuClicked(bool);
-	void createOpenGLWidget(DiagramBox *);
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);

@@ -240,6 +240,16 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	return QGraphicsItem::itemChange(change, value);
 }
 
+int DiagramBox::getCols() const
+{
+	return m_cols;
+}
+
+int DiagramBox::getRows() const
+{
+	return m_rows;
+}
+
 OpenGLProxy *DiagramBox::getDisplayedProxy() const
 {
 	return m_displayedProxy;
@@ -647,8 +657,8 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
 	Q_UNUSED(evt);
 
-	if (evt->buttons() & Qt::RightButton)
-		emit rightClicked(this);
+//	if (evt->buttons() & Qt::RightButton)
+//		emit rightClicked(this);
 
 	m_oldPos = scenePos();
 

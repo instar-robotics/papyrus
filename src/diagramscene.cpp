@@ -96,26 +96,6 @@ DiagramScene::~DiagramScene()
 	delete m_undoStack;
 }
 
-void DiagramScene::createOpenGLWidget(DiagramBox * box)
-{
-	if(box->getDisplayedProxy() == nullptr)
-	{
-
-
-		// Insert the widget
-
-		OpenGLMatrix *matrix = new OpenGLMatrix(100,100);
-		matrix->initializeGL();
-		QGraphicsRectItem *proxyMoveBar = new QGraphicsRectItem();
-		OpenGLProxy *proxy = new OpenGLProxy(matrix, proxyMoveBar);
-
-		proxy->setPos(0, proxyMoveBar->rect().height());
-		addItem(proxyMoveBar);
-		addItem(proxy);
-		box->setDisplayedProxy(proxy);
-		connect(proxy, SIGNAL(proxyDestroyed()), box, SLOT(deleteOpenGLDisplay()));
-	}
-}
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 {
 	Q_ASSERT(newBox->outputSlot() != NULL);
@@ -155,8 +135,6 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 		newBox->setTopic(ensureSlashPrefix(mkTopicName(newBox->scriptName(), newBox->uuid().toString())));
 	}
 	newBox->moveBy(0.1,0); // Dirty trick to trigger the itemChange() and snap position on the grid
-
-	connect(newBox, SIGNAL(rightClicked(DiagramBox *)), this, SLOT(createOpenGLWidget(DiagramBox *)));
 }
 
 /**
@@ -1296,7 +1274,23 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				return;
 			}
 
+			if(selectedBox->getDisplayedProxy() != nullptr)
+			{
+				emit displayStatusMessage("Visualization is already enabled for this box");
+				return;
+			}
 //			selectedBox->setIsActivityVisuEnabled(true);
+
+
+			// Insert the 3D widget
+			OpenGLMatrix *matrix = new OpenGLMatrix(selectedBox->getRows(), selectedBox->getCols());
+			matrix->initializeGL();
+			QGraphicsRectItem *proxyMoveBar = new QGraphicsRectItem();
+			OpenGLProxy *proxy = new OpenGLProxy(matrix, proxyMoveBar);
+
+			proxy->setPos(0, proxyMoveBar->rect().height());
+			addItem(proxyMoveBar);
+			selectedBox->setDisplayedProxy(proxy);
 
 			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
 			ActivityVisualizer *vis = nullptr;
@@ -1328,7 +1322,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				break;
 
 				default:
-					qDebug() << "Ouput type not supported for visualization";
+					qDebug() << "Output type not supported for visualization";
 				return;
 				break;
 			}
@@ -1346,6 +1340,12 @@ void DiagramScene::onDisplayVisuClicked(bool)
 
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);
 			ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
+
+			if(proxy != nullptr)
+			{
+				proxy->setActivityFetcher(fetcher);
+				//connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+			}
 			if (visBar != nullptr) {
 				visBar->setActivityFetcher(fetcher);
 				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBar, SLOT(updateBars(QVector<qreal>*)));

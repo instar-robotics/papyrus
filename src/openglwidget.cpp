@@ -312,3 +312,8 @@ QColor OpenGLWidget::calculateColor(float const& value, float const& max_value, 
 	}
 	return QColor::fromHsl(hue, 255, light * 255);
 }
+
+void OpenGLWidget::updateValues(QVector<qreal>* values)
+{
+
+}

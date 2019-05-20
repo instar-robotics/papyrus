@@ -28,7 +28,6 @@
 #include "inputslot.h"
 #include "rossession.h"
 #include "inhibinput.h"
-#include "openglproxy.h"
 
 #include <set>
 
@@ -41,6 +40,7 @@
 
 class Script;
 class ActivityVisualizer;
+class OpenGLProxy;
 
 /**
  * @brief The DiagramBox class is the main class that represents a "box" or "neural function".
@@ -165,6 +165,10 @@ public:
 
 	OpenGLProxy *getDisplayedProxy() const;
 
+	int getRows() const;
+
+	int getCols() const;
+
 protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -224,7 +228,6 @@ private slots:
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)
 	void boxDeleted();
-	void rightClicked(DiagramBox *);
 };
 
 #endif // DIAGRAMBOX_H

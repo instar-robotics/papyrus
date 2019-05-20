@@ -72,6 +72,8 @@ public:
 
 	QColor calculateColor(float const& value, const float &max_value, const float &min_value);
 
+	virtual void updateValues(QVector<qreal>* values);
+
 signals:
 	void repaint();
 

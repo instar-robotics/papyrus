@@ -71,7 +71,10 @@ HEADERS += include/category.h \
            include/activityvisualizer.h \
            include/activityvisualizerbars.h \
            include/activityvisualizerthermal.h \
-           include/inhibinput.h
+           include/inhibinput.h \
+           include/deletelinkcommand.h \
+           include/deleteboxcommand.h \
+           include/deletezonecommand.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -126,6 +129,9 @@ SOURCES += src/category.cpp \
            src/activityvisualizer.cpp \
            src/activityvisualizerbars.cpp \
            src/activityvisualizerthermal.cpp \
-           src/inhibinput.cpp
+           src/inhibinput.cpp \
+           src/deletelinkcommand.cpp \
+           src/deleteboxcommand.cpp \
+           src/deletezonecommand.cpp
 
 RESOURCES += icons.qrc

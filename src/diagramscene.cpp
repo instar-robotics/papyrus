@@ -38,6 +38,9 @@
 #include "activityvisualizer.h"
 #include "activityvisualizerbars.h"
 #include "activityvisualizerthermal.h"
+#include "deletelinkcommand.h"
+#include "deleteboxcommand.h"
+#include "deletezonecommand.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -852,38 +855,12 @@ void DiagramScene::deleteItem(Link *link)
 		return;
 	}
 
-	// First, remove this link from its OutputSlot and check the origin box for invalidity
-	if (link->from() != NULL) {
-		link->from()->removeOutput(link);
-		if (link->from()->box() == nullptr)
-			emit displayStatusMessage(tr("Output slot doesn't have a parent box!"), MSG_WARNING);
-		else {
-			bool boxInvalid = link->from()->box()->checkIfBoxInvalid();
-			if (boxInvalid && m_script != nullptr)
-				m_script->setIsInvalid(true);
-		}
-	} else {
-		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an "
-		                             "originating output slot."), MSG_WARNING);
+	DeleteLinkCommand *command = new DeleteLinkCommand(this, link);
+	if (m_undoStack == nullptr) {
+		qWarning() << "[DiagramScene::deleteItem] cannot delete link: no undo stack!";
+		return;
 	}
-
-	// Then, remove this link from its InputSlot
-	if (link->to() != NULL) {
-		link->to()->removeInput(link);
-		if (link->to()->box() == nullptr)
-			emit displayStatusMessage(tr("Input slot doesn't have a parent box!"), MSG_WARNING);
-		else {
-			bool boxInvalid = link->to()->box()->checkIfBoxInvalid();
-			if (boxInvalid && m_script != nullptr)
-				m_script->setIsInvalid(true);
-		}
-	} else {
-		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an ending "
-		                             "input slot."), MSG_WARNING);
-	}
-
-	// And finally, delete the Link (the QGraphicsScene will take care of removing the object)
-	delete link;
+	m_undoStack->push(command);
 }
 
 /**
@@ -898,25 +875,30 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		return;
 	}
 
-	// First, delete all links attached to this box
+	DeleteBoxCommand *command = new DeleteBoxCommand(this, box);
+	if (m_undoStack == nullptr) {
+		qWarning() << "[DiagramScene::deleteItem] cannot delete box: no undo stack!";
+		return;
+	}
+
+	// Create delete commands for all links
 	foreach (Link *outputLink, box->outputSlot()->outputs()) {
-		deleteItem(outputLink);
+		new DeleteLinkCommand(this, outputLink, command);
 	}
 
 	foreach (InputSlot *inputSlot, box->inputSlots()) {
 		foreach (Link *inputLink, inputSlot->inputs()) {
-			deleteItem(inputLink);
+			new DeleteLinkCommand(this, inputLink, command);
 		}
 	}
 
-	// Also delete the links to its inhib input
 	if (box->inhibInput() != nullptr) {
-		foreach(Link *inhibLink, box->inhibInput()->inputs())
-			deleteItem(inhibLink);
+		foreach(Link *inhibLink, box->inhibInput()->inputs()) {
+			new DeleteLinkCommand(this, inhibLink, command);
+		}
 	}
 
-	// Finally, delete the box (the QGraphicsScene will take care of removing the box)
-	delete box;
+	m_undoStack->push(command);
 }
 
 /**
@@ -931,15 +913,13 @@ void DiagramScene::deleteItem(Zone *zone)
 		return;
 	}
 
-	// First, remove itself as a parent from all children
-	foreach (QGraphicsItem *child, zone->childItems()) {
-		QPointF sP = child->scenePos();
-		child->setParentItem(nullptr);
-		child->setPos(sP);
+	DeleteZoneCommand *command = new DeleteZoneCommand(this, zone);
+	if (m_undoStack == nullptr) {
+		qWarning() << "[DiagramScene::deleteItem] cannot delete zone: no undo stack!";
+		return;
 	}
 
-	// Finally delete the zone (the QGraphicsScene will take care of removing the zone)
-	delete zone;
+	m_undoStack->push(command);
 }
 
 void DiagramScene::removeItem(QGraphicsItem *item)

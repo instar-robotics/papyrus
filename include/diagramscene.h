@@ -29,6 +29,7 @@
 #include "zone.h"
 #include "openglmatrix.h"
 #include "openglproxy.h"
+#include "openglsurface.h"
 
 #include <QGraphicsScene>
 #include <QUuid>

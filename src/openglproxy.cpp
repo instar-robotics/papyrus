@@ -36,6 +36,7 @@ void OpenGLProxy::updateValues(QVector<qreal>* values)
 	m_widget->updateValues(values);
 	//delete values;
 }
+
 void OpenGLProxy::setActivityFetcher(ActivityFetcher *activityFetcher)
 {
 	m_activityFetcher = activityFetcher;

@@ -27,7 +27,7 @@ public:
 public slots:
 	void refreshValues();
 
-private :
+protected :
 	float** m_matrix;
 	int m_x_size;
 	int m_y_size;

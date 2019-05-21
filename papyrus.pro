@@ -81,7 +81,9 @@ HEADERS += include/category.h \
     include/openglwidget.h \
     src/openglbox.h \
     include/openglbox.h \
-    include/openglproxy.h
+    include/openglproxy.h \
+    src/openglsurface.h \
+    include/openglsurface.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -143,6 +145,7 @@ SOURCES += src/category.cpp \
     src/openglwidget.cpp \
     src/openglbox.cpp \
     include/openglproxy.cpp \
-    src/openglproxy.cpp
+    src/openglproxy.cpp \
+    src/openglsurface.cpp
 
 RESOURCES += icons.qrc

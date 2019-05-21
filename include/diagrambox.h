@@ -69,6 +69,7 @@ public:
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	Script *getScript();
 	bool checkIfBoxInvalid();
@@ -156,7 +157,6 @@ public:
 	void setInhibInput(InhibInput *inhibInput);
 
 protected:
-	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	QString m_name;    // Name of the function
 	QString m_title;   // Title of the box (user-friendly & customizable name)

@@ -200,6 +200,7 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 
 		// Also move the links connected to its inhibition input
 		m_inhibInput->updateLinks();
+
 	}
 
 	// When it is moved, we need to move its connected Links

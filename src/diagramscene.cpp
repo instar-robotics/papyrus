@@ -933,8 +933,9 @@ void DiagramScene::deleteItem(Zone *zone)
 
 	// First, remove itself as a parent from all children
 	foreach (QGraphicsItem *child, zone->childItems()) {
-		zone->removeFromGroup(child);
-		child->setSelected(false);
+		QPointF sP = child->scenePos();
+		child->setParentItem(nullptr);
+		child->setPos(sP);
 	}
 
 	// Finally delete the zone (the QGraphicsScene will take care of removing the zone)

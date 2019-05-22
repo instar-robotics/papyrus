@@ -335,6 +335,13 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			stream.writeStartElement("function");
 
 		stream.writeAttribute("uuid", uuid.toString());
+
+		// If the (non-constant) function is commented, write it, otherwise it defaults to false
+		if (!constant && item->isCommented()) {
+			qDebug() << "Function" << name << "is commented";
+			stream.writeAttribute("commented", "true");
+		}
+
 		stream.writeTextElement("name", name);
 		stream.writeTextElement("title", title);
 

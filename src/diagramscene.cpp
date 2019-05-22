@@ -1010,12 +1010,13 @@ void DiagramScene::handleComment()
 	unsigned int nbCommentedBoxes = 0;
 	unsigned int nbUncommentedBoxes = 0;
 
-	// First, filter selected items to keep only boxes, and make us of this traversal to check if we
-	// found commented and uncommented boxes
+	// First, filter selected items to keep only (non-constant) boxes, and make us of this
+	// traversal to check if we found commented and uncommented boxes
 	QList<DiagramBox *> selectedBoxes;
 	foreach (QGraphicsItem *item, selectedItems()) {
 		DiagramBox *box = dynamic_cast<DiagramBox *>(item);
-		if (box == nullptr)
+		ConstantDiagramBox *cste = dynamic_cast<ConstantDiagramBox *>(item);
+		if (box == nullptr || cste != nullptr)
 			continue;
 
 		// Add this box to the list of selected boxes

@@ -324,8 +324,9 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		QPen currPen = m_line->pen();
 
 		// Update line's color and thickness based on the validity of the Link
+		// But don't do it for commented boxes
 		InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));
-		if (maybeSlot) {
+		if (maybeSlot && !maybeSlot->box()->isCommented()) {
 			if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
 				currPen.setColor(Qt::green);
 				currPen.setWidth(2);
@@ -391,7 +392,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 			// Check if we have released on top of an input slot and create a Link if so
 			InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));
 
-			if (maybeSlot) {
+			if (maybeSlot && !maybeSlot->box()->isCommented()) {
 				// If we have released on top on something, check that the types are compatible
 				if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
 					// And check that the link doesn't already exist

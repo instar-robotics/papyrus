@@ -473,7 +473,6 @@ green when the ROS master is detected up and running, and turns red when the ROS
 launch/pause a script, or even connect to one, let alone live visualize some Functions, since the
 ROS master is not running, those are either not running either, or not reachable.
 
-
 ** Manual
 
 *** Create a new script
@@ -807,3 +806,29 @@ what the problem is, I fix it, and the Link turns back normal blue.
 #+CAPTION: =Papyrus= warns you about invalid Links
 #+NAME: fig.faillink
 [[./demo-faillink.gif]]
+*** Commenting / uncommenting Functions
+
+The same way you can comment a line or a portion of code in a traditional programming language,
+Papyrus allows you to comment one or several Functions. In order to comment / uncomment Functions,
+you need to select them and press =C=. This will toggle the commented state of the selected
+Functions, as such:
+- If you have selected only one Function, its commented state will be toggled.
+- If you have selected several Functions, then:
+  - If they are all in the same commented state, they will be toggled.
+  - Otherwise, they will all be commented, at which point additional presses will toggle them.
+
+When a Function is commented, several things happen:
+- it will be displayed as grayed out in Papyrus, with a red cross across it
+- all its connected links will also be displayed grayed out
+- you won't be able to create links from it, nor to it
+- when you launch the script, Kheops will "ignore" this Function by setting its activity to 0 and
+  stop this Function from publishing its output (it means the Functions after this one will receive
+  an activity with value 0, keep this in mind when commenting Functions).
+
+Note that you cannot comment Constants.
+
+You can see commenting and uncommenting Functions in action [[fig.democomment][in the video below]].
+
+#+CAPTION: Commenting and uncommenting Functions
+#+NAME: fig.democomment
+[[./demo-comment.gif]]

@@ -63,6 +63,8 @@ public:
 	void deleteItem(DiagramBox *box);
 	void deleteItem(Zone *zone);
 
+	void handleComment();
+
 	int gridSize() const;
 
 	Script *script() const;

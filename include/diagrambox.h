@@ -156,6 +156,9 @@ public:
 	InhibInput *inhibInput() const;
 	void setInhibInput(InhibInput *inhibInput);
 
+	bool isCommented() const;
+	void setIsCommented(bool isCommented);
+
 protected:
 
 	QString m_name;    // Name of the function
@@ -206,6 +209,8 @@ private:
 	QPointF m_oldPos; // Start position when moved (to enable undo)
 
 	ActivityVisualizer *m_activityVisualizer;
+
+	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
 
 private slots:
 

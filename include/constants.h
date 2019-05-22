@@ -107,5 +107,8 @@
 // An inhibition input will only be displayed when we are creating a link and are within this distance
 #define DISTANCE_SHOW_INHIBITION 200
 
+// Define the opacity level for commented boxes and links
+#define COMMENTED_OPACITY_LEVEL 0.2 // 0: transparent, 1: fully visible
+
 #endif // CONSTANTS
 

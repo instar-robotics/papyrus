@@ -71,7 +71,8 @@ DiagramBox::DiagramBox(const QString &name,
 //                                                m_activityChart(nullptr),
                                                 m_isInvalid(false),
                                                 m_swapCandidate(false),
-                                                m_activityVisualizer(nullptr)
+                                                m_activityVisualizer(nullptr),
+                                                m_isCommented(false)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -248,6 +249,16 @@ InhibInput *DiagramBox::inhibInput() const
 void DiagramBox::setInhibInput(InhibInput *inhibInput)
 {
 	m_inhibInput = inhibInput;
+}
+
+bool DiagramBox::isCommented() const
+{
+	return m_isCommented;
+}
+
+void DiagramBox::setIsCommented(bool isCommented)
+{
+	m_isCommented = isCommented;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const
@@ -546,7 +557,12 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QColor color = Qt::gray;
 	color = color.dark();
 
-	if (m_isInvalid)
+	// If the box is commented, make it light gray and change its opacity
+	setOpacity(1.0);
+	if (m_isCommented) {
+		color = color.light();
+		setOpacity(COMMENTED_OPACITY_LEVEL);
+	} else if (m_isInvalid)
 		color = Qt::red;
 
 	pen.setColor(color);

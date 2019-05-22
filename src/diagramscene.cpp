@@ -894,28 +894,6 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				return;
 			}
 
-			/*
-			foreach (QGraphicsItem *item, items) {
-				Link *link = dynamic_cast<Link *>(item);
-				if (link != nullptr) {
-					new DeleteLinkCommand(this, link, command);
-					continue;
-				}
-
-				DiagramBox *box = dynamic_cast<DiagramBox *>(item);
-				if (box != nullptr) {
-					new DeleteBoxCommand(this, box, command);
-					continue;
-				}
-
-				Zone *zone = dynamic_cast<Zone *>(item);
-				if (zone != nullptr) {
-					new DeleteZoneCommand(this, zone, command);
-					continue;
-				}
-			}
-			//*/
-
 			// Push the commands
 			m_undoStack->push(command);
 
@@ -934,6 +912,9 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 		// Toggle displaying input slot names when 'T' is pressed
 		m_displayLabels = !m_displayLabels;
 		update();
+	} else if (key == Qt::Key_C) {
+		// Comment / decomment Function boxes
+		handleComment();
 	}
 
 	QGraphicsScene::keyPressEvent(evt);
@@ -1015,6 +996,57 @@ void DiagramScene::deleteItem(Zone *zone)
 	}
 
 	m_undoStack->push(command);
+}
+
+/**
+ * @brief DiagramScene::handleComment handle commenting / decommenting Function boxes. Behaviro is
+ * as such:
+ * - if at least one selected box is commented (but not all), then all boxes will be commented
+ * - if all selected boxes are commented, then they will all be uncommented
+ * - if all selected boxes are uncommented, they will be commented
+ */
+void DiagramScene::handleComment()
+{
+	unsigned int nbCommentedBoxes = 0;
+	unsigned int nbUncommentedBoxes = 0;
+
+	// First, filter selected items to keep only boxes, and make us of this traversal to check if we
+	// found commented and uncommented boxes
+	QList<DiagramBox *> selectedBoxes;
+	foreach (QGraphicsItem *item, selectedItems()) {
+		DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+		if (box == nullptr)
+			continue;
+
+		// Add this box to the list of selected boxes
+		selectedBoxes << box;
+
+		// Check if it's commented or not
+		if (box->isCommented())
+			nbCommentedBoxes += 1;
+		else
+			nbUncommentedBoxes += 1;
+	}
+
+	// Make sure we have boxes selected
+	if (selectedBoxes.size() == 0 || (nbCommentedBoxes == 0 && nbUncommentedBoxes == 0))
+		return;
+
+	// Comment or uncomment
+	bool commentValue;
+	if (nbCommentedBoxes > 0 && nbUncommentedBoxes == 0) {
+		// Uncomment all boxes
+		commentValue = false;
+	} else {
+		// Comment all boxes
+		commentValue = true;
+	}
+
+	foreach (DiagramBox *box, selectedBoxes) {
+		box->setIsCommented(commentValue);
+	}
+
+	script()->setStatusModified(true);
 }
 
 void DiagramScene::removeItem(QGraphicsItem *item)

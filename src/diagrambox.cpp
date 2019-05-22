@@ -642,6 +642,14 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		toDisplay = m_title;
 
 	painter->drawText(QRectF(0, m_bHeight - m_tHeight, m_bWidth, m_tHeight), Qt::AlignCenter, toDisplay);
+
+	// Draw a red cross if the box is commented
+	if (m_isCommented) {
+		QPen cross(Qt::red);
+		painter->setPen(cross);
+		painter->drawLine(0, 0, m_bWidth, m_bHeight);
+		painter->drawLine(0, m_bHeight, m_bWidth, 0);
+	}
 }
 
 void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)

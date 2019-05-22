@@ -577,7 +577,6 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		OutputType outputType;
 		qint32 outputType_;
 		QString iconFilepath;
-		QIcon icon;
 		int nbInputs;
 		bool constant;
 		QString libname;
@@ -585,7 +584,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		qint32 matrixShape_;
 
 		// Then proceed to retrieve the other elements
-		dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_
+		dataStream >> name >> iconFilepath >> descriptionFile >> outputType_
 		           >> constant >> nbInputs >> libname >> matrixShape_;
 
 		// Cast the integers to the Enum type (problem of operator '>>' with enums)
@@ -632,9 +631,9 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		DiagramBox *newBox;
 
 		if (constant)
-			newBox = new ConstantDiagramBox(name, icon, outputSlot);
+			newBox = new ConstantDiagramBox(name, outputSlot);
 		else
-			newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
+			newBox = new DiagramBox(name, outputSlot, inputSlots);
 
 		newBox->setDescriptionFile(descriptionFile);
 		newBox->setIconFilepath(iconFilepath);

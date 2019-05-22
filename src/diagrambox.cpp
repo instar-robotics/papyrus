@@ -45,7 +45,6 @@ int DiagramBox::getType()
 }
 
 DiagramBox::DiagramBox(const QString &name,
-                       const QIcon &icon,
                        OutputSlot *outputSlot,
                        std::vector<InputSlot *> inputSlots,
                        const QUuid &uuid,
@@ -57,7 +56,6 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_tHeight(20),
                                                 m_matrixShape(SHAPE_NONE),
                                                 m_uuid(uuid),
-                                                m_icon(icon),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
 //                                                m_inhibInput(INHIBITION_INPUT_NAME),
@@ -484,18 +482,7 @@ OutputSlot *DiagramBox::outputSlot() const
 
 void DiagramBox::setOutputSlot(OutputSlot *outputSlot)
 {
-	qDebug() << "SET OUTPUT SLOT";
 	m_outputSlot = outputSlot;
-}
-
-QIcon DiagramBox::icon() const
-{
-	return m_icon;
-}
-
-void DiagramBox::setIcon(const QIcon &icon)
-{
-	m_icon = icon;
 }
 
 QString DiagramBox::descriptionFile() const

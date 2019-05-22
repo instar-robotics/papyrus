@@ -321,8 +321,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	}
 
 	// We should check (somehow) that the parsing for this box was okay before adding it
-	QIcon icon(":/icons/icons/missing-icon.svg");
-	// TODO read Icon
 
 	// Traverse the library to find the Function with the given name, and extract information from it
 	if (m_library == nullptr)
@@ -346,7 +344,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				functionFound = true;
 
 				// Extract DiagrambBox's information
-				icon = QIcon(f->iconFilepath());
 				iconFilePath = f->iconFilepath();
 				libname = f->libName();
 				matrixShape = f->matrixShape();
@@ -398,9 +395,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 	DiagramBox *b;
 	if (reader.name() == "constant")
-		b = new ConstantDiagramBox(name, icon, outputSlot, uuid);
+		b = new ConstantDiagramBox(name, outputSlot, uuid);
 	else {
-		b = new DiagramBox(name, icon, outputSlot, inputSlotsWithoutInhib, uuid, inhib);
+		b = new DiagramBox(name, outputSlot, inputSlotsWithoutInhib, uuid, inhib);
 
 		b->setTitle(title);
 		b->setLibname(libname);

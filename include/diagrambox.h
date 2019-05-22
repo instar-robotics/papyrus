@@ -56,7 +56,6 @@ public:
 
 	// TODO: implement a copy constructor that should change the uuid and remove the connected links
 	explicit DiagramBox(const QString &name,
-	                    const QIcon &icon,
 	                    OutputSlot *outputSlot,
 	                    std::vector<InputSlot *> inputSlots,
 	                    const QUuid &uuid = 0,
@@ -89,9 +88,6 @@ public:
 
 	QString descriptionFile() const;
 	void setDescriptionFile(const QString &descriptionPath);
-
-	QIcon icon() const;
-	void setIcon(const QIcon &icon);
 
 	OutputSlot *outputSlot() const;
 	void setOutputSlot(OutputSlot *outputSlot);
@@ -173,7 +169,6 @@ protected:
 private:
 	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
 	QString m_libname; // Name of the library this function belongs to (for kheops's linking)
-	QIcon m_icon;      // Icon representing the function
 
 	QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 

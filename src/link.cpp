@@ -234,7 +234,7 @@ void Link::addLinesToScene()
 {
 	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
 	if (dscene == NULL)
-		informUserAndCrash("Could not cast scene in DiagramScene");
+		informUserAndCrash("[Link::addLinesToScene] Could not cast scene in DiagramScene");
 
 	if (!m_selfLoop) {
 		dscene->addItem(&m_line);
@@ -251,7 +251,7 @@ void Link::removeLinesFromScene()
 {
 	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
 	if (dscene == NULL)
-		informUserAndCrash("Could not cast scene in DiagramScene");
+		informUserAndCrash("[Link::removeLinesFromScene] Could not cast scene in DiagramScene");
 
 	if (!m_selfLoop) {
 		dscene->removeItem(&m_line);

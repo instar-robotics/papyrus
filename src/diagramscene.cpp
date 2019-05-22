@@ -807,25 +807,120 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 		QList<QGraphicsItem *> items = selectedItems();
 		int nbItems = items.count();
 
-		foreach (QGraphicsItem *item, items) {
-			Link *link = dynamic_cast<Link *>(item);
-			if (link != nullptr) {
+		// If only one item is selected, delete it
+		if (nbItems == 1) {
+			qDebug() << "Deleting one item...";
+			Link *link = dynamic_cast<Link *>(items.at(0));
+			DiagramBox *box = dynamic_cast<DiagramBox *>(items.at(0));
+			Zone *zone = dynamic_cast<Zone *>(items.at(0));
+
+			if (link != nullptr)
 				deleteItem(link);
-				continue;
-			}
-
-			DiagramBox *box = dynamic_cast<DiagramBox *>(item);
-			if (box != nullptr) {
+			else if (box != nullptr)
 				deleteItem(box);
-				continue;
+			else if (zone != nullptr)
+				deleteItem(zone);
+			else
+				emit displayStatusMessage(tr("Unknown item to delete."));
+		} else if (nbItems > 0) {
+			// When we have several items to delete at once, link all commands so they are only one undo/redo
+			QUndoCommand *command = new QUndoCommand();
+
+			QList<Link*> markedForDelete;
+
+			foreach (QGraphicsItem *item, items) {
+				// First, make commands for Boxes and associated Links, removing those Links
+				// from the list, to prevent deleting them twice
+				DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+				if (box != nullptr) {
+					new DeleteBoxCommand(this, box, command);
+
+					// Create delete commands for all links
+					foreach (Link *outputLink, box->outputSlot()->outputs()) {
+						if (!markedForDelete.contains(outputLink)) {
+							new DeleteLinkCommand(this, outputLink, command);
+							items.removeOne(outputLink);
+							markedForDelete << outputLink;
+						}
+					}
+
+					foreach (InputSlot *inputSlot, box->inputSlots()) {
+						foreach (Link *inputLink, inputSlot->inputs()) {
+							if (!markedForDelete.contains(inputLink)) {
+								new DeleteLinkCommand(this, inputLink, command);
+								items.removeOne(inputLink);
+								markedForDelete << inputLink;
+							}
+						}
+					}
+
+					if (box->inhibInput() != nullptr) {
+						foreach(Link *inhibLink, box->inhibInput()->inputs()) {
+							if (!markedForDelete.contains(inhibLink)) {
+								new DeleteLinkCommand(this, inhibLink, command);
+								items.removeOne(inhibLink);
+								markedForDelete << inhibLink;
+							}
+						}
+					}
+
+					items.removeOne(item);
+				}
 			}
 
-			Zone *zone = dynamic_cast<Zone *>(item);
-			if (zone != nullptr) {
-				deleteItem(zone);
-				continue;
+			// Then re-iterate on the remaining items and create delete commands for links and zones
+			foreach (QGraphicsItem *item, items) {
+				Link *link = dynamic_cast<Link *>(item);
+				Zone *zone = dynamic_cast<Zone *>(item);
+				if (link != nullptr) {
+					if (items.contains(link)) {
+						new DeleteLinkCommand(this, link, command);
+						items.removeOne(link);
+					}
+				} else if (zone != nullptr) {
+					new DeleteZoneCommand(this, zone, command);
+					items.removeOne(zone);
+				}
 			}
+
+			/*
+			// Sanity check
+			if (items.size() != 0)
+				qWarning() << items.size() << "items remains and won't be deleted.";
+			//*/
+
+			if (m_undoStack == nullptr) {
+				qWarning() << "Can't delete selected elements: no undo stack!";
+				return;
+			}
+
+			/*
+			foreach (QGraphicsItem *item, items) {
+				Link *link = dynamic_cast<Link *>(item);
+				if (link != nullptr) {
+					new DeleteLinkCommand(this, link, command);
+					continue;
+				}
+
+				DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+				if (box != nullptr) {
+					new DeleteBoxCommand(this, box, command);
+					continue;
+				}
+
+				Zone *zone = dynamic_cast<Zone *>(item);
+				if (zone != nullptr) {
+					new DeleteZoneCommand(this, zone, command);
+					continue;
+				}
+			}
+			//*/
+
+			// Push the commands
+			m_undoStack->push(command);
+
 		}
+
 
 		// Set the associated script as modified if there was a deletion
 		if (nbItems > 0) {

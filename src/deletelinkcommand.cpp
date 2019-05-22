@@ -51,6 +51,8 @@ DeleteLinkCommand::DeleteLinkCommand(DiagramScene *scene, Link *link, QUndoComma
 
 void DeleteLinkCommand::undo()
 {
+	QUndoCommand::undo();
+
 	// Add back the Link to the scene
 	m_scene->addItem(m_link);
 
@@ -68,6 +70,8 @@ void DeleteLinkCommand::undo()
 
 void DeleteLinkCommand::redo()
 {
+	QUndoCommand::redo();
+
 	// Remove this Link from its output slot
 	m_outputSlot->removeOutput(m_link);
 

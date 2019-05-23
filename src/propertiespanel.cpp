@@ -467,6 +467,8 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 	if (box == NULL)
 		informUserAndCrash(tr("Cannot display box's properties because box is null!"));
 
+	bool isConstantBox = (dynamic_cast<ConstantDiagramBox *>(box) != nullptr);
+
 	// Hide the other frames
 	hideAllFrames();
 
@@ -475,15 +477,18 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 	m_boxTitle->setText(box->title());
 	m_boxTitle->setPlaceholderText(box->name());
 
-	// Check the "save activity" box according to the box's flag
-	m_saveActivity->setChecked(box->saveActivity());
+	if (!isConstantBox) {
+		// Check the "save activity" box according to the box's flag
+		m_saveActivity->setChecked(box->saveActivity());
 
-	// Check the "publish output" box according to the box's flag
-	m_publish->setChecked(box->publish());
+		// Check the "publish output" box according to the box's flag
+		m_publish->setChecked(box->publish());
 
-	// Get the topic name and enable / disable it based on the publish flag
-	m_topic->setText(box->topic());
-	m_topic->setEnabled(box->publish());
+		// Get the topic name and enable / disable it based on the publish flag
+		m_topic->setText(box->topic());
+		m_topic->setEnabled(box->publish());
+	}
+
 
 	OutputType oType = box->outputType();
 
@@ -522,6 +527,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 			m_colsInput->setEnabled(true);
 		}
 
+		if (!isConstantBox) {
 		// Show the shape of the box (since it's matrix)
 		m_boxMatrixShape->setText(matrixShapeToString(box->matrixShape()));
 		QWidget *shapeLabel = NULL;
@@ -530,6 +536,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
 		m_boxMatrixShape->show();
+		}
 	} else if (oType == SCALAR) {
 		m_boxOutputType->setText(tr("scalar"));
 
@@ -580,6 +587,25 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		m_boxMatrixShape->hide();
 	} else {
 		informUserAndCrash(tr("Unsupported output type for a box. Supported types are MATRIX and SCALAR"));
+	}
+
+	// Hide fields for constant box
+	QWidget *topicLabel = m_boxLayout->labelForField(m_topic);
+	if (topicLabel == nullptr)
+		informUserAndCrash(tr("Failed to fetch label for topic name."));
+
+	if (isConstantBox) {
+		m_saveActivity->hide();
+		m_publish->hide();
+		topicLabel->hide();
+		m_topic->hide();
+		m_displayVisu->hide();
+	} else {
+		m_saveActivity->show();
+		m_publish->show();
+		topicLabel->show();
+		m_topic->show();
+		m_displayVisu->show();
 	}
 
 	// Show the box frame and the buttons
@@ -823,70 +849,6 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 	}
 
 	dScene->undoStack()->push(updateCommand);
-	/*
-	if (box == NULL)
-		informUserAndCrash(tr("Cannot update box's properties: box is null!"));
-
-	box->setTitle(m_boxTitle->text());
-
-	// If the box's output is matrix, then set its rows and cols
-	if (box->outputType() == MATRIX) {
-		// Check the shape of the matrix and decide whether it's valid
-		bool okToUpdateSize = false;
-		MatrixShape matrixShape = box->matrixShape();
-
-		if (matrixShape == SHAPE_NONE)
-			okToUpdateSize = true; // No restriction on size
-		else if (matrixShape == VECT) {
-			// For VECT shape, there must be at least one size of dimension 1
-			if (m_rowsInput->value() != 1 && m_colsInput->value() != 1) {
-				okToUpdateSize = false;
-				emit displayStatusMessage("VECT shape requires either rows = 1 or cols = 1", MSG_WARNING);
-			} else {
-				okToUpdateSize = true;
-			}
-		} else {
-			// For the other types, the interface is grayed out, preventing user from changing values
-			okToUpdateSize = true;
-		}
-
-		if (okToUpdateSize) {
-			box->setRows(m_rowsInput->value());
-			box->setCols(m_colsInput->value());
-		}
-
-		// Make sure to call updateSizeIcon() BEFORE rescaleSvgItem() because the latter is based on the former
-		// but only if this is NOT a constant box
-		ConstantDiagramBox *constantBox = dynamic_cast<ConstantDiagramBox *>(box);
-		if (constantBox == nullptr) {
-		updateSizeIcon(box);
-		rescaleSvgItem(box->sizeIcon(),
-					   QSizeF(box->bWidth() / 2 - 1.5, box->bHeight() - box->tHeight() - 2.5),
-					   QPointF(box->bWidth() / 2, 1.5));
-		}
-	}
-
-	// Set the box's "save activity" flag
-	box->setSaveActivity(m_saveActivity->isChecked());
-
-	// Set the box's publish and topic name (if it's valid)
-	box->setPublish(m_publish->isChecked());
-	QString topic = m_topic->text();
-	if (topic.isEmpty()) {
-		Script *s = box->getScript();
-
-		// Since this box is in a script, it should have a Script*
-		if (s == nullptr) {
-			informUserAndCrash(tr("Box in scene is lacking a Script!"));
-		}
-		box->setTopic(ensureSlashPrefix(mkTopicName(s->name(), box->uuid().toString())));
-		m_topic->setStyleSheet("color: red;");
-	} else if (isTopicNameValid(topic)) {
-		box->setTopic(ensureSlashPrefix(topic));
-		m_topic->setStyleSheet("color: black;"); // restore normal, black color
-	} else
-		m_topic->setStyleSheet("color: red;"); // mark invalid topic name in red (and don't update it)
-	*/
 }
 
 void PropertiesPanel::updateLinkProperties(Link *link)

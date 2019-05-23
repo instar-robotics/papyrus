@@ -308,7 +308,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	m_autoSaveTimer->start(AUTOSAVE_PERIOD);
 
 	// Re-open last opened scripts if we have some.
-	foreach (QString path, lastOpenedScripts.split(' ', QString::SkipEmptyParts)) {
+	foreach (QString path, lastOpenedScripts.split(',', QString::SkipEmptyParts)) {
 		openScript(path);
 	}
 
@@ -437,12 +437,39 @@ void PapyrusWindow::writeSettings()
 	settings.setValue("lastDir", m_lastDir);
 	settings.setValue("reopen", m_ui->actionReopen_last_scripts->isChecked());
 	QString openedScripts;
+	/*
 	foreach (Script *script, m_scripts) {
 		if (script == nullptr) {
 			qWarning() << "Null pointer hanging in m_scripts (writeSettings())";
 			continue;
 		}
-		openedScripts += script->filePath() + " ";
+		openedScripts += script->filePath() + ",";
+	}
+	//*/
+	int nbTabs = m_ui->tabWidget->count();
+	for (int i = 0; i < nbTabs; i += 1) {
+		// Ignore the home page
+		if (dynamic_cast<HomePage *>(m_ui->tabWidget->widget(i)) != nullptr)
+			continue;
+
+		DiagramView *dView = dynamic_cast<DiagramView *>(m_ui->tabWidget->widget(i));
+		if (dView == nullptr) {
+			qWarning() << "Failed to get a view in tab #" << i;
+			continue;
+		}
+
+		DiagramScene *dScene = dynamic_cast<DiagramScene *>(dView->scene());
+		if (dScene == nullptr) {
+			qWarning() << "Failed to get a scene from the view #" << i;
+			continue;
+		}
+
+		if (dScene->script() == nullptr) {
+			qWarning() << "Scene #" << i << "has no script attached!";
+			continue;
+		}
+
+		openedScripts += dScene->script()->filePath() + ",";
 	}
 	settings.setValue("lastOpened", openedScripts.trimmed());
 	settings.setValue("lastActive", m_ui->tabWidget->currentIndex()); // Save current active script

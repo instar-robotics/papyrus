@@ -27,6 +27,18 @@
 QString changelog = "<h3>CHANGELOG</h3>"
                     "<ul>"
 
+                    "<li><strong>v0.6.1</strong></li>"
+                    "<li>"
+                    "<ul>"
+                    "<li>Remove the ability to edit settings of constant Function boxes.</li>"
+                    "<li>Remove unnecessary QIcon stored in the Function box as it only uses the"
+                    "filepath for the icon.</li>"
+                    "<li>Re-open tabs in the same order as they were when Papyrus was closed.</li>"
+                    "<li>The status bar now correctly displays the message information when creating "
+                    "links, etc.</li>"
+                    "</ul>"
+                    "</li>"
+
                     "<li><strong>v0.6.0</strong></li>"
                     "<li>"
                     "<ul>"

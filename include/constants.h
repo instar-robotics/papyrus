@@ -56,7 +56,7 @@
 #define MINOR_VERSION 6
 
 // Bugfix version number
-#define BUGFIX_VERSION 0
+#define BUGFIX_VERSION 1
 
 // Define the maximum number of rows / columns a matrix can have (for the spinbox)
 #define MAX_ROWS 100000

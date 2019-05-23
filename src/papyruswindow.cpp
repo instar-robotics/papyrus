@@ -1162,6 +1162,8 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		// Connect the necessary events for the scene and the script
 		connect(openScript, SIGNAL(displayStatusMessage(QString, MessageUrgency)),
 		        this, SLOT(displayStatusMessage(QString, MessageUrgency)));
+		connect(openScene, SIGNAL(displayStatusMessage(QString,MessageUrgency)),
+		        this, SLOT(displayStatusMessage(QString,MessageUrgency)));
 		connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
 		connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 		connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));

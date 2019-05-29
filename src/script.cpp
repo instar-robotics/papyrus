@@ -335,6 +335,13 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			stream.writeStartElement("function");
 
 		stream.writeAttribute("uuid", uuid.toString());
+
+		// If the (non-constant) function is commented, write it, otherwise it defaults to false
+		if (!constant && item->isCommented()) {
+			qDebug() << "Function" << name << "is commented";
+			stream.writeAttribute("commented", "true");
+		}
+
 		stream.writeTextElement("name", name);
 		stream.writeTextElement("title", title);
 
@@ -458,8 +465,8 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		stream.writeTextElement("title", zone->title());
 		stream.writeTextElement("x", QString::number(zonePos.x()));
 		stream.writeTextElement("y", QString::number(zonePos.y()));
-		stream.writeTextElement("width", QString::number(zone->width()));
-		stream.writeTextElement("height", QString::number(zone->height()));
+		stream.writeTextElement("width", QString::number(zone->rect().width()));
+		stream.writeTextElement("height", QString::number(zone->rect().height()));
 		stream.writeStartElement("color");
 
 		stream.writeAttribute("red", QString::number(zone->color().red()));

@@ -33,17 +33,14 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneHoverEvent>
 
-Zone::Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsItemGroup *parent)
-    : QGraphicsItemGroup(parent),
-      m_width(w),
-      m_height(h),
+Zone::Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsRectItem *parent)
+    : QGraphicsRectItem(0, 0, w, h, parent),
       m_color(qRgba(51, 153, 255, 10)),
       m_resizeType(NO_RESIZE)
 {
 	m_color.setAlpha(80);
 
-	setX(x);
-	setY(y);
+	setPos(x, y);
 
 	setFlags(QGraphicsItem::ItemIsSelectable
 	         | QGraphicsItem::ItemIsMovable
@@ -55,14 +52,9 @@ Zone::Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsItemGroup *parent)
 	setZValue(COMMENTS_Z_VALUE);
 }
 
-Zone::Zone(QGraphicsItemGroup *parent) : Zone(0,0,100,100,parent)
+Zone::Zone(QGraphicsRectItem *parent) : Zone(0,0,100,100,parent)
 {
 
-}
-
-QRectF Zone::boundingRect() const
-{
-	return QRectF(0, 0, m_width, m_height);
 }
 
 void Zone::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -93,21 +85,22 @@ void Zone::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	QPointF p(event->pos());
 
+
 	// Flag resizing
 	qreal margin = 10;
 	if (p.x() <= margin) {
 		m_resizeType = RESIZE_LEFT;
-	} else if (p.x() >= m_width - margin) {
+	} else if (p.x() >= rect().width() - margin) {
 		m_resizeType = RESIZE_RIGHT;
 	} else if (p.y() <= margin) {
 		m_resizeType = RESIZE_TOP;
-	} else if(p.y() > m_height - margin) {
+	} else if(p.y() > rect().height() - margin) {
 		m_resizeType = RESIZE_BOTTOM ;
 	} else {
 		m_resizeType = NO_RESIZE;
 	}
 
-	QGraphicsItemGroup::mousePressEvent(event);
+	QGraphicsRectItem::mousePressEvent(event);
 }
 
 /**
@@ -134,20 +127,21 @@ void Zone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	qreal newX = round(targetPos.x() / gridSize) * gridSize;
 	qreal newY = round(targetPos.y() / gridSize) * gridSize;
 
-	QRectF currBoundingRect;
+	QRectF currRect;
 	switch (m_resizeType) {
 		// Resizing left can be done just by adjusting bottom right point
 		case RESIZE_RIGHT:
-			currBoundingRect = boundingRect();
-//			m_width = event->pos().x();
-			m_width = newX;
+			currRect = rect();
+			currRect.setWidth(newX);
+			setRect(currRect);
 			update();
 			theScene->update(); // COSTLY: TODO: find a better way
 		break;
 
 		case RESIZE_BOTTOM:
-//			m_height = event->pos().y();
-			m_height = newY;
+			currRect = rect();
+			currRect.setHeight(newY);
+			setRect(currRect);
 			update();
 			theScene->update(); // COSTLY: TODO: find a better way
 		break;
@@ -155,11 +149,12 @@ void Zone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		case RESIZE_TOP:
 			sPos = event->scenePos();
 			p = scenePos();
-//			dy = p.y() - sPos.y();
 			dy = round((p.y() - sPos.y()) / gridSize) * gridSize;
 			p.setY(sPos.y());
 			setPos(p);
-			m_height += dy;
+			currRect = rect();
+			currRect.setHeight(currRect.height() + dy);
+			setRect(currRect);
 
 			// Move all children by the dy (because otherwise they move WITH the zone)
 			foreach (QGraphicsItem *child, childItems()) {
@@ -172,11 +167,12 @@ void Zone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		case RESIZE_LEFT:
 			sPos = event->scenePos();
 			p = scenePos();
-//			dx = p.x() - sPos.x();
 			dx = round((p.x() - sPos.x()) / gridSize) * gridSize;
 			p.setX(sPos.x());
 			setPos(p);
-			m_width += dx;
+			currRect = rect();
+			currRect.setWidth(currRect.width() + dx);
+			setRect(currRect);
 
 			// Move all children by the dx (because otherwise they move WITH the zone)
 			foreach (QGraphicsItem *child, childItems()) {
@@ -187,7 +183,7 @@ void Zone::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		break;
 
 		default:
-			QGraphicsItemGroup::mouseMoveEvent(event);
+			QGraphicsRectItem::mouseMoveEvent(event);
 	}
 }
 
@@ -203,7 +199,7 @@ void Zone::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 	m_resizeType = NO_RESIZE;
 
-	QGraphicsItemGroup::mouseReleaseEvent(event);
+	QGraphicsRectItem::mouseReleaseEvent(event);
 }
 
 /**
@@ -218,17 +214,17 @@ void Zone::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 
 	if (p.x() <= margin) {
 		setCursor(Qt::SizeHorCursor);
-	} else if (p.x() >= m_width - margin) {
+	} else if (p.x() >= rect().width() - margin) {
 		setCursor(Qt::SizeHorCursor);
 	} else if (p.y() <= margin) {
 		setCursor(Qt::SizeVerCursor);
-	} else if(p.y() > m_height - margin) {
+	} else if(p.y() > rect().height() - margin) {
 		setCursor(Qt::SizeVerCursor);
 	} else {
 		setCursor(Qt::ArrowCursor);
 	}
 
-	QGraphicsItem::hoverMoveEvent(event);
+	QGraphicsRectItem::hoverMoveEvent(event);
 }
 
 /**
@@ -237,22 +233,30 @@ void Zone::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
  */
 void Zone::updateGroup()
 {
+	// Note: the position (pos()) of an item is based on its parent (or the scene if no parent)
+	// this is why we have to use the sceneTransform
+
 	// First check if all items are still inside the zone
 	foreach (QGraphicsItem *item, childItems()) {
-		if (!item->collidesWithItem(this))
-			removeFromGroup(item);
+		if (!item->collidesWithItem(this)) {
+			QPointF sP = item->scenePos();
+			item->setParentItem(nullptr);
+			item->setPos(sP);
+		}
 	}
 
 	// Then check all colliding items, and add them inside the zone
 	foreach (QGraphicsItem *item, collidingItems()) {
-		// filter by boxe
+		// filter by box
 		DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(item);
-		if (maybeBox != nullptr)
-			addToGroup(item);
+		if (maybeBox != nullptr) {
+			QPointF sP = maybeBox->scenePos();
+			maybeBox->setParentItem(this);
+			maybeBox->setPos(sceneTransform().inverted().map(sP));
+		}
 	}
 }
 
-//*
 QVariant Zone::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
 	// Snap zones to grid
@@ -279,29 +283,7 @@ QVariant Zone::itemChange(QGraphicsItem::GraphicsItemChange change, const QVaria
 
 		return newPos;
 	}
-
-	return QGraphicsItemGroup::itemChange(change, value);
-}
-//*/
-
-qreal Zone::width() const
-{
-	return m_width;
-}
-
-void Zone::setWidth(const qreal &width)
-{
-	m_width = width;
-}
-
-qreal Zone::height() const
-{
-	return m_height;
-}
-
-void Zone::setHeight(const qreal &height)
-{
-	m_height = height;
+	return QGraphicsRectItem::itemChange(change, value);
 }
 
 QColor Zone::color() const

@@ -53,7 +53,7 @@
 #define MAJOR_VERSION 0
 
 // Minor version number
-#define MINOR_VERSION 5
+#define MINOR_VERSION 6
 
 // Bugfix version number
 #define BUGFIX_VERSION 1
@@ -106,6 +106,9 @@
 
 // An inhibition input will only be displayed when we are creating a link and are within this distance
 #define DISTANCE_SHOW_INHIBITION 200
+
+// Define the opacity level for commented boxes and links
+#define COMMENTED_OPACITY_LEVEL 0.2 // 0: transparent, 1: fully visible
 
 #endif // CONSTANTS
 

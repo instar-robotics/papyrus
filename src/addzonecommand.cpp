@@ -45,7 +45,7 @@ void AddZoneCommand::undo()
 
 	// First, remove the zone as a parent from all its children
 	foreach (QGraphicsItem *child, m_zone->childItems()) {
-		m_zone->removeFromGroup(child);
+		child->setParentItem(nullptr);
 		child->setSelected(false);
 	}
 

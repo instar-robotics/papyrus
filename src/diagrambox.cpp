@@ -45,7 +45,6 @@ int DiagramBox::getType()
 }
 
 DiagramBox::DiagramBox(const QString &name,
-                       const QIcon &icon,
                        OutputSlot *outputSlot,
                        std::vector<InputSlot *> inputSlots,
                        const QUuid &uuid,
@@ -57,7 +56,6 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_tHeight(20),
                                                 m_matrixShape(SHAPE_NONE),
                                                 m_uuid(uuid),
-                                                m_icon(icon),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
 //                                                m_inhibInput(INHIBITION_INPUT_NAME),
@@ -72,7 +70,8 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_isInvalid(false),
                                                 m_swapCandidate(false),
                                                 m_activityVisualizer(nullptr),
-                                                m_displayedProxy(nullptr)
+                                                m_displayedProxy(nullptr),
+																								m_isCommented(false)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -201,6 +200,7 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 
 		// Also move the links connected to its inhibition input
 		m_inhibInput->updateLinks();
+
 	}
 
 	// When it is moved, we need to move its connected Links
@@ -268,6 +268,16 @@ InhibInput *DiagramBox::inhibInput() const
 void DiagramBox::setInhibInput(InhibInput *inhibInput)
 {
 	m_inhibInput = inhibInput;
+}
+
+bool DiagramBox::isCommented() const
+{
+	return m_isCommented;
+}
+
+void DiagramBox::setIsCommented(bool isCommented)
+{
+	m_isCommented = isCommented;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const
@@ -493,18 +503,7 @@ OutputSlot *DiagramBox::outputSlot() const
 
 void DiagramBox::setOutputSlot(OutputSlot *outputSlot)
 {
-	qDebug() << "SET OUTPUT SLOT";
 	m_outputSlot = outputSlot;
-}
-
-QIcon DiagramBox::icon() const
-{
-	return m_icon;
-}
-
-void DiagramBox::setIcon(const QIcon &icon)
-{
-	m_icon = icon;
 }
 
 QString DiagramBox::descriptionFile() const
@@ -566,7 +565,12 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	QColor color = Qt::gray;
 	color = color.dark();
 
-	if (m_isInvalid)
+	// If the box is commented, make it light gray and change its opacity
+	setOpacity(1.0);
+	if (m_isCommented) {
+		color = color.light();
+		setOpacity(COMMENTED_OPACITY_LEVEL);
+	} else if (m_isInvalid)
 		color = Qt::red;
 
 	pen.setColor(color);
@@ -646,6 +650,14 @@ void DiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		toDisplay = m_title;
 
 	painter->drawText(QRectF(0, m_bHeight - m_tHeight, m_bWidth, m_tHeight), Qt::AlignCenter, toDisplay);
+
+	// Draw a red cross if the box is commented
+	if (m_isCommented) {
+		QPen cross(Qt::red);
+		painter->setPen(cross);
+		painter->drawLine(0, 0, m_bWidth, m_bHeight);
+		painter->drawLine(0, m_bHeight, m_bWidth, 0);
+	}
 }
 
 void DiagramBox::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)

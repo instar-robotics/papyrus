@@ -25,11 +25,10 @@
 #include <QStyleOptionGraphicsItem>
 
 ConstantDiagramBox::ConstantDiagramBox(const QString &name,
-                                       const QIcon &icon,
                                        OutputSlot *outputSlot,
                                        const QUuid &uuid,
                                        QGraphicsItem *parent) :
-    DiagramBox(name, icon, outputSlot, std::vector<InputSlot *>(), uuid, nullptr, parent)
+    DiagramBox(name, outputSlot, std::vector<InputSlot *>(), uuid, nullptr, parent)
 {
 	m_bWidth = 70;
 

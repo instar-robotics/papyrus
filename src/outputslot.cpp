@@ -95,8 +95,8 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 	QGraphicsLineItem *drawnLine = dscene->line();
 
-	// Change the output slot's size only if not drawing a line
-	if (drawnLine == nullptr) {
+	// Change the output slot's size only if not drawing a line and box is not commented
+	if (drawnLine == nullptr && !m_box->isCommented()) {
 		// Make the slot bigger when the mouse is near it
 		qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
 

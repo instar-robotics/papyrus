@@ -26,16 +26,14 @@
 
 #include <QGraphicsObject>
 #include <QColor>
-#include <QGraphicsItemGroup>
+#include <QGraphicsRectItem>
 
-class Zone : public QGraphicsItemGroup
+class Zone : public QGraphicsRectItem
 {
 public:
-	explicit Zone(QGraphicsItemGroup *parent = nullptr);
-	explicit Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsItemGroup *parent = nullptr);
-//	~Zone();
+	explicit Zone(QGraphicsRectItem *parent = nullptr);
+	explicit Zone(qreal x, qreal y, qreal w, qreal h, QGraphicsRectItem *parent = nullptr);
 
-	QRectF boundingRect() const override;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -48,12 +46,6 @@ public:
 
 	// Getters / Setters
 
-	qreal width() const;
-	void setWidth(const qreal &width);
-
-	qreal height() const;
-	void setHeight(const qreal &height);
-
 	QColor color() const;
 	void setColor(const QColor &color);
 
@@ -61,8 +53,6 @@ public:
 	void setTitle(const QString &title);
 
 private:
-	qreal m_width;
-	qreal m_height;
 	QColor m_color;
 	QString m_title; // The title of the comment zone (should be kept small)
 	ResizeType m_resizeType;

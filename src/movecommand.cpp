@@ -45,8 +45,7 @@ void MoveCommand::undo()
 	}
 
 	if (m_box->parentItem() != nullptr) {
-		QPointF pPos = m_box->parentItem()->scenePos();
-		m_box->setPos(m_oldPos - pPos);
+		m_box->setPos(m_box->parentItem()->sceneTransform().inverted().map(m_oldPos));
 	} else {
 		m_box->setPos(m_oldPos);
 	}
@@ -61,14 +60,13 @@ void MoveCommand::redo()
 		return;
 	}
 
+	handleZone();
+
 	if (m_box->parentItem() != nullptr) {
-		QPointF pPos = m_box->parentItem()->scenePos();
-		m_box->setPos(m_newPos - pPos);
+		m_box->setPos(m_box->parentItem()->sceneTransform().inverted().map(m_newPos));
 	} else {
 		m_box->setPos(m_newPos);
 	}
-
-	handleZone();
 }
 
 void MoveCommand::handleZone()
@@ -78,16 +76,21 @@ void MoveCommand::handleZone()
 	// First remove itself from the current zone, to handle cases when we want to take a box outside
 	// its zone
 	zone = dynamic_cast<Zone *>(m_box->parentItem());
-	if (zone != nullptr)
-		zone->removeFromGroup(m_box);
+	if (zone != nullptr) {
+		QPointF sP = m_box->scenePos();
+		m_box->setParentItem(nullptr);
+		m_box->setPos(sP);
+	}
+
 	zone = nullptr;
 
 	// Handle adding to/removing from zones
 	foreach (QGraphicsItem *item, m_box->collidingItems()) {
 		zone = dynamic_cast<Zone *>(item);
 		if (zone != nullptr) {
-			zone->addToGroup(m_box);
-			m_box->setSelected(false);
+			QPointF sP = m_box->scenePos();
+			m_box->setParentItem(zone);
+			m_box->setPos(zone->sceneTransform().inverted().map(sP));
 			break;
 		}
 	}

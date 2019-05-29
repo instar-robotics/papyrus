@@ -28,8 +28,9 @@
 #include <QMimeData>
 #include <QTreeWidgetItem>
 #include <QDebug>
+#include <QScrollBar>
 
-DiagramView::DiagramView(QWidget *parent) : QGraphicsView(parent)
+DiagramView::DiagramView(QWidget *parent) : QGraphicsView(parent), m_isScrolling(false)
 {
 	// Make it so that transformations (essentially zooming) are centered on mouse
 	setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
@@ -60,4 +61,43 @@ void DiagramView::wheelEvent(QWheelEvent *evt)
 		// If CTRL is not pressed, simply scroll
 		QGraphicsView::wheelEvent(evt);
 	}
+}
+
+void DiagramView::mousePressEvent(QMouseEvent *evt)
+{
+
+	if (evt->button() == Qt::MiddleButton) {
+		m_isScrolling = true;
+		m_scrollClickPos = evt->pos();
+		setCursor(QCursor(Qt::ClosedHandCursor));
+		evt->accept();
+		return;
+	}
+
+	QGraphicsView::mousePressEvent(evt);
+}
+
+void DiagramView::mouseMoveEvent(QMouseEvent *evt)
+{
+	if (m_isScrolling) {
+		horizontalScrollBar()->setValue(horizontalScrollBar()->value() - (evt->x() - m_scrollClickPos.x()));
+		verticalScrollBar()->setValue(verticalScrollBar()->value() - (evt->y() - m_scrollClickPos.y()));
+		m_scrollClickPos = evt->pos();
+		evt->accept();
+		return;
+	}
+
+	QGraphicsView::mouseMoveEvent(evt);
+}
+
+void DiagramView::mouseReleaseEvent(QMouseEvent *evt)
+{
+	if (evt->button() == Qt::MiddleButton) {
+		m_isScrolling = false;
+		setCursor(QCursor(Qt::ArrowCursor));
+		evt->accept();
+		return;
+	}
+
+	QGraphicsView::mouseReleaseEvent(evt);
 }

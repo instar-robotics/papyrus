@@ -19,29 +19,34 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONSTANTDIAGRAMBOX_H
-#define CONSTANTDIAGRAMBOX_H
+#ifndef DELETELINKCOMMAND_H
+#define DELETELINKCOMMAND_H
 
-#include "diagrambox.h"
+#include "link.h"
+#include "diagramscene.h"
 #include "outputslot.h"
 #include "inputslot.h"
 
-#include <QGraphicsItem>
-#include <QIcon>
-#include <QUuid>
-#include <QPainter>
+#include <QUndoCommand>
 
-class ConstantDiagramBox : public DiagramBox
+/**
+ * @brief The DeleteLinkCommand class represents deleting a @Link. This is used
+ * to provide Undo/Redo functionality.
+ */
+
+class DeleteLinkCommand : public QUndoCommand
 {
-	Q_OBJECT
-
 public:
-	explicit ConstantDiagramBox(const QString &name,
-	                            OutputSlot *outputSlot,
-	                            const QUuid &uuid = 0,
-	                            QGraphicsItem *parent = 0);
+	DeleteLinkCommand(DiagramScene *scene, Link *link, QUndoCommand *parent = nullptr);
 
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+	void undo() override;
+	void redo() override;
+
+private:
+	DiagramScene *m_scene;
+	Link *m_link;
+	OutputSlot *m_outputSlot;
+	InputSlot *m_inputSlot;
 };
 
-#endif // CONSTANTDIAGRAMBOX_H
+#endif // DELETELINKCOMMAND_H

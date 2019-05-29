@@ -83,7 +83,7 @@ void LibraryPanel::startDrag(Qt::DropActions)
 	QByteArray itemData;
 	QDataStream dataStream(&itemData, QIODevice::WriteOnly);
 
-	dataStream << name << iconFilepath << icon << descriptionFile << (qint32)outputType
+	dataStream << name << iconFilepath << descriptionFile << (qint32)outputType
 	           << constant << nbInputs << libname << (qint32)matrixShape;
 
 	// Add all input slots' name, type, multiple and checkSize

@@ -79,9 +79,11 @@ HEADERS += include/category.h \
     include/mathtransfo.h \
     include/openglmatrix.h \
     include/openglwidget.h \
-    src/openglbox.h \
     include/openglbox.h \
-    include/openglproxy.h
+    include/openglproxy.h \
+    include/deletelinkcommand.h \
+    include/deleteboxcommand.h \
+    include/deletezonecommand.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -137,12 +139,14 @@ SOURCES += src/category.cpp \
            src/activityvisualizerbars.cpp \
            src/activityvisualizerthermal.cpp \
            src/inhibinput.cpp \
-    openglwidget.cpp \
-    src/mathtransfo.cpp \
-    src/openglmatrix.cpp \
-    src/openglwidget.cpp \
-    src/openglbox.cpp \
-    include/openglproxy.cpp \
-    src/openglproxy.cpp
+
+           src/mathtransfo.cpp \
+           src/openglmatrix.cpp \
+           src/openglwidget.cpp \
+           src/openglbox.cpp \
+           src/openglproxy.cpp \
+           src/deletelinkcommand.cpp \
+           src/deleteboxcommand.cpp \
+           src/deletezonecommand.cpp
 
 RESOURCES += icons.qrc

@@ -49,6 +49,8 @@ private:
 
 	QVector<qreal> *m_lastMat; // Keep the last used matrix to be able to redraw when adjusting size
 
+	QGraphicsTextItem m_scalarValue; // Used to display the value of a single scalar when type is SCALAR
+
 signals:
 	void sizeChanged();
 

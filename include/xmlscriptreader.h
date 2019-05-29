@@ -77,6 +77,7 @@ private:
 	              std::set<std::pair<QUuid, Link *> > *incompleteLinks);
 	void readZone();
 	void readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize);
+	void readCommented(bool &isCommented);
 };
 
 #endif // XMLSCRIPTREADER_H

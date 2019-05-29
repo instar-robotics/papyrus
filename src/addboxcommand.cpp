@@ -57,6 +57,7 @@ void AddBoxCommand::undo()
 
 	// do not use deleteItem() because we only want to remove it from the scene, not destroy it
 	m_scene->removeItem(m_box);
+	// No need to remove parent: it loses its parentItem when it's removed from the scene
 	m_scene->update();
 }
 
@@ -68,4 +69,17 @@ void AddBoxCommand::redo()
 	}
 
 	m_scene->addBox(m_box, m_initialPos);
+
+	// Check if the boz was dropped on a zone
+	foreach (QGraphicsItem *item, m_box->collidingItems()) {
+		Zone *zone = dynamic_cast<Zone *>(item);
+
+		if (zone != nullptr) {
+			// Add the box to the zone
+			QPointF sP = m_box->scenePos();
+			m_box->setParentItem(zone);
+			m_box->setPos(zone->sceneTransform().inverted().map(sP));
+			break;
+		}
+	}
 }

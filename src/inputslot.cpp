@@ -133,8 +133,6 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	qreal width = 1.5;
 	QColor color = Qt::black;
 
-//    QFont font = painter->font();
-
 	qreal cx = 0;
 	qreal cy = 0;
 	qreal rx = 5;
@@ -153,8 +151,8 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
 	QGraphicsLineItem *drawnLine = dscene->line();
 
-	// Change the output slot's size only if drawing a line
-	if (drawnLine != nullptr) {
+	// Change the output slot's size only if drawing a line and box is not commented
+	if (drawnLine != nullptr && !m_box->isCommented()) {
 		// Update color and size according to validity of current link (is there is one being created)
 		if (m_canLink) {
 			// Make the slot bigger when the mouse is near it

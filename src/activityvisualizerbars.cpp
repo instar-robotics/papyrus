@@ -14,7 +14,8 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
       m_vLine(this),
       m_nbTicks(5), // keep it odd to have 0 displayed
       m_range(1.0),
-      m_lastMat(nullptr)
+      m_lastMat(nullptr),
+      m_scalarValue(this)
 {
 	// Define orientation based on the box's dimensions
 	if (m_box->outputType() == SCALAR) {
@@ -67,7 +68,6 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 //	m_painter2.begin(&m_image2);
 
 	// Set the pixmap from the image
-//	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 	updatePixmap();
 
 	// Create a text item to display the function's name
@@ -90,6 +90,10 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 		label->setFont(labelFont);
 		m_labels << label;
 	}
+
+	QFont valueFont = m_scalarValue.font();
+	valueFont.setPointSize(valueFont.pointSize() - 2);
+	m_scalarValue.setFont(valueFont);
 
 	// Create the horizontal and vertical lines (axes)
 	onSizeChanged();
@@ -271,13 +275,22 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 		}
 
 		// Update pixmap from image
-//		setPixmap(QPixmap::fromImage(*image).scaled(m_width, m_height));
 		updatePixmap();
+
+		// When it's a single scalar, display its value
+		if (mat->size() == 1) {
+
+		}
 	} else {
 		qWarning() << "Invalid number of data to update bars: "
 		           << mat->size() << "data points for" << rows << "x" << cols;
 	}
 
+	// Display the scalar value when it's a single scalar
+	if (m_box->outputType() == SCALAR || (m_box->outputType() == MATRIX && m_box->rows() == 1 && m_box->cols() == 1)) {
+		m_scalarValue.setHtml(QString("<center>%1</center>").arg(QString::number(mat->at(0))));
+		m_scalarValue.setPos(0, m_height / 2);
+	}
 
 	// Delete the last store matrix and replace with this one, if they are not the same
 	if (m_lastMat != mat) {
@@ -343,4 +356,9 @@ void ActivityVisualizerBars::onSizeChanged()
 	m_visuTitle.setTextWidth(m_width);
 
 	m_visuTitle.setPos(0, m_height);
+
+	// Display the scalar value when it's a single scalar value
+	if (m_box->outputType() == SCALAR || (m_box->outputType() == MATRIX && m_box->rows() == 1 && m_box->cols() == 1)) {
+		m_scalarValue.setTextWidth(m_width);
+	}
 }

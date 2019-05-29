@@ -19,29 +19,27 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONSTANTDIAGRAMBOX_H
-#define CONSTANTDIAGRAMBOX_H
+#ifndef DELETEZONECOMMAND_H
+#define DELETEZONECOMMAND_H
 
-#include "diagrambox.h"
-#include "outputslot.h"
-#include "inputslot.h"
+#include "zone.h"
+#include "diagramscene.h"
+#include "zone.h"
 
-#include <QGraphicsItem>
-#include <QIcon>
-#include <QUuid>
-#include <QPainter>
+#include <QUndoCommand>
 
-class ConstantDiagramBox : public DiagramBox
+class DeleteZoneCommand : public QUndoCommand
 {
-	Q_OBJECT
-
 public:
-	explicit ConstantDiagramBox(const QString &name,
-	                            OutputSlot *outputSlot,
-	                            const QUuid &uuid = 0,
-	                            QGraphicsItem *parent = 0);
+	DeleteZoneCommand(DiagramScene *scene, Zone *zone, QUndoCommand *parent = nullptr);
 
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+	void undo() override;
+	void redo() override;
+
+private:
+	DiagramScene *m_scene;
+	Zone *m_zone;
+	QList<QGraphicsItem *> m_children;
 };
 
-#endif // CONSTANTDIAGRAMBOX_H
+#endif // DELETEZONECOMMAND_H

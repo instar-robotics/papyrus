@@ -38,6 +38,9 @@
 #include "activityvisualizer.h"
 #include "activityvisualizerbars.h"
 #include "activityvisualizerthermal.h"
+#include "deletelinkcommand.h"
+#include "deleteboxcommand.h"
+#include "deletezonecommand.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -321,8 +324,9 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		QPen currPen = m_line->pen();
 
 		// Update line's color and thickness based on the validity of the Link
+		// But don't do it for commented boxes
 		InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));
-		if (maybeSlot) {
+		if (maybeSlot && !maybeSlot->box()->isCommented()) {
 			if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
 				currPen.setColor(Qt::green);
 				currPen.setWidth(2);
@@ -388,7 +392,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 			// Check if we have released on top of an input slot and create a Link if so
 			InputSlot *maybeSlot = dynamic_cast<InputSlot *>(itemAt(mousePos, QTransform()));
 
-			if (maybeSlot) {
+			if (maybeSlot && !maybeSlot->box()->isCommented()) {
 				// If we have released on top on something, check that the types are compatible
 				if (canLink(m_oSlot->outputType(), maybeSlot->inputType())) {
 					// And check that the link doesn't already exist
@@ -573,7 +577,6 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		OutputType outputType;
 		qint32 outputType_;
 		QString iconFilepath;
-		QIcon icon;
 		int nbInputs;
 		bool constant;
 		QString libname;
@@ -581,7 +584,7 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		qint32 matrixShape_;
 
 		// Then proceed to retrieve the other elements
-		dataStream >> name >> iconFilepath >> icon >> descriptionFile >> outputType_
+		dataStream >> name >> iconFilepath >> descriptionFile >> outputType_
 		           >> constant >> nbInputs >> libname >> matrixShape_;
 
 		// Cast the integers to the Enum type (problem of operator '>>' with enums)
@@ -628,9 +631,9 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		DiagramBox *newBox;
 
 		if (constant)
-			newBox = new ConstantDiagramBox(name, icon, outputSlot);
+			newBox = new ConstantDiagramBox(name, outputSlot);
 		else
-			newBox = new DiagramBox(name, icon, outputSlot, inputSlots);
+			newBox = new DiagramBox(name, outputSlot, inputSlots);
 
 		newBox->setDescriptionFile(descriptionFile);
 		newBox->setIconFilepath(iconFilepath);
@@ -804,25 +807,98 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 		QList<QGraphicsItem *> items = selectedItems();
 		int nbItems = items.count();
 
-		foreach (QGraphicsItem *item, items) {
-			Link *link = dynamic_cast<Link *>(item);
-			if (link != nullptr) {
+		// If only one item is selected, delete it
+		if (nbItems == 1) {
+			qDebug() << "Deleting one item...";
+			Link *link = dynamic_cast<Link *>(items.at(0));
+			DiagramBox *box = dynamic_cast<DiagramBox *>(items.at(0));
+			Zone *zone = dynamic_cast<Zone *>(items.at(0));
+
+			if (link != nullptr)
 				deleteItem(link);
-				continue;
-			}
-
-			DiagramBox *box = dynamic_cast<DiagramBox *>(item);
-			if (box != nullptr) {
+			else if (box != nullptr)
 				deleteItem(box);
-				continue;
+			else if (zone != nullptr)
+				deleteItem(zone);
+			else
+				emit displayStatusMessage(tr("Unknown item to delete."));
+		} else if (nbItems > 0) {
+			// When we have several items to delete at once, link all commands so they are only one undo/redo
+			QUndoCommand *command = new QUndoCommand();
+
+			QList<Link*> markedForDelete;
+
+			foreach (QGraphicsItem *item, items) {
+				// First, make commands for Boxes and associated Links, removing those Links
+				// from the list, to prevent deleting them twice
+				DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+				if (box != nullptr) {
+					new DeleteBoxCommand(this, box, command);
+
+					// Create delete commands for all links
+					foreach (Link *outputLink, box->outputSlot()->outputs()) {
+						if (!markedForDelete.contains(outputLink)) {
+							new DeleteLinkCommand(this, outputLink, command);
+							items.removeOne(outputLink);
+							markedForDelete << outputLink;
+						}
+					}
+
+					foreach (InputSlot *inputSlot, box->inputSlots()) {
+						foreach (Link *inputLink, inputSlot->inputs()) {
+							if (!markedForDelete.contains(inputLink)) {
+								new DeleteLinkCommand(this, inputLink, command);
+								items.removeOne(inputLink);
+								markedForDelete << inputLink;
+							}
+						}
+					}
+
+					if (box->inhibInput() != nullptr) {
+						foreach(Link *inhibLink, box->inhibInput()->inputs()) {
+							if (!markedForDelete.contains(inhibLink)) {
+								new DeleteLinkCommand(this, inhibLink, command);
+								items.removeOne(inhibLink);
+								markedForDelete << inhibLink;
+							}
+						}
+					}
+
+					items.removeOne(item);
+				}
 			}
 
-			Zone *zone = dynamic_cast<Zone *>(item);
-			if (zone != nullptr) {
-				deleteItem(zone);
-				continue;
+			// Then re-iterate on the remaining items and create delete commands for links and zones
+			foreach (QGraphicsItem *item, items) {
+				Link *link = dynamic_cast<Link *>(item);
+				Zone *zone = dynamic_cast<Zone *>(item);
+				if (link != nullptr) {
+					if (items.contains(link)) {
+						new DeleteLinkCommand(this, link, command);
+						items.removeOne(link);
+					}
+				} else if (zone != nullptr) {
+					new DeleteZoneCommand(this, zone, command);
+					items.removeOne(zone);
+				}
 			}
+
+			/*
+			// Sanity check
+			if (items.size() != 0)
+				qWarning() << items.size() << "items remains and won't be deleted.";
+			//*/
+
+			if (m_undoStack == nullptr) {
+				qWarning() << "Can't delete selected elements: no undo stack!";
+				return;
+			}
+
+			// Push the commands
+			m_undoStack->push(command);
+
 		}
+
 
 		// Set the associated script as modified if there was a deletion
 		if (nbItems > 0) {
@@ -836,6 +912,9 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 		// Toggle displaying input slot names when 'T' is pressed
 		m_displayLabels = !m_displayLabels;
 		update();
+	} else if (key == Qt::Key_C) {
+		// Comment / decomment Function boxes
+		handleComment();
 	}
 
 	QGraphicsScene::keyPressEvent(evt);
@@ -852,38 +931,12 @@ void DiagramScene::deleteItem(Link *link)
 		return;
 	}
 
-	// First, remove this link from its OutputSlot and check the origin box for invalidity
-	if (link->from() != NULL) {
-		link->from()->removeOutput(link);
-		if (link->from()->box() == nullptr)
-			emit displayStatusMessage(tr("Output slot doesn't have a parent box!"), MSG_WARNING);
-		else {
-			bool boxInvalid = link->from()->box()->checkIfBoxInvalid();
-			if (boxInvalid && m_script != nullptr)
-				m_script->setIsInvalid(true);
-		}
-	} else {
-		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an "
-		                             "originating output slot."), MSG_WARNING);
+	DeleteLinkCommand *command = new DeleteLinkCommand(this, link);
+	if (m_undoStack == nullptr) {
+		qWarning() << "[DiagramScene::deleteItem] cannot delete link: no undo stack!";
+		return;
 	}
-
-	// Then, remove this link from its InputSlot
-	if (link->to() != NULL) {
-		link->to()->removeInput(link);
-		if (link->to()->box() == nullptr)
-			emit displayStatusMessage(tr("Input slot doesn't have a parent box!"), MSG_WARNING);
-		else {
-			bool boxInvalid = link->to()->box()->checkIfBoxInvalid();
-			if (boxInvalid && m_script != nullptr)
-				m_script->setIsInvalid(true);
-		}
-	} else {
-		emit displayStatusMessage(tr("WARNING: tried to remove a link that did not have an ending "
-		                             "input slot."), MSG_WARNING);
-	}
-
-	// And finally, delete the Link (the QGraphicsScene will take care of removing the object)
-	delete link;
+	m_undoStack->push(command);
 }
 
 /**
@@ -898,25 +951,30 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		return;
 	}
 
-	// First, delete all links attached to this box
+	DeleteBoxCommand *command = new DeleteBoxCommand(this, box);
+	if (m_undoStack == nullptr) {
+		qWarning() << "[DiagramScene::deleteItem] cannot delete box: no undo stack!";
+		return;
+	}
+
+	// Create delete commands for all links
 	foreach (Link *outputLink, box->outputSlot()->outputs()) {
-		deleteItem(outputLink);
+		new DeleteLinkCommand(this, outputLink, command);
 	}
 
 	foreach (InputSlot *inputSlot, box->inputSlots()) {
 		foreach (Link *inputLink, inputSlot->inputs()) {
-			deleteItem(inputLink);
+			new DeleteLinkCommand(this, inputLink, command);
 		}
 	}
 
-	// Also delete the links to its inhib input
 	if (box->inhibInput() != nullptr) {
-		foreach(Link *inhibLink, box->inhibInput()->inputs())
-			deleteItem(inhibLink);
+		foreach(Link *inhibLink, box->inhibInput()->inputs()) {
+			new DeleteLinkCommand(this, inhibLink, command);
+		}
 	}
 
-	// Finally, delete the box (the QGraphicsScene will take care of removing the box)
-	delete box;
+	m_undoStack->push(command);
 }
 
 /**
@@ -931,14 +989,65 @@ void DiagramScene::deleteItem(Zone *zone)
 		return;
 	}
 
-	// First, remove itself as a parent from all children
-	foreach (QGraphicsItem *child, zone->childItems()) {
-		zone->removeFromGroup(child);
-		child->setSelected(false);
+	DeleteZoneCommand *command = new DeleteZoneCommand(this, zone);
+	if (m_undoStack == nullptr) {
+		qWarning() << "[DiagramScene::deleteItem] cannot delete zone: no undo stack!";
+		return;
 	}
 
-	// Finally delete the zone (the QGraphicsScene will take care of removing the zone)
-	delete zone;
+	m_undoStack->push(command);
+}
+
+/**
+ * @brief DiagramScene::handleComment handle commenting / decommenting Function boxes. Behaviro is
+ * as such:
+ * - if at least one selected box is commented (but not all), then all boxes will be commented
+ * - if all selected boxes are commented, then they will all be uncommented
+ * - if all selected boxes are uncommented, they will be commented
+ */
+void DiagramScene::handleComment()
+{
+	unsigned int nbCommentedBoxes = 0;
+	unsigned int nbUncommentedBoxes = 0;
+
+	// First, filter selected items to keep only (non-constant) boxes, and make us of this
+	// traversal to check if we found commented and uncommented boxes
+	QList<DiagramBox *> selectedBoxes;
+	foreach (QGraphicsItem *item, selectedItems()) {
+		DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+		ConstantDiagramBox *cste = dynamic_cast<ConstantDiagramBox *>(item);
+		if (box == nullptr || cste != nullptr)
+			continue;
+
+		// Add this box to the list of selected boxes
+		selectedBoxes << box;
+
+		// Check if it's commented or not
+		if (box->isCommented())
+			nbCommentedBoxes += 1;
+		else
+			nbUncommentedBoxes += 1;
+	}
+
+	// Make sure we have boxes selected
+	if (selectedBoxes.size() == 0 || (nbCommentedBoxes == 0 && nbUncommentedBoxes == 0))
+		return;
+
+	// Comment or uncomment
+	bool commentValue;
+	if (nbCommentedBoxes > 0 && nbUncommentedBoxes == 0) {
+		// Uncomment all boxes
+		commentValue = false;
+	} else {
+		// Comment all boxes
+		commentValue = true;
+	}
+
+	foreach (DiagramBox *box, selectedBoxes) {
+		box->setIsCommented(commentValue);
+	}
+
+	script()->setStatusModified(true);
 }
 
 void DiagramScene::removeItem(QGraphicsItem *item)

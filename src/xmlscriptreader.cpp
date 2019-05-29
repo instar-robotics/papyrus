@@ -287,8 +287,10 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	bool visuVisible;
 	QPointF visuPos;
 	QSizeF visuSize;
+	bool isCommented = false; // defaults to non commented
 
 	readUUID(&uuid);
+	readCommented(isCommented);
 
 	// Note: we deliberately do not read the <libname>. As this is only useful for Kheops, we
 	// instead parse the function box and fetch its libname from the @Library. This allows for a
@@ -319,8 +321,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	}
 
 	// We should check (somehow) that the parsing for this box was okay before adding it
-	QIcon icon(":/icons/icons/missing-icon.svg");
-	// TODO read Icon
 
 	// Traverse the library to find the Function with the given name, and extract information from it
 	if (m_library == nullptr)
@@ -344,7 +344,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				functionFound = true;
 
 				// Extract DiagrambBox's information
-				icon = QIcon(f->iconFilepath());
 				iconFilePath = f->iconFilepath();
 				libname = f->libName();
 				matrixShape = f->matrixShape();
@@ -396,9 +395,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 	DiagramBox *b;
 	if (reader.name() == "constant")
-		b = new ConstantDiagramBox(name, icon, outputSlot, uuid);
+		b = new ConstantDiagramBox(name, outputSlot, uuid);
 	else {
-		b = new DiagramBox(name, icon, outputSlot, inputSlotsWithoutInhib, uuid, inhib);
+		b = new DiagramBox(name, outputSlot, inputSlotsWithoutInhib, uuid, inhib);
 
 		b->setTitle(title);
 		b->setLibname(libname);
@@ -406,6 +405,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		b->setPublish(publish);
 		if (!topic.isEmpty())
 			b->setTopic(topic);
+		b->setIsCommented(isCommented);
 	}
 
 
@@ -866,6 +866,28 @@ void XmlScriptReader::readVisualizer(bool &createVisualizer, bool &visuVisible, 
 	// But we need to make additional checks to be sure it's valid/
 	// This is also true for every parsing function here :/
 	createVisualizer = true;
+}
+
+/**
+ * @brief XmlScriptReader::readCommented try to read the "commented" attribute if present, and
+ * defaults to false otherwise
+ * @param isCommented
+ */
+void XmlScriptReader::readCommented(bool &isCommented)
+{
+	Q_ASSERT(reader.isStartElement() && reader.name() == "function");
+
+	// Check if there is attribute, and parse if found
+	if (reader.attributes().hasAttribute("commented")) {
+		QString v = reader.attributes().value("commented").toString();
+
+		if (v == "false")
+			isCommented = false;
+		else if (v == "true")
+			isCommented = true;
+		else
+			reader.raiseError(QObject::tr("Invalid attribute value for 'commented', accepted is 'true' or 'false'"));
+	}
 }
 
 void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

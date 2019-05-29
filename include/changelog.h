@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -26,6 +26,59 @@
 
 QString changelog = "<h3>CHANGELOG</h3>"
                     "<ul>"
+
+                    "<li><strong>v0.6.1</strong></li>"
+                    "<li>"
+                    "<ul>"
+                    "<li>Remove the ability to edit settings of constant Function boxes.</li>"
+                    "<li>Remove unnecessary QIcon stored in the Function box as it only uses the"
+                    "filepath for the icon.</li>"
+                    "<li>Re-open tabs in the same order as they were when Papyrus was closed.</li>"
+                    "<li>The status bar now correctly displays the message information when creating "
+                    "links, etc.</li>"
+                    "</ul>"
+                    "</li>"
+
+                    "<li><strong>v0.6.0</strong></li>"
+                    "<li>"
+                    "<ul>"
+                    "<li><strong>(new feature)</strong> Implement one-to-one, one-to-all and"
+                    "one-to-neighboors connectivity for MATRIX_MATRIX links. And for the latter,"
+                    "implement inputting regex-like rules to precisely define the connectivity. See"
+                    " <a href='https://github.com/instar-robotics/alexandria/blob/master/README.md#one_to_nei-connectivity'>Kheop's</a> documentation for the syntax.</li>"
+                    "<li><strong>(new feature)</strong> When saving a script, the version of Papyrus "
+                    "used is now saved, this might be useful later to warn about incompatibility</li>"
+                    "<li><strong>(new feature)</strong> The state, position and size of the activity"
+                    " visualizers windows are now saved, which means when you open a script, it will "
+                    "display the visualization windows like it was when you exited.</li>"
+                    "<li><strong>(new feature)</strong> implement the ability to \"zoom in and out\","
+                    "<em>i.e.</em> change the scale of visualization for scalars and vectors.</li>"
+                    "<li><strong>(new feature)</strong> Delete .autosave files when the user answers "
+                    "\"no\" when offered to open autosaved version. This prevents Papyrus from asking "
+                    "the user again and again.</li>"
+                    "<li><strong>(new feature)</strong> Implement the ability to connect inhibition "
+                    "links to Function's output. See README for detailed instruction on how it works.</li>"
+                    "<li><strong>(new feature)</strong> Implement the ability to undo / redo (CTRL + Z / CTRL + Y)"
+                    "on items deletion.</li>"
+                    "<li>Greatly increase performances with visualization of Function activity. The"
+                    " visualizers have been completely re-implemented and are now much more performant.</li>"
+                    "<li>Add the link to the github repository in the About dialog</li>"
+                    "<li>Fix \"corrupted size vs. prev_size\" error when exiting Papyrus with multiple "
+                    "scripts opened.</li>"
+                    "<li>Have the update monitor check new Papyrus versions (new tag) on the github "
+                    "repository and warn user (once) when a new version is out.</li>"
+                    "<li>Fix orientation of positive & negative values in column vectors visualization.</li>"
+                    "<li>Fix orientation of axes in column vectors visualization.</li>"
+                    "<li>Fix issue when the weights of a link with MATRIX_MATRIX connectivity were "
+                    "not displayed.</li>"
+                    "<li>When renaming a script, it now also renames all the default topic names for "
+                    "Functions (the defualt name is based on the script name, and thus needs to be udpated).</li>"
+                    "<li>Fix the \"teleporting Functions\" issues with Zones: Zones were completely "
+                    "re-implement and now prevents Functions and their links to be teleported when manipulated.</li>"
+                    "<li>Fix issue where Papyrus could crash when you tried to delete multiple items at the "
+                    "same time.</li>"
+                    "</ul>"
+                    "</li>"
 
                     "<li><strong>v0.5.1</strong></li>"
                     "<li>"

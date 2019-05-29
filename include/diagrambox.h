@@ -58,7 +58,6 @@ public:
 
 	// TODO: implement a copy constructor that should change the uuid and remove the connected links
 	explicit DiagramBox(const QString &name,
-	                    const QIcon &icon,
 	                    OutputSlot *outputSlot,
 	                    std::vector<InputSlot *> inputSlots,
 	                    const QUuid &uuid = 0,
@@ -71,6 +70,7 @@ public:
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	Script *getScript();
 	bool checkIfBoxInvalid();
@@ -90,9 +90,6 @@ public:
 
 	QString descriptionFile() const;
 	void setDescriptionFile(const QString &descriptionPath);
-
-	QIcon icon() const;
-	void setIcon(const QIcon &icon);
 
 	OutputSlot *outputSlot() const;
 	void setOutputSlot(OutputSlot *outputSlot);
@@ -169,8 +166,10 @@ public:
 
 	int getCols() const;
 
+	bool isCommented() const;
+
+	void setIsCommented(bool isCommented);
 protected:
-	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	QString m_name;    // Name of the function
 	QString m_title;   // Title of the box (user-friendly & customizable name)
@@ -184,7 +183,6 @@ protected:
 private:
 	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
 	QString m_libname; // Name of the library this function belongs to (for kheops's linking)
-	QIcon m_icon;      // Icon representing the function
 
 	QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 
@@ -221,6 +219,8 @@ private:
 
 	ActivityVisualizer *m_activityVisualizer;
 	OpenGLProxy *m_displayedProxy; //pointer to opengl display
+
+	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
 
 private slots:
 	void deleteOpenGLDisplay();

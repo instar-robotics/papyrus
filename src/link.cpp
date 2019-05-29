@@ -23,6 +23,7 @@
 #include "diagrambox.h"
 #include "diagramscene.h"
 #include "helpers.h"
+#include "constants.h"
 
 #include <QPainter>
 #include <QDebug>
@@ -78,8 +79,13 @@ void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 		width = 4;
 	}
 
-	// If the link is invalid, set the bold value and the color
-	if (m_isInvalid) {
+	// If the link comes from or goes to an invalid box, gray it out
+	setOpacity(1.0);
+	if (m_to->box()->isCommented() || m_from->box()->isCommented()) {
+		setOpacity(COMMENTED_OPACITY_LEVEL);
+		pen.setColor(QColor(Qt::gray).light());
+	} else if (m_isInvalid) {
+		// If the link is invalid, set the bold value and the color
 		width = 5;
 		pen.setColor(Qt::red);
 	}
@@ -234,7 +240,7 @@ void Link::addLinesToScene()
 {
 	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
 	if (dscene == NULL)
-		informUserAndCrash("Could not cast scene in DiagramScene");
+		informUserAndCrash("[Link::addLinesToScene] Could not cast scene in DiagramScene");
 
 	if (!m_selfLoop) {
 		dscene->addItem(&m_line);
@@ -251,7 +257,7 @@ void Link::removeLinesFromScene()
 {
 	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
 	if (dscene == NULL)
-		informUserAndCrash("Could not cast scene in DiagramScene");
+		informUserAndCrash("[Link::removeLinesFromScene] Could not cast scene in DiagramScene");
 
 	if (!m_selfLoop) {
 		dscene->removeItem(&m_line);

@@ -57,9 +57,9 @@ void AddLinkCommand::undo()
 	if (m_from != nullptr)
 		m_from->removeOutput(m_link);
 
-	m_link->removeLinesFromScene();
 	m_scene->removeItem(m_link);
-	m_scene->update();
+	m_scene->removeItem(m_link->label());
+//	m_scene->update();
 
 	// Yes we need to set the script as modified here, even on undo, for instance when the user
 	// saved the script (which sets script as unmodified) THEN hit CTRL + Z
@@ -80,7 +80,8 @@ void AddLinkCommand::redo()
 	}
 
 	m_scene->addItem(m_link);
-	m_link->addLinesToScene();
+	m_scene->addItem(m_link->label());
+	m_link->updateLines();
 
 	if (!m_isFirst) {
 		if (m_from != nullptr)
@@ -94,7 +95,6 @@ void AddLinkCommand::redo()
 		m_scene->script()->setIsInvalid(true);
 	}
 
-	m_link->setZValue(LINKS_Z_VALUE);
 	m_isFirst = false;
 
 	if (m_scene != nullptr && m_scene->script() != nullptr)

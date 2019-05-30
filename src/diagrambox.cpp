@@ -254,9 +254,52 @@ bool DiagramBox::isCommented() const
 	return m_isCommented;
 }
 
+/**
+ * @brief DiagramBox::setIsCommented setter for m_isCommented. Also trigger all connected links to
+ * update their display accordingly.
+ * @param isCommented
+ */
 void DiagramBox::setIsCommented(bool isCommented)
 {
 	m_isCommented = isCommented;
+
+	foreach (Link* link, m_outputSlot->outputs()) {
+		if (link == nullptr) {
+			qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of link";
+			continue;
+		}
+
+		link->update();
+	}
+
+	foreach (InputSlot *iSlot, m_inputSlots) {
+		if (iSlot == nullptr) {
+			qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of input slot";
+			continue;
+		}
+
+		foreach (Link *link, iSlot->inputs()) {
+			if (link == nullptr) {
+				qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of link";
+				continue;
+			}
+
+			link->update();
+		}
+	}
+
+	if (m_inhibInput == nullptr) {
+		qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of inhib input";
+	} else {
+		foreach (Link *link, m_inhibInput->inputs()) {
+			if (link == nullptr) {
+				qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of inhib link";
+				continue;
+			}
+
+			link->update();
+		}
+	}
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const

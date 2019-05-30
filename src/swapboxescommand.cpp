@@ -110,7 +110,6 @@ void SwapBoxesCommand::undo()
 				// If the link was removed, add it back to the scene
 				if (link->scene() == nullptr) {
 					m_scene->addItem(link);
-					link->addLinesToScene();
 				}
 			}
 
@@ -249,7 +248,6 @@ void SwapBoxesCommand::redo()
 				link->from()->removeOutput(link);
 				// NOTE: we do NOT call setTo(nullptr) nor setFrom(nullptr) because then the
 				// information is lost and it's not possible to undo()
-				link->removeLinesFromScene(); // very important to call (otherwise it segfaults)
 				m_scene->removeItem(link);
 				m_scene->update();
 			}

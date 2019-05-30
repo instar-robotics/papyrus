@@ -56,8 +56,8 @@ void DeleteLinkCommand::undo()
 	// Add back the Link to the scene
 	m_scene->addItem(m_link);
 
-	// Add back the lines to the scene
-	m_link->addLinesToScene();
+	// Add back the label which could not be made a child item
+	m_scene->addItem(m_link->label());
 
 	// Add back the Link to its input slot
 	m_inputSlot->addInput(m_link, true);
@@ -78,11 +78,11 @@ void DeleteLinkCommand::redo()
 	// Remove this Link from its input slots
 	m_inputSlot->removeInput(m_link);
 
-	// Remove the lines from the scene
-	m_link->removeLinesFromScene();
-
 	// Remove the Link from the scene
 	m_scene->removeItem(m_link);
+
+	// Also remove the label (which could not be made a child item)
+	m_scene->removeItem(m_link->label());
 
 	m_scene->update();
 }

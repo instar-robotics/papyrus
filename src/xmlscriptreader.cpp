@@ -204,9 +204,8 @@ void XmlScriptReader::readScript()
 						link->setFrom(oSlot);
 						oSlot->addOutput(link);
 						m_script->scene()->addItem(link);
-						link->addLinesToScene();
-
-						link->setZValue(LINKS_Z_VALUE);
+						m_script->scene()->addItem(link->label());
+						link->updateLines();
 						// TODO: empty the set as we go?
 						//                                incompleteLinks.erase(fromUuid);
 					} else {
@@ -723,9 +722,8 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 
 						// Add the link to the scene
 						m_script->scene()->addItem(link);
-						link->addLinesToScene();
-						link->setZValue(LINKS_Z_VALUE);
-//						link->updateLines();
+						m_script->scene()->addItem(link->label());
+						link->updateLines();
 //						m_script->scene()->update();
 					} else {
 						// If the OutputSlot is not yet created, we can't link, so put in incomplete

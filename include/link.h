@@ -24,8 +24,9 @@
 
 #include "script.h"
 #include "types.h"
+#include "linkelement.h"
 
-#include <QGraphicsItem>
+#include <QGraphicsObject>
 #include <QUuid>
 #include <QPainterPath>
 #include <QGraphicsLineItem>
@@ -41,27 +42,29 @@
 class InputSlot;
 class OutputSlot;
 
-Q_DECLARE_METATYPE(Connectivity);
+Q_DECLARE_METATYPE(Connectivity)
 
-class Link : public QObject, public QGraphicsItem
+class Link : public QGraphicsObject
 {
-	Q_OBJECT
+//	Q_OBJECT
 
 public:
-	explicit Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent = 0);
+	explicit Link(OutputSlot *f, InputSlot *t, QGraphicsObject *parent = nullptr);
+	~Link();
 
 	QRectF boundingRect() const;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 	QPainterPath shape() const;
+	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 	bool isStringLink();
 	void updateTooltip();
-
-	void addLinesToScene();
-	void removeLinesFromScene();
 
 	void updateLines();
 
 	bool checkIfInvalid();
+
+	void hoverEnterEvent(QGraphicsSceneHoverEvent *evt);
+	void hoverLeaveEvent(QGraphicsSceneHoverEvent *evt);
 
 	QUuid uuid() const;
 	void setUuid(const QUuid &uuid);
@@ -95,6 +98,9 @@ public:
 	QString regexes() const;
 	void setRegexes(const QString &regexes);
 
+	QGraphicsTextItem *label() const;
+	void setLabel(QGraphicsTextItem *label);
+
 private:
 	bool checkIfSelfLoop();
 
@@ -104,9 +110,9 @@ private:
 	bool m_secondary;       // Tells whether a link is a secondary link
 	bool m_selfLoop;        // Tells whether a link loop back to the same function
 
-	QGraphicsLineItem m_line;          // Main line that represents the link
-	QGraphicsLineItem m_rightSegment;  // Right segment (for secondary links)
-	QGraphicsLineItem m_leftSegment;   // Left segment (for secondary links)
+	LinkElement m_line;          // Main line that represents the link
+	LinkElement m_leftSegment;   // Left segment (for secondary links)
+	LinkElement m_rightSegment;  // Right segment (for secondary links)
 
 	qreal m_weight;            // The weight associated to this link
 	QString m_value;           // The string value associated to this link (when between strings)
@@ -116,6 +122,8 @@ private:
 
 	Connectivity m_connectivity; // Only viable for MATRIX_MATRIX
 	QString m_regexes;           // Connectivity regexes for ONE_TO_NEI
+
+	QGraphicsTextItem *m_label;   // Display the weight or string value
 };
 
 #endif // LINK_H

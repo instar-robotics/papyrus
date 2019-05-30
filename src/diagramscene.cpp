@@ -406,15 +406,27 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 								return;
 							}
 
-							qreal initialWeight = QInputDialog::getDouble(nullptr,
-							                                              tr("Link's initial weight"),
-							                                              tr("Weight:"),
-							                                              1.0,
-							                                              MIN_WEIGHT,
-							                                              MAX_WEIGHT,
-							                                              LINKS_NB_DECIMALS);
+							// Ask the user for the initial weight or string value upon creation
+							bool isStringLink = m_oSlot->outputType() == STRING &&
+							                    maybeSlot->inputType() == STRING_INPUT;
 
-							zelda->setWeight(initialWeight);
+							if (isStringLink) {
+								QString initialValue = QInputDialog::getText(nullptr,
+								                                             tr("Link's initial value"),
+								                                             tr("Value:"));
+								zelda->setValue(initialValue);
+							} else {
+								qreal initialWeight = QInputDialog::getDouble(nullptr,
+								                                              tr("Link's initial weight"),
+								                                              tr("Weight:"),
+								                                              1.0,
+								                                              MIN_WEIGHT,
+								                                              MAX_WEIGHT,
+								                                              LINKS_NB_DECIMALS);
+
+								zelda->setWeight(initialWeight);
+							}
+
 							m_undoStack->push(addLinkCommand);
 
 							emit displayStatusMessage(tr("New link created."));

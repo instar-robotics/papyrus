@@ -460,35 +460,6 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *evt)
 {
 	Q_UNUSED(evt);
-
-	/*
-	qDebug() << "Creating chart at position" << evt->scenePos();
-	QChart *chart = new QChart;
-	QBarSeries *series = new QBarSeries;
-	QBarSet *set = new QBarSet("Foo");
-	QValueAxis *yAxis = new QValueAxis;
-	yAxis->setRange(-1, 1);
-	yAxis->setTickCount(9);
-
-	for (int i = 0; i < 100; i += 1)
-		*set << i / 100.;
-
-	series->append(set);
-	series->setLabelsVisible(false);
-
-	chart->addSeries(series);
-	chart->setAxisY(yAxis, series);
-	chart->legend()->hide();
-	chart->setTitle("Chart's title");
-	chart->setFlags(QGraphicsItem::ItemIsSelectable
-					| QGraphicsItem::ItemIsMovable
-					| QGraphicsItem::ItemSendsScenePositionChanges);
-//	chart->setBackgroundBrush(QBrush(QColor(180, 180, 180)));
-	chart->setAcceptHoverEvents(true);
-	chart->setZValue(DATA_Z_VALUE);
-	chart->setGeometry(evt->scenePos().x(), evt->scenePos().y(), 600, 400);
-	addItem(chart);
-	//*/
 }
 
 void DiagramScene::dragEnterEvent(QGraphicsSceneDragDropEvent *evt)
@@ -809,7 +780,6 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 
 		// If only one item is selected, delete it
 		if (nbItems == 1) {
-			qDebug() << "Deleting one item...";
 			Link *link = dynamic_cast<Link *>(items.at(0));
 			DiagramBox *box = dynamic_cast<DiagramBox *>(items.at(0));
 			Zone *zone = dynamic_cast<Zone *>(items.at(0));

@@ -31,6 +31,7 @@
 #include "constantfunction.h"
 #include "changelog.h"
 #include "activityvisualizer.h"
+#include "finddialog.h"
 
 #include <cryptopp/filters.h>
 #include <cryptopp/aes.h>
@@ -82,7 +83,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_actionDebug(nullptr),
     m_lastDir(QDir::homePath()),
     m_checkVersionTimer(nullptr),
-    m_preventROSPopup(true)
+    m_preventROSPopup(true),
+    m_findDialog(nullptr)
 {
 	// First of all set the UI according to the UI file (MUST be called before the rest)
 	m_ui->setupUi(this);
@@ -2235,4 +2237,18 @@ void PapyrusWindow::on_actionHide_outputs_triggered()
 	}
 
 	displayStatusMessage(tr("Hid %1 outputs.").arg(count), MSG_INFO);
+}
+
+void PapyrusWindow::on_actionFind_triggered()
+{
+	// Make sure we are not on the Home Page before launching the script
+	if (dynamic_cast<HomePage *>(m_ui->tabWidget->currentWidget()) != nullptr)
+		return;
+
+	if (m_findDialog == nullptr)
+		m_findDialog = new FindDialog(m_ui->tabWidget);
+
+	m_findDialog->show();
+	m_findDialog->raise();
+	m_findDialog->activateWindow();
 }

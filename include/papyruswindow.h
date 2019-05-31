@@ -169,6 +169,8 @@ private:
 	QTimer *m_checkVersionTimer; // Timer that periodically check for new version release
 	bool m_preventROSPopup;     // Prevents displaying ROS master pop-ups
 
+	QDialog *m_findDialog;      // A modeless dialog used to find boxes, links, etc.
+
 signals:
 	void toggleDisplayGrid(bool);
 	void launched();
@@ -239,6 +241,7 @@ private slots:
 	void on_actionRedo_triggered();
 	void on_actionShow_outputs_triggered();
 	void on_actionHide_outputs_triggered();
+	void on_actionFind_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

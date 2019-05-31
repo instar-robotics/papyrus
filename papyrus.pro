@@ -49,7 +49,6 @@ HEADERS += include/category.h \
            include/datavisualization.h \
            include/datafetcher.h \
            include/scalarvisualization.h \
-#           include/vectorvisualization.h \
            include/scalarfetcher.h \
            include/matrixfetcher.h \
            include/matrixvisualization.h \
@@ -75,7 +74,8 @@ HEADERS += include/category.h \
            include/deletelinkcommand.h \
            include/deleteboxcommand.h \
            include/deletezonecommand.h \
-           include/linkelement.h
+           include/linkelement.h \
+           include/finddialog.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -134,6 +134,7 @@ SOURCES += src/category.cpp \
            src/deletelinkcommand.cpp \
            src/deleteboxcommand.cpp \
            src/deletezonecommand.cpp \
-           src/linkelement.cpp
+           src/linkelement.cpp \
+           src/finddialog.cpp
 
 RESOURCES += icons.qrc

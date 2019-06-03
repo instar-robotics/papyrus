@@ -13,7 +13,10 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
       m_nbTicks(5), // keep it odd to have 0 displayed
       m_range(1.0),
       m_lastMat(nullptr),
-      m_scalarValue(this)
+      m_scalarValue(this),
+      m_beginTick(this),
+      m_middleTick(this),
+      m_endTick(this)
 {
 	// Define orientation based on the box's dimensions
 	if (m_box->outputType() == SCALAR) {
@@ -295,6 +298,23 @@ void ActivityVisualizerBars::onSizeChanged()
 			m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
 			                       i * dist - r.height() / 2); // middle align
 		}
+
+		// Place ticks denoting first, last and middle neurons
+		const static qreal tickSpan = 5.0;
+
+		// Place beginning tick
+		// The small -0.5 offset is so that first neuron is perfectly tangeant to the extremity of the tick
+		m_beginTick.setLine(-0.5, m_height / 2.0 - tickSpan / 2.0,
+		                    -0.5, m_height / 2.0 + tickSpan / 2.0);
+
+		// Place middle tick
+		m_middleTick.setLine(m_width / 2.0, m_height / 2.0 - tickSpan / 2.0,
+		                     m_width / 2.0, m_height / 2.0 + tickSpan / 2.0);
+
+		// Place end tick
+		m_endTick.setLine(m_width + 0.5, m_height / 2.0 - tickSpan / 2.0,
+		                  m_width + 0.5, m_height / 2.0 + tickSpan / 2.0);
+
 	} else {
 		// Create a vertical line (axis)
 		m_hLine.setLine(m_width / 2.0, (qreal) -m_scaleMargin, m_width / 2.0, (qreal) m_height + m_scaleMargin);
@@ -316,6 +336,22 @@ void ActivityVisualizerBars::onSizeChanged()
 			m_labels.at(i)->setPos((m_nbTicks - 1 - i) * dist + r.height() / 2,      // middle align
 			                       -m_scaleMargin - r.width()); // bottom align
 		}
+
+		// Place ticks denoting first, last and middle neurons
+		const static qreal tickSpan = 5.0;
+
+		// Place beginning tick
+		// The small -0.5 offset is so that first neuron is perfectly tangeant to the extremity of the tick
+		m_beginTick.setLine(m_width / 2.0 - tickSpan / 2.0, -0.5,
+		                    m_width / 2.0 + tickSpan / 2.0, -0.5);
+
+		// Place middle tick
+		m_middleTick.setLine(m_width / 2.0 - tickSpan / 2.0, m_height / 2.0,
+		                     m_width / 2.0 + tickSpan / 2.0, m_height / 2.0);
+
+		// Place end tick
+		m_endTick.setLine(m_width / 2.0 - tickSpan / 2.0, m_height + 0.5,
+		                  m_width / 2.0 + tickSpan / 2.0, m_height + 0.5);
 	}
 
 	// The only way to center text is to use setHtml() AND set the TextWidth

@@ -2,18 +2,7 @@
 
 ShaderSurface::ShaderSurface(int xSize, int ySize):ShaderMatrix(xSize, ySize)
 {
-	initNormalsMatrixes();
-}
 
-ShaderSurface::~ShaderSurface()
-{
-	for(int i = 0; i < m_xSize-1; i++)
-	{
-		delete [] m_upTriangleNormals[i];
-		delete [] m_downTriangleNormals[i];
-	}
-	delete [] m_upTriangleNormals;
-	delete [] m_downTriangleNormals;
 }
 
 void ShaderSurface::initVectors()
@@ -77,11 +66,15 @@ void ShaderSurface::fillVectors()
 
 	// Normals
 	m_normals.clear();
-	updateNormals();
 	for(int i = 0; i < m_ySize; i++)
 	{
 		for(int j = 0; j < m_xSize; j++)
 		{
+
+			/* ----- Faire le calcul de la normal du vertex avec les triangles ----- */
+//			QVector3D normal(1.0, 1.0, 1.0);
+//			normal.normalize();
+//			m_normals.push_back(normal);
 			m_normals.push_back(vertexNormal(i,j));
 		}
 	}
@@ -103,24 +96,78 @@ QVector3D ShaderSurface::vertexNormal(int i, int j)
 
 	// North west triangle
 	if(i>0 && j>0)
-		normals.push_back(m_downTriangleNormals[i-1][j-1]);
+	{
+		QVector3D north;
+		north.setX(0.0);
+		north.setY(m_matrix[i-1][j] - m_matrix[i][j]);
+		north.setZ(-1.0);
+
+		QVector3D west;
+		west.setX(-1.0);
+		west.setY(m_matrix[i][j-1] - m_matrix[i][j]);
+		west.setZ(0.0);
+
+		normals.push_back(QVector3D::normal(north, west));
+	}
 
 	// North east triangles
 	if(i>0 && j<m_xSize-1)
 	{
-		normals.push_back(m_upTriangleNormals[i-1][j]);
-		normals.push_back(m_downTriangleNormals[i-1][j]);
+		QVector3D north;
+		north.setX(0.0);
+		north.setY(m_matrix[i-1][j] - m_matrix[i][j]);
+		north.setZ(-1.0);
+
+		QVector3D north_east;
+		north_east.setX(1.0);
+		north_east.setY(m_matrix[i-1][j+1] - m_matrix[i][j]);
+		north_east.setZ(-1.0);
+
+		QVector3D east;
+		east.setX(1.0);
+		east.setY(m_matrix[i][j+1] - m_matrix[i][j]);
+		east.setZ(0.0);
+
+		normals.push_back(QVector3D::normal(north, north_east));
+		normals.push_back(QVector3D::normal(north_east, east));
 	}
 
 	// South east triangle
 	if(i<m_ySize-1 && j<m_xSize-1)
-		normals.push_back(m_upTriangleNormals[i][j]);
+	{
+		QVector3D south;
+		south.setX(0.0);
+		south.setY(m_matrix[i+1][j] - m_matrix[i][j]);
+		south.setZ(1.0);
+
+		QVector3D east;
+		east.setX(1.0);
+		east.setY(m_matrix[i][j+1] - m_matrix[i][j]);
+		east.setZ(0.0);
+
+		normals.push_back(QVector3D::normal(south, east));
+	}
 
 	// South west triangles
 	if(i<m_ySize-1 && j>0)
 	{
-		normals.push_back(m_upTriangleNormals[i][j-1]);
-		normals.push_back(m_downTriangleNormals[i][j-1]);
+		QVector3D south;
+		south.setX(0.0);
+		south.setY(m_matrix[i+1][j] - m_matrix[i][j]);
+		south.setZ(1.0);
+
+		QVector3D south_west;
+		south_west.setX(-1.0);
+		south_west.setY(m_matrix[i+1][j-1] - m_matrix[i][j]);
+		south_west.setZ(1.0);
+
+		QVector3D west;
+		west.setX(-1.0);
+		west.setY(m_matrix[i][j-1] - m_matrix[i][j]);
+		west.setZ(0.0);
+
+		normals.push_back(QVector3D::normal(south, south_west));
+		normals.push_back(QVector3D::normal(south_west, west));
 	}
 
 	for(int current = 0; current < normals.size(); current ++)
@@ -129,62 +176,10 @@ QVector3D ShaderSurface::vertexNormal(int i, int j)
 		yResult += normals.at(current).y();
 		zResult += normals.at(current).z();
 	}
-	result.setX(xResult/normals.size());
-	result.setY(yResult/normals.size());
+	result.setX(-xResult/normals.size());
+	result.setY(-yResult/normals.size());
 	result.setZ(-zResult/normals.size());
 	result.normalize();
 	return result;
-}
-
-void ShaderSurface::initNormalsMatrixes()
-{
-	m_upTriangleNormals = new QVector3D *[m_xSize-1];
-	m_downTriangleNormals = new QVector3D *[m_xSize-1];
-	for(int i = 0; i < m_xSize-1; i++)
-	{
-		m_upTriangleNormals[i] = new QVector3D[m_ySize-1];
-		m_downTriangleNormals[i] = new QVector3D[m_ySize-1];
-	}
-	for(int i = 0; i<m_xSize-1; i++){
-		for(int j = 0; j<m_ySize-1; j++){
-			m_upTriangleNormals[i][j].setX(0.0);
-			m_upTriangleNormals[i][j].setY(0.0);
-			m_upTriangleNormals[i][j].setZ(0.0);
-			m_downTriangleNormals[i][j].setX(0.0);
-			m_downTriangleNormals[i][j].setY(0.0);
-			m_downTriangleNormals[i][j].setZ(0.0);
-		}
-	}
-}
-
-void ShaderSurface::updateNormals()
-{
-	for(int i = 0; i<m_xSize-1; i++){
-		for(int j = 0; j<m_ySize-1; j++){
-			QVector3D upSouth;
-			upSouth.setX(0.0);
-			upSouth.setY(m_matrix[i+1][j] - m_matrix[i][j]);
-			upSouth.setZ(1.0);
-
-			QVector3D upEast;
-			upEast.setX(1.0);
-			upEast.setY(m_matrix[i][j+1] - m_matrix[i][j]);
-			upEast.setZ(0.0);
-
-			m_upTriangleNormals[i][j] = QVector3D::normal(upSouth, upEast);
-
-			QVector3D downWest;
-			downWest.setX(-1.0);
-			downWest.setY(m_matrix[i+1][j] - m_matrix[i+1][j+1]);
-			downWest.setZ(0.0);
-
-			QVector3D downNorth;
-			downNorth.setX(0.0);
-			downNorth.setY(m_matrix[i][j+1] - m_matrix[i+1][j+1]);
-			downNorth.setZ(-1.0);
-
-			m_downTriangleNormals[i][j] = QVector3D::normal(downNorth, downWest);
-		}
-	}
 }
 

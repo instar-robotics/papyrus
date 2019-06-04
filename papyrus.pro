@@ -89,7 +89,8 @@ HEADERS += include/category.h \
     include/shaderwidget.h \
     include/shadermatrix.h \
     include/shadersurface.h \
-    include/shaderproxy.h
+    include/shaderproxy.h \
+    include/shadersurfacealpha.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -161,7 +162,8 @@ SOURCES += src/category.cpp \
            src/deletelinkcommand.cpp \
            src/deleteboxcommand.cpp \
            src/deletezonecommand.cpp \
-    src/shaderproxy.cpp
+    src/shaderproxy.cpp \
+    src/shadersurfacealpha.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

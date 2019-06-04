@@ -46,8 +46,8 @@ AddBoxCommand::~AddBoxCommand()
 	// If we have a box in the pointer and this box is not in the scene, we need to destroy it,
 	// because we are the only one with this ressource
 	if (m_box != nullptr && m_box->scene() == nullptr) {
-		qDebug() << "Deleting orphan box";
 		delete m_box;
+		m_box = nullptr;
 	}
 }
 

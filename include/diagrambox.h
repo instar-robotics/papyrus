@@ -62,7 +62,7 @@ public:
 	                    const QUuid &uuid = 0,
 	                    InhibInput *inhibInput = nullptr,
 	                    QGraphicsItem *parent = 0);
-	~DiagramBox();
+//	~DiagramBox(); // useless as all items with pointers were made child items of this Box
 
 	QRectF boundingRect() const override;
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
@@ -220,7 +220,6 @@ private slots:
 
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)
-	void boxDeleted();
 };
 
 #endif // DIAGRAMBOX_H

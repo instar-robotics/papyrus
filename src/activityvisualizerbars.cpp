@@ -5,8 +5,8 @@
 
 // I know there is potentially a segfault here if box == nullptr. But I did not want to use a
 // pointer for the QImage. Potential solution is to manually include width and height as params
-ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *parent)
-    : ActivityVisualizer(box, parent),
+ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box)
+    : ActivityVisualizer(box),
       m_scaleMargin(10),
       m_hLine(this),
       m_vLine(this),
@@ -98,18 +98,14 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 	onSizeChanged();
 
 	connect(this, SIGNAL(sizeChanged()), this, SLOT(onSizeChanged()));
-	connect(m_box, SIGNAL(boxDeleted()), this, SLOT(onBoxDeleted()));
 }
 
 ActivityVisualizerBars::~ActivityVisualizerBars()
 {
-	for (int i = 0; i < m_nbTicks; i += 1) {
-		delete m_ticks.at(i);
-		delete m_labels.at(i);
-	}
-
-	if (m_lastMat != nullptr)
+	if (m_lastMat != nullptr) {
 		delete m_lastMat;
+		m_lastMat = nullptr;
+	}
 }
 
 /**
@@ -266,11 +262,6 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 		delete m_lastMat;
 		m_lastMat = mat;
 	}
-}
-
-void ActivityVisualizerBars::onBoxDeleted()
-{
-	delete this;
 }
 
 /**

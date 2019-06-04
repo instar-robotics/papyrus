@@ -32,7 +32,10 @@ class DeleteBoxCommand : public QUndoCommand
 {
 public:
 	DeleteBoxCommand(DiagramScene *scene, DiagramBox *box, QUndoCommand *parent = nullptr);
-	~DeleteBoxCommand();
+	// NOTE: we should be destroying the item in the destructor if the item is not in the scene,
+	// but the undo command can be deleted when a new action is performed, at which point a further
+	// undo() would segfault because the item was destroyed
+//	~DeleteBoxCommand();
 
 	void undo() override;
 	void redo() override;

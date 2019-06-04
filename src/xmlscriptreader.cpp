@@ -422,24 +422,17 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		switch (b->outputType()) {
 			case SCALAR:
 				vis = new ActivityVisualizerBars(b);
-				m_script->scene()->addItem(vis);
 			break;
 
 			case MATRIX:
 				// (1,1) matrix is treated as a scalar
-				if (b->rows() == 1 && b->cols() == 1) {
+				if (b->rows() == 1 && b->cols() == 1)
 					vis = new ActivityVisualizerBars(b);
-					m_script->scene()->addItem(vis);
-				}
 				// (1,N) and (N,1) are vectors: they are displayed as several scalars
-				else if (b->rows() == 1 || b->cols() == 1) {
+				else if (b->rows() == 1 || b->cols() == 1)
 					vis = new ActivityVisualizerBars(b);
-					m_script->scene()->addItem(vis);
-				}
-				else {
+				else
 					vis = new ActivityVisualizerThermal(b);
-					m_script->scene()->addItem(vis);
-				}
 			break;
 
 			default:

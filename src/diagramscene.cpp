@@ -90,11 +90,18 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 DiagramScene::~DiagramScene()
 {
 	qDebug() << "Scene desctructor";
-	delete m_line;
-	m_line = nullptr;
-	// do not call delete on m_oSlot because it's only a cast and not something we created
-	delete m_script;
-	m_script = nullptr;
+
+	if (m_line != nullptr) {
+		delete m_line;
+		m_line = nullptr;
+	}
+
+	if (m_script != nullptr) {
+		delete m_script;
+		m_script = nullptr;
+	}
+
+	// The Scene will take care of deleting all items in the scene
 }
 
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
@@ -1342,31 +1349,24 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				case SCALAR:
 					vis = new ActivityVisualizerBars(selectedBox);
 //					selectedBox->setActivityVisualizer(vis);
-					addItem(vis);
+//					addItem(vis);
 				break;
 
 				case MATRIX:
 					// (1,1) matrix is treated as a scalar
-					if (selectedBox->rows() == 1 && selectedBox->cols() == 1) {
+					if (selectedBox->rows() == 1 && selectedBox->cols() == 1)
 						vis = new ActivityVisualizerBars(selectedBox);
-//						selectedBox->setActivityVisualizer(vis);
-						addItem(vis);
-					}
+
 					// (1,N) and (N,1) are vectors: they are displayed as several scalars
-					else if (selectedBox->rows() == 1 || selectedBox->cols() == 1) {
+					else if (selectedBox->rows() == 1 || selectedBox->cols() == 1)
 						vis = new ActivityVisualizerBars(selectedBox);
-//						selectedBox->setActivityVisualizer(vis);
-						addItem(vis);
-					}
-					else {
+
+					else
 						vis = new ActivityVisualizerThermal(selectedBox);
-//						selectedBox->setActivityVisualizer(vis);
-						addItem(vis);
-					}
 				break;
 
 				default:
-					qDebug() << "Ouput type not supported for visualization";
+					qWarning() << "Ouput type not supported for visualization";
 				return;
 				break;
 			}

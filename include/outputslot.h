@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -39,34 +39,34 @@ class Link;
 
 class OutputSlot : public Slot
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit OutputSlot();
+	explicit OutputSlot();
 
-    std::set<Link *> outputs() const;
+	std::set<Link *> outputs() const;
 
-    void addOutput(Link *output);
-    void removeOutput(Link *output);
+	void addOutput(Link *output);
+	void removeOutput(Link *output);
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QRectF boundingRect() const override;
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+	QRectF boundingRect() const override;
 
-    void mousePressEvent(QGraphicsSceneMouseEvent *evt);
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *evt);
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *evt);
+	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
+	void hoverEnterEvent(QGraphicsSceneHoverEvent *evt);
+	void hoverLeaveEvent(QGraphicsSceneHoverEvent *evt);
 
-    bool isDrawingLine() const;
-    void setIsDrawingLine(bool isDrawingLine);
+	bool isDrawingLine() const;
+	void setIsDrawingLine(bool isDrawingLine);
 
-    void updateLinks();
+	void updateLinks();
 
-    OutputType outputType() const;
-    void setOutputType(const OutputType &outputType);
+	OutputType outputType() const;
+	void setOutputType(const OutputType &outputType);
 
 private:
-    std::set<Link *> m_outputs; // The set of links which leaves this slot
-    bool m_isDrawingLine;       // Indicate if we are drawing an outgoing link
-    OutputType m_outputType;    // Indicate whether this function (slot) outputs a matrix or scalar
+	std::set<Link *> m_outputs; // The set of links which leaves this slot
+	bool m_isDrawingLine;       // Indicate if we are drawing an outgoing link
+	OutputType m_outputType;    // Indicate whether this function (slot) outputs a matrix or scalar
 };
 
 #endif // OUTPUTSLOT_H

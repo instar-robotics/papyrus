@@ -156,33 +156,6 @@ DiagramBox::DiagramBox(const QString &name,
 	setZValue(BOXES_Z_VALUE);
 }
 
-DiagramBox::~DiagramBox()
-{
-	emit boxDeleted();
-
-	// Normally, upon deletion, the box should not have any remaining Link connected
-	if (!m_outputSlot->outputs().empty())
-		qWarning() << "WARNING: DiagramBox(" << m_name << ") is being destructed, but there remains Links on its OutputSlot";
-	delete m_outputSlot;
-
-	bool warnedForInput = false;
-	foreach (InputSlot *inputSlot, m_inputSlots) {
-		if (!warnedForInput && !inputSlot->inputs().empty()) {
-			warnedForInput = true;
-			qWarning() << "WARNING: DiagramBox(" << m_name << ") is being destructed, but there remains Links on its InputSlot (" << inputSlot->name() << ")";
-		}
-		delete inputSlot;
-	}
-	m_inputSlots.clear();
-
-	// Also delete the inhibition input
-	if (m_inhibInput != nullptr)
-		delete m_inhibInput;
-
-//	delete m_sizeIcon;
-
-}
-
 QRectF DiagramBox::boundingRect() const
 {
 	// +7 are there to include the publish logo on the bottom right

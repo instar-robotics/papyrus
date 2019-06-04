@@ -5,8 +5,8 @@
 
 // I know there is potentially a segfault here if box == nullptr. But I did not want to use a
 // pointer for the QImage. Potential solution is to manually include width and height as params
-ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
+ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
+    : QGraphicsPixmapItem(box),
       m_box(box),
       m_width(300),
       m_height(101),
@@ -24,6 +24,7 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 {
 	m_box->setActivityVisualizer(this);
 	m_box->setIsActivityVisuEnabled(true);
+//	setParentItem(m_box); // Make the visualizer a child of the box so the box handles its deletion
 
 	// Fill background with white
 	m_image.fill(qRgb(255, 255, 255));

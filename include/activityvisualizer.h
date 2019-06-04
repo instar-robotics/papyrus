@@ -19,7 +19,7 @@ class ActivityVisualizer : public QObject, public QGraphicsPixmapItem
 	Q_OBJECT
 
 public:
-	explicit ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent = nullptr);
+	explicit ActivityVisualizer(DiagramBox *box);
 	~ActivityVisualizer();
 
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *evt);

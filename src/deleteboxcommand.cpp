@@ -22,6 +22,7 @@
 #include "deleteboxcommand.h"
 #include "deletelinkcommand.h"
 #include "helpers.h"
+#include "activityvisualizer.h"
 
 DeleteBoxCommand::DeleteBoxCommand(DiagramScene *scene, DiagramBox *box, QUndoCommand *parent)
     : QUndoCommand(parent),
@@ -38,16 +39,6 @@ DeleteBoxCommand::DeleteBoxCommand(DiagramScene *scene, DiagramBox *box, QUndoCo
 	m_zone = dynamic_cast<Zone *>(m_box->parentItem());
 }
 
-DeleteBoxCommand::~DeleteBoxCommand()
-{
-	// If the box is not in a scene, delete it now because at this point we are the last one holding
-	// a pointer to it
-	if (m_box != nullptr && m_box->scene() == nullptr) {
-		delete m_box;
-		m_box = nullptr;
-	}
-}
-
 void DeleteBoxCommand::undo()
 {
 	QUndoCommand::undo();
@@ -55,15 +46,17 @@ void DeleteBoxCommand::undo()
 	// Add back its parent (which was delete when removed from scene) if it had one
 	if (m_zone != nullptr)
 		m_box->setParentItem(m_zone);
-
+	qDebug() << "Delete undo()";
 	// Put the box back in the scene
+	if (m_box->activityVisualizer() != nullptr)
+		qDebug() << "\tvisualizer in scene(before):" << (m_box->activityVisualizer()->scene() != nullptr);
 	m_scene->addItem(m_box);
+	if (m_box->activityVisualizer() != nullptr)
+		qDebug() << "\tvisualizer in scene(after):" << (m_box->activityVisualizer()->scene() != nullptr);
 }
 
 void DeleteBoxCommand::redo()
 {
-	QUndoCommand::redo();
-
 	// Remove the box from the scene
 	m_scene->removeItem(m_box);
 }

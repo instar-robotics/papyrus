@@ -25,7 +25,7 @@ class ActivityVisualizerBars : public ActivityVisualizer
 	Q_OBJECT
 
 public:
-	explicit ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *parent = nullptr);
+	explicit ActivityVisualizerBars(DiagramBox *box);
 	~ActivityVisualizerBars();
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
@@ -60,7 +60,6 @@ signals:
 
 private slots:
 	void updateBars(QVector<qreal> *mat);
-	void onBoxDeleted();
 
 public slots:
 	void onSizeChanged();

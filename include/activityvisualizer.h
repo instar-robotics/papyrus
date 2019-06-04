@@ -8,6 +8,7 @@
 #include <QImage>
 #include <QGraphicsSceneHoverEvent>
 #include <QPainter>
+#include <QKeyEvent>
 
 /**
  * @brief The ActivityVisualizer class is a QImage (inside a QGraphicsPixmapItem) placed on the

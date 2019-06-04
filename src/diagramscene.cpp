@@ -1392,10 +1392,18 @@ void DiagramScene::onDisplayVisuClicked(bool)
 
 
 			// Insert the 3D widget
-			OpenGLMatrix *matrix = new OpenGLMatrix(selectedBox->getRows(), selectedBox->getCols());
-			matrix->initializeGL();
+//			OpenGLMatrix *matrix = new OpenGLMatrix(selectedBox->getRows(), selectedBox->getCols());
+//			matrix->initializeGL();
+//			QGraphicsRectItem *proxyMoveBar = new QGraphicsRectItem();
+//			OpenGLProxy *proxy = new OpenGLProxy(matrix, proxyMoveBar);
+
+//			proxy->setPos(0, proxyMoveBar->rect().height());
+//			addItem(proxyMoveBar);
+//			selectedBox->setDisplayedProxy(proxy);
+
+			ShaderSurface *surface = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
 			QGraphicsRectItem *proxyMoveBar = new QGraphicsRectItem();
-			OpenGLProxy *proxy = new OpenGLProxy(matrix, proxyMoveBar);
+			ShaderProxy *proxy = new ShaderProxy(surface, proxyMoveBar);
 
 			proxy->setPos(0, proxyMoveBar->rect().height());
 			addItem(proxyMoveBar);

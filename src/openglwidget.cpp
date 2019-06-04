@@ -270,6 +270,7 @@ void OpenGLWidget::calculation()
 {
 
 }
+
 QColor OpenGLWidget::calculateColor(float const& value, float const& max_value, float const& min_value)
 {
 	//map the value between [-1; 1]

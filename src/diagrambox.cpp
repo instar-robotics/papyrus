@@ -250,12 +250,12 @@ int DiagramBox::getRows() const
 	return m_rows;
 }
 
-OpenGLProxy *DiagramBox::getDisplayedProxy() const
+ShaderProxy *DiagramBox::getDisplayedProxy() const
 {
 	return m_displayedProxy;
 }
 
-void DiagramBox::setDisplayedProxy(OpenGLProxy *displayedProxy)
+void DiagramBox::setDisplayedProxy(ShaderProxy *displayedProxy)
 {
 	m_displayedProxy = displayedProxy;
 }

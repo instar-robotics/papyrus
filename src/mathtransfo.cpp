@@ -14,3 +14,8 @@ float MathTransfo::degToRad(float x)
 {
 	return x/180*PI;
 }
+
+float MathTransfo::normalizeDeg(float x)
+{
+	return x/359;
+}

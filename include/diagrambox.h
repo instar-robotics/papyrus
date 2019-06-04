@@ -35,12 +35,12 @@
 #include <QIcon>
 #include <QUuid>
 #include <QGraphicsSvgItem>
-#include <QGraphicsProxyWidget>
 #include <QGraphicsSceneMouseEvent>
 
 class Script;
 class ActivityVisualizer;
 class OpenGLProxy;
+class ShaderProxy;
 
 /**
  * @brief The DiagramBox class is the main class that represents a "box" or "neural function".
@@ -154,13 +154,9 @@ public:
 	InhibInput *inhibInput() const;
 	void setInhibInput(InhibInput *inhibInput);
 
-	void setDisplayedProxy(OpenGLProxy *displayed_proxy);
+	void setDisplayedProxy(ShaderProxy *displayedProxy);
 
-	OpenGLProxy *getProxy() const;
-
-	void setProxy(OpenGLProxy *value);
-
-	OpenGLProxy *getDisplayedProxy() const;
+	ShaderProxy *getDisplayedProxy() const;
 
 	int getRows() const;
 
@@ -218,8 +214,8 @@ private:
 	QPointF m_oldPos; // Start position when moved (to enable undo)
 
 	ActivityVisualizer *m_activityVisualizer;
-	OpenGLProxy *m_displayedProxy; //pointer to opengl display
-
+	//OpenGLProxy *m_displayedProxy; //pointer to opengl display
+	ShaderProxy *m_displayedProxy;
 	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
 
 private slots:

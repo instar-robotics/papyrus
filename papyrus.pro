@@ -83,7 +83,13 @@ HEADERS += include/category.h \
     include/openglproxy.h \
     include/deletelinkcommand.h \
     include/deleteboxcommand.h \
-    include/deletezonecommand.h
+    include/deletezonecommand.h \
+    include/camera.h \
+    include/light.h \
+    include/shaderwidget.h \
+    include/shadermatrix.h \
+    include/shadersurface.h \
+    include/shaderproxy.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -139,7 +145,14 @@ SOURCES += src/category.cpp \
            src/activityvisualizerbars.cpp \
            src/activityvisualizerthermal.cpp \
            src/inhibinput.cpp \
-
+	   src/camera.cpp \
+	   src/light.cpp \
+	   src/shaderwidget.cpp \
+	   src/openglmatrix.cpp \
+	   src/openglproxy.cpp \
+	   src/openglwidget.cpp \
+	   src/shadermatrix.cpp \
+	   src/shadersurface.cpp \
            src/mathtransfo.cpp \
            src/openglmatrix.cpp \
            src/openglwidget.cpp \
@@ -147,6 +160,8 @@ SOURCES += src/category.cpp \
            src/openglproxy.cpp \
            src/deletelinkcommand.cpp \
            src/deleteboxcommand.cpp \
-           src/deletezonecommand.cpp
+           src/deletezonecommand.cpp \
+    src/shaderproxy.cpp
 
-RESOURCES += icons.qrc
+RESOURCES += icons.qrc \
+    shaders.qrc

@@ -38,6 +38,7 @@ class ConstantDiagramBox : public DiagramBox
 public:
 	explicit ConstantDiagramBox(const QString &name,
 	                            OutputSlot *outputSlot,
+	                            const QString &description = QString(),
 	                            const QUuid &uuid = 0,
 	                            QGraphicsItem *parent = 0);
 

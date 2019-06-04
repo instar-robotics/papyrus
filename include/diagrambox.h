@@ -58,6 +58,7 @@ public:
 	explicit DiagramBox(const QString &name,
 	                    OutputSlot *outputSlot,
 	                    std::vector<InputSlot *> inputSlots,
+	                    const QString &description = QString(),
 	                    const QUuid &uuid = 0,
 	                    InhibInput *inhibInput = nullptr,
 	                    QGraphicsItem *parent = 0);
@@ -91,6 +92,9 @@ public:
 
 	QString descriptionFile() const;
 	void setDescriptionFile(const QString &descriptionPath);
+
+	QString description() const;
+	void setDescription(const QString &description);
 
 	OutputSlot *outputSlot() const;
 	void setOutputSlot(OutputSlot *outputSlot);
@@ -172,9 +176,10 @@ protected:
 	QGraphicsSvgItem *m_functionIcon; // Contains the SVG icon of the function
 
 private:
-	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
-	QString m_libname; // Name of the library this function belongs to (for kheops's linking)
+	QUuid m_uuid;          // Unique ID of the function's box (to identify links for instance)
+	QString m_libname;     // Name of the library this function belongs to (for kheops's linking)
 
+	QString m_description; // Description of the function
 	QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 
 	OutputSlot *m_outputSlot;  // The output slot for this function's box

@@ -1,12 +1,12 @@
-#ifndef SHADERSURFACE_H
-#define SHADERSURFACE_H
+#ifndef SHADERSURFACEALPHA_H
+#define SHADERSURFACEALPHA_H
 
 #include "shadermatrix.h"
 
-class ShaderSurface : public ShaderMatrix
+class ShaderSurfaceAlpha : public ShaderMatrix
 {
 public:
-	ShaderSurface(int xSize, int ySize);
+	ShaderSurfaceAlpha(int xSize, int ySize);
 
 protected:
 	virtual void initVectors() override;
@@ -14,4 +14,4 @@ protected:
 	QVector3D vertexNormal(int i, int j);
 };
 
-#endif // SHADERSURFACE_H
+#endif // SHADERSURFACEALPHA_H

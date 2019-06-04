@@ -18,6 +18,7 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, QGraphicsRectItem *moveBar):
 
 	connect(m_widget, SIGNAL(repaint()), this, SLOT(updateProxy()));
 }
+
 ShaderProxy::~ShaderProxy()
 {
 	setParentItem(nullptr);

@@ -1,11 +1,11 @@
-#include "shadersurface.h"
+#include "shadersurfacealpha.h"
 
-ShaderSurface::ShaderSurface(int xSize, int ySize):ShaderMatrix(xSize, ySize)
+ShaderSurfaceAlpha::ShaderSurfaceAlpha(int xSize, int ySize):ShaderMatrix(xSize, ySize)
 {
 
 }
 
-void ShaderSurface::initVectors()
+void ShaderSurfaceAlpha::initVectors()
 {
 	m_vertexes.reserve(m_xSize * m_ySize);
 	m_indexes.reserve((m_xSize-1) * (m_ySize-1) * 6);
@@ -13,7 +13,7 @@ void ShaderSurface::initVectors()
 	m_normals.reserve(m_xSize * m_ySize);
 }
 
-void ShaderSurface::fillVectors()
+void ShaderSurfaceAlpha::fillVectors()
 {
 	// Vertexes
 	m_vertexes.clear();
@@ -80,7 +80,7 @@ void ShaderSurface::fillVectors()
 	}
 }
 
-QVector3D ShaderSurface::vertexNormal(int i, int j)
+QVector3D ShaderSurfaceAlpha::vertexNormal(int i, int j)
 {
 	QVector3D result(0.0,0.0,0.0);
 	float xResult = 0.0;

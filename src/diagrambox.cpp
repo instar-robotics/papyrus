@@ -37,7 +37,7 @@
 #include <QDebug>
 #include <QGraphicsLayout>
 
-Q_DECLARE_METATYPE(MatrixShape);
+Q_DECLARE_METATYPE(MatrixShape)
 
 int DiagramBox::getType()
 {
@@ -47,6 +47,7 @@ int DiagramBox::getType()
 DiagramBox::DiagramBox(const QString &name,
                        OutputSlot *outputSlot,
                        std::vector<InputSlot *> inputSlots,
+                       const QString &description,
                        const QUuid &uuid,
                        InhibInput *inhibInput,
                        QGraphicsItem *parent) : QGraphicsItem(parent),
@@ -56,6 +57,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_tHeight(20),
                                                 m_matrixShape(SHAPE_NONE),
                                                 m_uuid(uuid),
+                                                m_description(description),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
 //                                                m_inhibInput(INHIBITION_INPUT_NAME),
@@ -81,6 +83,7 @@ DiagramBox::DiagramBox(const QString &name,
 	       | QGraphicsItem::ItemSendsScenePositionChanges);
 	setAcceptHoverEvents(true);
 
+	setToolTip(description);
 	// Make this the parent item of the output slot, so that it follow drags, etc.
 	m_outputSlot->setParentItem(this);
 	m_outputSlot->setBox(this);
@@ -528,6 +531,16 @@ void DiagramBox::setOutputSlot(OutputSlot *outputSlot)
 	m_outputSlot = outputSlot;
 }
 
+QString DiagramBox::description() const
+{
+	return m_description;
+}
+
+void DiagramBox::setDescription(const QString &description)
+{
+	m_description = description;
+}
+
 QString DiagramBox::descriptionFile() const
 {
 	return m_descriptionFile;
@@ -795,7 +808,7 @@ bool DiagramBox::checkIfBoxInvalid()
 
 /**
  * @brief DiagramBox::updateTooltip update the tooltip of the box, based on the reason why it's
- * invalid. Set the tooltip to empty string if valid
+ * invalid. Reset the tooltip to description string if valid
  */
 void DiagramBox::updateTooltip()
 {
@@ -815,6 +828,8 @@ void DiagramBox::updateTooltip()
 
 	if (!str.isEmpty())
 		str = tr("Box is <strong>invalid</strong>:<ul>") + str + "</ul>";
+	else
+		str = description();
 
 	setToolTip(str);
 }

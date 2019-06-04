@@ -42,6 +42,9 @@ public:
 	                            QGraphicsItem *parent = 0);
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+	void updateSizeIcon();
+	virtual void createFunctionIcon();
 };
 
 #endif // CONSTANTDIAGRAMBOX_H

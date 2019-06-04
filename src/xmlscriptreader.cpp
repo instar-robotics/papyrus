@@ -407,7 +407,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		b->setIsCommented(isCommented);
 	}
 
-
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);

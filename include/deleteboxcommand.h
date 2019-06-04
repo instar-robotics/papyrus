@@ -32,6 +32,7 @@ class DeleteBoxCommand : public QUndoCommand
 {
 public:
 	DeleteBoxCommand(DiagramScene *scene, DiagramBox *box, QUndoCommand *parent = nullptr);
+	~DeleteBoxCommand();
 
 	void undo() override;
 	void redo() override;

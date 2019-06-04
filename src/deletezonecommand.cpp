@@ -29,6 +29,15 @@ DeleteZoneCommand::DeleteZoneCommand(DiagramScene *scene, Zone *zone, QUndoComma
 
 }
 
+DeleteZoneCommand::~DeleteZoneCommand()
+{
+	// Delete the zone if it is not in a scene, because at this point we are the last reference to it
+	if (m_zone != nullptr && m_zone->scene() == nullptr) {
+		delete m_zone;
+		m_zone = nullptr;
+	}
+}
+
 void DeleteZoneCommand::undo()
 {
 	QUndoCommand::undo();

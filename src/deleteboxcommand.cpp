@@ -38,6 +38,16 @@ DeleteBoxCommand::DeleteBoxCommand(DiagramScene *scene, DiagramBox *box, QUndoCo
 	m_zone = dynamic_cast<Zone *>(m_box->parentItem());
 }
 
+DeleteBoxCommand::~DeleteBoxCommand()
+{
+	// If the box is not in a scene, delete it now because at this point we are the last one holding
+	// a pointer to it
+	if (m_box != nullptr && m_box->scene() == nullptr) {
+		delete m_box;
+		m_box = nullptr;
+	}
+}
+
 void DeleteBoxCommand::undo()
 {
 	QUndoCommand::undo();

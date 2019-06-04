@@ -71,13 +71,11 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_oSlot(nullptr),
                                             m_script(nullptr),
                                             m_displayLabels(false),
-                                            m_undoStack(nullptr)
+                                            m_undoStack(this)
 {
 	m_mainWindow = getMainWindow();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
-
-	m_undoStack = new QUndoStack(this);
 
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
@@ -91,13 +89,12 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
  */
 DiagramScene::~DiagramScene()
 {
+	qDebug() << "Scene desctructor";
 	delete m_line;
 	m_line = nullptr;
 	// do not call delete on m_oSlot because it's only a cast and not something we created
 	delete m_script;
 	m_script = nullptr;
-
-	delete m_undoStack;
 }
 
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
@@ -106,32 +103,8 @@ void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 
 	newBox->setPos(position);
 
-	// We add the Svg item here, as a child of the box, this way the box doesn't need to have knowledge of it
-	QGraphicsSvgItem *svg = new QGraphicsSvgItem(newBox->iconFilepath(), newBox);
-
 	// Add an SVG element to display to hint the size of the function (if not a constant box)
 	ConstantDiagramBox *constantBox = dynamic_cast<ConstantDiagramBox *>(newBox);
-	if (constantBox == nullptr) {
-		// If it's not a Constant, position the function icon AND an icon to indicate size
-		rescaleSvgItem(svg,
-		               QSizeF(newBox->bWidth() / 2 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
-		               QPointF(0, 1.5));
-
-		QString svgPath = ":/icons/icons/size-icon.svg";
-		QGraphicsSvgItem *s = new QGraphicsSvgItem(svgPath, newBox);
-		newBox->setSizeIcon(s);
-		updateSizeIcon(newBox);
-
-		rescaleSvgItem(s,
-		               QSizeF(newBox->bWidth() / 2 - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
-		               QPointF(newBox->bWidth() / 2, 1.5));
-
-	} else {
-		// if this is a Constant, position only the function icon
-		rescaleSvgItem(svg,
-		               QSizeF(newBox->bWidth() - 1.5, newBox->bHeight() - newBox->tHeight() - 2.5),
-		               QPointF(0, 1.5));
-	}
 
 	addItem(newBox);
 	// If the topic name is empty, create one based on the UUID
@@ -401,10 +374,10 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 						if (!isFull(maybeSlot)) {
 							Link *zelda = new Link(m_oSlot, maybeSlot);
 							AddLinkCommand *addLinkCommand = new AddLinkCommand(this, zelda);
-							if (m_undoStack == nullptr) {
-								qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add link to scene: no undo stack!";
-								return;
-							}
+//							if (m_undoStack == nullptr) {
+//								qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add link to scene: no undo stack!";
+//								return;
+//							}
 
 							// Ask the user for the initial weight or string value upon creation
 							bool isStringLink = m_oSlot->outputType() == STRING &&
@@ -427,7 +400,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 								zelda->setWeight(initialWeight);
 							}
 
-							m_undoStack->push(addLinkCommand);
+							m_undoStack.push(addLinkCommand);
 
 							emit displayStatusMessage(tr("New link created."));
 							script()->setStatusModified(true);
@@ -452,11 +425,11 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 
 			Zone *z = new Zone(r.x(), r.y(), r.width(), r.height());
 			AddZoneCommand *addZoneCommand = new AddZoneCommand(this, z);
-			if (m_undoStack == nullptr) {
-				qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add zone to scene: no undo stack!";
-				return;
-			}
-			m_undoStack->push(addZoneCommand);
+//			if (m_undoStack == nullptr) {
+//				qWarning() << "[DiagramScene::mouseReleaseEvent] cannot add zone to scene: no undo stack!";
+//				return;
+//			}
+			m_undoStack.push(addZoneCommand);
 
 			delete m_rect;
 			m_rect = nullptr;
@@ -639,11 +612,11 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 		if (toSwap == nullptr) {
 //			addBox(newBox, evt->scenePos());
 			AddBoxCommand *addBoxCommand = new AddBoxCommand(this, newBox, evt->scenePos());
-			if (m_undoStack == nullptr) {
-				qWarning() << "[DiagramScene::dropEvent] cannot add box to scene: no undo stack!";
-				return;
-			}
-			m_undoStack->push(addBoxCommand);
+//			if (m_undoStack == nullptr) {
+//				qWarning() << "[DiagramScene::dropEvent] cannot add box to scene: no undo stack!";
+//				return;
+//			}
+			m_undoStack.push(addBoxCommand);
 
 			m_script->setStatusModified(true);
 			setBackgroundBrush(QBrush(Qt::white));
@@ -661,11 +634,11 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 					                                        toSwap,
 					                                        newBox);
 
-					if (m_undoStack == nullptr) {
-						qWarning() << "[DiagramScene::dropEvent] cannot swap boxes: no undo stack!";
-						return;
-					}
-					m_undoStack->push(swapBoxesCommand);
+//					if (m_undoStack == nullptr) {
+//						qWarning() << "[DiagramScene::dropEvent] cannot swap boxes: no undo stack!";
+//						return;
+//					}
+					m_undoStack.push(swapBoxesCommand);
 				break;
 					//*/
 					// Add the new box in place of the box to swap
@@ -871,13 +844,13 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				qWarning() << items.size() << "items remains and won't be deleted.";
 			//*/
 
-			if (m_undoStack == nullptr) {
-				qWarning() << "Can't delete selected elements: no undo stack!";
-				return;
-			}
+//			if (m_undoStack == nullptr) {
+//				qWarning() << "Can't delete selected elements: no undo stack!";
+//				return;
+//			}
 
 			// Push the commands
-			m_undoStack->push(command);
+			m_undoStack.push(command);
 
 		}
 
@@ -914,11 +887,11 @@ void DiagramScene::deleteItem(Link *link)
 	}
 
 	DeleteLinkCommand *command = new DeleteLinkCommand(this, link);
-	if (m_undoStack == nullptr) {
-		qWarning() << "[DiagramScene::deleteItem] cannot delete link: no undo stack!";
-		return;
-	}
-	m_undoStack->push(command);
+//	if (m_undoStack == nullptr) {
+//		qWarning() << "[DiagramScene::deleteItem] cannot delete link: no undo stack!";
+//		return;
+//	}
+	m_undoStack.push(command);
 }
 
 /**
@@ -934,10 +907,10 @@ void DiagramScene::deleteItem(DiagramBox *box)
 	}
 
 	DeleteBoxCommand *command = new DeleteBoxCommand(this, box);
-	if (m_undoStack == nullptr) {
-		qWarning() << "[DiagramScene::deleteItem] cannot delete box: no undo stack!";
-		return;
-	}
+//	if (m_undoStack == nullptr) {
+//		qWarning() << "[DiagramScene::deleteItem] cannot delete box: no undo stack!";
+//		return;
+//	}
 
 	// Create delete commands for all links
 	foreach (Link *outputLink, box->outputSlot()->outputs()) {
@@ -956,7 +929,7 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		}
 	}
 
-	m_undoStack->push(command);
+	m_undoStack.push(command);
 }
 
 /**
@@ -972,12 +945,12 @@ void DiagramScene::deleteItem(Zone *zone)
 	}
 
 	DeleteZoneCommand *command = new DeleteZoneCommand(this, zone);
-	if (m_undoStack == nullptr) {
-		qWarning() << "[DiagramScene::deleteItem] cannot delete zone: no undo stack!";
-		return;
-	}
+//	if (m_undoStack == nullptr) {
+//		qWarning() << "[DiagramScene::deleteItem] cannot delete zone: no undo stack!";
+//		return;
+//	}
 
-	m_undoStack->push(command);
+	m_undoStack.push(command);
 }
 
 /**
@@ -1065,14 +1038,9 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
 	painter->drawPoints(dots.data(), dots.size());
 }
 
-QUndoStack *DiagramScene::undoStack() const
+QUndoStack& DiagramScene::undoStack()
 {
 	return m_undoStack;
-}
-
-void DiagramScene::setUndoStack(QUndoStack *undoStack)
-{
-	m_undoStack = undoStack;
 }
 
 QGraphicsRectItem *DiagramScene::rect() const

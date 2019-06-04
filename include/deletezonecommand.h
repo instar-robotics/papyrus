@@ -32,6 +32,7 @@ class DeleteZoneCommand : public QUndoCommand
 {
 public:
 	DeleteZoneCommand(DiagramScene *scene, Zone *zone, QUndoCommand *parent = nullptr);
+	~DeleteZoneCommand();
 
 	void undo() override;
 	void redo() override;

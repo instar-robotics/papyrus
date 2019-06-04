@@ -49,6 +49,16 @@ DeleteLinkCommand::DeleteLinkCommand(DiagramScene *scene, Link *link, QUndoComma
 	m_inputSlot = m_link->to();
 }
 
+DeleteLinkCommand::~DeleteLinkCommand()
+{
+	// Delete the link if it is not in the scene, because at this point we are the last reference
+	// to it
+	if (m_link != nullptr && m_link->scene() == nullptr) {
+		delete m_link;
+		m_link = nullptr;
+	}
+}
+
 void DeleteLinkCommand::undo()
 {
 	QUndoCommand::undo();

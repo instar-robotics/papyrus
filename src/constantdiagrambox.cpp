@@ -20,6 +20,7 @@
 */
 
 #include "constantdiagrambox.h"
+#include "helpers.h"
 
 #include <QDebug>
 #include <QStyleOptionGraphicsItem>
@@ -35,6 +36,9 @@ ConstantDiagramBox::ConstantDiagramBox(const QString &name,
 	// We need to re-call this, because it was called in the parent's constructor, and the box's
 	// width was not changed yet
 	setOutputSlotPos();
+
+	// Re call this to hide the size icon (no icon displayed for constants)
+	updateSizeIcon();
 }
 
 void ConstantDiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -90,4 +94,23 @@ void ConstantDiagramBox::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 	// Draw the function's name
 	painter->drawText(QRectF(0, m_bHeight - m_tHeight, m_bWidth, m_tHeight), Qt::AlignCenter, m_name);
+}
+
+/**
+ * @brief ConstantDiagramBox::updateSizeIcon overrides this method to do nothing, since a Constant
+ * does not have a size icon displayed.
+ */
+void ConstantDiagramBox::updateSizeIcon()
+{
+	m_sizeIcon.hide();
+}
+
+void ConstantDiagramBox::createFunctionIcon()
+{
+	DiagramBox::createFunctionIcon();
+
+	// Resize the Svg with correct size for Constant
+	rescaleSvgItem(m_functionIcon,
+	               QSizeF(m_bWidth - 1.5, m_bHeight - m_tHeight - 2.5),
+	               QPointF(0, 1.5));
 }

@@ -76,6 +76,9 @@ public:
 
 	void setOutputSlotPos();
 
+	void updateSizeIcon();
+	virtual void createFunctionIcon();
+
 	QString scriptName();
 
 	QString name() const;
@@ -113,8 +116,7 @@ public:
 
 	qreal tHeight() const;
 
-	QGraphicsSvgItem *sizeIcon() const;
-	void setSizeIcon(QGraphicsSvgItem *sizeIcon);
+	QGraphicsSvgItem &sizeIcon();
 
 	bool publish() const;
 	void setPublish(bool publish);
@@ -166,6 +168,9 @@ protected:
 
 	MatrixShape m_matrixShape; // Shape (vector, row vector or col vector) if matrix
 
+	QGraphicsSvgItem m_sizeIcon;     // Contains the svg that hints the box's size
+	QGraphicsSvgItem *m_functionIcon; // Contains the SVG icon of the function
+
 private:
 	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
 	QString m_libname; // Name of the library this function belongs to (for kheops's linking)
@@ -191,7 +196,6 @@ private:
 	QString m_topic;          // name of the topic in which to publish the output
 
 	QString m_iconFilepath;         // Filepath of the icon used (needed to create the svg)
-	QGraphicsSvgItem *m_sizeIcon; // Contains the svg that hints the box's size
 
 	bool m_IsActivityVisuEnabled;  // Wether or not we are visualizing this box's activity
 //	ActivityFetcher *m_activityFetcher; // The thread that subscribes to ROS topics

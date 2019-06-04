@@ -39,6 +39,16 @@ AddLinkCommand::AddLinkCommand(DiagramScene *scene, Link *link, QUndoCommand *pa
 		m_to = m_link->to();
 }
 
+AddLinkCommand::~AddLinkCommand()
+{
+	// If we are destroyed and the link is not in the scene, we need to destroy it, because
+	// at this point we're the last reference to it
+	if (m_link != nullptr && m_link->scene() == nullptr) {
+		delete m_link;
+		m_link = nullptr;
+	}
+}
+
 void AddLinkCommand::undo()
 {
 	if (m_scene == nullptr) {

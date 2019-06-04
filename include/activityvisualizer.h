@@ -53,12 +53,9 @@ protected:
 	int m_rows;    // The number of neurons vertically
 
 	QImage m_image;
-//	QImage m_image2;
-//	bool m_doubleBufferFlag;
 
 	ResizeType m_resizeType; // Type of resizing operation we are currently performing
 	QPainter m_painter;
-//	QPainter m_painter2;
 
 	QGraphicsTextItem m_visuTitle;
 
@@ -68,12 +65,6 @@ protected:
 	qreal m_minHeight;
 
 	ActivityFetcher *m_activityFetcher;
-
-signals:
-//	void sizeChanged();
-
-public slots:
-//	void onSizeChanged();
 };
 
 #endif // ACTIVITYVISUALIZER_H

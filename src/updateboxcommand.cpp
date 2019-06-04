@@ -123,15 +123,7 @@ void UpdateBoxCommand::redo()
 			m_box->setCols(m_newCols);
 		}
 
-		// Make sure to call updateSizeIcon() BEFORE rescaleSvgItem() because the latter is based on the former
-		// but only if this is NOT a constant box
-		ConstantDiagramBox *constantBox = dynamic_cast<ConstantDiagramBox *>(m_box);
-		if (constantBox == nullptr) {
-			updateSizeIcon(m_box);
-			rescaleSvgItem(m_box->sizeIcon(),
-			               QSizeF(m_box->bWidth() / 2 - 1.5, m_box->bHeight() - m_box->tHeight() - 2.5),
-			               QPointF(m_box->bWidth() / 2, 1.5));
-		}
+		m_box->updateSizeIcon();
 	}
 
 	// Set the box's "save activity" flag

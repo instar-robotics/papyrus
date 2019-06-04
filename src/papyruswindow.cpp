@@ -2143,12 +2143,12 @@ void PapyrusWindow::on_actionUndo_triggered()
 		return;
 	}
 
-	if (m_activeScript->scene()->undoStack() == nullptr) {
-		emit displayStatusMessage(tr("Can't undo: no undo stack in active script's scene!"), MSG_ERROR);
-		return;
-	}
+//	if (m_activeScript->scene()->undoStack() == nullptr) {
+//		emit displayStatusMessage(tr("Can't undo: no undo stack in active script's scene!"), MSG_ERROR);
+//		return;
+//	}
 
-	m_activeScript->scene()->undoStack()->undo();
+	m_activeScript->scene()->undoStack().undo();
 }
 
 void PapyrusWindow::on_actionRedo_triggered()
@@ -2163,12 +2163,12 @@ void PapyrusWindow::on_actionRedo_triggered()
 		return;
 	}
 
-	if (m_activeScript->scene()->undoStack() == nullptr) {
-		emit displayStatusMessage(tr("Can't redo: no undo stack in active script's scene!"), MSG_ERROR);
-		return;
-	}
+//	if (m_activeScript->scene()->undoStack() == nullptr) {
+//		emit displayStatusMessage(tr("Can't redo: no undo stack in active script's scene!"), MSG_ERROR);
+//		return;
+//	}
 
-	m_activeScript->scene()->undoStack()->redo();
+	m_activeScript->scene()->undoStack().redo();
 }
 
 /**

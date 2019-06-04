@@ -20,7 +20,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 # Input
 HEADERS += include/category.h \
-           include/connectivitywindow.h \
            include/constants.h \
            include/diagrambox.h \
            include/diagramscene.h \
@@ -82,7 +81,6 @@ FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui
 
 SOURCES += src/category.cpp \
-           src/connectivitywindow.cpp \
            src/diagrambox.cpp \
            src/diagramscene.cpp \
            src/diagramview.cpp \

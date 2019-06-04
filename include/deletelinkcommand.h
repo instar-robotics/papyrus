@@ -38,6 +38,7 @@ class DeleteLinkCommand : public QUndoCommand
 {
 public:
 	DeleteLinkCommand(DiagramScene *scene, Link *link, QUndoCommand *parent = nullptr);
+	~DeleteLinkCommand();
 
 	void undo() override;
 	void redo() override;

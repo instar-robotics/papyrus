@@ -45,7 +45,10 @@ AddBoxCommand::~AddBoxCommand()
 {
 	// If we have a box in the pointer and this box is not in the scene, we need to destroy it,
 	// because we are the only one with this ressource
-	qWarning() << "[AddBoxCommand] destructor should check if it should delete the box or not!";
+	if (m_box != nullptr && m_box->scene() == nullptr) {
+		qDebug() << "Deleting orphan box";
+		delete m_box;
+	}
 }
 
 void AddBoxCommand::undo()

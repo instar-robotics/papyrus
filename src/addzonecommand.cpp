@@ -31,6 +31,16 @@ AddZoneCommand::AddZoneCommand(DiagramScene *scene, Zone *zone, QUndoCommand *pa
 
 }
 
+AddZoneCommand::~AddZoneCommand()
+{
+	// If the zone is not in the scene, we need to destroy it now, because at this point we are the
+	// last reference to it
+	if (m_zone != nullptr && m_zone->scene() == nullptr) {
+		delete m_zone;
+		m_zone = nullptr;
+	}
+}
+
 void AddZoneCommand::undo()
 {
 	if (m_scene == nullptr) {

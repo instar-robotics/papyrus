@@ -9,7 +9,7 @@ ShaderWidget::ShaderWidget()
 	resize(500, 500);
 
 	// Time
-	time.start();
+	m_timer.start();
 }
 
 ShaderWidget::~ShaderWidget()
@@ -53,7 +53,7 @@ void ShaderWidget::paintGL()
 
 	m_program.bind();
 
-	positionScene();
+	updateScene();
 
 	// Vertex VBO
 	m_vertexbuffer.bind();
@@ -82,6 +82,17 @@ void ShaderWidget::paintGL()
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Color));
 
 	m_program.release();
+
+	//FPS count
+	m_frame_count++;
+	if (m_timer.elapsed() >= 1000)
+	{
+		m_last_count = m_frame_count;
+		m_frame_count = 0;
+		m_timer.restart();
+		//qDebug() << m_last_count;
+	}
+
 	update();
 }
 
@@ -126,15 +137,19 @@ void ShaderWidget::initShaders()
 
 	// Light settings
 	m_program.bind();
+
+	m_camera.updatePosition();
 	m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
+
 	m_program.setUniformValue("light_normal", m_light.m_lightNormal);
 	m_program.setUniformValue("ambient_light", m_light.m_ambientLight);
 	m_program.setUniformValue("diffuse_light", m_light.m_diffuseLight);
+	m_program.setUniformValue("camera_position", m_camera.m_position);
 
 	m_program.release();
 }
 
-void ShaderWidget::positionScene()
+void ShaderWidget::updateScene()
 {
 	// Model view proj matrices
 	QMatrix4x4 projection;
@@ -160,6 +175,9 @@ void ShaderWidget::positionScene()
 
 	// Send the orientation of source light to the shaders
 	m_program.setUniformValue("light_normal", m_light.m_lightNormal);
+
+	//Send the position of light to the shaders
+	m_program.setUniformValue("camera_position", m_camera.m_position);
 }
 
 void ShaderWidget::resizeGL(int width, int height)
@@ -190,14 +208,19 @@ void ShaderWidget::mouseMoveEvent(QMouseEvent *event)
 		m_camera.rotateView(dy*m_camera.m_rotSpeed, 0, 0);
 		m_camera.rotateView(0, dx*m_camera.m_rotSpeed, 0);
 		m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
+		m_camera.updatePosition();
 	}
 	if (event->buttons() & Qt::RightButton)
 	{
 		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
 		m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot)), 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot)));
+		m_camera.updatePosition();
 	}
 	else if (event->buttons() & Qt::MiddleButton)
+	{
 		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
+		m_camera.updatePosition();
+	}
 
 	m_camera.m_lastPos = event->pos();
 }
@@ -205,6 +228,7 @@ void ShaderWidget::mouseMoveEvent(QMouseEvent *event)
 void ShaderWidget::wheelEvent(QWheelEvent *event)
 {
 	m_camera.m_distance *= 1.0 + (1.0 * (-event->delta()) / 1200.0);
+	m_camera.updatePosition();
 }
 
 QColor ShaderWidget::calculateColor(float const& value, float const& max_value)

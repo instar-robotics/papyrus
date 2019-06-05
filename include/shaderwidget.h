@@ -51,7 +51,7 @@ protected:
 	void initShaders();
 	virtual void initVectors();
 	virtual void fillVectors();
-	void positionScene();
+	void updateScene();
 
 	// Events
 //    void paintEvent(QPaintEvent *event);
@@ -63,14 +63,10 @@ protected:
 	QColor calculateColor(float const& value, const float &max_value);
 
 private:
-	// Heightmap infos
-	size_t vertices_by_x{};
-	size_t vertices_by_z{};
-
 	// FPS
-	QTime time;
-	size_t frame_count{};
-	size_t last_count{};
+	QTime m_timer;
+	size_t m_frame_count{};
+	size_t m_last_count{};
 
 	Camera m_camera;
 	Light m_light;

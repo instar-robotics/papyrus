@@ -65,12 +65,13 @@ void ShaderSurface::fillVectors()
 	{
 		for(int j = 0; j < m_xSize; j++)
 		{
-//			QColor color = calculateColor(m_matrix[i][j], 1.0);
-//			QColor color = calculateColor(1.0, 1.0);
-//			QVector3D rgb(color.red(), color.green(), color.blue());
-//			m_colors.push_back(rgb);
-			QVector3D color(0.5, 0.0, 0.0);
-			m_colors.push_back(color);
+			QColor color = calculateColor(m_matrix[i][j], 1.0);
+			//QColor color = calculateColor(1.0, 1.0);
+			QVector3D rgb(color.redF(), color.greenF(), color.blueF());
+			//rgb.normalize();
+			m_colors.push_back(rgb);
+//			QVector3D color(0.5, 0.0, 0.0);
+//			m_colors.push_back(color);
 		}
 	}
 

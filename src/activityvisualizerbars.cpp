@@ -148,21 +148,6 @@ void ActivityVisualizerBars::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 }
 
 /**
- * @brief ActivityVisualizerBars::keyPressEvent is used to match on a press to ESCAPE, to close
- * this visualizer.
- * @param evt
- */
-void ActivityVisualizerBars::keyPressEvent(QKeyEvent *evt)
-{
-	int key = evt->key();
-
-	if (key == Qt::Key_Escape || key == Qt::Key_Delete)
-		delete this;
-
-	QGraphicsPixmapItem::keyPressEvent(evt);
-}
-
-/**
  * @brief ActivityVisualizerBars::wheelEvent is used to zoom or dezoom the scale, when SHIFT is
  * held and the wheel is scrolled
  * @param evt

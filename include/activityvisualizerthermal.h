@@ -16,7 +16,6 @@ public:
 	explicit ActivityVisualizerThermal(DiagramBox *box);
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
-	void keyPressEvent(QKeyEvent *evt);
 
 signals:
 	void sizeChanged();

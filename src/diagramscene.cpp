@@ -788,6 +788,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 			Link *link = dynamic_cast<Link *>(items.at(0));
 			DiagramBox *box = dynamic_cast<DiagramBox *>(items.at(0));
 			Zone *zone = dynamic_cast<Zone *>(items.at(0));
+			ActivityVisualizer *vis = dynamic_cast<ActivityVisualizer *>(items.at(0));
 
 			if (link != nullptr)
 				deleteItem(link);
@@ -795,8 +796,15 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				deleteItem(box);
 			else if (zone != nullptr)
 				deleteItem(zone);
+			else if (vis != nullptr)
+				delete vis;  // we don't provide CTRL + Z for deleting visualizer for now
 			else
-				emit displayStatusMessage(tr("Unknown item to delete."));
+				qWarning() << "Unknown item to delete.";
+
+			if (m_script == nullptr)
+				qWarning() << "[DiagramScene::keyPressEvent] cannot set script as modified: no script!";
+			else
+				m_script->setStatusModified(true);
 		} else if (nbItems > 0) {
 			// When we have several items to delete at once, link all commands so they are only one undo/redo
 			QUndoCommand *command = new QUndoCommand();
@@ -858,37 +866,26 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				}
 			}
 
-			/*
-			// Sanity check
-			if (items.size() != 0)
-				qWarning() << items.size() << "items remains and won't be deleted.";
-			//*/
-
-//			if (m_undoStack == nullptr) {
-//				qWarning() << "Can't delete selected elements: no undo stack!";
-//				return;
-//			}
-
 			// Push the commands
 			m_undoStack.push(command);
 
-		}
-
-
-		// Set the associated script as modified if there was a deletion
-		if (nbItems > 0) {
 			if (m_script == nullptr)
 				qWarning() << "[DiagramScene::keyPressEvent] cannot set script as modified: no script!";
 			else
 				m_script->setStatusModified(true);
-			emit displayStatusMessage(tr("Deleted ") + nbItems + " items.");
 
-			// Also recheck for invalidity
-			if (m_script == nullptr)
-				qWarning() << "[DiagramScene::keyPressEvent] cannot set script as invalid: no script!";
-			else
-				m_script->setIsInvalid(checkForInvalidity());
+			emit displayStatusMessage(QString("Deleted %1 item%2")
+			                          .arg(nbItems)
+			                          .arg(nbItems != 1 ? "s" : ""));
+
 		}
+
+		// Also recheck for invalidity
+		if (m_script == nullptr)
+			qWarning() << "[DiagramScene::keyPressEvent] cannot set script as invalid: no script!";
+		else
+			m_script->setIsInvalid(checkForInvalidity());
+
 	} else if (key == Qt::Key_T) {
 		// Toggle displaying input slot names when 'T' is pressed
 		m_displayLabels = !m_displayLabels;
@@ -913,11 +910,9 @@ void DiagramScene::deleteItem(Link *link)
 	}
 
 	DeleteLinkCommand *command = new DeleteLinkCommand(this, link);
-//	if (m_undoStack == nullptr) {
-//		qWarning() << "[DiagramScene::deleteItem] cannot delete link: no undo stack!";
-//		return;
-//	}
 	m_undoStack.push(command);
+
+	emit displayStatusMessage(tr("Link deleted (CTRL + Z to undo)."));
 }
 
 /**
@@ -933,10 +928,6 @@ void DiagramScene::deleteItem(DiagramBox *box)
 	}
 
 	DeleteBoxCommand *command = new DeleteBoxCommand(this, box);
-//	if (m_undoStack == nullptr) {
-//		qWarning() << "[DiagramScene::deleteItem] cannot delete box: no undo stack!";
-//		return;
-//	}
 
 	// Create delete commands for all links
 	foreach (Link *outputLink, box->outputSlot()->outputs()) {
@@ -956,6 +947,8 @@ void DiagramScene::deleteItem(DiagramBox *box)
 	}
 
 	m_undoStack.push(command);
+
+	emit displayStatusMessage(tr("Function deleted (CTRL + Z to undo)."));
 }
 
 /**
@@ -971,12 +964,9 @@ void DiagramScene::deleteItem(Zone *zone)
 	}
 
 	DeleteZoneCommand *command = new DeleteZoneCommand(this, zone);
-//	if (m_undoStack == nullptr) {
-//		qWarning() << "[DiagramScene::deleteItem] cannot delete zone: no undo stack!";
-//		return;
-//	}
-
 	m_undoStack.push(command);
+
+	emit displayStatusMessage(tr("Zone deleted (CTRL + Z to undo)."));
 }
 
 /**

@@ -81,8 +81,7 @@ DiagramBox::DiagramBox(const QString &name,
 
 	setFlags(QGraphicsItem::ItemIsSelectable
 	       | QGraphicsItem::ItemIsMovable
-	       | QGraphicsItem::ItemSendsScenePositionChanges);
-	setAcceptHoverEvents(true);
+	       | QGraphicsItem::ItemSendsScenePositionChanges); // necessary for snapping to grid
 
 	setToolTip(description);
 	// Make this the parent item of the output slot, so that it follow drags, etc.
@@ -154,6 +153,11 @@ DiagramBox::DiagramBox(const QString &name,
 	updateSizeIcon();
 
 	setZValue(BOXES_Z_VALUE);
+}
+
+DiagramBox::~DiagramBox()
+{
+	emit boxDestroyed();
 }
 
 QRectF DiagramBox::boundingRect() const

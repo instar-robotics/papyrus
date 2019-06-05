@@ -75,16 +75,6 @@ void ActivityVisualizerThermal::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
 
-void ActivityVisualizerThermal::keyPressEvent(QKeyEvent *evt)
-{
-	int key = evt->key();
-
-	if (key == Qt::Key_Escape || key == Qt::Key_Delete)
-		delete this;
-
-	QGraphicsPixmapItem::keyPressEvent(evt);
-}
-
 // For {0 <= x <= 0.5}
 static double eq1(double x) {
 	return 1 / (20 * (x - 0.586)) + 0.58;

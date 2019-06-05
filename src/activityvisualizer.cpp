@@ -2,11 +2,13 @@
 
 #include <QDebug>
 #include <QCursor>
+#include <QGraphicsScene>
 
 // I know there is potentially a segfault here if box == nullptr. But I did not want to use a
 // pointer for the QImage. Potential solution is to manually include width and height as params
 ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
-    : QGraphicsPixmapItem(box),
+//    : QGraphicsPixmapItem(box),
+    : QGraphicsPixmapItem(nullptr),
       m_box(box),
       m_width(300),
       m_height(101),
@@ -24,7 +26,6 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
 {
 	m_box->setActivityVisualizer(this);
 	m_box->setIsActivityVisuEnabled(true);
-//	setParentItem(m_box); // Make the visualizer a child of the box so the box handles its deletion
 
 	// Fill background with white
 	m_image.fill(qRgb(255, 255, 255));
@@ -34,20 +35,31 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
 	qreal y = m_box->scenePos().y() - m_height - 10;
 	setPos(x, y);
 
-	setFlag(QGraphicsItem::ItemIsMovable);
-	setFlag(QGraphicsItem::ItemIsSelectable);
-	setFlag(QGraphicsItem::ItemIsFocusable);
-	setAcceptHoverEvents(true);
+	setFlag(QGraphicsItem::ItemIsMovable, true);
+	setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	// Add the visualizer to the box's scene
+	if (m_box->scene() == nullptr)
+		qWarning() << "ActivityVisualier cannot be added to it's box's scene as it has none!";
+	else
+		m_box->scene()->addItem(this);
+
+	// Delete itself when the box is is attached to is deleted.
+	/* NOTE: I don't understand how this doesn't segfault when both the box and the visualizer are
+	 * in the scene. As they are in the scene, the scene should take care of deleting these items.
+	 * So there's a possibility it can destroy the box first, then this signal/slot makes it delete
+	 * itself, and then the scene tries to delete this again...
+	 * I can't reproduce this must it seems magical to me :/
+	 */
+	connect(m_box, SIGNAL(boxDestroyed()), this, SLOT(onBoxDestroyed()));
 }
 
 ActivityVisualizer::~ActivityVisualizer()
 {
 	if (m_activityFetcher != nullptr) {
-		if (m_activityFetcher != nullptr) {
-			m_activityFetcher->setShouldQuit(true);
-			m_activityFetcher->wait(500);
-			delete m_activityFetcher;
-		}
+		m_activityFetcher->setShouldQuit(true);
+		m_activityFetcher->wait(1000);
+		delete m_activityFetcher;
 	}
 
 	if (m_box != nullptr) {
@@ -208,4 +220,9 @@ int ActivityVisualizer::height() const
 void ActivityVisualizer::setHeight(int height)
 {
 	m_height = height;
+}
+
+void ActivityVisualizer::onBoxDestroyed()
+{
+	delete this;
 }

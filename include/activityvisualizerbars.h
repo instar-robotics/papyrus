@@ -29,7 +29,6 @@ public:
 	~ActivityVisualizerBars();
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
-	void keyPressEvent(QKeyEvent *evt);
 	void wheelEvent(QGraphicsSceneWheelEvent *evt);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 

@@ -65,6 +65,9 @@ protected:
 	qreal m_minHeight;
 
 	ActivityFetcher *m_activityFetcher;
+
+private slots:
+	void onBoxDestroyed();
 };
 
 #endif // ACTIVITYVISUALIZER_H

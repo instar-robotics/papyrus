@@ -32,7 +32,10 @@ class DeleteZoneCommand : public QUndoCommand
 {
 public:
 	DeleteZoneCommand(DiagramScene *scene, Zone *zone, QUndoCommand *parent = nullptr);
-	~DeleteZoneCommand();
+	// NOTE: we should be destroying the item in the destructor if the item is not in the scene,
+	// but the undo command can be deleted when a new action is performed, at which point a further
+	// undo() would segfault because the item was destroyed
+//	~DeleteZoneCommand();
 
 	void undo() override;
 	void redo() override;

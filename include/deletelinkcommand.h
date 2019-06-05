@@ -38,7 +38,10 @@ class DeleteLinkCommand : public QUndoCommand
 {
 public:
 	DeleteLinkCommand(DiagramScene *scene, Link *link, QUndoCommand *parent = nullptr);
-	~DeleteLinkCommand();
+	// NOTE: we should be destroying the item in the destructor if the item is not in the scene,
+	// but the undo command can be deleted when a new action is performed, at which point a further
+	// undo() would segfault because the item was destroyed
+//	~DeleteLinkCommand();
 
 	void undo() override;
 	void redo() override;

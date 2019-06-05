@@ -45,7 +45,7 @@ class DiagramScene : public QGraphicsScene
 	Q_OBJECT
 
 public:
-	explicit DiagramScene(QObject *parent = 0);
+	explicit DiagramScene(QObject *parent = nullptr);
 	~DiagramScene();
 
 	void addBox(DiagramBox *newBox, const QPointF &position);

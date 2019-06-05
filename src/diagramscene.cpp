@@ -89,11 +89,14 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
  */
 DiagramScene::~DiagramScene()
 {
-	qDebug() << "Scene desctructor";
-
 	if (m_line != nullptr) {
 		delete m_line;
 		m_line = nullptr;
+	}
+
+	if (m_rect != nullptr) {
+		delete m_rect;
+		m_rect = nullptr;
 	}
 
 	if (m_script != nullptr) {
@@ -106,7 +109,7 @@ DiagramScene::~DiagramScene()
 
 void DiagramScene::addBox(DiagramBox *newBox, const QPointF &position)
 {
-	Q_ASSERT(newBox->outputSlot() != NULL);
+	Q_ASSERT(newBox->outputSlot() != nullptr);
 
 	newBox->setPos(position);
 
@@ -143,7 +146,10 @@ bool DiagramScene::checkForInvalidLinks()
 	}
 
 	// Update script's status and tab text color based on the result
-	m_script->setIsInvalid(foundInvalidLinks);
+	if (m_script == nullptr)
+		qWarning() << "[DiagramScene::checkForInvalidLink] cannot set script as invalid: no script!";
+	else
+		m_script->setIsInvalid(foundInvalidLinks);
 
 	return foundInvalidLinks;
 }
@@ -171,7 +177,10 @@ bool DiagramScene::checkForInvalidity()
 	}
 
 	// Update script's status and tab text color based on the result
-	m_script->setIsInvalid(foundInvalid);
+	if (m_script == nullptr)
+		qWarning() << "[DiagramScene::checkForInvalidity] cannot set script as invalid: no script!";
+	else
+		m_script->setIsInvalid(foundInvalid);
 
 	return foundInvalid;
 }
@@ -233,7 +242,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 			// Check if we clicked on an output slot
 			m_oSlot = dynamic_cast<OutputSlot *>(maybeItem);
 
-			if (m_oSlot != NULL) {
+			if (m_oSlot != nullptr) {
 				// Display input slot's names when creating a link
 				m_prevDisplayLabels = m_displayLabels;
 				m_displayLabels = true;
@@ -284,7 +293,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 
 	foreach(QGraphicsItem *item, items(visibleArea)) {
 		Slot *slot = dynamic_cast<Slot *>(item);
-		if (slot != NULL) {
+		if (slot != nullptr) {
 			QPointF center = slot->scenePos();
 			qreal dist = (mousePos - center).manhattanLength();
 			slot->setDist(dist <= 400 ? dist : 400);
@@ -292,14 +301,14 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 
 			// Flag input slots that can be linked to the current output slot (if any)
 			InputSlot *inputSlot = dynamic_cast<InputSlot *>(slot);
-			if (inputSlot != NULL && m_leftBtnDown && m_line != NULL && m_oSlot != NULL) {
+			if (inputSlot != nullptr && m_leftBtnDown && m_line != nullptr && m_oSlot != nullptr) {
 				inputSlot->setCanLink(canLink(m_oSlot->outputType(), inputSlot->inputType()));
 			}
 		}
 	}
 
 	// Draw a dotted line if we are creating a Link
-	if (m_leftBtnDown && m_line != 0 && m_oSlot != NULL) {
+	if (m_leftBtnDown && m_line != 0 && m_oSlot != nullptr) {
 		QLineF newLine(m_line->line().p1(), mousePos);
 		QPen currPen = m_line->pen();
 
@@ -423,7 +432,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt) {
 			}
 		}
 
-		m_oSlot = 0;
+		m_oSlot = nullptr;
 	} else if (evt->button() == Qt::RightButton) {
 		m_rightBtnDown = false;
 
@@ -626,7 +635,10 @@ void DiagramScene::dropEvent(QGraphicsSceneDragDropEvent *evt)
 //			}
 			m_undoStack.push(addBoxCommand);
 
-			m_script->setStatusModified(true);
+			if (m_script == nullptr)
+				qWarning() << "[DiagramScene::dropEvent] cannot set script as modified: no script!";
+			else
+				m_script->setStatusModified(true);
 			setBackgroundBrush(QBrush(Qt::white));
 
 			QString str(tr("Function '%1' added in script").arg(name));
@@ -865,11 +877,17 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 
 		// Set the associated script as modified if there was a deletion
 		if (nbItems > 0) {
-			m_script->setStatusModified(true);
+			if (m_script == nullptr)
+				qWarning() << "[DiagramScene::keyPressEvent] cannot set script as modified: no script!";
+			else
+				m_script->setStatusModified(true);
 			emit displayStatusMessage(tr("Deleted ") + nbItems + " items.");
 
 			// Also recheck for invalidity
-			m_script->setIsInvalid(checkForInvalidity());
+			if (m_script == nullptr)
+				qWarning() << "[DiagramScene::keyPressEvent] cannot set script as invalid: no script!";
+			else
+				m_script->setIsInvalid(checkForInvalidity());
 		}
 	} else if (key == Qt::Key_T) {
 		// Toggle displaying input slot names when 'T' is pressed
@@ -889,7 +907,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
  */
 void DiagramScene::deleteItem(Link *link)
 {
-	if (link == NULL) {
+	if (link == nullptr) {
 		emit displayStatusMessage(tr("WARNING: tried to remove a link that was null."), MSG_WARNING);
 		return;
 	}
@@ -909,7 +927,7 @@ void DiagramScene::deleteItem(Link *link)
  */
 void DiagramScene::deleteItem(DiagramBox *box)
 {
-	if (box == NULL) {
+	if (box == nullptr) {
 		emit displayStatusMessage(tr("WARNING: tried to remove a box that was null."), MSG_WARNING);
 		return;
 	}
@@ -1146,10 +1164,6 @@ Script *DiagramScene::script() const
  */
 void DiagramScene::setScript(Script *script)
 {
-	if (script == nullptr) {
-		qWarning() << "Trying to set DiagramScene's scritp to Null pointer";
-		return;
-	}
 	m_script = script;
 }
 
@@ -1195,7 +1209,7 @@ void DiagramScene::onOkBtnClicked(bool)
 	QList<QGraphicsItem *> sItems = selectedItems();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
-	if (propPanel == NULL)
+	if (propPanel == nullptr)
 		informUserAndCrash(tr("Impossible to fetch the properties panel!"));
 
 	if (sItems.count() == 0) {
@@ -1286,7 +1300,7 @@ void DiagramScene::onCancelBtnClicked(bool)
 	QList<QGraphicsItem *> sItems = selectedItems();
 
 	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
-	if (propPanel == NULL)
+	if (propPanel == nullptr)
 		informUserAndCrash(tr("Impossible to fetch the properties panel!"));
 
 	// Instead of manually try to undo all changed in the properties panel, simply call
@@ -1348,8 +1362,6 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			switch (selectedBox->outputType()) {
 				case SCALAR:
 					vis = new ActivityVisualizerBars(selectedBox);
-//					selectedBox->setActivityVisualizer(vis);
-//					addItem(vis);
 				break;
 
 				case MATRIX:

@@ -46,13 +46,9 @@ void DeleteBoxCommand::undo()
 	// Add back its parent (which was delete when removed from scene) if it had one
 	if (m_zone != nullptr)
 		m_box->setParentItem(m_zone);
-	qDebug() << "Delete undo()";
+
 	// Put the box back in the scene
-	if (m_box->activityVisualizer() != nullptr)
-		qDebug() << "\tvisualizer in scene(before):" << (m_box->activityVisualizer()->scene() != nullptr);
 	m_scene->addItem(m_box);
-	if (m_box->activityVisualizer() != nullptr)
-		qDebug() << "\tvisualizer in scene(after):" << (m_box->activityVisualizer()->scene() != nullptr);
 }
 
 void DeleteBoxCommand::redo()

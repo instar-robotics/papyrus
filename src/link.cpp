@@ -77,8 +77,10 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsObject *parent) : QGraphicsObje
 
 Link::~Link()
 {
-	delete m_label;
-	m_label = nullptr;
+	if (m_label != nullptr) {
+		delete m_label;
+		m_label = nullptr;
+	}
 }
 
 QRectF Link::boundingRect() const

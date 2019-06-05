@@ -71,18 +71,21 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_ui(new Ui::PapyrusWindow),
     m_argc(argc),
     m_argv(argv),
-    m_rosMasterStatus(nullptr),
-    librarySearchField_(nullptr),
+    m_rosMasterStatus(this),
+    m_libraryPanel(this),
+    m_librarySearchField(this),
     m_lastExpandedCategory("Constants"),
     m_libraryParsingErrors(0),
+    m_trayIcon(nullptr),
     m_activeScript(nullptr),
-    m_propertiesPanel(nullptr),
+    m_propertiesPanel(this),
     m_homePage(nullptr),
     m_runTimeDisplay(nullptr),
     m_actionRelease(nullptr),
     m_actionDebug(nullptr),
     m_lastDir(QDir::homePath()),
-    m_checkVersionTimer(nullptr),
+    m_autoSaveTimer(this),
+    m_checkVersionTimer(this),
     m_preventROSPopup(true),
     m_findDialog(nullptr)
 {
@@ -131,33 +134,28 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 		                      "to an API change that was not implemented."));
 	}
 
-	// Temporary create those here, because I have made the parsing dependent on this (which is stupid)
-	libraryPanel_ = new LibraryPanel;
+	connect(&m_libraryPanel, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(categoryExpanded(QTreeWidgetItem*)));
 
-	connect(libraryPanel_, SIGNAL(itemExpanded(QTreeWidgetItem *)), this, SLOT(categoryExpanded(QTreeWidgetItem*)));
-
-	librarySearchField_ = new QLineEdit;
-	librarySearchField_->setPlaceholderText(tr("Filter..."));
-	librarySearchField_->setClearButtonEnabled(true);
-	librarySearchField_->setFrame(false);
-	connect(librarySearchField_, SIGNAL(textChanged(QString)), this, SLOT(filterLibraryNames(QString)));
+	m_librarySearchField.setPlaceholderText(tr("Filter..."));
+	m_librarySearchField.setClearButtonEnabled(true);
+	m_librarySearchField.setFrame(false);
+	connect(&m_librarySearchField, SIGNAL(textChanged(QString)), this, SLOT(filterLibraryNames(QString)));
 
 	QVBoxLayout *vbox = new QVBoxLayout;
-	vbox->addWidget(librarySearchField_);
-	vbox->addWidget(libraryPanel_);
+	vbox->addWidget(&m_librarySearchField);
+	vbox->addWidget(&m_libraryPanel);
 
 	QGroupBox *libraryGroupBox = new QGroupBox(tr("Library"));
 	libraryGroupBox->setLayout(vbox);
 
-	m_propertiesPanel = new PropertiesPanel;
-	connect(m_propertiesPanel, SIGNAL(enterPressed()), this, SLOT(onPropPanelEnter()));
-	connect(m_propertiesPanel, SIGNAL(escapePressed()), this, SLOT(onPropPanelEscape()));
-	connect(m_propertiesPanel, SIGNAL(displayStatusMessage(QString,MessageUrgency)),
+	connect(&m_propertiesPanel, SIGNAL(enterPressed()), this, SLOT(onPropPanelEnter()));
+	connect(&m_propertiesPanel, SIGNAL(escapePressed()), this, SLOT(onPropPanelEscape()));
+	connect(&m_propertiesPanel, SIGNAL(displayStatusMessage(QString,MessageUrgency)),
 	        this, SLOT(displayStatusMessage(QString,MessageUrgency)));
 
 	QSplitter *leftSplitter = new QSplitter(Qt::Vertical);
 	leftSplitter->addWidget(libraryGroupBox);
-	leftSplitter->addWidget(m_propertiesPanel);
+	leftSplitter->addWidget(&m_propertiesPanel);
 
 	m_ui->splitter->insertWidget(0, leftSplitter);
 
@@ -187,8 +185,6 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	}
 	// Parse the description directory
 	else {
-		m_library = new Library;
-
 		description_ = description;
 
 		description_.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
@@ -202,7 +198,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
 			parseOneLevel(QDir(description.canonicalPath() + "/" + categories[i]), xmlReader);
 
-			m_library->addCategory(newCategory);
+			m_library.addCategory(newCategory);
 		}
 
 		// Create one "built-in" category for the constant inputs (created at the end so that it
@@ -225,7 +221,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 		constants->addChild(constantString);
 		constants->addChild(constantMatrix);
 
-		m_library->addCategory(constants);
+		m_library.addCategory(constants);
 
 		// Display a warning box if some library description files could not be read
 		// TODO: display a message in the system tray instead!
@@ -242,9 +238,9 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
 	// Display a system tray if it is available
 	if (QSystemTrayIcon::isSystemTrayAvailable()) {
-		trayIcon = new QSystemTrayIcon(this);
-		trayIcon->setIcon(QIcon(":/icons/icons/papyrus.svg"));
-		trayIcon->show();
+		m_trayIcon = new QSystemTrayIcon(this);
+		m_trayIcon->setIcon(QIcon(":/icons/icons/papyrus.svg"));
+		m_trayIcon->show();
 	}
 
 	// Show a normal status message on application startup
@@ -255,9 +251,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
 	// Add an icon to display the status of the ROS master
 	QIcon rosMasterIcon(":/icons/icons/ros-master-off.svg");
-	m_rosMasterStatus = new QLabel;
-	m_rosMasterStatus->setPixmap(rosMasterIcon.pixmap(QSize(30, 30)));
-	m_ui->statusBar->addPermanentWidget(m_rosMasterStatus);
+	m_rosMasterStatus.setPixmap(rosMasterIcon.pixmap(QSize(30, 30)));
+	m_ui->statusBar->addPermanentWidget(&m_rosMasterStatus);
 
 	// Set initial panels size
 	QList<int> sizes;
@@ -265,7 +260,7 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	int tabWidgetSize = geometry().width() - librarySize;
 	sizes << librarySize << tabWidgetSize;
 	m_ui->splitter->setSizes(sizes);
-	libraryPanel_->setDragEnabled(true);
+	m_libraryPanel.setDragEnabled(true);
 
 	QList<int> leftSizes;
 	int propertiesSize = 240;
@@ -305,9 +300,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	m_ui->mainToolBar->insertWidget(m_ui->actionStop, m_runTimeDisplay);
 
 	// Start the autosave timer
-	m_autoSaveTimer = new QTimer(this);
-	connect(m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
-	m_autoSaveTimer->start(AUTOSAVE_PERIOD);
+	connect(&m_autoSaveTimer, SIGNAL(timeout()), this, SLOT(autoSave()));
+	m_autoSaveTimer.start(AUTOSAVE_PERIOD);
 
 	// Re-open last opened scripts if we have some.
 	foreach (QString path, lastOpenedScripts.split(',', QString::SkipEmptyParts)) {
@@ -318,9 +312,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	m_ui->tabWidget->setCurrentIndex(lastActive);
 
 	// Launch timer to periodically check for a new release
-	m_checkVersionTimer = new QTimer(this);
-	connect(m_checkVersionTimer, SIGNAL(timeout()), this, SLOT(checkForNewRelease()));
-	m_checkVersionTimer->start(60000); // every 1 minute
+	connect(&m_checkVersionTimer, SIGNAL(timeout()), this, SLOT(checkForNewRelease()));
+	m_checkVersionTimer.start(60000); // every 1 minute
 
 	// Show the changelog
 	QTimer::singleShot(100, this, SLOT(onLaunched()));
@@ -331,23 +324,37 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 
 PapyrusWindow::~PapyrusWindow()
 {
-	delete m_ui;
-	delete trayIcon;
-	delete m_library;
+	if (m_ui != nullptr) {
+		delete m_ui;
+		m_ui = nullptr;
+	}
 
-	// Signalling the thread it should terminate
-	m_rosnode->setShouldQuit(true);
+	if (m_trayIcon != nullptr) {
+		delete m_trayIcon;
+		m_trayIcon = nullptr;
+	}
 
-	// Waiting for the thread to terminate, with 1s max wait time
-	m_rosnode->wait(1000);
+	if (m_findDialog != nullptr) {
+		delete m_findDialog;
+		m_findDialog = nullptr;
+	}
+
+	if (m_rosnode != nullptr) {
+		// Signalling the thread it should terminate
+		m_rosnode->setShouldQuit(true);
+
+		// Waiting for the thread to terminate, with 1s max wait time
+		m_rosnode->wait(1000);
+
+		delete m_rosnode;
+		m_rosnode = nullptr;
+	}
 
 	// If ROS was not stopped, stop it here and now
 	if (ros::isStarted()) {
 		ros::shutdown();
 		ros::waitForShutdown();
 	}
-	delete m_rosnode;
-	delete m_rosMasterStatus;
 }
 
 /**
@@ -506,7 +513,7 @@ void PapyrusWindow::writeSettings()
 Category *PapyrusWindow::addTreeRoot(QString name)
 {
 	Category *treeItem = new Category(name);
-	libraryPanel_->insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
+	m_libraryPanel.insertTopLevelItem(0, treeItem);           // Make it a top-level ("category")
 
 	treeItem->setText(0, name);
 	//    treeItem->setBackground(0, QBrush(Qt::lightGray));
@@ -684,19 +691,9 @@ void PapyrusWindow::on_actionNew_script_triggered()
 	                                                         newScriptName));
 	newScript->setHasTab(true);
 
-	m_propertiesPanel->displayScriptProperties(newScript);
+	m_propertiesPanel.displayScriptProperties(newScript);
 
 	m_ui->statusBar->showMessage("New script '" + newScriptName + "' created.");
-}
-
-Library *PapyrusWindow::getLibrary() const
-{
-	return m_library;
-}
-
-void PapyrusWindow::setLibrary(Library *library)
-{
-	m_library = library;
 }
 
 Ui::PapyrusWindow *PapyrusWindow::ui() const
@@ -704,27 +701,17 @@ Ui::PapyrusWindow *PapyrusWindow::ui() const
 	return m_ui;
 }
 
-QLineEdit *PapyrusWindow::librarySearchField() const
-{
-	return librarySearchField_;
-}
-
-void PapyrusWindow::setLibrarySearchField(QLineEdit *librarySearchField)
-{
-	librarySearchField_ = librarySearchField;
-}
-
 void PapyrusWindow::filterLibraryNames(const QString &text)
 {
 	bool exp = !text.isEmpty();
 
-	int n = libraryPanel_->topLevelItemCount();
+	int n = m_libraryPanel.topLevelItemCount();
 	for (int i = 0; i < n; i += 1) {
-		libraryPanel_->topLevelItem(i)->setExpanded(exp);
+		m_libraryPanel.topLevelItem(i)->setExpanded(exp);
 	}
 
 	for (int i = 0; i < n; i += 1) {
-		Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
+		Category *cat = dynamic_cast<Category *>(m_libraryPanel.topLevelItem(i));
 		if (cat == NULL) {
 			qDebug() << "Failed to cast Cat";
 			continue;
@@ -791,21 +778,21 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
 {
 	if (isOnline) {
 		QIcon rosMasterIconON(":/icons/icons/ros-master-on.svg");
-		m_rosMasterStatus->setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
+		m_rosMasterStatus.setPixmap(rosMasterIconON.pixmap(QSize(30, 30)));
 		m_ui->statusBar->showMessage(tr("The ROS master just went online"));
 
 		if (!m_preventROSPopup)
-			trayIcon->showMessage(tr("ROS Master just went back up!"),
+			m_trayIcon->showMessage(tr("ROS Master just went back up!"),
 			                      tr("The ROS Master just went back online!\nSo connections with "
 			                         "services and topics should be available again."),
 			                      QSystemTrayIcon::Information);
 	} else {
 		QIcon rosMasterIconOFF(":/icons/icons/ros-master-off.svg");
-		m_rosMasterStatus->setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
+		m_rosMasterStatus.setPixmap(rosMasterIconOFF.pixmap(QSize(30, 30)));
 		m_ui->statusBar->showMessage(tr("The ROS master just went offline"));
 
 		if (!m_preventROSPopup)
-			trayIcon->showMessage(tr("ROS Master just went down"),
+			m_trayIcon->showMessage(tr("ROS Master just went down"),
 			                      tr("The ROS Master just went offline, so connection with every ROS "
 			                         "topics or services are currently unavailable!"),
 			                      QSystemTrayIcon::Warning);
@@ -989,19 +976,14 @@ Script *PapyrusWindow::activeScript() const
 	return m_activeScript;
 }
 
-PropertiesPanel *PapyrusWindow::propertiesPanel() const
+PropertiesPanel *PapyrusWindow::propertiesPanel()
 {
-	return m_propertiesPanel;
-}
-
-void PapyrusWindow::setPropertiesPanel(PropertiesPanel *propertiesPanel)
-{
-	m_propertiesPanel = propertiesPanel;
+	return &m_propertiesPanel;
 }
 
 QSystemTrayIcon *PapyrusWindow::getTrayIcon() const
 {
-	return trayIcon;
+	return m_trayIcon;
 }
 
 RosNode *PapyrusWindow::rosnode() const
@@ -1087,16 +1069,6 @@ void PapyrusWindow::setLastDir(const QString &lastDir)
 	m_lastDir = lastDir;
 }
 
-QTimer *PapyrusWindow::autoSaveTimer() const
-{
-	return m_autoSaveTimer;
-}
-
-void PapyrusWindow::setAutoSaveTimer(QTimer *autoSaveTimer)
-{
-	m_autoSaveTimer = autoSaveTimer;
-}
-
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
 	// Call the 'Save' function of the current script
@@ -1145,7 +1117,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 	}
 
 	// Parse the script XML file
-	XmlScriptReader xmlReader(openScript, getDescriptionPath(), m_library);
+	XmlScriptReader xmlReader(openScript, getDescriptionPath(), &m_library);
 	if (!xmlReader.read(&scriptFile)) {
 		QString str(tr("We could not load the script, some errors happened while parsing the XML file:\n"));
 		str += xmlReader.errorString();
@@ -1441,7 +1413,7 @@ void PapyrusWindow::categoryExpanded(QTreeWidgetItem *item)
 {
 	// Don't do anything if the library search field is not empty (this is important because the
 	// handler hides some categories, which would call this event)
-	if (!librarySearchField_->text().isEmpty())
+	if (!m_librarySearchField.text().isEmpty())
 		return;
 
 	Category *expandedCategory = dynamic_cast<Category *>(item);
@@ -1452,9 +1424,9 @@ void PapyrusWindow::categoryExpanded(QTreeWidgetItem *item)
 	if (expandedCategory->name() == "Constants")
 		return;
 
-	int n = libraryPanel_->topLevelItemCount();
+	int n = m_libraryPanel.topLevelItemCount();
 	for (int i = 0; i < n; i += 1) {
-		Category *cat = dynamic_cast<Category *>(libraryPanel_->topLevelItem(i));
+		Category *cat = dynamic_cast<Category *>(m_libraryPanel.topLevelItem(i));
 		if (cat == NULL)
 			continue;
 
@@ -1779,7 +1751,7 @@ void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
 				str += tr(", BUT the XML file could NOT be renamed (reason unknown).");
 			}
 
-			m_propertiesPanel->displayScriptProperties(scene->script());
+			m_propertiesPanel.displayScriptProperties(scene->script());
 		} else {
 			str += ".";
 		}

@@ -52,132 +52,100 @@ class PropertiesPanel : public QGroupBox
 	Q_OBJECT
 
 public:
-	explicit PropertiesPanel(QWidget *parent = 0);
+	explicit PropertiesPanel(QWidget *parent = nullptr);
 
 	void hideAllFrames(bool buttonsToo = false);
+	void hideBoxFrame();
+	void hideLinkFrame();
 	void updateBoxProperties(DiagramBox *box);
 	void updateLinkProperties(Link *link);
 	void updateScriptProperties(Script *script);
 	void updateZoneProperties(Zone *zone);
 
+	void hideOkBtn();
+	void hideCancelBtn();
+
 	void keyPressEvent(QKeyEvent *event);
 
-	QFrame *boxFrame() const;
-	void setBoxFrame(QFrame *boxFrame);
+	QString getBoxTitle();
+	int getBoxRows();
+	int getBoxCols();
+	bool getBoxSaveActivity();
+	bool getBoxPublish();
+	QString getBoxTopic();
 
-	QFrame *linkFrame() const;
-	void setLinkFrame(QFrame *linkFrame);
+	bool getLinkSecondary();
+	qreal getLinkWeight();
+	QString getLinkValue();
+	Connectivity getLinkConnectivity();
+	QString getLinkRegexes();
 
-	QLabel *boxName() const;
-	void setBoxName(QLabel *boxName);
+	QString getZoneTitle();
+	QColor getZoneColor();
 
-	QSpinBox *rowsInput() const;
+	void setTopicNameColor(QColor color);
 
-	QSpinBox *colsInput() const;
+	qreal getScriptTimeValue();
+	void setScriptTimeValue(qreal timeValue);
 
-	QPushButton *okBtn() const;
-	void setOkBtn(QPushButton *okBtn);
+	TimeUnit getScriptTimeUnit();
+	void setScriptTimeUnit(TimeUnit timeUnit);
 
-	QPushButton *cancelBtn() const;
-	void setCancelBtn(QPushButton *cancelBtn);
+	bool getScriptEncrypt();
 
-	QCheckBox *saveActivity() const;
-	void setSaveActivity(QCheckBox *saveActivity);
+	QPushButton *displayVisu();
 
-	QDoubleSpinBox *linkWeight() const;
+	QPushButton *okBtn();
 
-	QLabel *scriptName() const;
-	void setScriptName(QLabel *scriptName);
-
-	PropDoubleSpinBox *timeValue() const;
-	void setTimeValue(PropDoubleSpinBox *timeValue);
-
-	QComboBox *timeUnit() const;
-	void setTimeUnit(QComboBox *timeUnit);
-
-	QLineEdit *linkValue() const;
-	void setLinkValue(QLineEdit *linkValue);
-
-	QPushButton *displayVisu() const;
-	void setDisplayVisu(QPushButton *displayVisu);
-
-	PropLineEdit *zoneTitle() const;
-	void setZoneTitle(PropLineEdit *zoneTitle);
-
-	SetColorButton *zoneColor() const;
-	void setZoneColor(SetColorButton *zoneColor);
-
-	PropLineEdit *boxTitle() const;
-	void setBoxTitle(PropLineEdit *boxTitle);
-
-	QLabel *boxMatrixShape() const;
-	void setBoxMatrixShape(QLabel *boxMatrixShape);
-
-	QCheckBox *publish() const;
-	void setPublish(QCheckBox *publish);
-
-	PropLineEdit *topic() const;
-	void setTopic(PropLineEdit *topic);
-
-	QCheckBox *linkSecondary() const;
-	void setLinkSecondary(QCheckBox *linkSecondary);
-
-	QCheckBox *encrypt() const;
-	void setEncrypt(QCheckBox *encrypt);
-
-	QComboBox *linkConnectivity() const;
-	void setLinkConnectivity(QComboBox *linkConnectivity);
-
-	QTextEdit *linkRegexes() const;
-	void setLinkRegexes(QTextEdit *linkRegexes);
+	QPushButton *cancelBtn();
 
 private:
 	// Script
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
-	QFrame *m_scriptFrame;       // Container for script's properties
-	QLabel *m_scriptName;        // Label used to change the script (and tab) name
-	QLabel *m_timeLabel;         // Contains either "frequency" or "period"
-	PropDoubleSpinBox *m_timeValue; // Used to input the script's frequency (or period)
-	QComboBox *m_timeUnit;       // Used to select the unit (in Hz or ms)
-	QCheckBox *m_encrypt;        // Whether or not the file is encrypted on save
+	QFrame m_scriptFrame;       // Container for script's properties
+	QLabel m_scriptName;        // Label used to change the script (and tab) name
+	QLabel m_timeLabel;         // Contains either "frequency" or "period"
+	PropDoubleSpinBox m_timeValue; // Used to input the script's frequency (or period)
+	QComboBox m_timeUnit;       // Used to select the unit (in Hz or ms)
+	QCheckBox m_encrypt;        // Whether or not the file is encrypted on save
 
 	// Box
-	QFormLayout *m_boxLayout;  // Layout for the box properties (access needed to hide rows)
-	QFrame *m_boxFrame;        // Container for box's properties
-	QLabel *m_boxName;         // Display the name of the box
-	PropLineEdit *m_boxTitle;     // Allow to see or change the box's custom name
-	QLabel *m_boxOutputType;   // Display the box's output type (scalar, matrix)
-	QLabel *m_boxMatrixShape;  // Display the shape of the function (when matrix)
-	QSpinBox *m_rowsInput;     // Spin box to input number of rows in the output (if matrix)
-	QSpinBox *m_colsInput;     // Spin box to input number of columns in the output (if matrix)
-	QCheckBox *m_saveActivity; // To enable saving the activity of the box
-	QCheckBox *m_publish;      // To enable publish the output of the function
-	PropLineEdit *m_topic;        // To input the topic name for publishing
-	QPushButton *m_displayVisu; // (TEMP) display the box's data vizualisation
+	QFormLayout *m_boxLayout;    // Layout for the box properties (access needed to hide rows)
+	QFrame m_boxFrame;           // Container for box's properties
+	QLabel m_boxName;            // Display the name of the box
+	PropLineEdit m_boxTitle;     // Allow to see or change the box's custom name
+	QLabel m_boxOutputType;      // Display the box's output type (scalar, matrix)
+	QLabel m_boxMatrixShape;     // Display the shape of the function (when matrix)
+	QSpinBox m_rowsInput;        // Spin box to input number of rows in the output (if matrix)
+	QSpinBox m_colsInput;        // Spin box to input number of columns in the output (if matrix)
+	QCheckBox m_saveActivity;    // To enable saving the activity of the box
+	QCheckBox m_publish;         // To enable publish the output of the function
+	PropLineEdit m_topic;        // To input the topic name for publishing
+	QPushButton m_displayVisu;  // Display the box's data vizualisation
 
 	// Link
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
-	QFrame *m_linkFrame;          // Container for link's properties
-	QLabel *m_linkType;           // Display the type of the link
-	QCheckBox *m_linkSecondary;   // Will display if the link is secondary or not
-	QDoubleSpinBox *m_linkWeight; // Spin box to set the weight of the link
-	QLineEdit *m_linkValue;       // Text field to enter the link's value (for string links)
-	QComboBox *m_linkConnectivity; // Change the connectivity of the link (for MATRIX_MATRIX)
-	QTextEdit *m_linkRegexes;      // The ONE_TO_NEI regexes to define neighbors
+	QFrame m_linkFrame;          // Container for link's properties
+	QLabel m_linkType;           // Display the type of the link
+	QCheckBox m_linkSecondary;   // Will display if the link is secondary or not
+	QDoubleSpinBox m_linkWeight; // Spin box to set the weight of the link
+	QLineEdit m_linkValue;       // Text field to enter the link's value (for string links)
+	QComboBox m_linkConnectivity; // Change the connectivity of the link (for MATRIX_MATRIX)
+	QTextEdit m_linkRegexes;      // The ONE_TO_NEI regexes to define neighbors
 
 	// Zone
 	QFormLayout *m_zoneLayout;     // Contains the layout to display comment zone's properties
-	QFrame *m_zoneFrame;           // Container for zone's properties
-	PropLineEdit *m_zoneTitle;        // The comment zone's title
-	SetColorButton *m_zoneColor;     // Holds the color of the comment zone
+	QFrame m_zoneFrame;           // Container for zone's properties
+	PropLineEdit m_zoneTitle;        // The comment zone's title
+	SetColorButton m_zoneColor;     // Holds the color of the comment zone
 
 	// Will contain the sizes of connected matrix when the link is SPARSE_MATRIX
 	QSize m_inputSize;
 	QSize m_outputSize;
 
 	// Buttons
-	QPushButton *m_okBtn;      // Button used to validate changes in parameters
-	QPushButton *m_cancelBtn;  // Button used to discard changes in parameters and restore current
+	QPushButton m_okBtn;      // Button used to validate changes in parameters
+	QPushButton m_cancelBtn;  // Button used to discard changes in parameters and restore current
 
 public slots:
 	void displayBoxProperties(DiagramBox *box);

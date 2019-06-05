@@ -33,7 +33,6 @@ RosNode::RosNode(int argc, char **argv) : m_argc(argc), m_argv(argv), m_shouldQu
 RosNode::~RosNode()
 {
 	if(ros::isStarted()) {
-		qDebug() << "ROS Node thread terminating ROS";
 		ros::shutdown();
 		ros::waitForShutdown();
 	}

@@ -63,6 +63,7 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_isInvalid(false),
                                                            m_timeValue(10.0),
                                                            m_timeUnit(HZ),
+                                                           m_modifiedNotifTimer(this),
                                                            m_encrypt(false),
                                                            m_isActiveScript(false),
                                                            m_isRunning(false),
@@ -77,8 +78,7 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 
 	m_uuid = QUuid::createUuid();
 
-	m_modifiedNotifTimer = new QTimer(this);
-	connect(m_modifiedNotifTimer, SIGNAL(timeout()), this, SLOT(warnAboutModifiedScript()));
+	connect(&m_modifiedNotifTimer, SIGNAL(timeout()), this, SLOT(warnAboutModifiedScript()));
 
 	// Create the ROS session only if we have a name (otherwise there's no valid node name)
 	if (!m_name.isEmpty())
@@ -92,6 +92,7 @@ Script::~Script()
 		m_rosSession->wait(500);
 
 		delete m_rosSession;
+		m_rosSession = nullptr;
 	}
 }
 
@@ -616,17 +617,14 @@ void Script::setStatusModified(bool isModified)
 	if (m_modified == isModified)
 		return;
 
-	if (m_modifiedNotifTimer == NULL)
-		informUserAndCrash(tr("The timer to warn about modified and unsaved script is null."));
-
 	// If there was a change and it's true, check if a timer for warning exists and set one otherwise
 	if (isModified) {
-		if (m_modifiedNotifTimer->isActive()) {
+		if (m_modifiedNotifTimer.isActive()) {
 		} else {
-			m_modifiedNotifTimer->start(TIME_WARN_MODIFIED * 60 * 1000);
+			m_modifiedNotifTimer.start(TIME_WARN_MODIFIED * 60 * 1000);
 		}
 	} else {
-		m_modifiedNotifTimer->stop();
+		m_modifiedNotifTimer.stop();
 	}
 
 	m_modified = isModified;

@@ -1121,13 +1121,13 @@ void DiagramScene::onSelectionChanged()
 		}
 
 	} else if (sItems.count() == 0) {
-		propPanel->boxFrame()->hide();
-		propPanel->linkFrame()->hide();
+		propPanel->hideBoxFrame();
+		propPanel->hideLinkFrame();
 		propPanel->displayScriptProperties(m_script);
 	} else {
-		propPanel->boxFrame()->hide();
-		propPanel->linkFrame()->hide();
-		propPanel->okBtn()->hide();
+		propPanel->hideBoxFrame();
+		propPanel->hideLinkFrame();
+		propPanel->hideOkBtn();
 		propPanel->cancelBtn()->hide();
 	}
 }
@@ -1333,8 +1333,8 @@ void DiagramScene::onDisplayVisuClicked(bool)
 		informUserAndCrash(tr("Impossible to fetch the properties panel!"));
 
 	if (sItems.count() == 0) {
-		propPanel->timeValue()->setValue(m_script->timeValue());
-		propPanel->timeUnit()->setCurrentIndex(m_script->timeUnit());
+		propPanel->setScriptTimeValue(m_script->timeValue());
+		propPanel->setScriptTimeUnit(m_script->timeUnit());
 	} else if (sItems.count() == 1) {
 		QGraphicsItem *item = sItems.at(0);
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);

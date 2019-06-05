@@ -45,7 +45,6 @@ class InputSlot : public Slot
 public:
 	explicit InputSlot();
 	explicit InputSlot(const QString &name);
-	~InputSlot();
 
 	bool multiple() const;
 	void setMultiple(bool allowMultiple);
@@ -66,8 +65,7 @@ public:
 	bool canLink() const;
 	void setCanLink(bool canLink);
 
-	QGraphicsSimpleTextItem *label() const;
-	void setLabel(QGraphicsSimpleTextItem *label);
+	const QGraphicsSimpleTextItem &label();
 
 	QUuid uuid() const;
 	void setUuid(const QUuid &uuid);
@@ -87,10 +85,11 @@ protected:
 	std::vector<Link *> m_inputs; // The set of links connected to this slot
 	InputType m_inputType;     // Indicate type and connectivity of this input
 	bool m_canLink;            // Indicate if this input can be linked to the current output when creating a Link
-	QGraphicsSimpleTextItem *m_label; // A label that contains this input's name
+	QGraphicsSimpleTextItem m_label; // A label that contains this input's name
 	bool m_checkSize;          // Whether or not this input must check that sizes are correct (on SCALAR_MATRIX)
 	QString m_description;     // Description of the input
 	MatrixShape m_matrixShape; // The shape of the matrix it can accept
+
 signals:
 	void slotFull(); // Fired when trying to add a second input to a slot that doesn't allow multiple
 };

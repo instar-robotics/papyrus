@@ -31,10 +31,6 @@ Slot::Slot(QString &name, QGraphicsItem *parent) : Slot(parent)
 	setName(name);
 }
 
-Slot::~Slot()
-{
-}
-
 QString Slot::name() const
 {
 	return m_name;

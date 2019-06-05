@@ -20,6 +20,7 @@
 */
 
 #include "function.h"
+#include <QDebug>
 
 Function::Function(const QString &path) : QTreeWidgetItem(),
                                           m_descriptionFile(path),
@@ -34,6 +35,11 @@ Function::~Function()
 	if (m_output != nullptr) {
 		delete m_output;
 		m_output = nullptr;
+	}
+
+	foreach (InputSlot *iSlot, m_inputs) {
+		if (iSlot != nullptr)
+			delete iSlot;
 	}
 }
 

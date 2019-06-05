@@ -57,7 +57,7 @@ enum PathType {
 	PATH_DESC,
 	PATH_LIB
 };
-Q_DECLARE_METATYPE(PathType);
+Q_DECLARE_METATYPE(PathType)
 
 /**
  * @brief The PapyrusWindow class is the main window of the application.
@@ -88,21 +88,14 @@ public:
 
 	Category *addTreeRoot(QString name);
 
-	QLineEdit *librarySearchField() const;
-	void setLibrarySearchField(QLineEdit *librarySearchField);
-
 	Ui::PapyrusWindow *ui() const;
-
-	Library *getLibrary() const;
-	void setLibrary(Library *library);
 
 	std::set<Script *> getScripts() const;
 	void addScript(Script *script);
 
 	Script *activeScript() const;
 
-	PropertiesPanel *propertiesPanel() const;
-	void setPropertiesPanel(PropertiesPanel *propertiesPanel);
+	PropertiesPanel *propertiesPanel();
 
 	QSystemTrayIcon *getTrayIcon() const;
 
@@ -141,17 +134,17 @@ private:
 	RosNode *m_rosnode;
 	int m_argc;
 	char **m_argv;
-	QLabel *m_rosMasterStatus;
-	LibraryPanel *libraryPanel_;
-	QLineEdit *librarySearchField_;
+	QLabel m_rosMasterStatus;
+	LibraryPanel m_libraryPanel;
+	QLineEdit m_librarySearchField;
 	QString m_lastExpandedCategory;  // Name of the last category that was expanded before filtering
 	int m_libraryParsingErrors;
 	QDir description_;
-	QSystemTrayIcon *trayIcon;
-	Library *m_library;
+	QSystemTrayIcon *m_trayIcon;
+	Library m_library;
 	std::set<Script *> m_scripts;
 	Script *m_activeScript;
-	PropertiesPanel *m_propertiesPanel;
+	PropertiesPanel m_propertiesPanel;
 	HomePage *m_homePage;
 	QLineEdit *m_runTimeDisplay;
 	DevelopmentType m_developmentType;
@@ -164,9 +157,9 @@ private:
 	QString m_keyFile;          // Path of the key file to crypt / decrypt scrip files
 	QString m_ivFile;           // Path of the IV
 	QString m_lastDir;          // Last directory visited for saving or loading files
-	QTimer *m_autoSaveTimer;    // Timer to trigger auto save for scripts
+	QTimer m_autoSaveTimer;    // Timer to trigger auto save for scripts
 	QString m_changelogVersion; // Used to know if we should show the changelog on launch
-	QTimer *m_checkVersionTimer; // Timer that periodically check for new version release
+	QTimer m_checkVersionTimer; // Timer that periodically check for new version release
 	bool m_preventROSPopup;     // Prevents displaying ROS master pop-ups
 
 	QDialog *m_findDialog;      // A modeless dialog used to find boxes, links, etc.

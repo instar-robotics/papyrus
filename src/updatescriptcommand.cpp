@@ -44,9 +44,9 @@ UpdateScriptCommand::UpdateScriptCommand(PropertiesPanel *panel, Script *script,
 	m_oldEncrypt = script->encrypt();
 
 	// Save new parameter values
-	m_newTime = m_panel->timeValue()->value();
-	m_newUnit = m_panel->timeUnit()->currentData().value<TimeUnit>();
-	m_newEncrypt = m_panel->encrypt()->isChecked();
+	m_newTime = m_panel->getScriptTimeValue();
+	m_newUnit = m_panel->getScriptTimeUnit();
+	m_newEncrypt = m_panel->getScriptEncrypt();
 }
 
 void UpdateScriptCommand::undo()

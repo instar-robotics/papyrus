@@ -398,7 +398,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	if (reader.name() == "constant")
 		b = new ConstantDiagramBox(name, outputSlot, description, uuid);
 	else {
-		b = new DiagramBox(name, outputSlot, inputSlots, description, uuid);
+		b = new DiagramBox(name, outputSlot, inputSlotsWithoutInhib, description, uuid, inhib);
 
 		b->setTitle(title);
 		b->setLibname(libname);

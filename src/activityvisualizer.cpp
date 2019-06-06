@@ -2,11 +2,13 @@
 
 #include <QDebug>
 #include <QCursor>
+#include <QGraphicsScene>
 
 // I know there is potentially a segfault here if box == nullptr. But I did not want to use a
 // pointer for the QImage. Potential solution is to manually include width and height as params
-ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
+ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
+//    : QGraphicsPixmapItem(box),
+    : QGraphicsPixmapItem(nullptr),
       m_box(box),
       m_width(300),
       m_height(101),
@@ -33,57 +35,31 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent)
 	qreal y = m_box->scenePos().y() - m_height - 10;
 	setPos(x, y);
 
-//	setFlag(QGraphicsItem::ItemSendsGeometryChanges);
-//	setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
-	setFlag(QGraphicsItem::ItemIsMovable);
-	setFlag(QGraphicsItem::ItemIsSelectable);
-	setFlag(QGraphicsItem::ItemIsFocusable);
-	setAcceptHoverEvents(true);
+	setFlag(QGraphicsItem::ItemIsMovable, true);
+	setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	// By default, the font is too big, reduce it
-//	QFont titleFont = m_visuTitle.font();
-//	titleFont.setPointSize(titleFont.pointSize() - 4);
-//	m_visuTitle.setFont(titleFont);
+	// Add the visualizer to the box's scene
+	if (m_box->scene() == nullptr)
+		qWarning() << "ActivityVisualier cannot be added to it's box's scene as it has none!";
+	else
+		m_box->scene()->addItem(this);
 
-	/*
-	m_painter.begin(&m_image);
-//	m_painter2.begin(&m_image2);
-
-	// Set the pixmap from the image
-	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
-
-	// Create a text item to display the function's name
-	m_visuTitle.setHtml(QString("<center>%1</center>").arg(m_box->name()));
-	if (!m_box->title().isEmpty())
-		m_visuTitle.setHtml(QString("<center>%1</center>").arg(m_box->title()));
-
-	// Create the ticks & labels
-	for (int i = 0; i < m_nbTicks; i += 1) {
-		QGraphicsLineItem *tick = new QGraphicsLineItem(this);
-		m_ticks << tick;
-
-		QGraphicsTextItem *label = new QGraphicsTextItem(this);
-		QFont labelFont = label->font();
-		labelFont.setPointSizeF(labelFont.pointSizeF() - 4);
-		label->setFont(labelFont);
-		m_labels << label;
-	}
-
-	// Create the horizontal and vertical lines (axes)
-	updateAxes();
-
-	connect(this, SIGNAL(sizeChanged()), this, SLOT(onSizeChanged()));
-	//*/
+	// Delete itself when the box is is attached to is deleted.
+	/* NOTE: I don't understand how this doesn't segfault when both the box and the visualizer are
+	 * in the scene. As they are in the scene, the scene should take care of deleting these items.
+	 * So there's a possibility it can destroy the box first, then this signal/slot makes it delete
+	 * itself, and then the scene tries to delete this again...
+	 * I can't reproduce this must it seems magical to me :/
+	 */
+	connect(m_box, SIGNAL(boxDestroyed()), this, SLOT(onBoxDestroyed()));
 }
 
 ActivityVisualizer::~ActivityVisualizer()
 {
 	if (m_activityFetcher != nullptr) {
-		if (m_activityFetcher != nullptr) {
-			m_activityFetcher->setShouldQuit(true);
-			m_activityFetcher->wait(500);
-			delete m_activityFetcher;
-		}
+		m_activityFetcher->setShouldQuit(true);
+		m_activityFetcher->wait(1000);
+		delete m_activityFetcher;
 	}
 
 	if (m_box != nullptr) {
@@ -168,13 +144,11 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		case RESIZE_RIGHT:
 			newWidth = evt->scenePos().x() - scenePos().x();
 			m_width = newWidth >= m_minWidth ? newWidth : m_minWidth;
-//			emit sizeChanged();
 		break;
 
 		case RESIZE_BOTTOM:
 			newHeight = evt->scenePos().y() - scenePos().y();
 			m_height = newHeight >= m_minHeight ? newHeight : m_minHeight;
-//			emit sizeChanged();
 		break;
 
 		case RESIZE_BOTTOM_RIGHT:
@@ -182,7 +156,6 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 			m_width = newWidth >= m_minWidth ? newWidth : m_minWidth;
 			newHeight = evt->scenePos().y() - scenePos().y();
 			m_height = newHeight >= m_minHeight ? newHeight : m_minHeight;
-//			emit sizeChanged();
 		break;
 
 		default:
@@ -249,35 +222,7 @@ void ActivityVisualizer::setHeight(int height)
 	m_height = height;
 }
 
-/**
- * @brief ActivityVisualizer::updateLines is called when the graph window is resized.
- */
-/*
-void ActivityVisualizer::onSizeChanged()
+void ActivityVisualizer::onBoxDestroyed()
 {
-	// Create a horizontal line (axis)
-	m_hLine.setLine(-m_scaleMargin, m_height / 2, m_width + m_scaleMargin, m_height / 2);
-
-	// Create a vertical line (axis)
-	m_vLine.setLine(-m_scaleMargin, -m_scaleMargin, -m_scaleMargin, m_height + m_scaleMargin);
-
-	// The only way to center text is to use setHtml() AND set the TextWidth
-	m_visuTitle.setTextWidth(m_width);
-
-	m_visuTitle.setPos(0, m_height);
-
-	qreal dist = m_height / (m_nbTicks - 1);
-	qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
-	for (int i = 0; i < m_nbTicks; i += 1) {
-		m_ticks.at(i)->setLine(-m_scaleMargin,
-							   i * dist,
-							   -m_scaleMargin / 2,
-							   i * dist);
-
-		m_labels.at(i)->setPlainText(QString::number(m_range - i * tickDiff));
-		QRectF r = m_labels.at(i)->boundingRect();
-		m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
-									   i * dist - r.height() / 2); // middle align
-	}
+	delete this;
 }
-	//*/

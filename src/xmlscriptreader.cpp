@@ -204,9 +204,8 @@ void XmlScriptReader::readScript()
 						link->setFrom(oSlot);
 						oSlot->addOutput(link);
 						m_script->scene()->addItem(link);
-						link->addLinesToScene();
-
-						link->setZValue(LINKS_Z_VALUE);
+						m_script->scene()->addItem(link->label());
+						link->updateLines();
 						// TODO: empty the set as we go?
 						//                                incompleteLinks.erase(fromUuid);
 					} else {
@@ -273,6 +272,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QString name;
 	QString title;
 	QString libname;
+	QString description;
 	MatrixShape matrixShape = SHAPE_NONE;
 	bool save = false;
 	OutputSlot *outputSlot = new OutputSlot;
@@ -345,6 +345,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 				// Extract DiagrambBox's information
 				iconFilePath = f->iconFilepath();
+				description = f->description();
 				libname = f->libName();
 				matrixShape = f->matrixShape();
 
@@ -395,9 +396,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 
 	DiagramBox *b;
 	if (reader.name() == "constant")
-		b = new ConstantDiagramBox(name, outputSlot, uuid);
+		b = new ConstantDiagramBox(name, outputSlot, description, uuid);
 	else {
-		b = new DiagramBox(name, outputSlot, inputSlotsWithoutInhib, uuid, inhib);
+		b = new DiagramBox(name, outputSlot, inputSlotsWithoutInhib, description, uuid, inhib);
 
 		b->setTitle(title);
 		b->setLibname(libname);
@@ -407,7 +408,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			b->setTopic(topic);
 		b->setIsCommented(isCommented);
 	}
-
 
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
@@ -422,24 +422,17 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		switch (b->outputType()) {
 			case SCALAR:
 				vis = new ActivityVisualizerBars(b);
-				m_script->scene()->addItem(vis);
 			break;
 
 			case MATRIX:
 				// (1,1) matrix is treated as a scalar
-				if (b->rows() == 1 && b->cols() == 1) {
+				if (b->rows() == 1 && b->cols() == 1)
 					vis = new ActivityVisualizerBars(b);
-					m_script->scene()->addItem(vis);
-				}
 				// (1,N) and (N,1) are vectors: they are displayed as several scalars
-				else if (b->rows() == 1 || b->cols() == 1) {
+				else if (b->rows() == 1 || b->cols() == 1)
 					vis = new ActivityVisualizerBars(b);
-					m_script->scene()->addItem(vis);
-				}
-				else {
+				else
 					vis = new ActivityVisualizerThermal(b);
-					m_script->scene()->addItem(vis);
-				}
 			break;
 
 			default:
@@ -723,9 +716,8 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 
 						// Add the link to the scene
 						m_script->scene()->addItem(link);
-						link->addLinesToScene();
-						link->setZValue(LINKS_Z_VALUE);
-//						link->updateLines();
+						m_script->scene()->addItem(link->label());
+						link->updateLines();
 //						m_script->scene()->update();
 					} else {
 						// If the OutputSlot is not yet created, we can't link, so put in incomplete

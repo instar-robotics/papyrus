@@ -5,17 +5,18 @@
 
 // I know there is potentially a segfault here if box == nullptr. But I did not want to use a
 // pointer for the QImage. Potential solution is to manually include width and height as params
-ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *parent)
-    : ActivityVisualizer(box, parent),
+ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box)
+    : ActivityVisualizer(box),
       m_scaleMargin(10),
-//      m_image2(QImage(box->cols() + m_scaleMargin, 100 + m_nameMargin, QImage::Format_RGB32)),
-//      m_doubleBufferFlag(false),
       m_hLine(this),
       m_vLine(this),
       m_nbTicks(5), // keep it odd to have 0 displayed
       m_range(1.0),
       m_lastMat(nullptr),
-      m_scalarValue(this)
+      m_scalarValue(this),
+      m_beginTick(this),
+      m_middleTick(this),
+      m_endTick(this)
 {
 	// Define orientation based on the box's dimensions
 	if (m_box->outputType() == SCALAR) {
@@ -35,7 +36,7 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 	// Set size based on orientation
 	if (m_barsOrientation == HORIZONTAL) {
 		m_width = 300;
-		m_height = 101; // Keep odd to be able to center axis line
+		m_height = 100;//101; // Keep odd to be able to center axis line
 
 		// Convenience: when a very small numbers of neurons, make default window smaller
 		if (m_box->cols() < 15)
@@ -44,7 +45,7 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 		// Create the image: it has fixed height (just convenience display) but its width is the number of columns
 		m_image = QImage(m_box->cols(), m_height, QImage::Format_RGB32);
 	} else {
-		m_width = 101; // Keep odd to be able to center axis line
+		m_width = 100; //101; // Keep odd to be able to center axis line
 		m_height = 300;
 
 		// Convenience: when a very small numbers of neurons, make default window smaller
@@ -57,7 +58,6 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 
 	// Fill background with white
 	m_image.fill(qRgb(255, 255, 255));
-//	m_image2.fill(qRgb(239, 239, 239));
 
 	// Position the visualizer slighty above its associated box
 	qreal x = m_box->scenePos().x();
@@ -65,7 +65,6 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 	setPos(x, y);
 
 	m_painter.begin(&m_image);
-//	m_painter2.begin(&m_image2);
 
 	// Set the pixmap from the image
 	updatePixmap();
@@ -99,18 +98,14 @@ ActivityVisualizerBars::ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *p
 	onSizeChanged();
 
 	connect(this, SIGNAL(sizeChanged()), this, SLOT(onSizeChanged()));
-	connect(m_box, SIGNAL(boxDeleted()), this, SLOT(onBoxDeleted()));
 }
 
 ActivityVisualizerBars::~ActivityVisualizerBars()
 {
-	for (int i = 0; i < m_nbTicks; i += 1) {
-		delete m_ticks.at(i);
-		delete m_labels.at(i);
-	}
-
-	if (m_lastMat != nullptr)
+	if (m_lastMat != nullptr) {
 		delete m_lastMat;
+		m_lastMat = nullptr;
+	}
 }
 
 /**
@@ -147,25 +142,9 @@ void ActivityVisualizerBars::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 			;
 	}
 
-//	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 	updatePixmap();
 
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
-}
-
-/**
- * @brief ActivityVisualizerBars::keyPressEvent is used to match on a press to ESCAPE, to close
- * this visualizer.
- * @param evt
- */
-void ActivityVisualizerBars::keyPressEvent(QKeyEvent *evt)
-{
-	int key = evt->key();
-
-	if (key == Qt::Key_Escape || key == Qt::Key_Delete)
-		delete this;
-
-	QGraphicsPixmapItem::keyPressEvent(evt);
 }
 
 /**
@@ -198,10 +177,6 @@ void ActivityVisualizerBars::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 		ActivityVisualizer::mousePressEvent(evt);
 }
 
-// TODO: can we implement double-buffering using two QImages?
-// TODO: we can use QPaint to paint directly on the pixmap, let's try painting directly the columns
-// of pixels instead
-// TODO: support higher values that 1 and update scale dynamically
 void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 {
 	if (mat == nullptr) {
@@ -219,68 +194,43 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 	int cols = m_box->cols();
 
 	if (mat->size() == rows * cols) {
-		QColor blue(51, 153, 255);
-		QColor red(246, 2, 2);
+		static QColor blue(51, 153, 255);
+		static QColor red(246, 2, 2);
 
-		// Define pointer accordingly to double buffering
-		//	QImage *image = m_doubleBufferFlag ? &m_image2 : &m_image;
-		//	QPainter *painter = m_doubleBufferFlag ? &m_painter2 : &m_painter;
-		QImage *image = &m_image;
-		QPainter *painter = &m_painter;
-
-		// Swap the buffers
-		//	m_doubleBufferFlag = !m_doubleBufferFlag;
-
-		// Erase previous display
-		//	m_image.fill(qRgb(239, 239, 239));
-		//	painter->fillRect(QRect(0, 0, cols, 100), QColor(239, 239, 239));
 		if (m_barsOrientation == HORIZONTAL) {
-			painter->fillRect(QRect(0, 0, cols, m_height), QColor(255, 255, 255));
+			m_painter.fillRect(QRect(0, 0, cols, 100), QColor(255, 255, 255));
 
-			// Update pixels in the QImage
 			for (int i = 0; i < cols; i += 1) {
-				// Make sure the value is comprised between [-range; +range]
-				double capped = mat->at(i);
+				qreal capped = mat->at(i);
 				capped = capped > m_range ? m_range : (capped < -m_range ? -m_range : capped);
 
 				if (capped >= 0) {
-					for (int j = 0; j < capped * 50 / m_range; j += 1) {
-						image->setPixel(i, 50-j, blue.rgb());
-					}
+					qreal span = 50.0 * capped / m_range;
+					m_painter.fillRect(QRectF(i, 50 - span, 1, span), blue.rgb());
 				} else {
-					for (int j = 0; j < -capped * 50 / m_range; j += 1) {
-						image->setPixel(i, 50+j, red.rgb());
-					}
+					qreal span = -50.0 * capped / m_range;
+					m_painter.fillRect(QRectF(i, 50, 1, span), red.rgb());
 				}
 			}
 		} else {
-			painter->fillRect(QRect(0, 0, m_width, rows), QColor(255, 255, 255));
+			m_painter.fillRect(QRect(0, 0, 100, rows), QColor(255, 255, 255));
 
-			// Update pixels in the QImage
 			for (int j = 0; j < rows; j += 1) {
-				// Make sure the value is comprised between [-range; +range]
-				double capped = mat->at(j);
+				qreal capped = mat->at(j);
 				capped = capped > m_range ? m_range : (capped < -m_range ? -m_range : capped);
 
 				if (capped >= 0) {
-					for (int i = 0; i < capped * 50 / m_range; i += 1) {
-						image->setPixel(50+i, j, blue.rgb());
-					}
+					qreal span = 50.0 * capped / m_range;
+					m_painter.fillRect(QRectF(50, j, span, 1), blue.rgb());
 				} else {
-					for (int i = 0; i < -capped * 50 / m_range; i += 1) {
-						image->setPixel(50-i, j, red.rgb());
-					}
+					qreal span = -50.0 * capped / m_range;
+					m_painter.fillRect(QRectF(50 - span, j, span, 1), red.rgb());
 				}
 			}
 		}
 
 		// Update pixmap from image
 		updatePixmap();
-
-		// When it's a single scalar, display its value
-		if (mat->size() == 1) {
-
-		}
 	} else {
 		qWarning() << "Invalid number of data to update bars: "
 		           << mat->size() << "data points for" << rows << "x" << cols;
@@ -299,11 +249,6 @@ void ActivityVisualizerBars::updateBars(QVector<qreal> *mat)
 	}
 }
 
-void ActivityVisualizerBars::onBoxDeleted()
-{
-	delete this;
-}
-
 /**
  * @brief ActivityVisualizerBars::updateLines is called when the graph window is resized.
  */
@@ -311,10 +256,10 @@ void ActivityVisualizerBars::onSizeChanged()
 {
 	if (m_barsOrientation == HORIZONTAL) {
 		// Create a horizontal line (axis)
-		m_hLine.setLine(-m_scaleMargin, m_height / 2, m_width + m_scaleMargin, m_height / 2);
+		m_hLine.setLine((qreal)-m_scaleMargin, m_height / 2.0, (qreal) m_width + m_scaleMargin, m_height / 2.0);
 
 		// Create a vertical line (axis)
-		m_vLine.setLine(-m_scaleMargin, -m_scaleMargin, -m_scaleMargin, m_height + m_scaleMargin);
+		m_vLine.setLine((qreal)-m_scaleMargin, (qreal)-m_scaleMargin, (qreal)-m_scaleMargin, (qreal)m_height + m_scaleMargin);
 
 		qreal dist = m_height / (m_nbTicks - 1);
 		qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
@@ -329,12 +274,29 @@ void ActivityVisualizerBars::onSizeChanged()
 			m_labels.at(i)->setPos(-m_scaleMargin - r.width(), // right align
 			                       i * dist - r.height() / 2); // middle align
 		}
+
+		// Place ticks denoting first, last and middle neurons
+		const static qreal tickSpan = 5.0;
+
+		// Place beginning tick
+		// The small -0.5 offset is so that first neuron is perfectly tangeant to the extremity of the tick
+		m_beginTick.setLine(-0.5, m_height / 2.0 - tickSpan / 2.0,
+		                    -0.5, m_height / 2.0 + tickSpan / 2.0);
+
+		// Place middle tick
+		m_middleTick.setLine(m_width / 2.0, m_height / 2.0 - tickSpan / 2.0,
+		                     m_width / 2.0, m_height / 2.0 + tickSpan / 2.0);
+
+		// Place end tick
+		m_endTick.setLine(m_width + 0.5, m_height / 2.0 - tickSpan / 2.0,
+		                  m_width + 0.5, m_height / 2.0 + tickSpan / 2.0);
+
 	} else {
 		// Create a vertical line (axis)
-		m_hLine.setLine(m_width / 2, -m_scaleMargin, m_width / 2, m_height + m_scaleMargin);
+		m_hLine.setLine(m_width / 2.0, (qreal) -m_scaleMargin, m_width / 2.0, (qreal) m_height + m_scaleMargin);
 
 		// Create a horitzontal line (axis)
-		m_vLine.setLine(-m_scaleMargin, -m_scaleMargin, m_width + m_scaleMargin, -m_scaleMargin);
+		m_vLine.setLine((qreal)-m_scaleMargin, (qreal)-m_scaleMargin, (qreal)m_width + m_scaleMargin, (qreal)-m_scaleMargin);
 
 		qreal dist = m_width / (m_nbTicks - 1);
 		qreal tickDiff = 2 * m_range / (m_nbTicks - 1);
@@ -350,6 +312,22 @@ void ActivityVisualizerBars::onSizeChanged()
 			m_labels.at(i)->setPos((m_nbTicks - 1 - i) * dist + r.height() / 2,      // middle align
 			                       -m_scaleMargin - r.width()); // bottom align
 		}
+
+		// Place ticks denoting first, last and middle neurons
+		const static qreal tickSpan = 5.0;
+
+		// Place beginning tick
+		// The small -0.5 offset is so that first neuron is perfectly tangeant to the extremity of the tick
+		m_beginTick.setLine(m_width / 2.0 - tickSpan / 2.0, -0.5,
+		                    m_width / 2.0 + tickSpan / 2.0, -0.5);
+
+		// Place middle tick
+		m_middleTick.setLine(m_width / 2.0 - tickSpan / 2.0, m_height / 2.0,
+		                     m_width / 2.0 + tickSpan / 2.0, m_height / 2.0);
+
+		// Place end tick
+		m_endTick.setLine(m_width / 2.0 - tickSpan / 2.0, m_height + 0.5,
+		                  m_width / 2.0 + tickSpan / 2.0, m_height + 0.5);
 	}
 
 	// The only way to center text is to use setHtml() AND set the TextWidth

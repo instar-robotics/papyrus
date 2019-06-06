@@ -29,6 +29,14 @@ Function::Function(const QString &path) : QTreeWidgetItem(),
 
 }
 
+Function::~Function()
+{
+	if (m_output != nullptr) {
+		delete m_output;
+		m_output = nullptr;
+	}
+}
+
 /**
  * @brief Function::updateTooltip updates the tooltip with the function description and
  * all its slots's descrition

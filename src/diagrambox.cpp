@@ -37,7 +37,7 @@
 #include <QDebug>
 #include <QGraphicsLayout>
 
-Q_DECLARE_METATYPE(MatrixShape);
+Q_DECLARE_METATYPE(MatrixShape)
 
 int DiagramBox::getType()
 {
@@ -47,6 +47,7 @@ int DiagramBox::getType()
 DiagramBox::DiagramBox(const QString &name,
                        OutputSlot *outputSlot,
                        std::vector<InputSlot *> inputSlots,
+                       const QString &description,
                        const QUuid &uuid,
                        InhibInput *inhibInput,
                        QGraphicsItem *parent) : QGraphicsItem(parent),
@@ -55,7 +56,10 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_bHeight(70),
                                                 m_tHeight(20),
                                                 m_matrixShape(SHAPE_NONE),
+                                                m_sizeIcon(":/icons/icons/size-icon.svg", this),
+                                                m_functionIcon(nullptr),
                                                 m_uuid(uuid),
+                                                m_description(description),
                                                 m_outputSlot(outputSlot),
                                                 m_inputSlots(inputSlots),
 //                                                m_inhibInput(INHIBITION_INPUT_NAME),
@@ -63,7 +67,6 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_cols(1),
                                                 m_saveActivity(false),
                                                 m_publish(false),
-                                                m_sizeIcon(nullptr),
                                                 m_IsActivityVisuEnabled(false),
 //                                                m_activityFetcher(nullptr),
 //                                                m_activityChart(nullptr),
@@ -79,9 +82,9 @@ DiagramBox::DiagramBox(const QString &name,
 
 	setFlags(QGraphicsItem::ItemIsSelectable
 	       | QGraphicsItem::ItemIsMovable
-	       | QGraphicsItem::ItemSendsScenePositionChanges);
-	setAcceptHoverEvents(true);
+	       | QGraphicsItem::ItemSendsScenePositionChanges); // necessary for snapping to grid
 
+	setToolTip(description);
 	// Make this the parent item of the output slot, so that it follow drags, etc.
 	m_outputSlot->setParentItem(this);
 	m_outputSlot->setBox(this);
@@ -100,7 +103,7 @@ DiagramBox::DiagramBox(const QString &name,
 	g.ry() -= ((m_inputSlots.size() - 1) / 2) * s + offset;
 
 	// Get the PropertiesPanel and connect its display slot to this box's signal
-	PapyrusWindow *mainWindow = NULL;
+	PapyrusWindow *mainWindow = nullptr;
 
 	foreach (QWidget *w, qApp->topLevelWidgets()) {
 		if (PapyrusWindow *mW = qobject_cast<PapyrusWindow *>(w)) {
@@ -146,35 +149,16 @@ DiagramBox::DiagramBox(const QString &name,
 	m_inhibInput->setAcceptHoverEvents(true);
 	m_inhibInput->setPos(inhibPos);
 	m_inhibInput->setInputType(SCALAR_SCALAR);
-//	m_inhibInput.setVisible(false); // By default, inhibition inputs are invisible
+
+	// Update the SVG icons
+	updateSizeIcon();
 
 	setZValue(BOXES_Z_VALUE);
 }
 
 DiagramBox::~DiagramBox()
 {
-	emit boxDeleted();
-
-	// Normally, upon deletion, the box should not have any remaining Link connected
-	if (!m_outputSlot->outputs().empty())
-		qWarning() << "WARNING: DiagramBox(" << m_name << ") is being destructed, but there remains Links on its OutputSlot";
-	delete m_outputSlot;
-
-	bool warnedForInput = false;
-	foreach (InputSlot *inputSlot, m_inputSlots) {
-		if (!warnedForInput && !inputSlot->inputs().empty()) {
-			warnedForInput = true;
-			qWarning() << "WARNING: DiagramBox(" << m_name << ") is being destructed, but there remains Links on its InputSlot (" << inputSlot->name() << ")";
-		}
-		delete inputSlot;
-	}
-	m_inputSlots.clear();
-
-	// Also delete the inhibition input
-	if (m_inhibInput != nullptr)
-		delete m_inhibInput;
-
-	delete m_sizeIcon;
+	emit boxDestroyed();
 	delete m_displayedProxy;
 }
 
@@ -275,9 +259,52 @@ bool DiagramBox::isCommented() const
 	return m_isCommented;
 }
 
+/**
+ * @brief DiagramBox::setIsCommented setter for m_isCommented. Also trigger all connected links to
+ * update their display accordingly.
+ * @param isCommented
+ */
 void DiagramBox::setIsCommented(bool isCommented)
 {
 	m_isCommented = isCommented;
+
+	foreach (Link* link, m_outputSlot->outputs()) {
+		if (link == nullptr) {
+			qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of link";
+			continue;
+		}
+
+		link->update();
+	}
+
+	foreach (InputSlot *iSlot, m_inputSlots) {
+		if (iSlot == nullptr) {
+			qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of input slot";
+			continue;
+		}
+
+		foreach (Link *link, iSlot->inputs()) {
+			if (link == nullptr) {
+				qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of link";
+				continue;
+			}
+
+			link->update();
+		}
+	}
+
+	if (m_inhibInput == nullptr) {
+		qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of inhib input";
+	} else {
+		foreach (Link *link, m_inhibInput->inputs()) {
+			if (link == nullptr) {
+				qWarning() << "[DiagramBox::setIsCommented] found null ptr instead of inhib link";
+				continue;
+			}
+
+			link->update();
+		}
+	}
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const
@@ -383,6 +410,9 @@ QString DiagramBox::iconFilepath() const
 void DiagramBox::setIconFilepath(const QString &value)
 {
 	m_iconFilepath = value;
+
+	// Then create the function icon
+	createFunctionIcon();
 }
 
 QString DiagramBox::topic() const
@@ -405,14 +435,9 @@ void DiagramBox::setPublish(bool publish)
 	m_publish = publish;
 }
 
-QGraphicsSvgItem *DiagramBox::sizeIcon() const
+QGraphicsSvgItem &DiagramBox::sizeIcon()
 {
 	return m_sizeIcon;
-}
-
-void DiagramBox::setSizeIcon(QGraphicsSvgItem *sizeIcon)
-{
-	m_sizeIcon = sizeIcon;
 }
 
 qreal DiagramBox::tHeight() const
@@ -447,10 +472,14 @@ int DiagramBox::cols() const
 
 void DiagramBox::setCols(int cols)
 {
-	if (cols < 0)
-		qFatal("Cannot have a negative number of columns");
+	if (cols < 0) {
+		qWarning("Cannot have a negative number of columns");
+		return;
+	}
 
 	m_cols = cols;
+
+	updateSizeIcon();
 }
 
 int DiagramBox::rows() const
@@ -460,10 +489,14 @@ int DiagramBox::rows() const
 
 void DiagramBox::setRows(int rows)
 {
-	if (rows < 0)
-		qFatal("Cannot have a negative number of rows");
+	if (rows < 0) {
+		qWarning("Cannot have a negative number of rows");
+		return;
+	}
 
 	m_rows = rows;
+
+	updateSizeIcon();
 }
 
 /**
@@ -504,6 +537,16 @@ OutputSlot *DiagramBox::outputSlot() const
 void DiagramBox::setOutputSlot(OutputSlot *outputSlot)
 {
 	m_outputSlot = outputSlot;
+}
+
+QString DiagramBox::description() const
+{
+	return m_description;
+}
+
+void DiagramBox::setDescription(const QString &description)
+{
+	m_description = description;
 }
 
 QString DiagramBox::descriptionFile() const
@@ -707,7 +750,7 @@ void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 			return QGraphicsItem::mouseReleaseEvent(event);
 		}
 
-		dScene->undoStack()->push(moveCommand);
+		dScene->undoStack().push(moveCommand);
 	}
 
 	QGraphicsItem::mouseReleaseEvent(event);
@@ -776,7 +819,7 @@ bool DiagramBox::checkIfBoxInvalid()
 
 /**
  * @brief DiagramBox::updateTooltip update the tooltip of the box, based on the reason why it's
- * invalid. Set the tooltip to empty string if valid
+ * invalid. Reset the tooltip to description string if valid
  */
 void DiagramBox::updateTooltip()
 {
@@ -796,6 +839,8 @@ void DiagramBox::updateTooltip()
 
 	if (!str.isEmpty())
 		str = tr("Box is <strong>invalid</strong>:<ul>") + str + "</ul>";
+	else
+		str = description();
 
 	setToolTip(str);
 }
@@ -806,6 +851,68 @@ void DiagramBox::setOutputSlotPos()
 	p.rx() -= 7; // Offset by 7px because the bounding rect of a box is offset to include the publish icon
 	p.rx() += 5; // Set a bit of margin to the right to prevent the round-shape to overlap
 	m_outputSlot->setPos(p);
+}
+
+/**
+ * @brief DiagramBox::updateSizeIcon updates the SVG icon that hints the box's size by displaying
+ * either a neuron, vector or full matrix icon. It also centers it in the box's icon placement.
+ */
+void DiagramBox::updateSizeIcon()
+{
+	// First set the correct SVG element
+	switch (outputType()) {
+		case SCALAR:
+			m_sizeIcon.setElementId("scalar");
+		break;
+
+		case STRING:
+			m_sizeIcon.setElementId("string");
+		break;
+
+		case MATRIX:
+			if (m_rows == 1 && m_cols != 1)
+				m_sizeIcon.setElementId("row");
+			else if (m_cols == 1 && m_rows != 1)
+				m_sizeIcon.setElementId("column");
+			else
+				m_sizeIcon.setElementId("matrix");
+		break;
+
+		default:
+			qWarning() << "Unsupported output type when trying to update a box's icon size. "
+			              "Supported types are SCALAR, MATRIX and STRING.";
+	}
+
+	// Then resize and center
+	rescaleSvgItem(&m_sizeIcon,
+	               QSizeF(m_bWidth / 2 - 1.5, m_bHeight - m_tHeight- 2.5),
+	               QPointF(m_bWidth / 2.0, 1.5));
+}
+
+/**
+ * @brief DiagramBox::createFunctionIcon creates the Svg item icon that depicts this Function box.
+ */
+void DiagramBox::createFunctionIcon()
+{
+	// Check that we have the icon path to create it
+	if (m_iconFilepath.isEmpty()) {
+		qWarning() << "[DiagramBox::createFunctionIcon] cannot create function icon: no icon file path.";
+		return;
+	}
+
+	// Delete old one if it exists
+	if (m_functionIcon != nullptr) {
+		delete m_functionIcon;
+		m_functionIcon = nullptr;
+	}
+
+	// Create SVG item
+	m_functionIcon = new QGraphicsSvgItem(m_iconFilepath, this);
+
+	// Resize it
+	rescaleSvgItem(m_functionIcon,
+	               QSizeF(m_bWidth / 2.0 - 1.5, m_bHeight - m_tHeight - 2.5),
+	               QPointF(0, 1.5));
 }
 
 /**

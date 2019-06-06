@@ -13,10 +13,9 @@ class ActivityVisualizerThermal : public ActivityVisualizer
 	Q_OBJECT
 
 public:
-	explicit ActivityVisualizerThermal(DiagramBox *box, QGraphicsItem *parent = nullptr);
+	explicit ActivityVisualizerThermal(DiagramBox *box);
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
-	void keyPressEvent(QKeyEvent *evt);
 
 signals:
 	void sizeChanged();
@@ -26,7 +25,6 @@ private slots:
 
 public slots:
 	void onSizeChanged();
-	void onBoxDeleted();
 };
 
 #endif // ACTIVITYVISUALIZERTHERMAL_H

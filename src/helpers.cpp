@@ -202,11 +202,12 @@ void informUserAndCrash(const QString &text, const QString &title)
 
 /**
  * @brief rescaleSvgItem computes a ratio to apply to an svg icon, based on the given dimension.
- * If xOffset and/or yOffset are not null, the computed values for the offsets are set, so that
- * the user can then use these offsets to position the item at the center
+ * If center is set to true, then xOffset and yOffset are computed so that the svg is centered at
+ * the designed position in the given size.
  * @param svg the svg item to rescale
- * @param xOffset pointer to qreal to save xoffset
- * @param yOffset pointer to qreal to save yoffset
+ * @param size the size we want to give the Svg
+ * @param pos the position where we want to svg to be at, after being centered
+ * @param center whether to center the rescaled svg in its size or not (defaults to true)
  */
 void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF &size, const QPointF &pos, bool center)
 {
@@ -237,45 +238,6 @@ void rescaleSvgItem(QGraphicsSvgItem *svg, const QSizeF &size, const QPointF &po
 	pos_.rx() += xOffset;
 	pos_.ry() += yOffset;
 	svg->setPos(pos_);
-}
-
-/**
- * @brief updateSizeIcon update the svg renderer to display the correct icon for the box's size
- * @param box the pointer to the box whose icon to update
- */
-void updateSizeIcon(DiagramBox *box)
-{
-	if (box == NULL)
-		informUserAndCrash(QObject::tr("Cannot update box's size icon: box is null!"));
-
-	OutputType oType = box->outputType();
-	QGraphicsSvgItem *sizeIcon = box->sizeIcon();
-	if (sizeIcon == NULL)
-		informUserAndCrash(QObject::tr("Cannot update box's size icon: svg item is null!"));
-
-	// If the output type is SCALAR, then set the icon size as scalar
-	if (oType == SCALAR)
-		sizeIcon->setElementId("scalar");
-
-	// If the output is MATRIX, then compares rows and cols to display a column vector, a row vector
-	// or a general matrix
-	else if (oType == MATRIX) {
-		int rows = box->rows();
-		int cols = box->cols();
-
-		if (rows == 1 && cols != 1)
-			sizeIcon->setElementId("row");
-		else if (cols == 1 && rows != 1)
-			sizeIcon->setElementId("column");
-		else
-			sizeIcon->setElementId("matrix");
-	} else if (oType == STRING ){
-		sizeIcon->setElementId("string");
-	} else {
-		informUserAndCrash(QObject::tr("Unsupported output type when trying to update a box's icon size. "
-		                      "Supported types are SCALAR and MATRIX."));
-	}
-
 }
 
 QString timeUnitToString(const TimeUnit &unit)

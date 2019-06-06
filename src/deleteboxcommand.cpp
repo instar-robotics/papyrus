@@ -22,6 +22,7 @@
 #include "deleteboxcommand.h"
 #include "deletelinkcommand.h"
 #include "helpers.h"
+#include "activityvisualizer.h"
 
 DeleteBoxCommand::DeleteBoxCommand(DiagramScene *scene, DiagramBox *box, QUndoCommand *parent)
     : QUndoCommand(parent),
@@ -48,6 +49,10 @@ void DeleteBoxCommand::undo()
 
 	// Put the box back in the scene
 	m_scene->addItem(m_box);
+
+	// Put its visualizer back in the scene if it has one
+	if (m_box->activityVisualizer() != nullptr)
+		m_scene->addItem(m_box->activityVisualizer());
 }
 
 void DeleteBoxCommand::redo()
@@ -56,4 +61,8 @@ void DeleteBoxCommand::redo()
 
 	// Remove the box from the scene
 	m_scene->removeItem(m_box);
+
+	// Remove its visualizer from the scene if it has one
+	if (m_box->activityVisualizer() != nullptr)
+		m_scene->removeItem(m_box->activityVisualizer());
 }

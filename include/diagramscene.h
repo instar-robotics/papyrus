@@ -49,7 +49,7 @@ class DiagramScene : public QGraphicsScene
 	Q_OBJECT
 
 public:
-	explicit DiagramScene(QObject *parent = 0);
+	explicit DiagramScene(QObject *parent = nullptr);
 	~DiagramScene();
 
 	void addBox(DiagramBox *newBox, const QPointF &position);
@@ -89,8 +89,7 @@ public:
 	QGraphicsRectItem *rect() const;
 	void setRect(QGraphicsRectItem *rect);
 
-	QUndoStack *undoStack() const;
-	void setUndoStack(QUndoStack *undoStack);
+	QUndoStack &undoStack();
 
 public slots:
 	void toggleDisplayGrid(bool shouldDraw);
@@ -123,7 +122,7 @@ private:
 	Script *m_script;        // The script to which this scene is associated
 	bool m_displayLabels;    // Whether or not to display input slots's names
 	bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
-	QUndoStack *m_undoStack; // The stack to allow for undo / redo commands
+	QUndoStack m_undoStack; // The stack to allow for undo / redo commands
 
 private slots:
 	void onSelectionChanged();

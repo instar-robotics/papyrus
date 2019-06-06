@@ -22,7 +22,6 @@
 #include "propertiespanel.h"
 #include "helpers.h"
 #include "constants.h"
-#include "connectivitywindow.h"
 #include "constantdiagrambox.h"
 #include "updateboxcommand.h"
 #include "updatelinkcommand.h"
@@ -843,12 +842,12 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 		return;
 	}
 
-	if (dScene->undoStack() == nullptr) {
-		qWarning() << "Cannot update box's properties: no undo stack!";
-		return;
-	}
+//	if (dScene->undoStack() == nullptr) {
+//		qWarning() << "Cannot update box's properties: no undo stack!";
+//		return;
+//	}
 
-	dScene->undoStack()->push(updateCommand);
+	dScene->undoStack().push(updateCommand);
 }
 
 void PropertiesPanel::updateLinkProperties(Link *link)
@@ -861,12 +860,12 @@ void PropertiesPanel::updateLinkProperties(Link *link)
 		return;
 	}
 
-	if (dScene->undoStack() == nullptr) {
-		qWarning() << "Cannot update link's properties: no undo stack!";
-		return;
-	}
+//	if (dScene->undoStack() == nullptr) {
+//		qWarning() << "Cannot update link's properties: no undo stack!";
+//		return;
+//	}
 
-	dScene->undoStack()->push(updateCommand);
+	dScene->undoStack().push(updateCommand);
 }
 
 /**
@@ -885,7 +884,7 @@ void PropertiesPanel::updateScriptProperties(Script *script)
 		return;
 	}
 
-	script->scene()->undoStack()->push(updateCommand);
+	script->scene()->undoStack().push(updateCommand);
 
 	/*
 	script->setTimeValue(m_timeValue->value());
@@ -907,12 +906,12 @@ void PropertiesPanel::updateZoneProperties(Zone *zone)
 		return;
 	}
 
-	if (dScene->undoStack() == nullptr) {
-		qWarning() << "Cannot update link's properties: no undo stack!";
-		return;
-	}
+//	if (dScene->undoStack() == nullptr) {
+//		qWarning() << "Cannot update link's properties: no undo stack!";
+//		return;
+//	}
 
-	dScene->undoStack()->push(updateCommand);
+	dScene->undoStack().push(updateCommand);
 	/*
 	if (zone == nullptr)
 		informUserAndCrash(tr("Cannot update zone's properties: script is null!"));

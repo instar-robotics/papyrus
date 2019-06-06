@@ -20,7 +20,7 @@ class ActivityVisualizer : public QObject, public QGraphicsPixmapItem
 	Q_OBJECT
 
 public:
-	explicit ActivityVisualizer(DiagramBox *box, QGraphicsItem *parent = nullptr);
+	explicit ActivityVisualizer(DiagramBox *box);
 	~ActivityVisualizer();
 
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *evt);
@@ -54,12 +54,9 @@ protected:
 	int m_rows;    // The number of neurons vertically
 
 	QImage m_image;
-//	QImage m_image2;
-//	bool m_doubleBufferFlag;
 
 	ResizeType m_resizeType; // Type of resizing operation we are currently performing
 	QPainter m_painter;
-//	QPainter m_painter2;
 
 	QGraphicsTextItem m_visuTitle;
 
@@ -70,11 +67,8 @@ protected:
 
 	ActivityFetcher *m_activityFetcher;
 
-signals:
-//	void sizeChanged();
-
-public slots:
-//	void onSizeChanged();
+private slots:
+	void onBoxDestroyed();
 };
 
 #endif // ACTIVITYVISUALIZER_H

@@ -60,6 +60,7 @@ public:
 	explicit DiagramBox(const QString &name,
 	                    OutputSlot *outputSlot,
 	                    std::vector<InputSlot *> inputSlots,
+	                    const QString &description = QString(),
 	                    const QUuid &uuid = 0,
 	                    InhibInput *inhibInput = nullptr,
 	                    QGraphicsItem *parent = 0);
@@ -78,6 +79,9 @@ public:
 
 	void setOutputSlotPos();
 
+	void updateSizeIcon();
+	virtual void createFunctionIcon();
+
 	QString scriptName();
 
 	QString name() const;
@@ -90,6 +94,9 @@ public:
 
 	QString descriptionFile() const;
 	void setDescriptionFile(const QString &descriptionPath);
+
+	QString description() const;
+	void setDescription(const QString &description);
 
 	OutputSlot *outputSlot() const;
 	void setOutputSlot(OutputSlot *outputSlot);
@@ -115,8 +122,7 @@ public:
 
 	qreal tHeight() const;
 
-	QGraphicsSvgItem *sizeIcon() const;
-	void setSizeIcon(QGraphicsSvgItem *sizeIcon);
+	QGraphicsSvgItem &sizeIcon();
 
 	bool publish() const;
 	void setPublish(bool publish);
@@ -176,10 +182,14 @@ protected:
 
 	MatrixShape m_matrixShape; // Shape (vector, row vector or col vector) if matrix
 
-private:
-	QUuid m_uuid;      // Unique ID of the function's box (to identify links for instance)
-	QString m_libname; // Name of the library this function belongs to (for kheops's linking)
+	QGraphicsSvgItem m_sizeIcon;     // Contains the svg that hints the box's size
+	QGraphicsSvgItem *m_functionIcon; // Contains the SVG icon of the function
 
+private:
+	QUuid m_uuid;          // Unique ID of the function's box (to identify links for instance)
+	QString m_libname;     // Name of the library this function belongs to (for kheops's linking)
+
+	QString m_description; // Description of the function
 	QString m_descriptionFile; // Path to its XML description file (to get the icon when saving)
 
 	OutputSlot *m_outputSlot;  // The output slot for this function's box
@@ -201,7 +211,6 @@ private:
 	QString m_topic;          // name of the topic in which to publish the output
 
 	QString m_iconFilepath;         // Filepath of the icon used (needed to create the svg)
-	QGraphicsSvgItem *m_sizeIcon; // Contains the svg that hints the box's size
 
 	bool m_IsActivityVisuEnabled;  // Wether or not we are visualizing this box's activity
 //	ActivityFetcher *m_activityFetcher; // The thread that subscribes to ROS topics
@@ -223,7 +232,7 @@ private slots:
 
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)
-	void boxDeleted();
+	void boxDestroyed(); // emited when the destructor is called, used by the ActivityVisualizer to delete itself
 };
 
 #endif // DIAGRAMBOX_H

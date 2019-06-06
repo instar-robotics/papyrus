@@ -25,11 +25,10 @@ class ActivityVisualizerBars : public ActivityVisualizer
 	Q_OBJECT
 
 public:
-	explicit ActivityVisualizerBars(DiagramBox *box, QGraphicsItem *parent = nullptr);
+	explicit ActivityVisualizerBars(DiagramBox *box);
 	~ActivityVisualizerBars();
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
-	void keyPressEvent(QKeyEvent *evt);
 	void wheelEvent(QGraphicsSceneWheelEvent *evt);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 
@@ -51,12 +50,15 @@ private:
 
 	QGraphicsTextItem m_scalarValue; // Used to display the value of a single scalar when type is SCALAR
 
+	QGraphicsLineItem m_beginTick;   // The tick that marks the first neuron
+	QGraphicsLineItem m_middleTick;  // The tick that marks the middle of the vector
+	QGraphicsLineItem m_endTick;     // The tick that marks the last neuron
+
 signals:
 	void sizeChanged();
 
 private slots:
 	void updateBars(QVector<qreal> *mat);
-	void onBoxDeleted();
 
 public slots:
 	void onSizeChanged();

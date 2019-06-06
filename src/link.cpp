@@ -31,12 +31,16 @@
 #include <QStyleOptionGraphicsItem>
 #include <QPainterPath>
 #include <QPainterPathStroker>
+#include <QGraphicsTextItem>
 
-Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(parent),
+Link::Link(OutputSlot *f, InputSlot *t, QGraphicsObject *parent) : QGraphicsObject(parent),
                                     m_from(f),
                                     m_to(t),
                                     m_secondary(checkIfSelfLoop()), // valable for initialisation
                                     m_selfLoop(checkIfSelfLoop()),
+                                    m_line(this),
+                                    m_leftSegment(this),
+                                    m_rightSegment(this),
                                     m_weight(1.0),
                                     m_isInvalid(false),
                                     m_connectivity(ONE_TO_ONE) // chose one by default
@@ -51,13 +55,45 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsItem *parent) : QGraphicsItem(p
 
 	setAcceptHoverEvents(true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	// If we are not self looping, hide the left and right segments
+	if (!m_selfLoop) {
+		m_rightSegment.hide();
+		m_leftSegment.hide();
+	}
+
+	// Create the label used to display the weight or value
+	m_label = new QGraphicsTextItem;
+
+	// Shrink the font, which by default is quite big
+	QFont labelFont = m_label->font();
+	labelFont.setPointSizeF(labelFont.pointSizeF() - 4);
+	m_label->setFont(labelFont);
+	m_label->setDefaultTextColor(defaultLinkColor);
+
+	setZValue(LINKS_Z_VALUE);
+	m_label->setZValue(LINKS_Z_VALUE - 1);
+}
+
+Link::~Link()
+{
+	delete m_label;
+	m_label = nullptr;
 }
 
 QRectF Link::boundingRect() const
 {
 	// If the line is not self-looping, then returns the bounding rect of the main line
 	if (!m_selfLoop) {
-		return m_line.boundingRect();
+		// For some reason, when the line is perfectly horizontal, we need to be pixel-perfect to
+		// select/over the lin, even though our shape() implementation produces a larger rectangle
+		// I found that adjusting the boundingRect() this way (only when line is horizontal) solves
+		// the issue. I'm not sure why, but it works so for now, this stays like this.
+		// Elegant solution welcome.
+		if (m_line.line().p1().y() == m_line.line().p2().y())
+			return m_line.boundingRect().adjusted(-10, -10, 10, 10);
+		else
+			return m_line.boundingRect();
 	} else {
 		// Otherwise, return the intersection of the three line's bounding rects
 		return m_leftSegment.boundingRect().united(m_line.boundingRect()).united(m_rightSegment.boundingRect());
@@ -66,124 +102,88 @@ QRectF Link::boundingRect() const
 
 void Link::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-	QColor color(48, 140, 198);
-	QPen pen(color);
-	qreal width = pen.widthF();
+	Q_UNUSED(painter);
+	Q_UNUSED(option);
+	Q_UNUSED(widget);
 
-	if (option->state & QStyle::State_MouseOver) {
-		width += 1;
+	// Hide or show the left and right segments based on whether the link is self looping or not
+	// TODO: maybe can be done once in constructor and that's all?
+	if (m_selfLoop) {
+		m_leftSegment.show();
+		m_rightSegment.show();
+	} else {
+		m_leftSegment.hide();
+		m_rightSegment.hide();
 	}
 
-	// If the link is selected, set the bold value (prevent changing it when hovering)
-	if (option->state & QStyle::State_Selected) {
-		width = 4;
+	qreal width = defaultLinkWidth;
+	QColor color = defaultLinkColor;
+
+	// Increase the width and the boldness if the Link is selected
+	if (isSelected()) {
+		width += 1.3;
+		setOpacity(1.0);
 	}
 
-	// If the link comes from or goes to an invalid box, gray it out
-	setOpacity(1.0);
+	// If the link comes from or goes to a commented box, gray it out
 	if (m_to->box()->isCommented() || m_from->box()->isCommented()) {
-		setOpacity(COMMENTED_OPACITY_LEVEL);
-		pen.setColor(QColor(Qt::gray).light());
+		color = QColor(Qt::gray).light();
 	} else if (m_isInvalid) {
 		// If the link is invalid, set the bold value and the color
-		width = 5;
-		pen.setColor(Qt::red);
+		width = 3;
+		color = Qt::red;
 	}
 
-	pen.setWidthF(width);
+	// Set final width and color
+	m_leftSegment.setColor(color);
+	m_line.setColor(color);
+	m_rightSegment.setColor(color);
+	m_label->setDefaultTextColor(color);
 
-	// Create a copy of option and remove the State_Selected option to prevent displaying an ugly
-	// dotted rectangle
-	QStyleOptionGraphicsItem newOption(*option);
-	newOption.state.setFlag(QStyle::State_Selected, false);
+	m_line.setWidth(width);
+	m_leftSegment.setWidth(width);
+	m_rightSegment.setWidth(width);
 
-	if (m_selfLoop || m_secondary)
-		pen.setStyle(Qt::DashLine);
-
-	if (!m_selfLoop) {
-		m_line.setPen(pen);
-
-		m_line.paint(painter, &newOption, widget);
-
-		// Paint the weight
-//        if (!isStringLink() && (m_to->inputType() == SCALAR_SCALAR || m_to->inputType() == SCALAR_MATRIX)) {
-		if (isStringLink() || m_to->inputType() == SCALAR_SCALAR
-		    || m_to->inputType() == SCALAR_MATRIX || m_to->inputType() == MATRIX_MATRIX) {
-			QPen currPen = painter->pen();
-
-			// Paint the weight a different color when it's negative
-			if (!isStringLink() && m_weight < 0) {
-				painter->setPen(QColor(198, 65, 242));
-			}
-
-			// Compute normal vector to slightly translate the line's bounding rect so that the
-			// weight is not written *on* the line (less readable), but slightly above it
-			QLineF nV = m_line.line().normalVector();
-			nV.translate(mapToScene((m_line.line().p2() - m_line.line().p1()) / 2));
-
-			QRectF offsetRect = boundingRect().translated((nV.p2() - nV.p1()) / 20);
-
-			if (!isStringLink()) {
-				painter->drawText(offsetRect, Qt::AlignCenter | Qt::TextDontClip, QString::number(m_weight));
-
-				// Restore the previous brush
-				if (m_weight < 0)
-					painter->setPen(currPen);
-			} else {
-				painter->drawText(offsetRect, Qt::AlignCenter | Qt::TextDontClip, m_value);
-			}
-		}
-	} else {
-		m_line.setPen(pen);
-		m_leftSegment.setPen(pen);
-		m_rightSegment.setPen(pen);
-
-		m_leftSegment.paint(painter, &newOption, widget);
-		m_line.paint(painter, &newOption, widget);
-		m_rightSegment.paint(painter, &newOption, widget);
-
-		QPen currPen = painter->pen();
-
-		// Paint the weight a different color when it's negative
-		if (!isStringLink() && m_weight < 0) {
-			painter->setPen(QColor(198, 65, 242));
-		}
-
-		// Paint the weight
-		if (isStringLink() || m_to->inputType() == SCALAR_SCALAR
-		    || m_to->inputType() == SCALAR_MATRIX || m_to->inputType() == MATRIX_MATRIX) {
-			QRectF r = m_line.boundingRect();
-			r.setTop(r.top() - 30);
-
-			if (!isStringLink())
-				painter->drawText(r, Qt::AlignCenter, QString::number(m_weight));
-			else
-				painter->drawText(r, Qt::AlignCenter, m_value);
-		}
-
-		// Restore the previous brush
-		if (!isStringLink() && m_weight < 0)
-			painter->setPen(currPen);
+	// Set the cursor to interogation when the link is invalid (to hint the user that there is some
+	// message available).
+	// NOTE: it will go back to arrow cursor thanks to hoverLeave event
+	if (m_invalidReason != INVALID_INVALID_REASON) {
+		setCursor(QCursor(Qt::WhatsThisCursor));
 	}
 }
 
 QPainterPath Link::shape() const
 {
+	QPainterPathStroker *stroke = new QPainterPathStroker;
+	stroke->setWidth(12.0);
+	stroke->setJoinStyle(Qt::RoundJoin);
+
 	if (!m_selfLoop) {
-		QPainterPathStroker *stroke = new QPainterPathStroker();
-		stroke->setWidth(60.0);
 		return stroke->createStroke(m_line.shape());
 	} else {
-		// This is not perfect, for some reason the m_line path is not symmetric
-		QPainterPath path(m_rightSegment.shape());
-		path.addPath(m_line.shape());
-		path.addPath(m_leftSegment.shape());
+		QPainterPath path;
+		path.addPath(stroke->createStroke(m_leftSegment.shape()));
+		path.addPath(stroke->createStroke(m_line.shape()));
+		path.addPath(stroke->createStroke(m_rightSegment.shape()));
 
-		QPainterPathStroker *stroke = new QPainterPathStroker();
-		stroke->setWidth(20.0);
-		stroke->setJoinStyle(Qt::RoundJoin);
-		return stroke->createStroke(path);
+		return path;
 	}
+}
+
+QVariant Link::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+	if (change == QGraphicsItem::ItemSelectedHasChanged) {
+		QFont labelFont = m_label->font();
+
+		if (value.toBool())
+			labelFont.setBold(true);
+		else
+			labelFont.setBold(false);
+
+		m_label->setFont(labelFont);
+	}
+
+	return QGraphicsObject::itemChange(change, value);
 }
 
 /**
@@ -230,44 +230,6 @@ void Link::updateTooltip()
 	setToolTip(str);
 }
 
-/**
- * @brief Link::addLinesToScene adds the segments that constitutes this Link to the scene.
- * Unfortunately we need to have a separate function: it cannot be done in the constructor, because
- * when we call new Link(from, to), the Link object is not yet added to the scene, so it cannot do
- * it at this moment.
- */
-void Link::addLinesToScene()
-{
-	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
-	if (dscene == NULL)
-		informUserAndCrash("[Link::addLinesToScene] Could not cast scene in DiagramScene");
-
-	if (!m_selfLoop) {
-		dscene->addItem(&m_line);
-	} else {
-		dscene->addItem(&m_leftSegment);
-		dscene->addItem(&m_line);
-		dscene->addItem(&m_rightSegment);
-	}
-
-	updateLines();
-}
-
-void Link::removeLinesFromScene()
-{
-	DiagramScene *dscene = dynamic_cast<DiagramScene *>(scene());
-	if (dscene == NULL)
-		informUserAndCrash("[Link::removeLinesFromScene] Could not cast scene in DiagramScene");
-
-	if (!m_selfLoop) {
-		dscene->removeItem(&m_line);
-	} else {
-		dscene->removeItem(&m_leftSegment);
-		dscene->removeItem(&m_line);
-		dscene->removeItem(&m_rightSegment);
-	}
-}
-
 QUuid Link::uuid() const
 {
 	return m_uuid;
@@ -312,14 +274,18 @@ void Link::setSecondary(bool secondary)
 	m_secondary = secondary;
 }
 
+/**
+ * @brief Link::checkIfSelfLoop checks if the links comes from and goes to the same @DiagramBox
+ * @return
+ */
 bool Link::checkIfSelfLoop()
 {
 	// If either 'from' or 'to' is NULL, then it cannot be a secondary link
-	if (m_from == NULL || m_to == NULL) {
+	if (m_from == nullptr || m_to == nullptr) {
 		return false;
 	}
 	// then check if some slots are not associated
-	else if (m_from->box() == NULL || m_to->box() == NULL) {
+	else if (m_from->box() == nullptr || m_to->box() == nullptr) {
 		return false;
 	}
 	// otherwise, check if the associated boxes for 'from' and 'to' are the same
@@ -331,6 +297,17 @@ bool Link::checkIfSelfLoop()
 	}
 }
 
+//*
+QGraphicsTextItem *Link::label() const
+{
+	return m_label;
+}
+
+void Link::setLabel(QGraphicsTextItem *label)
+{
+	m_label = label;
+}
+//*/
 QString Link::regexes() const
 {
 	return m_regexes;
@@ -396,6 +373,10 @@ void Link::setWeight(const qreal &weight)
 	m_weight = weight;
 }
 
+/**
+ * @brief Link::updateLines update the position of the QGraphicsLineItem so they "follow" the slots
+ * to which they are linked.
+ */
 void Link::updateLines()
 {
 	// Don't do anything if either 'from' or 'to' is null
@@ -405,11 +386,35 @@ void Link::updateLines()
 	QPointF orig = mapFromItem(m_from, m_from->boundingRect().center());
 	QPointF end  = mapFromItem(m_to, m_to->boundingRect().center());
 
-	// Create just a single line when not secondary link
+	// Paint the weight if not a string link
+	//*
+	if (!isStringLink()) {
+		m_label->setHtml(QString("<center>%1</center>").arg(m_weight));
+	} else {
+		m_label->setHtml(QString("<center>%1</center>").arg(m_value));
+	}
+	//*/
+
+
+	// Update the single line when it's not a self looping link
 	if (!m_selfLoop) {
 		m_line.setLine(QLineF(orig, end));
+		m_label->setTextWidth(m_line.line().length());
+		if (orig.x() <= end.x()) {
+			QPointF p = m_line.scenePos();
+			QLineF nV = m_line.line().normalVector();
+			nV.setLength(20);
+			m_label->setPos(p + nV.p2());
+		} else {
+			m_label->setPos(m_line.line().p2());
+		}
+
+		qreal oppositeSide = orig.y() - end.y();
+		qreal adjacentSide = end.x() - orig.x();
+		qreal rotationAmount = atan(oppositeSide / adjacentSide);
+		m_label->setRotation(-rotationAmount / (2 * M_PI) * 360);
 	} else {
-		// When in secondary, we have to create two vertical lines
+		// When the link is self-looping, we have to create two vertical lines
 		QPointF one = orig;
 		QPointF two = end;
 
@@ -426,6 +431,21 @@ void Link::updateLines()
 		m_leftSegment.setLine(QLineF(two, end));
 		m_rightSegment.setLine(QLineF(orig, one));
 		m_line.setLine(QLineF(one, two));
+
+		m_label->setTextWidth(m_line.line().length());
+		QPointF endPos = two;
+		endPos.ry() -= 20;
+		m_label->setPos(endPos);
+	}
+
+	if (m_selfLoop || m_secondary) {
+		m_leftSegment.setIsSecondary(true);
+		m_line.setIsSecondary(true);
+		m_rightSegment.setIsSecondary(true);
+	} else {
+		m_leftSegment.setIsSecondary(false);
+		m_line.setIsSecondary(false);
+		m_rightSegment.setIsSecondary(false);
 	}
 }
 
@@ -469,15 +489,17 @@ bool Link::checkIfInvalid()
 	// Start with a valid link
 	m_isInvalid = false;
 	m_invalidReason = INVALID_INVALID_REASON;
+	m_label->setDefaultTextColor(defaultLinkColor);
 
 	// First check if the types match
 	m_isInvalid = !canLink(m_from->outputType(), m_to->inputType());
 
-	// Early return if false
+	// Early return if true
 	if (m_isInvalid) {
 		m_invalidReason = TYPES_INCOMPATIBLE;
 		updateTooltip();
-		return false;
+		m_label->setDefaultTextColor(Qt::red);
+		return true; // why was it false here for so long?
 	}
 
 	// Check sizes only if:
@@ -510,6 +532,33 @@ bool Link::checkIfInvalid()
 
 	// At the end, return wether we are invalid
 	updateTooltip();
+	if (m_isInvalid)
+		m_label->setDefaultTextColor(Qt::red);
 	return m_isInvalid;
 }
 
+/**
+ * @brief Link::hoverEnterEvent turns the cursor into a hand cursor, hinting the user that he can
+ * interact with the Link. Also lower its opacity to further improve visual sight that this Link is
+ * hovered on (useful when lots of Links are close together)
+ * @param evt
+ */
+void Link::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
+{
+	setCursor(QCursor(Qt::PointingHandCursor));
+	setOpacity(0.3);
+
+	QGraphicsObject::hoverEnterEvent(evt);
+}
+
+/**
+ * @brief Link::hoverLeaveEvent restore the normal cursor and opacity for this Link when we hover out
+ * @param evt
+ */
+void Link::hoverLeaveEvent(QGraphicsSceneHoverEvent *evt)
+{
+	setCursor(QCursor(Qt::ArrowCursor));
+	setOpacity(1.0);
+
+	QGraphicsObject::hoverEnterEvent(evt);
+}

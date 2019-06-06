@@ -62,7 +62,7 @@ void UpdateLinkCommand::undo()
 
 	m_link->setSecondary(m_oldSecondary);
 
-	m_link->update();
+	m_link->updateLines();
 
 	if (m_link->to() != nullptr && m_link->to()->scene() != nullptr) {
 		DiagramScene *dScene = dynamic_cast<DiagramScene *>(m_link->to()->scene());
@@ -94,7 +94,7 @@ void UpdateLinkCommand::redo()
 
 	m_link->setSecondary(m_newSecondary);
 
-	m_link->update();
+	m_link->updateLines();
 
 	if (m_link->to() != nullptr && m_link->to()->scene() != nullptr) {
 		DiagramScene *dScene = dynamic_cast<DiagramScene *>(m_link->to()->scene());

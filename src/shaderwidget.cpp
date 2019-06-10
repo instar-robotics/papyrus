@@ -45,6 +45,7 @@ void ShaderWidget::initializeGL()
 void ShaderWidget::paintGL()
 {
 	emit repaint();
+	clearVectors();
 	fillVectors();
 	initGPUbuffers();
 
@@ -77,6 +78,11 @@ void ShaderWidget::paintGL()
 	glDrawElements(GL_TRIANGLES, m_indexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
+//	initGPUbuffersForWireframe();
+//	m_indexbuffer.bind();
+//	glDrawElements(GL_LINES, m_wireframeIndexes.size(), GL_UNSIGNED_INT, NULL);
+//	m_indexbuffer.release();
+
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Normal));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Color));
@@ -90,7 +96,7 @@ void ShaderWidget::paintGL()
 		m_last_count = m_frame_count;
 		m_frame_count = 0;
 		m_timer.restart();
-		//qDebug() << m_last_count;
+		qDebug() << m_last_count;
 	}
 
 	update();
@@ -120,6 +126,34 @@ void ShaderWidget::initGPUbuffers()
 	m_indexbuffer.create();
 	m_indexbuffer.bind();
 	m_indexbuffer.allocate(m_indexes.constData(), sizeof(GLuint) * m_indexes.size());
+	m_indexbuffer.release();
+}
+
+void ShaderWidget::initGPUbuffersForWireframe()
+{
+
+	// Vertex buffer init
+	m_vertexbuffer.create();
+	m_vertexbuffer.bind();
+	m_vertexbuffer.allocate(m_wireframeVertexes.constData(), sizeof(QVector3D) * m_wireframeVertexes.size());
+	m_vertexbuffer.release();
+
+	// Normal buffer init
+	m_normalbuffer.create();
+	m_normalbuffer.bind();
+	m_normalbuffer.allocate(m_normals.constData(), sizeof(QVector3D) * m_normals.size());
+	m_normalbuffer.release();
+
+	// Colors buffer init
+	m_colorbuffer.create();
+	m_colorbuffer.bind();
+	m_colorbuffer.allocate(m_wireframeColors.constData(), sizeof(QVector3D) * m_wireframeColors.size());
+	m_colorbuffer.release();
+
+	// Indexes buffer init
+	m_indexbuffer.create();
+	m_indexbuffer.bind();
+	m_indexbuffer.allocate(m_wireframeIndexes.constData(), sizeof(GLuint) * m_wireframeIndexes.size());
 	m_indexbuffer.release();
 }
 
@@ -277,6 +311,18 @@ QColor ShaderWidget::calculateColor(float const& value, float const& max_value)
 		qWarning() << "Normalized value (" << normalizedValue << ") outside of range [0, 1]";
 	}
 	return QColor::fromHsl(hue, 255, light * 255);
+}
+
+void ShaderWidget::clearVectors()
+{
+	m_vertexes.clear();
+	m_indexes.clear();
+	m_colors.clear();
+	m_normals.clear();
+
+//	m_wireframeVertexes.clear();
+//	m_wireframeIndexes.clear();
+//	m_wireframeColors.clear();
 }
 
 void ShaderWidget::fillVectors()

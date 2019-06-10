@@ -22,27 +22,43 @@ void ShaderSurface::initVectors()
 	m_indexes.reserve((m_xSize-1) * (m_ySize-1) * 6);
 	m_colors.reserve(m_xSize * m_ySize);
 	m_normals.reserve(m_xSize * m_ySize);
+//	m_wireframeVertexes.reserve(m_xSize * m_ySize);
+//	m_wireframeIndexes.reserve((m_xSize-1)*(m_ySize-1)*4 + (m_xSize+m_ySize-2)*2);
+//	m_wireframeColors.reserve(m_xSize * m_ySize);
 }
 
 void ShaderSurface::fillVectors()
 {
-	// Vertexes
-	m_vertexes.clear();
+	updateNormals();
+//	QVector3D wireframeColor(0.0,0.0,0.0);
 	for(int i = 0; i < m_ySize; i++)
 	{
 		for(int j = 0; j < m_xSize; j++)
 		{
+			// Vertexes
 			QVector3D vertex;
 			vertex.setX(calculateXcoord(i));
 			vertex.setY(calculateHeight(m_matrix[i][j]));
 			vertex.setZ(calculateZcoord(j));
 			m_vertexes.push_back(vertex);
+
+			// Colors
+			QColor color = calculateColor(m_matrix[i][j], 1.0);
+			QVector3D rgb(color.redF(), color.greenF(), color.blueF());
+			m_colors.push_back(rgb);
+
+			// Normals
+			m_normals.push_back(vertexNormal(i,j));
+
+			/* WIREFRAME */
+//			vertex.setY(vertex.y()+0.02);
+//			m_wireframeVertexes.push_back(vertex);
+//			m_wireframeColors.push_back(wireframeColor);
 		}
 	}
 
 	// Indexes
 	int current;
-	m_indexes.clear();
 	for (int i = 0; i < m_ySize-1; i++)
 	{
 		for (int j = 0; j < m_xSize-1; j++)
@@ -56,36 +72,28 @@ void ShaderSurface::fillVectors()
 			m_indexes.push_back(current + 1);
 			m_indexes.push_back(current + m_xSize);
 			m_indexes.push_back(current + m_xSize + 1);
+
+			/* WIREFRAME */
+//			m_wireframeIndexes.push_back(current);
+//			m_wireframeIndexes.push_back(current + m_xSize);
+
+//			m_wireframeIndexes.push_back(current);
+//			m_wireframeIndexes.push_back(current + 1);
 		}
 	}
-
-	// Colors
-	m_colors.clear();
-	for(int i = 0; i < m_ySize; i++)
-	{
-		for(int j = 0; j < m_xSize; j++)
-		{
-			QColor color = calculateColor(m_matrix[i][j], 1.0);
-			//QColor color = calculateColor(1.0, 1.0);
-			QVector3D rgb(color.redF(), color.greenF(), color.blueF());
-			//rgb.normalize();
-			m_colors.push_back(rgb);
-//			QVector3D color(0.5, 0.0, 0.0);
-//			m_colors.push_back(color);
-		}
-	}
-
-
-	// Normals
-	m_normals.clear();
-	updateNormals();
-	for(int i = 0; i < m_ySize; i++)
-	{
-		for(int j = 0; j < m_xSize; j++)
-		{
-			m_normals.push_back(vertexNormal(i,j));
-		}
-	}
+	/* WIREFRAME */
+//	for (int i = 0; i < m_ySize-1; i++)
+//	{
+//		current = (i+1) * m_xSize - 1;
+//		m_wireframeIndexes.push_back(current);
+//		m_wireframeIndexes.push_back(current + m_xSize);
+//	}
+//	for (int j = 0; j < m_xSize-1; j++)
+//	{
+//		current = (m_ySize-1) * m_xSize + j;
+//		m_wireframeIndexes.push_back(current);
+//		m_wireframeIndexes.push_back(current + 1);
+//	}
 }
 
 QVector3D ShaderSurface::vertexNormal(int i, int j)

@@ -51,7 +51,9 @@ protected:
 	void initShaders();
 	virtual void initVectors();
 	virtual void fillVectors();
+	void clearVectors();
 	void updateScene();
+	void initGPUbuffersForWireframe();
 
 	// Events
 //    void paintEvent(QPaintEvent *event);
@@ -74,10 +76,13 @@ private:
 protected:
 
 	//Vectors
-	QVector<GLuint> m_indexes;
-	QVector<QVector3D> m_vertexes;
-	QVector<QVector3D> m_normals;
-	QVector<QVector3D> m_colors;
+	QVector<GLuint> m_indexes; //save the index of vertexes to use in the drawing order
+	QVector<QVector3D> m_vertexes; //save the coordinates of all the vertexes for the render
+	QVector<QVector3D> m_normals; //save the vertexes' normals for light gesture
+	QVector<QVector3D> m_colors; //save the vertexes' colors for the render
+	QVector<GLuint> m_wireframeIndexes; //save the indexes in the drawing order of the wireframe
+	QVector<QVector3D> m_wireframeVertexes; //save vertexes just a little bit higher than original ones
+	QVector<QVector3D> m_wireframeColors; //save the vertexes' colors for the wireframe
 
 	// GPU Buffer
 	QOpenGLBuffer m_indexbuffer{QOpenGLBuffer::IndexBuffer};

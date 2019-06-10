@@ -22,7 +22,7 @@ protected:
 	int m_xSize;
 	int m_ySize;
 	float m_range = 4.0f;
-	float m_gap = 0.1f;
+	float m_gap = 0.2f;
 };
 
 #endif // SHADERMATRIX_H

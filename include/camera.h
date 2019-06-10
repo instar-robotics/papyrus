@@ -15,7 +15,7 @@ public:
 	void translateView(int x, int y, int z);
 	void updatePosition();
 
-	float m_distance = 10.0f;
+	float m_distance = 40.0f;
 
 	float m_xRot = 45.0f;
 	float m_yRot = 0;

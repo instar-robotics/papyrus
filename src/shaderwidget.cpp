@@ -78,10 +78,10 @@ void ShaderWidget::paintGL()
 	glDrawElements(GL_TRIANGLES, m_indexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
-//	initGPUbuffersForWireframe();
-//	m_indexbuffer.bind();
-//	glDrawElements(GL_LINES, m_wireframeIndexes.size(), GL_UNSIGNED_INT, NULL);
-//	m_indexbuffer.release();
+	initGPUbuffersForWireframe();
+	m_indexbuffer.bind();
+	glDrawElements(GL_LINES, m_wireframeIndexes.size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
 
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Normal));
@@ -320,9 +320,9 @@ void ShaderWidget::clearVectors()
 	m_colors.clear();
 	m_normals.clear();
 
-//	m_wireframeVertexes.clear();
-//	m_wireframeIndexes.clear();
-//	m_wireframeColors.clear();
+	m_wireframeVertexes.clear();
+	m_wireframeIndexes.clear();
+	m_wireframeColors.clear();
 }
 
 void ShaderWidget::fillVectors()

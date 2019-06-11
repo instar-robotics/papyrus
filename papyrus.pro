@@ -167,3 +167,5 @@ SOURCES += src/category.cpp \
 
 RESOURCES += icons.qrc \
     shaders.qrc
+
+DISTFILES +=

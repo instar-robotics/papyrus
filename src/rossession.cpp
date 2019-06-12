@@ -33,11 +33,6 @@ ROSSession::ROSSession(const QString &nodeName, QObject *parent)
 	start();
 }
 
-ROSSession::~ROSSession()
-{
-
-}
-
 /**
  * @brief ROSSession::addToHotList add a function to the list of functions for which we want to
  * activate the output when the script is run. Basically it waits for the script to be started, and

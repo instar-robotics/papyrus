@@ -48,12 +48,12 @@ UpdateBoxCommand::UpdateBoxCommand(PropertiesPanel *panel, DiagramBox *box, QUnd
 	m_oldTopic = m_box->topic();
 
 	// Save new parameter values
-	m_newTitle = m_panel->boxTitle()->text();
-	m_newRows = m_panel->rowsInput()->value();
-	m_newCols = m_panel->colsInput()->value();
-	m_newActivity = m_panel->saveActivity()->isChecked();
-	m_newPublish = m_panel->publish()->isChecked();
-	m_newTopic = m_panel->topic()->text();
+	m_newTitle = m_panel->getBoxTitle();
+	m_newRows = m_panel->getBoxRows();
+	m_newCols = m_panel->getBoxCols();
+	m_newActivity = m_panel->getBoxSaveActivity();
+	m_newPublish = m_panel->getBoxPublish();
+	m_newTopic = m_panel->getBoxTopic();
 }
 
 void UpdateBoxCommand::undo()
@@ -107,7 +107,7 @@ void UpdateBoxCommand::redo()
 			okToUpdateSize = true; // No restriction on size
 		else if (matrixShape == VECT) {
 			// For VECT shape, there must be at least one size of dimension 1
-			if (m_panel->rowsInput()->value() != 1 && m_panel->colsInput()->value() != 1) {
+			if (m_panel->getBoxRows() != 1 && m_panel->getBoxCols() != 1) {
 				okToUpdateSize = false;
 //				emit displayStatusMessage("VECT shape requires either rows = 1 or cols = 1", MSG_WARNING);
 			} else {
@@ -141,12 +141,12 @@ void UpdateBoxCommand::redo()
 			informUserAndCrash(QObject::tr("Box in scene is lacking a Script!"));
 		}
 		m_box->setTopic(ensureSlashPrefix(mkTopicName(s->name(), m_box->uuid().toString())));
-		m_panel->topic()->setStyleSheet("color: red;");
+		m_panel->setTopicNameColor(Qt::red);
 	} else if (isTopicNameValid(topic)) {
 		m_box->setTopic(ensureSlashPrefix(topic));
-		m_panel->topic()->setStyleSheet("color: black;"); // restore normal, black color
+		m_panel->setTopicNameColor(Qt::black); // restore normal, black color
 	} else
-		m_panel->topic()->setStyleSheet("color: red;"); // mark invalid topic name in red (and don't update it)
+		m_panel->setTopicNameColor(Qt::red); // mark invalid topic name in red (and don't update it)
 
 	m_box->update();
 

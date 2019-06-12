@@ -36,7 +36,7 @@ InputSlot::InputSlot() : Slot(),
                          m_multiple(false),
                          m_inputType(MATRIX_MATRIX),
                          m_canLink(false),
-                         m_label(NULL),
+                         m_label(this),
                          m_checkSize(true),
                          m_matrixShape(SHAPE_NONE)
 {
@@ -47,25 +47,19 @@ InputSlot::InputSlot(const QString &name) : InputSlot()
 {
 	// All of this should actually be in a 'setName()' function I suppose.
 	setName(name);
-	m_label = new QGraphicsSimpleTextItem(m_name, this);
+	m_label.setText(m_name);
 	QFont font;
 	font.setPixelSize(10);
-	m_label->setFont(font);
+	m_label.setFont(font);
 	QPointF textPos = pos();
 
 	// This is meant to align the labels with the input slots
-	qreal w = m_label->boundingRect().width();
+	qreal w = m_label.boundingRect().width();
 	textPos.ry() -= 6;
 	textPos.rx() -= w + 10;
 
-	m_label->setPos(textPos);
-	m_label->setVisible(false); // hide the names by defaults
-}
-
-InputSlot::~InputSlot()
-{
-	if (m_label != nullptr)
-		delete m_label;
+	m_label.setPos(textPos);
+	m_label.setVisible(false); // hide the names by defaults
 }
 
 bool InputSlot::multiple() const
@@ -188,7 +182,7 @@ void InputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 		painter->fillPath(path, getTypeColor(m_inputType));
 	}
 
-	m_label->setVisible(dscene->displayLabels());
+	m_label.setVisible(dscene->displayLabels());
 }
 
 QRectF InputSlot::boundingRect() const
@@ -229,14 +223,9 @@ void InputSlot::setCanLink(bool canLink)
 	m_canLink = canLink;
 }
 
-QGraphicsSimpleTextItem *InputSlot::label() const
+const QGraphicsSimpleTextItem &InputSlot::label()
 {
 	return m_label;
-}
-
-void InputSlot::setLabel(QGraphicsSimpleTextItem *label)
-{
-	m_label = label;
 }
 
 QUuid InputSlot::uuid() const

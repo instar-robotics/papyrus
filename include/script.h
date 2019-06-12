@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -51,6 +51,7 @@ Q_DECLARE_METATYPE(TimeUnit) // This allows convertion from/to QVariant
 class Script : public QObject
 {
 	Q_OBJECT
+
 public:
 	Script(DiagramScene *scene, const QString &name = "");
 	~Script();
@@ -126,7 +127,7 @@ private:
 	double m_timeValue;    // The RT Token time (either frequency or period)
 	TimeUnit m_timeUnit;   // Whether the time value is a frequency or a period
 	QUuid m_uuid;          // UUID for the RT Token (needed by kheops)
-	QTimer *m_modifiedNotifTimer; // Timer to display a system tray notification when unsaved for more than X minutes
+	QTimer m_modifiedNotifTimer; // Timer to display a system tray notification when unsaved for more than X minutes
 	bool m_encrypt;        // Whether the XML script should be encrypted on save (to protect IP)
 	std::string m_key;     // AES Key used to encrypt the file
 	std::string m_iv;      // AES IV used to encrypt the file
@@ -140,7 +141,6 @@ private slots:
 	void onScriptPaused();
 	void onScriptStopped();
 	void onTimeElapsed(int h, int m, int s, int ms);
-//	void temporaryCheckLaunch();
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);

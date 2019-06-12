@@ -26,6 +26,14 @@ Library::Library()
 
 }
 
+Library::~Library()
+{
+	foreach (Category *cat, m_categories) {
+		if (cat != nullptr)
+			delete cat;
+	}
+}
+
 void Library::addCategory(Category *category)
 {
 	m_categories.push_back(category);

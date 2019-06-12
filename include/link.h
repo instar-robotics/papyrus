@@ -123,6 +123,9 @@ private:
 	Connectivity m_connectivity; // Only viable for MATRIX_MATRIX
 	QString m_regexes;           // Connectivity regexes for ONE_TO_NEI
 
+	// The label is *not* made a child item, because then the mouse hover event gets triggered when
+	// the cursor is above the label, but we still can't click and select the link in this situation
+	// so only solution I found was to not make it a child item (so manually delete it, too)
 	QGraphicsTextItem *m_label;   // Display the weight or string value
 };
 

@@ -43,8 +43,8 @@ UpdateZoneCommand::UpdateZoneCommand(PropertiesPanel *panel, Zone *zone, QUndoCo
 	m_oldColor = m_zone->color();
 
 	// Save new parameter values
-	m_newTitle = m_panel->zoneTitle()->text();
-	m_newColor = m_panel->zoneColor()->color();
+	m_newTitle = m_panel->getZoneTitle();
+	m_newColor = m_panel->getZoneColor();
 }
 
 void UpdateZoneCommand::undo()

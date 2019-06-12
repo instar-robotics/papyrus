@@ -41,7 +41,10 @@ NodesChooser::NodesChooser(QWidget *parent) :
 
 NodesChooser::~NodesChooser()
 {
-	delete ui;
+	if (ui != nullptr) {
+		delete ui;
+		ui = nullptr;
+	}
 }
 
 void NodesChooser::populateKheopsNodes()

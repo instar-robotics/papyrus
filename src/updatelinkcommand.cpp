@@ -46,11 +46,11 @@ UpdateLinkCommand::UpdateLinkCommand(PropertiesPanel *panel, Link *link, QUndoCo
 	m_oldRegexes = m_link->regexes();
 
 	// Save new parameter values
-	m_newWeight = m_panel->linkWeight()->value();
-	m_newValue = m_panel->linkValue()->text();
-	m_newSecondary = m_panel->linkSecondary()->isChecked();
-	m_newConnectivity = m_panel->linkConnectivity()->currentData().value<Connectivity>();
-	m_newRegexes = m_panel->linkRegexes()->toPlainText();
+	m_newWeight = m_panel->getLinkWeight();
+	m_newValue = m_panel->getLinkValue();
+	m_newSecondary = m_panel->getLinkSecondary();
+	m_newConnectivity = m_panel->getLinkConnectivity();
+	m_newRegexes = m_panel->getLinkRegexes();
 }
 
 void UpdateLinkCommand::undo()

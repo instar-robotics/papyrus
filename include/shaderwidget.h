@@ -93,6 +93,7 @@ protected:
 	// Shader program
 	QOpenGLShaderProgram m_program;
 
+	float m_gap = 0.2f;
 
 };
 

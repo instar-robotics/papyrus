@@ -14,7 +14,7 @@ ShaderWidget::ShaderWidget()
 
 ShaderWidget::~ShaderWidget()
 {
-	//    glDeleteTextures(m_textureid);
+
 }
 
 QSize ShaderWidget::minimumSizeHint() const
@@ -76,11 +76,6 @@ void ShaderWidget::paintGL()
 
 	m_indexbuffer.bind();
 	glDrawElements(GL_TRIANGLES, m_indexes.size(), GL_UNSIGNED_INT, NULL);
-	m_indexbuffer.release();
-
-	initGPUbuffersForWireframe();
-	m_indexbuffer.bind();
-	glDrawElements(GL_LINES, m_wireframeIndexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));
@@ -179,6 +174,7 @@ void ShaderWidget::initShaders()
 	m_program.setUniformValue("ambient_light", m_light.m_ambientLight);
 	m_program.setUniformValue("diffuse_light", m_light.m_diffuseLight);
 	m_program.setUniformValue("camera_position", m_camera.m_position);
+	m_program.setUniformValue("gap", m_gap);
 
 	m_program.release();
 }

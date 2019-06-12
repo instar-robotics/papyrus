@@ -22,9 +22,6 @@ void ShaderSurface::initVectors()
 	m_indexes.reserve((m_xSize-1) * (m_ySize-1) * 6);
 	m_colors.reserve(m_xSize * m_ySize);
 	m_normals.reserve(m_xSize * m_ySize);
-	m_wireframeVertexes.reserve(m_xSize * m_ySize);
-	m_wireframeIndexes.reserve((m_xSize-1)*(m_ySize-1)*4 + (m_xSize+m_ySize-2)*2);
-	m_wireframeColors.reserve(m_xSize * m_ySize);
 }
 
 void ShaderSurface::fillVectors()
@@ -49,11 +46,6 @@ void ShaderSurface::fillVectors()
 
 			// Normals
 			m_normals.push_back(vertexNormal(i,j));
-
-			/* WIREFRAME */
-			vertex.setY(vertex.y()+0.02);
-			m_wireframeVertexes.push_back(vertex);
-			m_wireframeColors.push_back(wireframeColor);
 		}
 	}
 
@@ -72,27 +64,7 @@ void ShaderSurface::fillVectors()
 			m_indexes.push_back(current + 1);
 			m_indexes.push_back(current + m_xSize);
 			m_indexes.push_back(current + m_xSize + 1);
-
-			/* WIREFRAME */
-			m_wireframeIndexes.push_back(current);
-			m_wireframeIndexes.push_back(current + m_xSize);
-
-			m_wireframeIndexes.push_back(current);
-			m_wireframeIndexes.push_back(current + 1);
 		}
-	}
-	/* WIREFRAME */
-	for (int i = 0; i < m_ySize-1; i++)
-	{
-		current = (i+1) * m_xSize - 1;
-		m_wireframeIndexes.push_back(current);
-		m_wireframeIndexes.push_back(current + m_xSize);
-	}
-	for (int j = 0; j < m_xSize-1; j++)
-	{
-		current = (m_ySize-1) * m_xSize + j;
-		m_wireframeIndexes.push_back(current);
-		m_wireframeIndexes.push_back(current + 1);
 	}
 }
 

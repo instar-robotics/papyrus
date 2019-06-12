@@ -7,6 +7,7 @@
 #include <QBrush>
 #include "shaderwidget.h"
 #include "activityfetcher.h"
+#include "types.h"
 
 class ShaderProxy : public QGraphicsProxyWidget
 {
@@ -19,6 +20,7 @@ public:
 	QGraphicsRectItem *moveBar() const;
 
 	void setActivityFetcher(ActivityFetcher *activityFetcher);
+	void wheelEvent(QGraphicsSceneWheelEvent *event) override;
 
 signals:
 	void proxyDestroyed();

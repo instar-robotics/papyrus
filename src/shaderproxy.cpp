@@ -45,3 +45,9 @@ QGraphicsRectItem *ShaderProxy::moveBar() const
 {
 	return m_moveBar;
 }
+
+void ShaderProxy::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+	m_widget->wheelTurned(event->delta());
+}
+

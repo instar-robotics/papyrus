@@ -215,23 +215,14 @@ void ShaderWidget::resizeGL(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void ShaderWidget::keyPressEvent(QKeyEvent *event)
-{
-	if (event->key() == Qt::Key_Up)
-	{
-	}
-
-}
-
 void ShaderWidget::mousePressEvent(QMouseEvent *event)
 {
 	m_camera.m_lastPos = event->pos();
 }
-
 void ShaderWidget::mouseMoveEvent(QMouseEvent *event)
 {
-	int dx = event->x() - m_camera.m_lastPos.x();
-	int dy = event->y() - m_camera.m_lastPos.y();
+	int dx = event->pos().x() - m_camera.m_lastPos.x();
+	int dy = event->pos().y() - m_camera.m_lastPos.y();
 
 	if (event->buttons() & Qt::LeftButton)
 	{
@@ -242,22 +233,25 @@ void ShaderWidget::mouseMoveEvent(QMouseEvent *event)
 	}
 	if (event->buttons() & Qt::RightButton)
 	{
-		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
-		m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot)), 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot)));
-		m_camera.updatePosition();
-	}
-	else if (event->buttons() & Qt::MiddleButton)
-	{
-		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
-		m_camera.updatePosition();
+		if(event->modifiers() & Qt::ControlModifier)
+		{
+			m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
+			m_camera.updatePosition();
+		}
+		else
+		{
+			m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
+			m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot)), 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot)));
+			m_camera.updatePosition();
+		}
 	}
 
 	m_camera.m_lastPos = event->pos();
 }
 
-void ShaderWidget::wheelEvent(QWheelEvent *event)
+void ShaderWidget::wheelTurned(int delta)
 {
-	m_camera.m_distance *= 1.0 + (1.0 * (-event->delta()) / 1200.0);
+	m_camera.m_distance *= 1.0 + (1.0 * (-delta) / 1200.0);
 	m_camera.updatePosition();
 }
 

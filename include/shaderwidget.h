@@ -22,6 +22,7 @@
 #include "mathtransfo.h"
 #include "camera.h"
 #include "light.h"
+#include "types.h"
 
 enum class Attribute { Vertex, Normal, Color };
 
@@ -39,6 +40,10 @@ public:
 	void initializeGL();
 	virtual void updateValues(QVector<qreal>* values);
 
+	// Events
+	void wheelTurned(int delta);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
 signals:
 	void repaint();
 
@@ -54,13 +59,6 @@ protected:
 	void clearVectors();
 	void updateScene();
 	void initGPUbuffersForWireframe();
-
-	// Events
-//    void paintEvent(QPaintEvent *event);
-	void keyPressEvent(QKeyEvent *event) override;
-	void mousePressEvent(QMouseEvent *event) override;
-	void mouseMoveEvent(QMouseEvent *event) override;
-	void wheelEvent(QWheelEvent *event) override;
 
 	QColor calculateColor(float const& value, const float &max_value);
 

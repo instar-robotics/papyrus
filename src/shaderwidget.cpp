@@ -14,7 +14,6 @@ ShaderWidget::ShaderWidget()
 
 ShaderWidget::~ShaderWidget()
 {
-
 }
 
 QSize ShaderWidget::minimumSizeHint() const

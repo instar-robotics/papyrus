@@ -31,7 +31,9 @@
 #include "openglproxy.h"
 #include "shadersurface.h"
 #include "shaderproxy.h"
+#include "shadermovebar.h"
 
+#include <QGraphicsRectItem>
 #include <QGraphicsScene>
 #include <QUuid>
 #include <QUndoStack>
@@ -96,6 +98,7 @@ public slots:
 	void onOkBtnClicked(bool);
 	void onCancelBtnClicked(bool);
 	void onDisplayVisuClicked(bool);
+	void onDisplayOpenglVisuClicked(bool);
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);

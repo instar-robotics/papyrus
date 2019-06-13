@@ -74,7 +74,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_swapCandidate(false),
                                                 m_activityVisualizer(nullptr),
                                                 m_displayedProxy(nullptr),
-																								m_isCommented(false)
+                                                m_isCommented(false)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())

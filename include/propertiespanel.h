@@ -95,9 +95,12 @@ public:
 
 	QPushButton *displayVisu();
 
+	QPushButton *displayOpenglVisu();
+
 	QPushButton *okBtn();
 
 	QPushButton *cancelBtn();
+
 
 private:
 	// Script
@@ -121,7 +124,8 @@ private:
 	QCheckBox m_saveActivity;    // To enable saving the activity of the box
 	QCheckBox m_publish;         // To enable publish the output of the function
 	PropLineEdit m_topic;        // To input the topic name for publishing
-	QPushButton m_displayVisu;  // Display the box's data vizualisation
+	QPushButton m_displayVisu;   // Display the box's data vizualisation in 2d
+	QPushButton m_displayOpenglVisu;   // Display the box's data vizualisation in 3d
 
 	// Link
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)

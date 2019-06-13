@@ -89,7 +89,9 @@ HEADERS += include/category.h \
           include/shaderproxy.h \
           include/shadersurfacealpha.h \
           include/linkelement.h \
-          include/finddialog.h
+          include/finddialog.h \
+    shadermovebar.h \
+    include/shadermovebar.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -163,7 +165,9 @@ SOURCES += src/category.cpp \
         src/shaderproxy.cpp \
         src/shadersurfacealpha.cpp \
         src/linkelement.cpp \
-        src/finddialog.cpp
+        src/finddialog.cpp \
+    shadermovebar.cpp \
+    src/shadermovebar.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

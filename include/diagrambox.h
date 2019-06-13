@@ -223,7 +223,6 @@ private:
 	QPointF m_oldPos; // Start position when moved (to enable undo)
 
 	ActivityVisualizer *m_activityVisualizer;
-	//OpenGLProxy *m_displayedProxy; //pointer to opengl display
 	ShaderProxy *m_displayedProxy;
 	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
 

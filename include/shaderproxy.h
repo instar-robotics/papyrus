@@ -1,23 +1,24 @@
 #ifndef SHADERPROXY_H
 #define SHADERPROXY_H
 
-#include <QGraphicsProxyWidget>
 #include <QGraphicsRectItem>
 #include <QPen>
 #include <QBrush>
 #include "shaderwidget.h"
 #include "activityfetcher.h"
 #include "types.h"
+#include "shadermovebar.h"
+#include "diagrambox.h"
 
 class ShaderProxy : public QGraphicsProxyWidget
 {
 	Q_OBJECT
 
 public:
-	ShaderProxy(ShaderWidget *widget, QGraphicsRectItem *moveBar);
+	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox *box);
 	~ShaderProxy();
 
-	QGraphicsRectItem *moveBar() const;
+	ShaderMoveBar *moveBar() const;
 
 	void setActivityFetcher(ActivityFetcher *activityFetcher);
 	void wheelEvent(QGraphicsSceneWheelEvent *event) override;
@@ -31,8 +32,9 @@ public slots:
 
 private:
 	ShaderWidget *m_widget;
-	QGraphicsRectItem *m_moveBar;
+	ShaderMoveBar *m_moveBar;
 	ActivityFetcher *m_activityFetcher;
+	DiagramBox *m_box;
 
 	int m_rows;
 	int m_columns;

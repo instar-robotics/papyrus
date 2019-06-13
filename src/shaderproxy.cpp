@@ -1,8 +1,9 @@
 #include "shaderproxy.h"
 
-ShaderProxy::ShaderProxy(ShaderWidget *widget, QGraphicsRectItem *moveBar):
+ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box):
     m_widget(widget),
-    m_moveBar(moveBar)
+    m_moveBar(moveBar),
+    m_box(box)
 {
 
 	setWidget(m_widget);
@@ -21,9 +22,19 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, QGraphicsRectItem *moveBar):
 
 ShaderProxy::~ShaderProxy()
 {
+	if (m_activityFetcher != nullptr) {
+		m_activityFetcher->setShouldQuit(true);
+		m_activityFetcher->wait(1000);
+		delete m_activityFetcher;
+	}
+	if (m_box != nullptr) {
+		m_box->setDisplayedProxy(nullptr);
+		m_box->setActivityVisualizer(nullptr);
+		m_box->setIsActivityVisuEnabled(false);
+	}
+
 	setParentItem(nullptr);
 	delete m_moveBar;
-	delete m_widget;
 }
 
 void ShaderProxy::updateProxy()
@@ -41,7 +52,7 @@ void ShaderProxy::setActivityFetcher(ActivityFetcher *activityFetcher)
 	m_activityFetcher = activityFetcher;
 }
 
-QGraphicsRectItem *ShaderProxy::moveBar() const
+ShaderMoveBar *ShaderProxy::moveBar() const
 {
 	return m_moveBar;
 }

@@ -53,6 +53,11 @@ void DeleteBoxCommand::undo()
 	// Put its visualizer back in the scene if it has one
 	if (m_box->activityVisualizer() != nullptr)
 		m_scene->addItem(m_box->activityVisualizer());
+	if (m_box->getDisplayedProxy() != nullptr)
+	{
+		m_scene->addItem(m_box->getDisplayedProxy()->moveBar());
+		m_scene->addItem(m_box->getDisplayedProxy());
+	}
 }
 
 void DeleteBoxCommand::redo()
@@ -65,4 +70,9 @@ void DeleteBoxCommand::redo()
 	// Remove its visualizer from the scene if it has one
 	if (m_box->activityVisualizer() != nullptr)
 		m_scene->removeItem(m_box->activityVisualizer());
+	if (m_box->getDisplayedProxy() != nullptr)
+	{
+		m_scene->removeItem(m_box->getDisplayedProxy()->moveBar());
+		m_scene->removeItem(m_box->getDisplayedProxy());
+	}
 }

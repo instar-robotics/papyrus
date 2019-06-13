@@ -53,7 +53,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_saveActivity(tr("Save Activity"), this),
                                                     m_publish(tr("Publish output"), this),
                                                     m_topic(this),
-                                                    m_displayVisu(tr("Visualize Activity"), this),
+                                                    m_displayVisu(tr("Visualize Activity in 2D"), this),
+                                                    m_displayOpenglVisu(tr("Visualize Activity in 3D"), this),
                                                     m_linkLayout(NULL),
                                                     m_linkFrame(this),
                                                     m_linkType(this),
@@ -140,6 +141,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxLayout->addRow(&m_publish);
 	m_boxLayout->addRow(tr("Topic:"), &m_topic);
 	m_boxLayout->addRow(&m_displayVisu);
+	m_boxLayout->addRow(&m_displayOpenglVisu);
 
 	m_boxFrame.setLayout(m_boxLayout);
 
@@ -221,6 +223,7 @@ QPushButton *PropertiesPanel::cancelBtn()
 {
 	return &m_cancelBtn;
 }
+
 
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
@@ -364,12 +367,17 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		topicLabel->hide();
 		m_topic.hide();
 		m_displayVisu.hide();
+		m_displayOpenglVisu.hide();
 	} else {
 		m_saveActivity.show();
 		m_publish.show();
 		topicLabel->show();
 		m_topic.show();
 		m_displayVisu.show();
+		if(oType == MATRIX)
+			m_displayOpenglVisu.show();
+		else
+			m_displayOpenglVisu.hide();
 	}
 
 	// Show the box frame and the buttons
@@ -821,4 +829,9 @@ bool PropertiesPanel::getScriptEncrypt()
 QPushButton *PropertiesPanel::displayVisu()
 {
 	return &m_displayVisu;
+}
+
+QPushButton *PropertiesPanel::displayOpenglVisu()
+{
+	return &m_displayOpenglVisu;
 }

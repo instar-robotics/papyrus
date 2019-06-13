@@ -41,6 +41,7 @@
 #include "deletelinkcommand.h"
 #include "deleteboxcommand.h"
 #include "deletezonecommand.h"
+#include "shadermovebar.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -80,6 +81,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
 	connect(propPanel->displayVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
+	connect(propPanel->displayOpenglVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayOpenglVisuClicked(bool)));
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 /**
@@ -789,6 +791,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 			DiagramBox *box = dynamic_cast<DiagramBox *>(items.at(0));
 			Zone *zone = dynamic_cast<Zone *>(items.at(0));
 			ActivityVisualizer *vis = dynamic_cast<ActivityVisualizer *>(items.at(0));
+			ShaderMoveBar *moveBar = dynamic_cast<ShaderMoveBar *>(items.at(0));
 
 			if (link != nullptr)
 				deleteItem(link);
@@ -798,6 +801,11 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				deleteItem(zone);
 			else if (vis != nullptr)
 				delete vis;  // we don't provide CTRL + Z for deleting visualizer for now
+			else if (moveBar != nullptr)
+			{
+				ShaderProxy *proxy = moveBar->proxy();
+				delete proxy;  // we don't provide CTRL + Z for deleting visualizer for now
+			}
 			else
 				qWarning() << "Unknown item to delete.";
 
@@ -944,6 +952,12 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		foreach(Link *inhibLink, box->inhibInput()->inputs()) {
 			new DeleteLinkCommand(this, inhibLink, command);
 		}
+	}
+
+	if(box->getDisplayedProxy() != nullptr)
+	{
+		removeItem(box->getDisplayedProxy()->moveBar());
+		removeItem(box->getDisplayedProxy());
 	}
 
 	m_undoStack.push(command);
@@ -1344,32 +1358,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				emit displayStatusMessage("Visualization is already enabled for this box");
 				return;
 			}
-
-			if(selectedBox->getDisplayedProxy() != nullptr)
-			{
-				emit displayStatusMessage("Visualization is already enabled for this box");
-				return;
-			}
 //			selectedBox->setIsActivityVisuEnabled(true);
-
-
-			// Insert the 3D widget
-//			OpenGLMatrix *matrix = new OpenGLMatrix(selectedBox->getRows(), selectedBox->getCols());
-//			matrix->initializeGL();
-//			QGraphicsRectItem *proxyMoveBar = new QGraphicsRectItem();
-//			OpenGLProxy *proxy = new OpenGLProxy(matrix, proxyMoveBar);
-
-//			proxy->setPos(0, proxyMoveBar->rect().height());
-//			addItem(proxyMoveBar);
-//			selectedBox->setDisplayedProxy(proxy);
-
-			ShaderSurface *surface = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
-			QGraphicsRectItem *proxyMoveBar = new QGraphicsRectItem();
-			ShaderProxy *proxy = new ShaderProxy(surface, proxyMoveBar);
-
-			proxy->setPos(0, proxyMoveBar->rect().height());
-			addItem(proxyMoveBar);
-			selectedBox->setDisplayedProxy(proxy);
 
 			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
 			ActivityVisualizer *vis = nullptr;
@@ -1411,11 +1400,6 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);
 			ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
 
-			if(proxy != nullptr)
-			{
-				proxy->setActivityFetcher(fetcher);
-				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
-			}
 			if (visBar != nullptr) {
 				visBar->setActivityFetcher(fetcher);
 				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBar, SLOT(updateBars(QVector<qreal>*)));
@@ -1433,6 +1417,74 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			dChart->setPos(selectedBox->pos().x(), selectedBox->pos().y() - 200);
 			addItem(dChart);
 			//*/
+		}
+	}
+}
+
+void DiagramScene::onDisplayOpenglVisuClicked(bool)
+{
+	// React to event only if we are the active script
+	if (m_script == nullptr)
+		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
+
+	if (!m_script->isActiveScript())
+		return;
+
+	QList<QGraphicsItem *> sItems = selectedItems();
+
+	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
+	if (propPanel == nullptr)
+		informUserAndCrash(tr("Impossible to fetch the properties panel!"));
+
+	if (sItems.count() == 0) {
+		propPanel->setScriptTimeValue(m_script->timeValue());
+		propPanel->setScriptTimeUnit(m_script->timeUnit());
+	}
+	else if (sItems.count() == 1)
+	{
+		QGraphicsItem *item = sItems.at(0);
+		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
+		if (selectedBox != nullptr) {
+			// First check that we don't already have enabled data visualization for this box
+			if(selectedBox->getDisplayedProxy() != nullptr)
+			{
+				emit displayStatusMessage("Visualization is already enabled for this box");
+				return;
+			}
+
+			ShaderProxy *proxy = nullptr;
+			if (selectedBox->outputType() == MATRIX) {
+				// (1,1) matrix is treated as a scalar
+				if (selectedBox->rows() == 1 && selectedBox->cols() == 1)
+					emit displayStatusMessage("Unable to display 3D visualization for (1,1) matrix");
+				else
+				{
+					// Insert the 3D widget
+					ShaderSurface *surface = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
+					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
+					proxy = new ShaderProxy(surface, shaderMoveBar, selectedBox);
+					shaderMoveBar->setProxy(proxy);
+
+					proxy->setPos(0, shaderMoveBar->rect().height());
+					addItem(shaderMoveBar);
+					selectedBox->setDisplayedProxy(proxy);
+
+					// Create the activity fetcher with the topic name
+					ActivityFetcher *fetcher = nullptr;
+					if (selectedBox->publish()) {
+						fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
+					} else {
+						fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
+						                                                            selectedBox->uuid().toString())),
+						                              selectedBox);
+						m_script->rosSession()->addToHotList(selectedBox->uuid());
+					}
+					proxy->setActivityFetcher(fetcher);
+					connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+				}
+			}
+			else
+				qWarning() << "Ouput type not supported for 3D visualization";
 		}
 	}
 }

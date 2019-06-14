@@ -22,6 +22,9 @@ public:
 
 	void setActivityFetcher(ActivityFetcher *activityFetcher);
 	void wheelEvent(QGraphicsSceneWheelEvent *event) override;
+	void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 signals:
 	void proxyDestroyed();
@@ -38,6 +41,10 @@ private:
 
 	int m_rows;
 	int m_columns;
+
+	QPoint m_lastPos;
+	qreal m_resizeMargin = 8;
+	qreal m_moveBarHeight = 20;
 };
 
 #endif // SHADERPROXY_H

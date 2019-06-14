@@ -34,16 +34,18 @@ public:
 	ShaderWidget();
 	~ShaderWidget();
 
-	QSize minimumSizeHint() const;
-	QSize sizeHint() const;
-
 	void initializeGL();
 	virtual void updateValues(QVector<qreal>* values);
 
 	// Events
 	void wheelTurned(int delta);
-	void mousePressEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
+	void mousePressed(QPoint pos);
+	void mouseMoved(QPoint pos, MouseControl mouseControl);
+
+	int minWidth() const;
+
+	int minHeight() const;
+
 signals:
 	void repaint();
 
@@ -71,6 +73,7 @@ private:
 	Camera m_camera;
 	Light m_light;
 
+
 protected:
 
 	//Vectors
@@ -92,6 +95,11 @@ protected:
 	QOpenGLShaderProgram m_program;
 
 	float m_gap = 0.2f;
+
+	int m_startWidth = 300;
+	int m_startHeight = 300;
+	int m_minWidth = 150;
+	int m_minHeight = 150;
 
 };
 

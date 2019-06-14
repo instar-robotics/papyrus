@@ -6,7 +6,7 @@
 
 ShaderWidget::ShaderWidget()
 {
-	resize(500, 500);
+	resize(m_startWidth, m_startHeight);
 
 	// Time
 	m_timer.start();
@@ -14,16 +14,6 @@ ShaderWidget::ShaderWidget()
 
 ShaderWidget::~ShaderWidget()
 {
-}
-
-QSize ShaderWidget::minimumSizeHint() const
-{
-	return QSize(200,200);
-}
-
-QSize ShaderWidget::sizeHint() const
-{
-	return QSize(800,600);
 }
 
 void ShaderWidget::initializeGL()
@@ -214,38 +204,35 @@ void ShaderWidget::resizeGL(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void ShaderWidget::mousePressEvent(QMouseEvent *event)
+void ShaderWidget::mousePressed(QPoint pos)
 {
-	m_camera.m_lastPos = event->pos();
+	m_camera.m_lastPos = pos;
 }
-void ShaderWidget::mouseMoveEvent(QMouseEvent *event)
+void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 {
-	int dx = event->pos().x() - m_camera.m_lastPos.x();
-	int dy = event->pos().y() - m_camera.m_lastPos.y();
+	int dx = pos.x() - m_camera.m_lastPos.x();
+	int dy = pos.y() - m_camera.m_lastPos.y();
 
-	if (event->buttons() & Qt::LeftButton)
+	if (mouseControl == LEFT_BUTTON)
 	{
 		m_camera.rotateView(dy*m_camera.m_rotSpeed, 0, 0);
 		m_camera.rotateView(0, dx*m_camera.m_rotSpeed, 0);
 		m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
 		m_camera.updatePosition();
 	}
-	if (event->buttons() & Qt::RightButton)
+	else if (mouseControl == RIGHT_BUTTON)
 	{
-		if(event->modifiers() & Qt::ControlModifier)
-		{
-			m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
-			m_camera.updatePosition();
-		}
-		else
-		{
-			m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
-			m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot)), 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot)));
-			m_camera.updatePosition();
-		}
+		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
+		m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot)), 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot)));
+		m_camera.updatePosition();
+	}
+	else if(mouseControl == RIGHT_CTRL_BUTTON)
+	{
+		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
+		m_camera.updatePosition();
 	}
 
-	m_camera.m_lastPos = event->pos();
+	m_camera.m_lastPos = pos;
 }
 
 void ShaderWidget::wheelTurned(int delta)
@@ -301,6 +288,17 @@ QColor ShaderWidget::calculateColor(float const& value, float const& max_value)
 	}
 	return QColor::fromHsl(hue, 255, light * 255);
 }
+
+int ShaderWidget::minHeight() const
+{
+	return m_minHeight;
+}
+
+int ShaderWidget::minWidth() const
+{
+	return m_minWidth;
+}
+
 
 void ShaderWidget::clearVectors()
 {

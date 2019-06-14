@@ -138,4 +138,10 @@ enum ResizeType {
 	RESIZE_BOTTOM_LEFT
 };
 
+// Define the different control that can be used with the mouse
+enum MouseControl{
+    LEFT_BUTTON,
+    RIGHT_BUTTON,
+    RIGHT_CTRL_BUTTON
+};
 #endif // TYPES_H

@@ -8,7 +8,7 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 
 	setWidget(m_widget);
 	//m_widget->resizeGL(200,200);
-	m_moveBar->setRect(0, 0, m_widget->width(), 20);
+	m_moveBar->setRect(0, 0, m_widget->width(), m_moveBarHeight);
 	m_moveBar->setPen(QPen(Qt::black));
 	m_moveBar->setBrush(QBrush(Qt::black));
 	setPos(0, m_moveBar->rect().height());
@@ -61,4 +61,72 @@ void ShaderProxy::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
 	m_widget->wheelTurned(event->delta());
 }
+void ShaderProxy::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+	qreal mouseX = event->pos().x();
+	qreal mouseY = event->pos().y();
 
+	if (mouseX >= m_widget->width() - m_resizeMargin && mouseY >= m_widget->height() - m_resizeMargin)
+		setCursor(QCursor(Qt::SizeFDiagCursor));
+	else if (mouseX >= m_widget->width() - m_resizeMargin)
+		setCursor(QCursor(Qt::SizeHorCursor));
+	else if (mouseY >= m_widget->height() - m_resizeMargin)
+		setCursor(QCursor(Qt::SizeVerCursor));
+	else
+		setCursor(QCursor(Qt::ArrowCursor));
+}
+
+void ShaderProxy::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	m_lastPos = QPoint(event->pos().x(), event->pos().y());
+	m_widget->mousePressed(m_lastPos);
+}
+void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+	QPoint pos(event->pos().x(), event->pos().y());
+	if (event->buttons() & Qt::LeftButton)
+	{
+		int dx = pos.x() - m_lastPos.x();
+		int dy = pos.y() - m_lastPos.y();
+		int width = m_widget->width();
+		int height = m_widget->height();
+
+		if (m_lastPos.x() >= m_widget->width() - m_resizeMargin && m_lastPos.y() >= m_widget->height() - m_resizeMargin)
+		{
+			m_widget->resize(width+dx, height+dy);
+			m_moveBar->setRect(0,0,width+dx,m_moveBarHeight);
+		}
+		else if (m_lastPos.x() >= m_widget->width() - m_resizeMargin)
+		{
+			m_widget->resize(width+dx, height);
+			m_moveBar->setRect(0,0,width+dx,m_moveBarHeight);
+		}
+
+		else if (m_lastPos.y() >= m_widget->height() - m_resizeMargin)
+			m_widget->resize(width, height+dy);
+
+		else
+			m_widget->mouseMoved(pos, LEFT_BUTTON);
+
+		//Resize the widget if it is too small
+		if(width<m_widget->minWidth())
+		{
+			m_widget->resize(m_widget->minWidth(), m_widget->height());
+			m_moveBar->setRect(0,0,m_widget->minWidth(),m_moveBarHeight);
+		}
+		if(height<m_widget->minHeight())
+			m_widget->resize(m_widget->width(), m_widget->minHeight());
+	}
+	if (event->buttons() & Qt::RightButton)
+	{
+		if(event->modifiers() & Qt::ControlModifier)
+		{
+			m_widget->mouseMoved(pos, RIGHT_CTRL_BUTTON);
+		}
+		else
+		{
+			m_widget->mouseMoved(pos, RIGHT_BUTTON);
+		}
+	}
+	m_lastPos = pos;
+}

@@ -1460,9 +1460,11 @@ void DiagramScene::onDisplayOpenglVisuClicked(bool)
 				else
 				{
 					// Insert the 3D widget
-					ShaderSurface *surface = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
+					//ShaderSurface *surface = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
+					ShaderBarCharts *barcharts = new ShaderBarCharts(selectedBox->getRows(), selectedBox->getCols());
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-					proxy = new ShaderProxy(surface, shaderMoveBar, selectedBox);
+					//proxy = new ShaderProxy(surface, shaderMoveBar, selectedBox);
+					proxy = new ShaderProxy(barcharts, shaderMoveBar, selectedBox);
 					shaderMoveBar->setProxy(proxy);
 
 					proxy->setPos(0, shaderMoveBar->rect().height());

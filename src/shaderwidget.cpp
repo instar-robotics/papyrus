@@ -25,6 +25,7 @@ void ShaderWidget::initializeGL()
 	initVectors();
 	fillVectors();
 	initGPUbuffers();
+	addShaders();
 	initShaders();
 
 	// GL options
@@ -112,6 +113,23 @@ void ShaderWidget::initGPUbuffers()
 	m_indexbuffer.bind();
 	m_indexbuffer.allocate(m_indexes.constData(), sizeof(GLuint) * m_indexes.size());
 	m_indexbuffer.release();
+}
+
+void ShaderWidget::initShaders()
+{
+	// Light settings
+	m_program.bind();
+
+	m_camera.updatePosition();
+	m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
+
+	m_program.setUniformValue("light_normal", m_light.m_lightNormal);
+	m_program.setUniformValue("ambient_light", m_light.m_ambientLight);
+	m_program.setUniformValue("diffuse_light", m_light.m_diffuseLight);
+	m_program.setUniformValue("camera_position", m_camera.m_position);
+	m_program.setUniformValue("gap", m_gap);
+
+	m_program.release();
 }
 
 //Define the positions of camera and light in the shaders
@@ -272,7 +290,7 @@ void ShaderWidget::initVectors()
 
 }
 
-void ShaderWidget::initShaders()
+void ShaderWidget::addShaders()
 {
 
 }

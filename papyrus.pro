@@ -87,7 +87,8 @@ HEADERS += include/category.h \
           include/linkelement.h \
           include/finddialog.h \
     shadermovebar.h \
-    include/shadermovebar.h
+    include/shadermovebar.h \
+    include/shaderbarcharts.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -159,11 +160,11 @@ SOURCES += src/category.cpp \
            src/deleteboxcommand.cpp \
            src/deletezonecommand.cpp \
         src/shaderproxy.cpp \
-        src/shadersurfacealpha.cpp \
         src/linkelement.cpp \
         src/finddialog.cpp \
     shadermovebar.cpp \
-    src/shadermovebar.cpp
+    src/shadermovebar.cpp \
+    src/shaderbarcharts.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

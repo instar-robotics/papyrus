@@ -28,6 +28,7 @@
 #include "diagrambox.h"
 #include "zone.h"
 #include "shadersurface.h"
+#include "shaderbarcharts.h"
 #include "shaderproxy.h"
 #include "shadermovebar.h"
 

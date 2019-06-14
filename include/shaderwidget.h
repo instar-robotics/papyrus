@@ -54,7 +54,8 @@ protected:
 	void resizeGL(int width, int height) override;
 
 	void initGPUbuffers();
-	virtual void initShaders();
+	void initShaders();
+	virtual void addShaders();
 	virtual void initVectors();
 	virtual void fillVectors();
 	void clearVectors();

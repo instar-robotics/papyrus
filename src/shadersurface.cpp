@@ -17,31 +17,17 @@ ShaderSurface::~ShaderSurface()
 }
 
 //Initialize the shaders during initializeGL()
-void ShaderSurface::initShaders()
+void ShaderSurface::addShaders()
 {
 	// Init shader program
 	m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shader.vert");
-	m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shader.frag");
+	m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shadersurface.frag");
 
 	m_program.bindAttributeLocation("in_vertex", static_cast<int>(Attribute::Vertex));
 	m_program.bindAttributeLocation("in_normal", static_cast<int>(Attribute::Normal));
 	m_program.bindAttributeLocation("in_color", static_cast<int>(Attribute::Color));
 
 	m_program.link();
-
-	// Light settings
-	m_program.bind();
-
-	m_camera.updatePosition();
-	m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
-
-	m_program.setUniformValue("light_normal", m_light.m_lightNormal);
-	m_program.setUniformValue("ambient_light", m_light.m_ambientLight);
-	m_program.setUniformValue("diffuse_light", m_light.m_diffuseLight);
-	m_program.setUniformValue("camera_position", m_camera.m_position);
-	m_program.setUniformValue("gap", m_gap);
-
-	m_program.release();
 }
 
 //Allocate the memory used by each vectors

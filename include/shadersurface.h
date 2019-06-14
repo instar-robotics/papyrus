@@ -10,6 +10,7 @@ public:
 	~ShaderSurface();
 
 protected:
+	virtual void initShaders() override;
 	virtual void initVectors() override;
 	virtual void fillVectors() override;
 	QVector3D vertexNormal(int i, int j);

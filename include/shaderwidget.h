@@ -43,7 +43,6 @@ public:
 	void mouseMoved(QPoint pos, MouseControl mouseControl);
 
 	int minWidth() const;
-
 	int minHeight() const;
 
 signals:
@@ -55,12 +54,11 @@ protected:
 	void resizeGL(int width, int height) override;
 
 	void initGPUbuffers();
-	void initShaders();
+	virtual void initShaders();
 	virtual void initVectors();
 	virtual void fillVectors();
 	void clearVectors();
 	void updateScene();
-	void initGPUbuffersForWireframe();
 
 	QColor calculateColor(float const& value, const float &max_value);
 
@@ -69,10 +67,6 @@ private:
 	QTime m_timer;
 	size_t m_frame_count{};
 	size_t m_last_count{};
-
-	Camera m_camera;
-	Light m_light;
-
 
 protected:
 
@@ -94,8 +88,12 @@ protected:
 	// Shader program
 	QOpenGLShaderProgram m_program;
 
+	// 3D scene
 	float m_gap = 0.2f;
+	Camera m_camera;
+	Light m_light;
 
+	// widget size
 	int m_startWidth = 300;
 	int m_startHeight = 300;
 	int m_minWidth = 150;

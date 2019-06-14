@@ -16,6 +16,35 @@ ShaderSurface::~ShaderSurface()
 	delete [] m_downTriangleNormals;
 }
 
+//Initialize the shaders during initializeGL()
+void ShaderSurface::initShaders()
+{
+	// Init shader program
+	m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shader.vert");
+	m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shader.frag");
+
+	m_program.bindAttributeLocation("in_vertex", static_cast<int>(Attribute::Vertex));
+	m_program.bindAttributeLocation("in_normal", static_cast<int>(Attribute::Normal));
+	m_program.bindAttributeLocation("in_color", static_cast<int>(Attribute::Color));
+
+	m_program.link();
+
+	// Light settings
+	m_program.bind();
+
+	m_camera.updatePosition();
+	m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
+
+	m_program.setUniformValue("light_normal", m_light.m_lightNormal);
+	m_program.setUniformValue("ambient_light", m_light.m_ambientLight);
+	m_program.setUniformValue("diffuse_light", m_light.m_diffuseLight);
+	m_program.setUniformValue("camera_position", m_camera.m_position);
+	m_program.setUniformValue("gap", m_gap);
+
+	m_program.release();
+}
+
+//Allocate the memory used by each vectors
 void ShaderSurface::initVectors()
 {
 	m_vertexes.reserve(m_xSize * m_ySize);
@@ -27,7 +56,6 @@ void ShaderSurface::initVectors()
 void ShaderSurface::fillVectors()
 {
 	updateNormals();
-	QVector3D wireframeColor(0.0,0.0,0.0);
 	for(int i = 0; i < m_ySize; i++)
 	{
 		for(int j = 0; j < m_xSize; j++)
@@ -68,6 +96,7 @@ void ShaderSurface::fillVectors()
 	}
 }
 
+//Calculate the normal of each vertex which is needed for light gesture
 QVector3D ShaderSurface::vertexNormal(int i, int j)
 {
 	QVector3D result(0.0,0.0,0.0);
@@ -81,6 +110,7 @@ QVector3D ShaderSurface::vertexNormal(int i, int j)
 		return result;
 	}
 	QVector<QVector3D> normals;
+	//The normal of a vertex is the average of each triangle's normal for whom the vertex is one of the apexes
 
 	// North west triangle
 	if(i>0 && j>0)
@@ -138,6 +168,7 @@ void ShaderSurface::initNormalsMatrixes()
 	}
 }
 
+//Calculate the normal of each triangle in the scene
 void ShaderSurface::updateNormals()
 {
 	for(int i = 0; i<m_xSize-1; i++){

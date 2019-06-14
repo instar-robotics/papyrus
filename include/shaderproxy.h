@@ -43,7 +43,7 @@ private:
 	int m_columns;
 
 	QPoint m_lastPos;
-	qreal m_resizeMargin = 8;
+	qreal m_resizeMargin = 7;
 	qreal m_moveBarHeight = 20;
 };
 

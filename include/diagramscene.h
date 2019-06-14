@@ -27,8 +27,6 @@
 #include "inputslot.h"
 #include "diagrambox.h"
 #include "zone.h"
-#include "openglmatrix.h"
-#include "openglproxy.h"
 #include "shadersurface.h"
 #include "shaderproxy.h"
 #include "shadermovebar.h"

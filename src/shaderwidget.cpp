@@ -16,6 +16,7 @@ ShaderWidget::~ShaderWidget()
 {
 }
 
+//Function run only on the opengl widget's creation
 void ShaderWidget::initializeGL()
 {
 	// init OpenGL
@@ -31,6 +32,7 @@ void ShaderWidget::initializeGL()
 	glEnable(GL_DEPTH_TEST);
 }
 
+//Function run on each frame
 void ShaderWidget::paintGL()
 {
 	emit repaint();
@@ -45,19 +47,17 @@ void ShaderWidget::paintGL()
 
 	updateScene();
 
-	// Vertex VBO
+	// Define data send to the graphical pipeline
 	m_vertexbuffer.bind();
 	m_program.enableAttributeArray(static_cast<int>(Attribute::Vertex));
 	m_program.setAttributeBuffer(static_cast<int>(Attribute::Vertex), GL_FLOAT, 0, 3);
 	m_vertexbuffer.release();
 
-	// Normal VBO
 	m_normalbuffer.bind();
 	m_program.enableAttributeArray(static_cast<int>(Attribute::Normal));
 	m_program.setAttributeBuffer(static_cast<int>(Attribute::Normal), GL_FLOAT, 0, 3);
 	m_normalbuffer.release();
 
-	// Color VBO
 	m_colorbuffer.bind();
 	m_program.enableAttributeArray(static_cast<int>(Attribute::Color));
 	m_program.setAttributeBuffer(static_cast<int>(Attribute::Color), GL_FLOAT, 0, 3);
@@ -86,6 +86,7 @@ void ShaderWidget::paintGL()
 	update();
 }
 
+//Allocate the memory used by each buffers in graphical pipeline's data stream
 void ShaderWidget::initGPUbuffers()
 {
 	// Vertex buffer init
@@ -113,61 +114,7 @@ void ShaderWidget::initGPUbuffers()
 	m_indexbuffer.release();
 }
 
-void ShaderWidget::initGPUbuffersForWireframe()
-{
-
-	// Vertex buffer init
-	m_vertexbuffer.create();
-	m_vertexbuffer.bind();
-	m_vertexbuffer.allocate(m_wireframeVertexes.constData(), sizeof(QVector3D) * m_wireframeVertexes.size());
-	m_vertexbuffer.release();
-
-	// Normal buffer init
-	m_normalbuffer.create();
-	m_normalbuffer.bind();
-	m_normalbuffer.allocate(m_normals.constData(), sizeof(QVector3D) * m_normals.size());
-	m_normalbuffer.release();
-
-	// Colors buffer init
-	m_colorbuffer.create();
-	m_colorbuffer.bind();
-	m_colorbuffer.allocate(m_wireframeColors.constData(), sizeof(QVector3D) * m_wireframeColors.size());
-	m_colorbuffer.release();
-
-	// Indexes buffer init
-	m_indexbuffer.create();
-	m_indexbuffer.bind();
-	m_indexbuffer.allocate(m_wireframeIndexes.constData(), sizeof(GLuint) * m_wireframeIndexes.size());
-	m_indexbuffer.release();
-}
-
-void ShaderWidget::initShaders()
-{
-	// Init shader program
-	m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shader.vert");
-	m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shader.frag");
-
-	m_program.bindAttributeLocation("in_vertex", static_cast<int>(Attribute::Vertex));
-	m_program.bindAttributeLocation("in_normal", static_cast<int>(Attribute::Normal));
-	m_program.bindAttributeLocation("in_color", static_cast<int>(Attribute::Color));
-
-	m_program.link();
-
-	// Light settings
-	m_program.bind();
-
-	m_camera.updatePosition();
-	m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
-
-	m_program.setUniformValue("light_normal", m_light.m_lightNormal);
-	m_program.setUniformValue("ambient_light", m_light.m_ambientLight);
-	m_program.setUniformValue("diffuse_light", m_light.m_diffuseLight);
-	m_program.setUniformValue("camera_position", m_camera.m_position);
-	m_program.setUniformValue("gap", m_gap);
-
-	m_program.release();
-}
-
+//Define the positions of camera and light in the shaders
 void ShaderWidget::updateScene()
 {
 	// Model view proj matrices
@@ -208,11 +155,13 @@ void ShaderWidget::mousePressed(QPoint pos)
 {
 	m_camera.m_lastPos = pos;
 }
+
 void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 {
 	int dx = pos.x() - m_camera.m_lastPos.x();
 	int dy = pos.y() - m_camera.m_lastPos.y();
 
+	// Rotate camera and light
 	if (mouseControl == LEFT_BUTTON)
 	{
 		m_camera.rotateView(dy*m_camera.m_rotSpeed, 0, 0);
@@ -220,12 +169,16 @@ void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 		m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
 		m_camera.updatePosition();
 	}
+
+	// Translate camera
 	else if (mouseControl == RIGHT_BUTTON)
 	{
 		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
 		m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot)), 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot)));
 		m_camera.updatePosition();
 	}
+
+	// Translate camera
 	else if(mouseControl == RIGHT_CTRL_BUTTON)
 	{
 		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
@@ -235,6 +188,7 @@ void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 	m_camera.m_lastPos = pos;
 }
 
+// Zoom in/Zoom out
 void ShaderWidget::wheelTurned(int delta)
 {
 	m_camera.m_distance *= 1.0 + (1.0 * (-delta) / 1200.0);
@@ -306,10 +260,6 @@ void ShaderWidget::clearVectors()
 	m_indexes.clear();
 	m_colors.clear();
 	m_normals.clear();
-
-	m_wireframeVertexes.clear();
-	m_wireframeIndexes.clear();
-	m_wireframeColors.clear();
 }
 
 void ShaderWidget::fillVectors()
@@ -322,8 +272,13 @@ void ShaderWidget::initVectors()
 
 }
 
-void ShaderWidget::updateValues(QVector<qreal>* values)
+void ShaderWidget::initShaders()
 {
 
+}
+
+void ShaderWidget::updateValues(QVector<qreal>* values)
+{
+	Q_UNUSED(values);
 }
 

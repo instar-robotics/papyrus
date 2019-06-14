@@ -71,11 +71,7 @@ HEADERS += include/category.h \
            include/activityvisualizerthermal.h \
            include/inhibinput.h \
           include/mathtransfo.h \
-          include/openglmatrix.h \
-          include/openglwidget.h \
           include/mathtransfo.h \
-          include/openglmatrix.h \
-          include/openglwidget.h \
           include/openglbox.h \
           include/openglproxy.h \
           include/deletelinkcommand.h \

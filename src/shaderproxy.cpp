@@ -57,6 +57,7 @@ ShaderMoveBar *ShaderProxy::moveBar() const
 	return m_moveBar;
 }
 
+//Override the diagram scene's wheel event to focus it on the zoom in/zoom out in opengl
 void ShaderProxy::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
 	m_widget->wheelTurned(event->delta());
@@ -66,6 +67,7 @@ void ShaderProxy::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 	qreal mouseX = event->pos().x();
 	qreal mouseY = event->pos().y();
 
+	//Change the cursor if the cursor is on a widget's border to show that it is resizable
 	if (mouseX >= m_widget->width() - m_resizeMargin && mouseY >= m_widget->height() - m_resizeMargin)
 		setCursor(QCursor(Qt::SizeFDiagCursor));
 	else if (mouseX >= m_widget->width() - m_resizeMargin)
@@ -91,6 +93,7 @@ void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		int width = m_widget->width();
 		int height = m_widget->height();
 
+		//Resize the widget if the the user clicked on a widget's border
 		if (m_lastPos.x() >= m_widget->width() - m_resizeMargin && m_lastPos.y() >= m_widget->height() - m_resizeMargin)
 		{
 			m_widget->resize(width+dx, height+dy);
@@ -101,10 +104,10 @@ void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 			m_widget->resize(width+dx, height);
 			m_moveBar->setRect(0,0,width+dx,m_moveBarHeight);
 		}
-
 		else if (m_lastPos.y() >= m_widget->height() - m_resizeMargin)
 			m_widget->resize(width, height+dy);
 
+		//If the user doesn't resize the widget, transmit the mouseMoveEvent the opengl
 		else
 			m_widget->mouseMoved(pos, LEFT_BUTTON);
 

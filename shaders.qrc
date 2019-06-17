@@ -2,6 +2,6 @@
     <qresource prefix="/">
         <file>shaders/shadersurface.frag</file>
         <file>shaders/shader.vert</file>
-        <file>shaders/shaderbarcharts.frag</file>
+        <file>shaders/shaderbarchart.frag</file>
     </qresource>
 </RCC>

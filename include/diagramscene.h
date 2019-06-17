@@ -27,8 +27,8 @@
 #include "inputslot.h"
 #include "diagrambox.h"
 #include "zone.h"
+#include "shaderbarchart.h"
 #include "shadersurface.h"
-#include "shaderbarcharts.h"
 #include "shaderproxy.h"
 #include "shadermovebar.h"
 
@@ -97,7 +97,7 @@ public slots:
 	void onOkBtnClicked(bool);
 	void onCancelBtnClicked(bool);
 	void onDisplayVisuClicked(bool);
-	void onDisplayOpenglVisuClicked(bool);
+	void onDisplayOpenglVisuClicked(VisuType type);
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);

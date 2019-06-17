@@ -144,4 +144,10 @@ enum MouseControl{
     RIGHT_BUTTON,
     RIGHT_CTRL_BUTTON
 };
+
+//3D visualization types
+enum VisuType{
+	SURFACE,
+	BAR_CHARTS
+};
 #endif // TYPES_H

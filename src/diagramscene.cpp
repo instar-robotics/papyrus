@@ -81,7 +81,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
 	connect(propPanel->displayVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
-	connect(propPanel->displayOpenglVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayOpenglVisuClicked(bool)));
+	connect(propPanel, SIGNAL(displayOpenglVisu(VisuType)), this, SLOT(onDisplayOpenglVisuClicked(VisuType)));
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 /**
@@ -1421,7 +1421,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 	}
 }
 
-void DiagramScene::onDisplayOpenglVisuClicked(bool)
+void DiagramScene::onDisplayOpenglVisuClicked(VisuType type)
 {
 	// React to event only if we are the active script
 	if (m_script == nullptr)
@@ -1460,11 +1460,13 @@ void DiagramScene::onDisplayOpenglVisuClicked(bool)
 				else
 				{
 					// Insert the 3D widget
-					//ShaderSurface *surface = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
-					ShaderBarCharts *barcharts = new ShaderBarCharts(selectedBox->getRows(), selectedBox->getCols());
+					ShaderWidget *widget;
+					if(type == SURFACE)
+						widget = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
+					else if(type == BAR_CHARTS)
+						widget =  new ShaderBarChart(selectedBox->getRows(), selectedBox->getCols());
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-					//proxy = new ShaderProxy(surface, shaderMoveBar, selectedBox);
-					proxy = new ShaderProxy(barcharts, shaderMoveBar, selectedBox);
+					proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
 					shaderMoveBar->setProxy(proxy);
 
 					proxy->setPos(0, shaderMoveBar->rect().height());

@@ -41,7 +41,7 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QTextEdit>
-#include <QMenu>
+#include <QComboBox>
 
 /**
  * @brief The PropertiesPanel class is used to display (and modify) the properties of selected
@@ -102,6 +102,9 @@ public:
 
 	QPushButton *cancelBtn();
 
+	void addVisuChoices();
+
+
 
 private:
 	// Script
@@ -127,6 +130,7 @@ private:
 	PropLineEdit m_topic;        // To input the topic name for publishing
 	QPushButton m_displayVisu;   // Display the box's data vizualisation in 2d
 	QPushButton m_displayOpenglVisu;   // Display the box's data vizualisation in 3d
+	QComboBox m_choseOpenglVisu; //combo box to chose the 3d vizualisation to display
 
 	// Link
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
@@ -163,11 +167,13 @@ public slots:
 private slots:
 	void onTopicChanged(const QString &topic);
 	void onConnectivityChanged(int idx);
+	void onDisplayOpenglVisuClicked(bool);
 
 signals:
 	void enterPressed();
 	void escapePressed();
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
+	void displayOpenglVisu(VisuType type);
 };
 
 #endif // PROPERTIESPANEL_H

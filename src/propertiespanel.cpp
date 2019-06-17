@@ -55,6 +55,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_topic(this),
                                                     m_displayVisu(tr("Visualize Activity in 2D"), this),
                                                     m_displayOpenglVisu(tr("Visualize Activity in 3D"), this),
+                                                    m_choseOpenglVisu(this),
                                                     m_linkLayout(NULL),
                                                     m_linkFrame(this),
                                                     m_linkType(this),
@@ -142,8 +143,10 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxLayout->addRow(tr("Topic:"), &m_topic);
 	m_boxLayout->addRow(&m_displayVisu);
 	m_boxLayout->addRow(&m_displayOpenglVisu);
+	m_boxLayout->addRow(&m_choseOpenglVisu);
 
 	m_boxFrame.setLayout(m_boxLayout);
+	addVisuChoices();
 
 	// Create layout for the Link
 	m_linkLayout = new QFormLayout;
@@ -191,6 +194,14 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
 	// By default, hide the frames and the buttons
 	hideAllFrames(true);
+	connect(&m_displayOpenglVisu, SIGNAL(clicked(bool)), this, SLOT(onDisplayOpenglVisuClicked(bool)));
+}
+void PropertiesPanel::onDisplayOpenglVisuClicked(bool)
+{
+	if(m_choseOpenglVisu.currentText() == "Surface")
+		emit displayOpenglVisu(SURFACE);
+	else if(m_choseOpenglVisu.currentText() == "Bar chart")
+		emit displayOpenglVisu(BAR_CHARTS);
 }
 
 /**
@@ -222,6 +233,12 @@ void PropertiesPanel::hideLinkFrame()
 QPushButton *PropertiesPanel::cancelBtn()
 {
 	return &m_cancelBtn;
+}
+
+void PropertiesPanel::addVisuChoices()
+{
+	m_choseOpenglVisu.addItem("Surface");
+	m_choseOpenglVisu.addItem("Bar chart");
 }
 
 
@@ -368,6 +385,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		m_topic.hide();
 		m_displayVisu.hide();
 		m_displayOpenglVisu.hide();
+		m_choseOpenglVisu.hide();
 	} else {
 		m_saveActivity.show();
 		m_publish.show();
@@ -375,9 +393,14 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		m_topic.show();
 		m_displayVisu.show();
 		if(oType == MATRIX)
+		{
 			m_displayOpenglVisu.show();
-		else
+			m_choseOpenglVisu.show();
+		}
+		else{
 			m_displayOpenglVisu.hide();
+			m_choseOpenglVisu.hide();
+		}
 	}
 
 	// Show the box frame and the buttons

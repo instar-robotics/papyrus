@@ -80,8 +80,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
-	connect(propPanel->displayVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
-	connect(propPanel, SIGNAL(displayOpenglVisu(VisuType)), this, SLOT(onDisplayOpenglVisuClicked(VisuType)));
+	connect(propPanel, SIGNAL(displayVisu(VisuType)), this, SLOT(onDisplayVisuClicked(VisuType)));
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 /**
@@ -1331,8 +1330,22 @@ void DiagramScene::onCancelBtnClicked(bool)
 	}
 }
 
-void DiagramScene::onDisplayVisuClicked(bool)
+void DiagramScene::onDisplayVisuClicked(VisuType type)
 {
+	if(type == THERMAL_2D)
+		display2DVisu(type);
+	else if(type == SURFACE_3D || type == BAR_CHART_3D)
+		display3DVisu(type);
+	else
+	{
+		qWarning() << "No existing visualization corresponding to this type";
+		return;
+	}
+}
+
+void DiagramScene::display2DVisu(VisuType type)
+{
+	Q_UNUSED(type);
 	// React to event only if we are the active script
 	if (m_script == nullptr)
 		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
@@ -1354,7 +1367,8 @@ void DiagramScene::onDisplayVisuClicked(bool)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if (selectedBox->isActivityVisuEnabled()) {
+			if(selectedBox->isActivityVisuEnabled() || selectedBox->getDisplayedProxy() != nullptr)
+			{
 				emit displayStatusMessage("Visualization is already enabled for this box");
 				return;
 			}
@@ -1421,7 +1435,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 	}
 }
 
-void DiagramScene::onDisplayOpenglVisuClicked(VisuType type)
+void DiagramScene::display3DVisu(VisuType type)
 {
 	// React to event only if we are the active script
 	if (m_script == nullptr)
@@ -1446,7 +1460,7 @@ void DiagramScene::onDisplayOpenglVisuClicked(VisuType type)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->getDisplayedProxy() != nullptr)
+			if(selectedBox->isActivityVisuEnabled() || selectedBox->getDisplayedProxy() != nullptr)
 			{
 				emit displayStatusMessage("Visualization is already enabled for this box");
 				return;
@@ -1461,9 +1475,9 @@ void DiagramScene::onDisplayOpenglVisuClicked(VisuType type)
 				{
 					// Insert the 3D widget
 					ShaderWidget *widget;
-					if(type == SURFACE)
+					if(type == SURFACE_3D)
 						widget = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
-					else if(type == BAR_CHARTS)
+					else
 						widget =  new ShaderBarChart(selectedBox->getRows(), selectedBox->getCols());
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 					proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);

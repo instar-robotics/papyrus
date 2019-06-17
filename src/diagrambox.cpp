@@ -74,7 +74,8 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_swapCandidate(false),
                                                 m_activityVisualizer(nullptr),
                                                 m_displayedProxy(nullptr),
-                                                m_isCommented(false)
+                                                m_isCommented(false),
+                                                m_visuType(THERMAL_2D)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -305,6 +306,16 @@ void DiagramBox::setIsCommented(bool isCommented)
 			link->update();
 		}
 	}
+}
+
+VisuType DiagramBox::getVisuType() const
+{
+	return m_visuType;
+}
+
+void DiagramBox::setVisuType(const VisuType &visuType)
+{
+	m_visuType = visuType;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const

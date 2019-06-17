@@ -96,13 +96,13 @@ public:
 
 	QPushButton *displayVisu();
 
-	QPushButton *displayOpenglVisu();
-
 	QPushButton *okBtn();
 
 	QPushButton *cancelBtn();
 
 	void addVisuChoices();
+
+	VisuType getVisuType();
 
 
 
@@ -129,8 +129,7 @@ private:
 	QCheckBox m_publish;         // To enable publish the output of the function
 	PropLineEdit m_topic;        // To input the topic name for publishing
 	QPushButton m_displayVisu;   // Display the box's data vizualisation in 2d
-	QPushButton m_displayOpenglVisu;   // Display the box's data vizualisation in 3d
-	QComboBox m_choseOpenglVisu; //combo box to chose the 3d vizualisation to display
+	QComboBox m_choseVisuQType; //combo box to chose the 3d vizualisation to display
 
 	// Link
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
@@ -167,13 +166,14 @@ public slots:
 private slots:
 	void onTopicChanged(const QString &topic);
 	void onConnectivityChanged(int idx);
-	void onDisplayOpenglVisuClicked(bool);
+	void onDisplayVisuClicked(bool);
 
 signals:
 	void enterPressed();
 	void escapePressed();
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
-	void displayOpenglVisu(VisuType type);
+	void displayVisu(VisuType type);
+	void changeCurrentVisuType(QString);
 };
 
 #endif // PROPERTIESPANEL_H

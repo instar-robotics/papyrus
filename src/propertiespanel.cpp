@@ -53,9 +53,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_saveActivity(tr("Save Activity"), this),
                                                     m_publish(tr("Publish output"), this),
                                                     m_topic(this),
-                                                    m_displayVisu(tr("Visualize Activity in 2D"), this),
-                                                    m_displayOpenglVisu(tr("Visualize Activity in 3D"), this),
-                                                    m_choseOpenglVisu(this),
+                                                    m_displayVisu(tr("Visualize Activity"), this),
+                                                    m_choseVisuQType(this),
                                                     m_linkLayout(NULL),
                                                     m_linkFrame(this),
                                                     m_linkType(this),
@@ -142,11 +141,11 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxLayout->addRow(&m_publish);
 	m_boxLayout->addRow(tr("Topic:"), &m_topic);
 	m_boxLayout->addRow(&m_displayVisu);
-	m_boxLayout->addRow(&m_displayOpenglVisu);
-	m_boxLayout->addRow(&m_choseOpenglVisu);
+	m_boxLayout->addRow(&m_choseVisuQType);
 
 	m_boxFrame.setLayout(m_boxLayout);
 	addVisuChoices();
+	connect(this, SIGNAL(changeCurrentVisuType(QString)), &m_choseVisuQType, SLOT(setCurrentText(QString)));
 
 	// Create layout for the Link
 	m_linkLayout = new QFormLayout;
@@ -194,14 +193,11 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
 	// By default, hide the frames and the buttons
 	hideAllFrames(true);
-	connect(&m_displayOpenglVisu, SIGNAL(clicked(bool)), this, SLOT(onDisplayOpenglVisuClicked(bool)));
+	connect(&m_displayVisu, SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
 }
-void PropertiesPanel::onDisplayOpenglVisuClicked(bool)
+void PropertiesPanel::onDisplayVisuClicked(bool)
 {
-	if(m_choseOpenglVisu.currentText() == "Surface")
-		emit displayOpenglVisu(SURFACE);
-	else if(m_choseOpenglVisu.currentText() == "Bar chart")
-		emit displayOpenglVisu(BAR_CHARTS);
+	emit displayVisu(stringToVisuType(m_choseVisuQType.currentText()));
 }
 
 /**
@@ -237,8 +233,14 @@ QPushButton *PropertiesPanel::cancelBtn()
 
 void PropertiesPanel::addVisuChoices()
 {
-	m_choseOpenglVisu.addItem("Surface");
-	m_choseOpenglVisu.addItem("Bar chart");
+	m_choseVisuQType.addItem(visuTypeToString(THERMAL_2D));
+	m_choseVisuQType.addItem(visuTypeToString(SURFACE_3D));
+	m_choseVisuQType.addItem(visuTypeToString(BAR_CHART_3D));
+}
+
+VisuType PropertiesPanel::getVisuType()
+{
+	return stringToVisuType(m_choseVisuQType.currentText());
 }
 
 
@@ -260,6 +262,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 	m_boxName.setText(box->name());
 	m_boxTitle.setText(box->title());
 	m_boxTitle.setPlaceholderText(box->name());
+	emit changeCurrentVisuType(visuTypeToString(box->getVisuType()));
 
 	if (!isConstantBox) {
 		// Check the "save activity" box according to the box's flag
@@ -384,23 +387,14 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		topicLabel->hide();
 		m_topic.hide();
 		m_displayVisu.hide();
-		m_displayOpenglVisu.hide();
-		m_choseOpenglVisu.hide();
+		m_choseVisuQType.hide();
 	} else {
 		m_saveActivity.show();
 		m_publish.show();
 		topicLabel->show();
 		m_topic.show();
 		m_displayVisu.show();
-		if(oType == MATRIX)
-		{
-			m_displayOpenglVisu.show();
-			m_choseOpenglVisu.show();
-		}
-		else{
-			m_displayOpenglVisu.hide();
-			m_choseOpenglVisu.hide();
-		}
+		m_choseVisuQType.show();
 	}
 
 	// Show the box frame and the buttons
@@ -631,7 +625,7 @@ void PropertiesPanel::onConnectivityChanged(int idx)
 void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
 	UpdateBoxCommand *updateCommand = new UpdateBoxCommand(this, box);
-
+	box->setVisuType(stringToVisuType(m_choseVisuQType.currentText()));
 	DiagramScene *dScene = dynamic_cast<DiagramScene *>(box->scene());
 	if (dScene == nullptr) {
 		qWarning() << "Cannot update box's properties: no scene!";
@@ -642,7 +636,6 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 //		qWarning() << "Cannot update box's properties: no undo stack!";
 //		return;
 //	}
-
 	dScene->undoStack().push(updateCommand);
 }
 
@@ -854,7 +847,3 @@ QPushButton *PropertiesPanel::displayVisu()
 	return &m_displayVisu;
 }
 
-QPushButton *PropertiesPanel::displayOpenglVisu()
-{
-	return &m_displayOpenglVisu;
-}

@@ -96,8 +96,9 @@ public slots:
 	void toggleDisplayGrid(bool shouldDraw);
 	void onOkBtnClicked(bool);
 	void onCancelBtnClicked(bool);
-	void onDisplayVisuClicked(bool);
-	void onDisplayOpenglVisuClicked(VisuType type);
+	void onDisplayVisuClicked(VisuType type);
+	void display2DVisu(VisuType type);
+	void display3DVisu(VisuType type);
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);

@@ -46,6 +46,7 @@ UpdateBoxCommand::UpdateBoxCommand(PropertiesPanel *panel, DiagramBox *box, QUnd
 	m_oldActivity = m_box->saveActivity();
 	m_oldPublish = m_box->publish();
 	m_oldTopic = m_box->topic();
+	m_oldVisuType = m_box->getVisuType();
 
 	// Save new parameter values
 	m_newTitle = m_panel->getBoxTitle();
@@ -54,6 +55,7 @@ UpdateBoxCommand::UpdateBoxCommand(PropertiesPanel *panel, DiagramBox *box, QUnd
 	m_newActivity = m_panel->getBoxSaveActivity();
 	m_newPublish = m_panel->getBoxPublish();
 	m_newTopic = m_panel->getBoxTopic();
+	m_newVisuType = m_panel->getVisuType();
 }
 
 void UpdateBoxCommand::undo()

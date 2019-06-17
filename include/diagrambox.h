@@ -161,7 +161,6 @@ public:
 	void setInhibInput(InhibInput *inhibInput);
 
 	void setDisplayedProxy(ShaderProxy *displayedProxy);
-
 	ShaderProxy *getDisplayedProxy() const;
 
 	int getRows() const;
@@ -171,6 +170,10 @@ public:
 	bool isCommented() const;
 
 	void setIsCommented(bool isCommented);
+	VisuType getVisuType() const;
+
+	void setVisuType(const VisuType &visuType);
+
 protected:
 
 	QString m_name;    // Name of the function
@@ -225,6 +228,7 @@ private:
 	ActivityVisualizer *m_activityVisualizer;
 	ShaderProxy *m_displayedProxy;
 	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
+	VisuType m_visuType;
 
 private slots:
 	void deleteOpenGLDisplay();

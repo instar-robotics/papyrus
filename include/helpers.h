@@ -91,4 +91,8 @@ MatrixShape stringToMatrixShape(const QString &str);
 
 QString matrixShapeToString(const MatrixShape shape);
 
+VisuType stringToVisuType(const QString &str);
+
+QString visuTypeToString(const VisuType &visuType);
+
 #endif // HELPERS_H

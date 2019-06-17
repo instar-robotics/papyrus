@@ -616,3 +616,26 @@ bool shapesMatch(DiagramBox *from, InputSlot *to, LinkInvalidReason *reason)
 		    return false;
 	}
 }
+
+VisuType stringToVisuType(const QString &str)
+{
+	QString visuType = str.toUpper();
+	if(visuType == "THERMAL 2D")
+		return THERMAL_2D;
+	if(visuType == "SURFACE 3D")
+		return SURFACE_3D;
+	if(visuType == "BAR CHART 3D")
+		return BAR_CHART_3D;
+	return UNKNOWN;
+}
+
+QString visuTypeToString(const VisuType &visuType)
+{
+	if(visuType == THERMAL_2D)
+		return "Thermal 2D";
+	if(visuType == SURFACE_3D)
+		return "Surface 3D";
+	if(visuType == BAR_CHART_3D)
+		return "Bar chart 3D";
+	return "Unknown";
+}

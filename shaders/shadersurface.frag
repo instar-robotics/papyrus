@@ -21,7 +21,7 @@ void main(void)
     else
     {
 	float distance = length(camera_position - vertex_coord) + 0.00001;
-	float attenuation = (1-distance/50)*5;
+	float attenuation = (1-distance/50)*3;
 	if(attenuation < 0)
 	    attenuation = 0;
 

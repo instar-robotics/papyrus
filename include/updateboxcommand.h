@@ -50,6 +50,7 @@ private:
 	bool m_oldActivity;
 	bool m_oldPublish;
 	QString m_oldTopic;
+	VisuType m_oldVisuType;
 
 	// New parameters (ones the box will have after updating its parameters)
 	QString m_newTitle;
@@ -58,6 +59,7 @@ private:
 	bool m_newActivity;
 	bool m_newPublish;
 	QString m_newTopic;
+	VisuType m_newVisuType;
 };
 
 #endif // UPDATEBOXCOMMAND_H

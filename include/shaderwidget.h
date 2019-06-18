@@ -100,6 +100,8 @@ protected:
 	int m_minWidth = 150;
 	int m_minHeight = 150;
 
+	GLenum drawingType = GL_TRIANGLES;
+
 };
 
 #endif // SHADERWIDGET_H

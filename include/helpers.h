@@ -28,6 +28,7 @@
 #include "shaderbarchart.h"
 #include "shaderconechart.h"
 #include "shadersurface.h"
+#include "shaderwireframe.h"
 
 #include <ros/ros.h>
 

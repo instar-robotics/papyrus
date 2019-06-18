@@ -88,7 +88,8 @@ HEADERS += include/category.h \
           include/finddialog.h \
     shadermovebar.h \
     include/shadermovebar.h \
-    include/shaderbarchart.h
+    include/shaderbarchart.h \
+    include/shaderwireframe.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -166,7 +167,8 @@ SOURCES += src/category.cpp \
     src/shadermovebar.cpp \
     src/shaderbarchart.cpp \
     src/shaderconechart.cpp \
-    src/shaderconechart.cpp
+    src/shaderconechart.cpp \
+    src/shaderwireframe.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

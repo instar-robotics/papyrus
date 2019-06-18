@@ -65,7 +65,7 @@ void ShaderWidget::paintGL()
 	m_colorbuffer.release();
 
 	m_indexbuffer.bind();
-	glDrawElements(GL_TRIANGLES, m_indexes.size(), GL_UNSIGNED_INT, NULL);
+	glDrawElements(drawingType, m_indexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));

@@ -287,6 +287,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	bool visuVisible;
 	QPointF visuPos;
 	QSizeF visuSize;
+	VisuType visuType;
 	bool isCommented = false; // defaults to non commented
 
 	readUUID(&uuid);
@@ -310,6 +311,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			readOutputSlot(outputSlot, &rows, &cols);
 		else if (reader.name() == "position")
 			readPosition(&pos);
+		else if (reader.name() == "visuType")
+			readVisuType(visuType);
 		else if (reader.name() == "visualizer")
 			readVisualizer(createVisualizer, visuVisible, visuPos, visuSize);
 		else if (reader.name() == "libname")
@@ -343,7 +346,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			if (f->name() == name) {
 				functionFound = true;
 
-				// Extract DiagrambBox's information
+				// Extract DiagramBox's information
 				iconFilePath = f->iconFilepath();
 				description = f->description();
 				libname = f->libName();
@@ -413,40 +416,87 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	b->setRows(rows);
 	b->setCols(cols);
 	b->setMatrixShape(matrixShape);
+	b->setVisuType(visuType);
 	m_script->scene()->addBox(b, pos);
 
 	// Check whether we should create the visualizer, and if yes, check which one
 	// WARNING: this is code duplication from diagramscene.cpp, we should factor out this code!
 	if (createVisualizer && reader.name() != "constant") {
-		ActivityVisualizer *vis = nullptr;
-		switch (b->outputType()) {
-			case SCALAR:
-				vis = new ActivityVisualizerBars(b);
-			break;
-
-			case MATRIX:
-				// (1,1) matrix is treated as a scalar
-				if (b->rows() == 1 && b->cols() == 1)
+		if(is2DVisuType(visuType))
+		{
+			ActivityVisualizer *vis = nullptr;
+			switch (b->outputType()) {
+				case SCALAR:
 					vis = new ActivityVisualizerBars(b);
-				// (1,N) and (N,1) are vectors: they are displayed as several scalars
-				else if (b->rows() == 1 || b->cols() == 1)
-					vis = new ActivityVisualizerBars(b);
-				else
-					vis = new ActivityVisualizerThermal(b);
-			break;
+				break;
 
-			default:
-				qDebug() << "Ouput type not supported for visualization";
-			return;
-			break;
+				case MATRIX:
+					// (1,1) matrix is treated as a scalar
+					if (b->rows() == 1 && b->cols() == 1)
+						vis = new ActivityVisualizerBars(b);
+					// (1,N) and (N,1) are vectors: they are displayed as several scalars
+					else if (b->rows() == 1 || b->cols() == 1)
+						vis = new ActivityVisualizerBars(b);
+					else
+						vis = new ActivityVisualizerThermal(b);
+				break;
+
+				default:
+					qDebug() << "Ouput type not supported for visualization";
+				return;
+				break;
+			}
+
+			if (vis != nullptr) {
+				vis->setPos(visuPos);
+				vis->setWidth(visuSize.width());
+				vis->setHeight(visuSize.height());
+				vis->setVisible(visuVisible);
+				vis->updatePixmap();
+
+				// Create the activity fetcher with the topic name
+				ActivityFetcher *fetcher = nullptr;
+				if (b->publish()) {
+					fetcher = new ActivityFetcher(b->topic(), b);
+				} else {
+					fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(b->scriptName(),
+					                                                            b->uuid().toString())),
+					                              b);
+					m_script->rosSession()->addToHotList(b->uuid());
+				}
+
+				// This is dirty, but this is used to trigger the correct onSizeChanged() event (the
+				// child's one, not the mother class) to repaint correctly the axes, the function name,
+				// etc. This must be refactored to be cleaner!
+				ActivityVisualizerBars *visBars = dynamic_cast<ActivityVisualizerBars *>(vis);
+				if (visBars != nullptr) {
+					visBars->onSizeChanged();
+					visBars->setActivityFetcher(fetcher);
+					QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBars, SLOT(updateBars(QVector<qreal>*)));
+				} else {
+					ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
+					if (visTh != nullptr) {
+						visTh->onSizeChanged();
+						visTh->setActivityFetcher(fetcher);
+						QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visTh, SLOT(updateThermal(QVector<qreal>*)));
+					}
+					else
+						qWarning() << "Only Bars and Thermal visualizers are supported for now!";
+				}
+
+			}
 		}
+		else if(is3DVisuType(visuType))
+		{
+			ShaderWidget *widget = createShaderWidget(visuType, b->getRows(), b->getCols());
+			ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
+			ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, b);
+			shaderMoveBar->setProxy(proxy);
+			shaderMoveBar->setPos(visuPos.x(), visuPos.y()-proxy->moveBarHeight());
+			shaderMoveBar->setRect(0,0,visuSize.width(),proxy->moveBarHeight());
 
-		if (vis != nullptr) {
-			vis->setPos(visuPos);
-			vis->setWidth(visuSize.width());
-			vis->setHeight(visuSize.height());
-			vis->setVisible(visuVisible);
-			vis->updatePixmap();
+			b->scene()->addItem(shaderMoveBar);
+			b->setDisplayedProxy(proxy);
 
 			// Create the activity fetcher with the topic name
 			ActivityFetcher *fetcher = nullptr;
@@ -458,27 +508,13 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				                              b);
 				m_script->rosSession()->addToHotList(b->uuid());
 			}
-
-			// This is dirty, but this is used to trigger the correct onSizeChanged() event (the
-			// child's one, not the mother class) to repaint correctly the axes, the function name,
-			// etc. This must be refactored to be cleaner!
-			ActivityVisualizerBars *visBars = dynamic_cast<ActivityVisualizerBars *>(vis);
-			if (visBars != nullptr) {
-				visBars->onSizeChanged();
-				visBars->setActivityFetcher(fetcher);
-				QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBars, SLOT(updateBars(QVector<qreal>*)));
-			} else {
-				ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
-				if (visTh != nullptr) {
-					visTh->onSizeChanged();
-					visTh->setActivityFetcher(fetcher);
-					QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visTh, SLOT(updateThermal(QVector<qreal>*)));
-				}
-				else
-					qWarning() << "Only Bars and Thermal visualizers are supported for now!";
-			}
-
+			proxy->setActivityFetcher(fetcher);
+			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+			proxy->widget()->resize(visuSize.width(), visuSize.height());
+			proxy->setVisible(visuVisible);
 		}
+		else
+			qWarning() << "Unknown visualization type";
 	}
 
 	// TODO: check all links for invalidity and set script's invalidity
@@ -880,6 +916,11 @@ void XmlScriptReader::readCommented(bool &isCommented)
 		else
 			reader.raiseError(QObject::tr("Invalid attribute value for 'commented', accepted is 'true' or 'false'"));
 	}
+}
+
+void XmlScriptReader::readVisuType(VisuType &visuType)
+{
+	visuType = stringToVisuType(reader.readElementText());
 }
 
 void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

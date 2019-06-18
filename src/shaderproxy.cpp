@@ -7,7 +7,6 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 {
 
 	setWidget(m_widget);
-	//m_widget->resizeGL(200,200);
 	m_moveBar->setRect(0, 0, m_widget->width(), m_moveBarHeight);
 	m_moveBar->setPen(QPen(Qt::black));
 	m_moveBar->setBrush(QBrush(Qt::black));
@@ -46,6 +45,16 @@ void ShaderProxy::updateValues(QVector<qreal>* values)
 {
 	m_widget->updateValues(values);
 	//delete values;
+}
+
+ShaderWidget *ShaderProxy::widget() const
+{
+	return m_widget;
+}
+
+qreal ShaderProxy::moveBarHeight() const
+{
+	return m_moveBarHeight;
 }
 void ShaderProxy::setActivityFetcher(ActivityFetcher *activityFetcher)
 {

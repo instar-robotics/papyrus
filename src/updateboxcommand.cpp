@@ -67,6 +67,7 @@ void UpdateBoxCommand::undo()
 	m_box->setSaveActivity(m_oldActivity);
 	m_box->setPublish(m_oldPublish);
 	m_box->setTopic(m_oldTopic);
+	m_box->setVisuType(m_oldVisuType);
 
 	m_box->update();
 
@@ -127,6 +128,8 @@ void UpdateBoxCommand::redo()
 
 		m_box->updateSizeIcon();
 	}
+	// Set the box's visualization type
+	m_box->setVisuType(m_newVisuType);
 
 	// Set the box's "save activity" flag
 	m_box->setSaveActivity(m_newActivity);

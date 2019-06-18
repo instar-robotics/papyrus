@@ -433,10 +433,13 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		stream.writeTextElement("y", QString::number(pos.y()));
 		stream.writeEndElement(); // position
 
+		stream.writeTextElement("visuType", visuTypeToString(item->getVisuType()));
+
 		// Save position of the activity visualizer if it was displayed
-		if (!constant && item->activityVisualizer() != nullptr) {
+		if (!constant && item->activityVisualizer() != nullptr){
 			ActivityVisualizer *vis = item->activityVisualizer();
 			stream.writeStartElement("visualizer");
+
 			stream.writeTextElement("visible", vis->isVisible() ? "true" : "false");
 
 			stream.writeStartElement("position");
@@ -447,7 +450,26 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			stream.writeStartElement("size");
 			stream.writeTextElement("width", QString::number(vis->width()));
 			stream.writeTextElement("height", QString::number(vis->height()));
+			stream.writeEndElement(); // size
+
+			stream.writeEndElement(); // visualizer
+		}
+		else if(!constant && item->getDisplayedProxy() != nullptr)
+		{
+			ShaderProxy *proxy = item->getDisplayedProxy();
+			stream.writeStartElement("visualizer");
+
+			stream.writeTextElement("visible", proxy->isVisible() ? "true" : "false");
+
+			stream.writeStartElement("position");
+			stream.writeTextElement("x", QString::number(proxy->scenePos().x()));
+			stream.writeTextElement("y", QString::number(proxy->scenePos().y()));
 			stream.writeEndElement(); // position
+
+			stream.writeStartElement("size");
+			stream.writeTextElement("width", QString::number(proxy->widget()->width()));
+			stream.writeTextElement("height", QString::number(proxy->widget()->height()));
+			stream.writeEndElement(); // size
 
 			stream.writeEndElement(); // visualizer
 		}

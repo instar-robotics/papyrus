@@ -1332,9 +1332,9 @@ void DiagramScene::onCancelBtnClicked(bool)
 
 void DiagramScene::onDisplayVisuClicked(VisuType type)
 {
-	if(type == THERMAL_2D)
+	if(is2DVisuType(type))
 		display2DVisu(type);
-	else if(type == SURFACE_3D || type == BAR_CHART_3D)
+	else if(is3DVisuType(type))
 		display3DVisu(type);
 	else
 	{
@@ -1372,6 +1372,7 @@ void DiagramScene::display2DVisu(VisuType type)
 				emit displayStatusMessage("Visualization is already enabled for this box");
 				return;
 			}
+			selectedBox->setVisuType(type);
 //			selectedBox->setIsActivityVisuEnabled(true);
 
 			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
@@ -1466,21 +1467,17 @@ void DiagramScene::display3DVisu(VisuType type)
 				return;
 			}
 
-			ShaderProxy *proxy = nullptr;
 			if (selectedBox->outputType() == MATRIX) {
 				// (1,1) matrix is treated as a scalar
 				if (selectedBox->rows() == 1 && selectedBox->cols() == 1)
 					emit displayStatusMessage("Unable to display 3D visualization for (1,1) matrix");
 				else
 				{
+					selectedBox->setVisuType(type);
 					// Insert the 3D widget
-					ShaderWidget *widget;
-					if(type == SURFACE_3D)
-						widget = new ShaderSurface(selectedBox->getRows(), selectedBox->getCols());
-					else
-						widget =  new ShaderBarChart(selectedBox->getRows(), selectedBox->getCols());
+					ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols());
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-					proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
+					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
 					shaderMoveBar->setProxy(proxy);
 
 					proxy->setPos(0, shaderMoveBar->rect().height());

@@ -129,7 +129,7 @@ private:
 	QCheckBox m_publish;         // To enable publish the output of the function
 	PropLineEdit m_topic;        // To input the topic name for publishing
 	QPushButton m_displayVisu;   // Display the box's data vizualisation in 2d
-	QComboBox m_choseVisuQType; //combo box to chose the 3d vizualisation to display
+	QComboBox m_choseVisuType; //combo box to chose the 3d vizualisation to display
 
 	// Link
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)

@@ -95,4 +95,10 @@ VisuType stringToVisuType(const QString &str);
 
 QString visuTypeToString(const VisuType &visuType);
 
+bool is2DVisuType(const VisuType &visuType);
+
+bool is3DVisuType(const VisuType &visuType);
+
+ShaderWidget* createShaderWidget(VisuType type, int rows, int cols);
+
 #endif // HELPERS_H

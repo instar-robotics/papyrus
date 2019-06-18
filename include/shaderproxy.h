@@ -26,6 +26,10 @@ public:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
+	qreal moveBarHeight() const;
+
+	ShaderWidget *widget() const;
+
 signals:
 	void proxyDestroyed();
 

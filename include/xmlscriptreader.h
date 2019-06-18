@@ -78,6 +78,7 @@ private:
 	void readZone();
 	void readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize);
 	void readCommented(bool &isCommented);
+	void readVisuType(VisuType &visuType);
 };
 
 #endif // XMLSCRIPTREADER_H

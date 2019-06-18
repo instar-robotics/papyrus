@@ -54,7 +54,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_publish(tr("Publish output"), this),
                                                     m_topic(this),
                                                     m_displayVisu(tr("Visualize Activity"), this),
-                                                    m_choseVisuQType(this),
+                                                    m_choseVisuType(this),
                                                     m_linkLayout(NULL),
                                                     m_linkFrame(this),
                                                     m_linkType(this),
@@ -141,11 +141,11 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxLayout->addRow(&m_publish);
 	m_boxLayout->addRow(tr("Topic:"), &m_topic);
 	m_boxLayout->addRow(&m_displayVisu);
-	m_boxLayout->addRow(&m_choseVisuQType);
+	m_boxLayout->addRow(&m_choseVisuType);
 
 	m_boxFrame.setLayout(m_boxLayout);
 	addVisuChoices();
-	connect(this, SIGNAL(changeCurrentVisuType(QString)), &m_choseVisuQType, SLOT(setCurrentText(QString)));
+	connect(this, SIGNAL(changeCurrentVisuType(QString)), &m_choseVisuType, SLOT(setCurrentText(QString)));
 
 	// Create layout for the Link
 	m_linkLayout = new QFormLayout;
@@ -197,7 +197,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 }
 void PropertiesPanel::onDisplayVisuClicked(bool)
 {
-	emit displayVisu(stringToVisuType(m_choseVisuQType.currentText()));
+	emit displayVisu(stringToVisuType(m_choseVisuType.currentText()));
 }
 
 /**
@@ -233,14 +233,14 @@ QPushButton *PropertiesPanel::cancelBtn()
 
 void PropertiesPanel::addVisuChoices()
 {
-	m_choseVisuQType.addItem(visuTypeToString(THERMAL_2D));
-	m_choseVisuQType.addItem(visuTypeToString(SURFACE_3D));
-	m_choseVisuQType.addItem(visuTypeToString(BAR_CHART_3D));
+	m_choseVisuType.addItem(visuTypeToString(THERMAL_2D));
+	m_choseVisuType.addItem(visuTypeToString(SURFACE_3D));
+	m_choseVisuType.addItem(visuTypeToString(BAR_CHART_3D));
 }
 
 VisuType PropertiesPanel::getVisuType()
 {
-	return stringToVisuType(m_choseVisuQType.currentText());
+	return stringToVisuType(m_choseVisuType.currentText());
 }
 
 
@@ -387,14 +387,14 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		topicLabel->hide();
 		m_topic.hide();
 		m_displayVisu.hide();
-		m_choseVisuQType.hide();
+		m_choseVisuType.hide();
 	} else {
 		m_saveActivity.show();
 		m_publish.show();
 		topicLabel->show();
 		m_topic.show();
 		m_displayVisu.show();
-		m_choseVisuQType.show();
+		m_choseVisuType.show();
 	}
 
 	// Show the box frame and the buttons
@@ -625,7 +625,7 @@ void PropertiesPanel::onConnectivityChanged(int idx)
 void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
 	UpdateBoxCommand *updateCommand = new UpdateBoxCommand(this, box);
-	box->setVisuType(stringToVisuType(m_choseVisuQType.currentText()));
+	box->setVisuType(stringToVisuType(m_choseVisuType.currentText()));
 	DiagramScene *dScene = dynamic_cast<DiagramScene *>(box->scene());
 	if (dScene == nullptr) {
 		qWarning() << "Cannot update box's properties: no scene!";

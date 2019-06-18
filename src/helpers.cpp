@@ -639,3 +639,25 @@ QString visuTypeToString(const VisuType &visuType)
 		return "Bar chart 3D";
 	return "Unknown";
 }
+
+bool is2DVisuType(const VisuType &visuType)
+{
+	if(visuType == THERMAL_2D)
+		return true;
+	return false;
+}
+
+bool is3DVisuType(const VisuType &visuType)
+{
+	if(visuType == SURFACE_3D || visuType == BAR_CHART_3D)
+		return true;
+	return false;
+}
+
+ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
+{
+	if(type == SURFACE_3D)
+		return new ShaderSurface(rows, cols);
+	else
+		return new ShaderBarChart(rows, cols);
+}

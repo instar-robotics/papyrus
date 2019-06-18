@@ -164,7 +164,9 @@ SOURCES += src/category.cpp \
         src/finddialog.cpp \
     shadermovebar.cpp \
     src/shadermovebar.cpp \
-    src/shaderbarchart.cpp
+    src/shaderbarchart.cpp \
+    src/shaderconechart.cpp \
+    src/shaderconechart.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

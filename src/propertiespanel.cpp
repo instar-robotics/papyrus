@@ -236,6 +236,7 @@ void PropertiesPanel::addVisuChoices()
 	m_choseVisuType.addItem(visuTypeToString(THERMAL_2D));
 	m_choseVisuType.addItem(visuTypeToString(SURFACE_3D));
 	m_choseVisuType.addItem(visuTypeToString(BAR_CHART_3D));
+	m_choseVisuType.addItem(visuTypeToString(CONE_CHART_3D));
 }
 
 VisuType PropertiesPanel::getVisuType()

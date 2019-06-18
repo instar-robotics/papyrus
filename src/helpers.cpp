@@ -626,6 +626,8 @@ VisuType stringToVisuType(const QString &str)
 		return SURFACE_3D;
 	if(visuType == "BAR CHART 3D")
 		return BAR_CHART_3D;
+	if(visuType == "CONE CHART 3D")
+		return CONE_CHART_3D;
 	return UNKNOWN;
 }
 
@@ -637,6 +639,8 @@ QString visuTypeToString(const VisuType &visuType)
 		return "Surface 3D";
 	if(visuType == BAR_CHART_3D)
 		return "Bar chart 3D";
+	if(visuType == CONE_CHART_3D)
+		return "Cone chart 3D";
 	return "Unknown";
 }
 
@@ -649,7 +653,7 @@ bool is2DVisuType(const VisuType &visuType)
 
 bool is3DVisuType(const VisuType &visuType)
 {
-	if(visuType == SURFACE_3D || visuType == BAR_CHART_3D)
+	if(visuType == SURFACE_3D || visuType == BAR_CHART_3D || visuType == CONE_CHART_3D)
 		return true;
 	return false;
 }
@@ -658,6 +662,8 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 {
 	if(type == SURFACE_3D)
 		return new ShaderSurface(rows, cols);
-	else
+	else if(type == BAR_CHART_3D)
 		return new ShaderBarChart(rows, cols);
+	else
+		return new ShaderConeChart(rows, cols);
 }

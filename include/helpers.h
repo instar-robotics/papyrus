@@ -25,6 +25,9 @@
 #include "types.h"
 #include "papyruswindow.h"
 #include "slot.h"
+#include "shaderbarchart.h"
+#include "shaderconechart.h"
+#include "shadersurface.h"
 
 #include <ros/ros.h>
 

@@ -1,13 +1,13 @@
-#ifndef SHADERBARCHART_H
-#define SHADERBARCHART_H
+#ifndef SHADERCONECHART_H
+#define SHADERCONECHART_H
 
 #include "shadermatrix.h"
 
-class ShaderBarChart : public ShaderMatrix
+class ShaderConeChart : public ShaderMatrix
 {
 public:
-	ShaderBarChart(int xSize, int ySize);
-	~ShaderBarChart();
+	ShaderConeChart(int xSize, int ySize);
+	~ShaderConeChart();
 
 protected:
 	virtual void addShaders() override;
@@ -18,4 +18,4 @@ private:
 	float m_edgeSize = 0.1;
 };
 
-#endif // SHADERBARCHART_H
+#endif // SHADERCONECHART_H

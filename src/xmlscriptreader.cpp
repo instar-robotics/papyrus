@@ -287,7 +287,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	bool visuVisible;
 	QPointF visuPos;
 	QSizeF visuSize;
-	VisuType visuType;
+	VisuType visuType = NONE;
 	bool isCommented = false; // defaults to non commented
 
 	readUUID(&uuid);
@@ -411,7 +411,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			b->setTopic(topic);
 		b->setIsCommented(isCommented);
 	}
-
+	if(visuType == NONE)
+		visuType = THERMAL_2D;
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);

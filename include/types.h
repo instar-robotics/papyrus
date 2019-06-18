@@ -150,6 +150,7 @@ enum VisuType{
 	THERMAL_2D,
 	SURFACE_3D,
 	BAR_CHART_3D,
-	UNKNOWN
+	UNKNOWN,
+	NONE
 };
 #endif // TYPES_H

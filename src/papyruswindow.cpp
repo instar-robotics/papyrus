@@ -1511,15 +1511,30 @@ void PapyrusWindow::openScript(QString path)
 {
 	QString scriptPath;
 
-	// Used when we want to re-open last opene scripts and don't need/want to open dialog
+	// Used when we want to re-open last opened scripts and don't need/want to open dialog
 	if (!path.isEmpty())
 		scriptPath = path;
 	else
+	{
+		//If opengl widgets are visible in the current scene, hide them while the user chose a file
+		DiagramView *currentView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
+		DiagramScene *currentScene = nullptr;
+		if (currentView != NULL) {
+			currentScene = dynamic_cast<DiagramScene *>(currentView->scene());
+			if (currentScene != NULL) {
+				currentScene->hide3DVisualizations();
+			}
+		}
 		scriptPath = QFileDialog::getOpenFileName(NULL, tr("Open script..."),
 		                                          m_lastDir,
 		                                          tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
 
+		// Once the open script window has been quit, set visible every widgets that have been hide just before
+		if(currentScene != NULL){
+			currentScene->show3DVisualizations();
+		}
 
+	}
 	// Make sure the user selected a file
 	if (scriptPath.isEmpty()) {
 		emit displayStatusMessage(tr("Abort opening script: no selected file."), MSG_INFO);
@@ -1679,11 +1694,15 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 
 	// De-active current script (is any)
 	if (m_activeScript != NULL)
+	{
 		m_activeScript->setIsActiveScript(false);
+		m_activeScript->scene()->hide3DVisualizations();
+	}
 
 	// Get the script associated with the scene and set it as the active script
 	m_activeScript = currentScene->script();
 	m_activeScript->setIsActiveScript(true);
+	m_activeScript->scene()->show3DVisualizations();
 
 	// Update the buttons state to match the new script's status)
 	updateButtonsState();

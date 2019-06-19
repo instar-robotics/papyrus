@@ -832,3 +832,12 @@ You can see commenting and uncommenting Functions in action [[fig.democomment][i
 #+CAPTION: Commenting and uncommenting Functions
 #+NAME: fig.democomment
 [[./demo-comment.gif]]
+
+
+* Troubleshooting
+** Network Setup
+If you encounter network issues with papyrus (typically no synchronisation), it may be due to your network configuration.
+Please be sure to follow the steps described here: 
+https://wiki.ros.org/ROS/NetworkSetup 
+
+

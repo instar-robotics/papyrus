@@ -32,12 +32,6 @@
 #include <QUuid>
 #include <QTimer>
 
-enum ScriptStatus {
-	INVALID_SCRIPT_STATUS,
-	SCRIPT_RUNNING,
-	SCRIPT_PAUSED
-};
-
 // Forward declaration because of recursive includes
 class DiagramScene;
 

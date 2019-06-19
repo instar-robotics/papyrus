@@ -27,7 +27,6 @@
 #include "constants.h"
 #include "constantdiagrambox.h"
 #include "zone.h"
-#include "hieroglyph/SimpleCmd.h"
 #include "activityvisualizer.h"
 
 #include <QApplication>
@@ -869,14 +868,9 @@ void Script::run()
 	}
 	// Otherwise, if the node is already running, we just have to ask it to resume execution
 	else {
-		ros::NodeHandle nh;
-		QString srvName = m_nodeName + "/control";
-		ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
-		hieroglyph::SimpleCmd srv;
-		srv.request.cmd = "resume";
-
 		emit displayStatusMessage(tr("Resuming script \"") + m_name + "\"...");
-		if (!client.call(srv)) {
+
+		if (!m_rosSession->callServiceControl("resume")) {
 			emit displayStatusMessage(tr("The RUN command failed."), MSG_ERROR);
 		}
 	}
@@ -893,13 +887,7 @@ void Script::pause()
 		return;
 	}
 
-	QString srvName = m_nodeName + "/control";
-	ros::NodeHandle nh;
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
-	hieroglyph::SimpleCmd srv;
-	srv.request.cmd = "pause";
-
-	if (!client.call(srv)) {
+	if (!m_rosSession->callServiceControl("pause")) {
 		emit displayStatusMessage(tr("The PAUSE command failed."), MSG_ERROR);
 	}
 }
@@ -917,13 +905,7 @@ void Script::stop()
 		return;
 	}
 
-	QString srvName = m_nodeName + "/control";
-	ros::NodeHandle nh;
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
-	hieroglyph::SimpleCmd srv;
-	srv.request.cmd = "quit";
-
-	if (!client.call(srv)) {
+	if (!m_rosSession->callServiceControl("quit")) {
 		emit displayStatusMessage(tr("The STOP command failed."), MSG_ERROR);
 	}
 }
@@ -945,27 +927,14 @@ ScriptStatus Script::queryScriptStatus()
 		informUserAndCrash(tr("Cannot query for script's status because no node name was specified."),
 		                   tr("No node name specified"));
 
-	QString srvName = m_nodeName + "/control";
+	ScriptStatus status = m_rosSession->queryScriptStatus();
 
-	ros::NodeHandle nh;
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
-	hieroglyph::SimpleCmd srv;
-	srv.request.cmd = "status";
-
-	if (client.call(srv)) {
-		QString response = QString::fromStdString(srv.response.ret);
-
-		if (response == "run")
-			return SCRIPT_RUNNING;
-		else if (response == "pause")
-			return SCRIPT_PAUSED;
-		else
-			emit displayStatusMessage(tr("Invalid response to command STATUS"), MSG_ERROR);
-	} else {
-		emit displayStatusMessage(tr("Command STATUS failed"), MSG_ERROR);
+	if (status == INVALID_SCRIPT_STATUS) {
+		emit displayStatusMessage(tr("Invalid response to command STATUS, command may have failed"),
+		                          MSG_ERROR);
 	}
 
-	return INVALID_SCRIPT_STATUS;
+	return status;
 }
 
 /**

@@ -45,6 +45,9 @@ public:
 
 	void addToHotList(QUuid uuid);
 
+	bool callServiceControl(QString cmd);
+	ScriptStatus queryScriptStatus();
+
 	bool shouldQuit() const;
 	void setShouldQuit(bool shouldQuit);
 

@@ -2,19 +2,19 @@
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
- 
+
   This file is part of papyrus <https://github.com/instar-robotics/papyrus>.
- 
+
   papyrus is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
- 
+
   papyrus is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -136,6 +136,13 @@ enum ResizeType {
 	RESIZE_TOP_RIGHT,
 	RESIZE_BOTTOM_RIGHT,
 	RESIZE_BOTTOM_LEFT
+};
+
+// Wether or not the script is paused
+enum ScriptStatus {
+	INVALID_SCRIPT_STATUS,
+	SCRIPT_RUNNING,
+	SCRIPT_PAUSED
 };
 
 // Define the different control that can be used with the mouse

@@ -7,7 +7,7 @@ ShaderSurface::ShaderSurface(int xSize, int ySize):ShaderMatrix(xSize, ySize)
 
 ShaderSurface::~ShaderSurface()
 {
-	for(int i = 0; i < m_xSize-1; i++)
+	for(int i = 0; i < m_ySize-1; i++)
 	{
 		delete [] m_upTriangleNormals[i];
 		delete [] m_downTriangleNormals[i];
@@ -133,15 +133,15 @@ QVector3D ShaderSurface::vertexNormal(int i, int j)
 
 void ShaderSurface::initNormalsMatrixes()
 {
-	m_upTriangleNormals = new QVector3D *[m_xSize-1];
-	m_downTriangleNormals = new QVector3D *[m_xSize-1];
-	for(int i = 0; i < m_xSize-1; i++)
+	m_upTriangleNormals = new QVector3D *[m_ySize-1];
+	m_downTriangleNormals = new QVector3D *[m_ySize-1];
+	for(int i = 0; i < m_ySize-1; i++)
 	{
-		m_upTriangleNormals[i] = new QVector3D[m_ySize-1];
-		m_downTriangleNormals[i] = new QVector3D[m_ySize-1];
+		m_upTriangleNormals[i] = new QVector3D[m_xSize-1];
+		m_downTriangleNormals[i] = new QVector3D[m_xSize-1];
 	}
-	for(int i = 0; i<m_xSize-1; i++){
-		for(int j = 0; j<m_ySize-1; j++){
+	for(int i = 0; i<m_ySize-1; i++){
+		for(int j = 0; j<m_xSize-1; j++){
 			m_upTriangleNormals[i][j].setX(0.0);
 			m_upTriangleNormals[i][j].setY(0.0);
 			m_upTriangleNormals[i][j].setZ(0.0);
@@ -155,8 +155,8 @@ void ShaderSurface::initNormalsMatrixes()
 //Calculate the normal of each triangle in the scene
 void ShaderSurface::updateNormals()
 {
-	for(int i = 0; i<m_xSize-1; i++){
-		for(int j = 0; j<m_ySize-1; j++){
+	for(int i = 0; i<m_ySize-1; i++){
+		for(int j = 0; j<m_xSize-1; j++){
 			QVector3D upSouth;
 			upSouth.setX(0.0);
 			upSouth.setY(m_matrix[i+1][j] - m_matrix[i][j]);

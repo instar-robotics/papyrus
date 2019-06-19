@@ -1937,7 +1937,7 @@ void PapyrusWindow::on_actionConnect_triggered()
 			// Open the script
 			parseXmlScriptFile(scriptPath);
 
-			// Set the session as running, obviouly because we have just connected to a running script
+			// Set the session as running, obviously because we have just connected to a running script
 			m_activeScript->setIsRunning(true);
 
 			switch (m_activeScript->queryScriptStatus()) {

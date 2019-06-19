@@ -23,6 +23,7 @@
 #include "helpers.h"
 #include "papyruswindow.h"
 #include "hieroglyph/ArgCmd.h"
+#include "hieroglyph/SimpleCmd.h"
 
 ROSSession::ROSSession(const QString &nodeName, QObject *parent)
     : QThread(parent),
@@ -49,6 +50,47 @@ void ROSSession::addToHotList(QUuid uuid)
 		if (!m_isFirstRun)
 			activateOutput(uuid);
 	}
+}
+
+/**
+ * @brief ROSSession::callServiceControl calls the ROS service /control of kheops
+ * @return
+ */
+bool ROSSession::callServiceControl(QString cmd)
+{
+	ros::NodeHandle nh;
+	QString srvName = QString("%1/control").arg(m_nodeName);
+
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = cmd.toStdString();
+
+	return client.call(srv);
+}
+
+ScriptStatus ROSSession::queryScriptStatus()
+{
+	QString srvName = QString("%1/control").arg(m_nodeName);
+
+	ros::NodeHandle nh;
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = "status";
+
+	if (client.call(srv)) {
+		QString response = QString::fromStdString(srv.response.ret);
+
+		if (response == "run")
+			return SCRIPT_RUNNING;
+		else if (response == "pause")
+			return SCRIPT_PAUSED;
+		else
+			return INVALID_SCRIPT_STATUS;
+	} else {
+		return INVALID_SCRIPT_STATUS;
+	}
+
+	return INVALID_SCRIPT_STATUS;
 }
 
 /**

@@ -49,6 +49,11 @@ private:
 	QPoint m_lastPos;
 	qreal m_resizeMargin = 7;
 	qreal m_moveBarHeight = 20;
+
+	// Variables for resizing
+	QPoint m_clickPos;
+	int m_oldWidth;
+	int m_oldHeight;
 };
 
 #endif // SHADERPROXY_H

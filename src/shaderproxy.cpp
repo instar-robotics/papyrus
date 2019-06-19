@@ -91,6 +91,12 @@ void ShaderProxy::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	m_lastPos = QPoint(event->pos().x(), event->pos().y());
 	m_widget->mousePressed(m_lastPos);
+
+	//Set variables used for resizing
+	m_clickPos = QPoint(event->pos().x(), event->pos().y());
+	m_oldWidth = m_widget->width();
+	m_oldHeight = m_widget->height();
+	qDebug() << m_clickPos.x() << m_clickPos.y() << m_oldWidth << m_oldHeight;
 }
 void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -103,17 +109,17 @@ void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		int height = m_widget->height();
 
 		//Resize the widget if the the user clicked on a widget's border
-		if (m_lastPos.x() >= m_widget->width() - m_resizeMargin && m_lastPos.y() >= m_widget->height() - m_resizeMargin)
+		if (m_clickPos.x() >= m_oldWidth - m_resizeMargin && m_clickPos.y() >= m_oldHeight - m_resizeMargin)
 		{
 			m_widget->resize(width+dx, height+dy);
 			m_moveBar->setRect(0,0,width+dx,m_moveBarHeight);
 		}
-		else if (m_lastPos.x() >= m_widget->width() - m_resizeMargin)
+		else if (m_clickPos.x() >= m_oldWidth - m_resizeMargin)
 		{
 			m_widget->resize(width+dx, height);
 			m_moveBar->setRect(0,0,width+dx,m_moveBarHeight);
 		}
-		else if (m_lastPos.y() >= m_widget->height() - m_resizeMargin)
+		else if (m_clickPos.y() >= m_oldHeight - m_resizeMargin)
 			m_widget->resize(width, height+dy);
 
 		//If the user doesn't resize the widget, transmit the mouseMoveEvent the opengl

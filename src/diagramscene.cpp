@@ -1072,7 +1072,7 @@ QUndoStack& DiagramScene::undoStack()
 	return m_undoStack;
 }
 
-//If opengl widgets are visible in the current scene, hide them and save their index
+//If opengl widgets are visible in the current scene, hide them and save pointers of them
 void DiagramScene::hide3DVisualizations()
 {
 	m_shaderWidgetIndexes.clear(); //Remove all previous indexes
@@ -1085,7 +1085,7 @@ void DiagramScene::hide3DVisualizations()
 			if(items().at(i)->isVisible())
 			{
 				items().at(i)->hide();
-				m_shaderWidgetIndexes.push_back(i);
+				m_shaderWidgetIndexes.push_back(items().at(i));
 			}
 		}
 	}
@@ -1095,11 +1095,12 @@ void DiagramScene::show3DVisualizations()
 {
 	// Once the open script window has been quit, set visible every widgets that have been hide just before
 	if(m_shaderWidgetIndexes.size()>0){
-		int index;
 		for(int i = 0; i < (int)m_shaderWidgetIndexes.size(); i++)
 		{
-			index = m_shaderWidgetIndexes.at(i);
-			items().at(index)->show();
+			if(!m_shaderWidgetIndexes.at(i)->isVisible())
+			{
+				m_shaderWidgetIndexes.at(i)->show();
+			}
 		}
 	}
 }

@@ -2184,12 +2184,23 @@ void PapyrusWindow::on_actionShow_outputs_triggered()
 	int count = 0;
 	foreach (QGraphicsItem *item, dScene->items()) {
 		ActivityVisualizer *vis = dynamic_cast<ActivityVisualizer *>(item);
-		if (vis == nullptr)
-			continue;
+		ShaderProxy *proxy = dynamic_cast<ShaderProxy *>(item);
+		if (vis != nullptr)
+		{
+			if (!vis->isVisible()) {
+				vis->setVisible(true);
+				count += 1;
+			}
+		}
 
-		if (!vis->isVisible()) {
-			vis->setVisible(true);
-			count += 1;
+		if(proxy != nullptr)
+		{
+			if(!proxy->isVisible())
+			{
+				proxy->setVisible(true);
+				proxy->moveBar()->setVisible(true);
+				count += 1;
+			}
 		}
 	}
 
@@ -2218,12 +2229,23 @@ void PapyrusWindow::on_actionHide_outputs_triggered()
 	int count = 0;
 	foreach (QGraphicsItem *item, dScene->items()) {
 		ActivityVisualizer *vis = dynamic_cast<ActivityVisualizer *>(item);
-		if (vis == nullptr)
-			continue;
+		ShaderProxy *proxy = dynamic_cast<ShaderProxy *>(item);
+		if (vis != nullptr)
+		{
+			if (vis->isVisible()) {
+				vis->setVisible(false);
+				count += 1;
+			}
+		}
 
-		if (vis->isVisible()) {
-			vis->setVisible(false);
-			count += 1;
+		if(proxy != nullptr)
+		{
+			if(proxy->isVisible())
+			{
+				proxy->setVisible(false);
+				proxy->moveBar()->setVisible(false);
+				count += 1;
+			}
 		}
 	}
 

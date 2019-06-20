@@ -1551,7 +1551,7 @@ void DiagramScene::display3DVisu(VisuType type)
 						selectedBox->setIsActivityVisuEnabled(false);
 					}
 					else
-						proxy->positionWidget(selectedBox->pos().x(), selectedBox->pos().y() - proxy->widget()->height() - 10);
+						proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() - 10);
 
 					selectedBox->setDisplayedProxy(proxy);
 

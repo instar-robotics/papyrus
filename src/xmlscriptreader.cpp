@@ -493,8 +493,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 			ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, b);
 			shaderMoveBar->setProxy(proxy);
-			shaderMoveBar->setPos(visuPos.x(), visuPos.y()-proxy->moveBarHeight());
-			shaderMoveBar->setRect(0,0,visuSize.width(),proxy->moveBarHeight());
+			proxy->positionWidget(visuPos.x(), visuPos.y());
+//			shaderMoveBar->setPos(visuPos.x(), visuPos.y()-proxy->moveBarHeight());
+//			shaderMoveBar->setRect(0,proxy,visuSize.width(),proxy->moveBarHeight());
 
 			b->scene()->addItem(shaderMoveBar);
 			b->setDisplayedProxy(proxy);

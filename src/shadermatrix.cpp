@@ -31,19 +31,17 @@ float ShaderMatrix::calculateHeight(float value)
 
 void ShaderMatrix::initMatrix()
 {
-	qDebug() << "1";
 	m_matrix = new float *[m_ySize];
 	for(int i = 0; i < m_ySize; i++)
 	{
 		m_matrix[i] = new float[m_xSize];
 	}
-	qDebug() << "2";
+
 	for(int i = 0; i<m_ySize; i++){
 		for(int j = 0; j<m_xSize; j++){
 			m_matrix[i][j] = 0.0f;
 		}
 	}
-	qDebug() << "3";
 }
 
 void ShaderMatrix::updateValues(QVector<qreal> *values)

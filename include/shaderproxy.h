@@ -30,6 +30,9 @@ public:
 
 	ShaderWidget *widget() const;
 
+	void positionWidget(qreal x, qreal y);
+	void resizeWidget(int width, int height);
+
 signals:
 	void proxyDestroyed();
 

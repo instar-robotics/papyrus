@@ -1400,13 +1400,16 @@ void DiagramScene::display2DVisu(VisuType type)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->isActivityVisuEnabled() || selectedBox->getDisplayedProxy() != nullptr)
+			if(selectedBox->isActivityVisuEnabled() && selectedBox->getVisuType() == type)
 			{
-				emit displayStatusMessage("Visualization is already enabled for this box");
+				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
 			}
 			selectedBox->setVisuType(type);
-//			selectedBox->setIsActivityVisuEnabled(true);
+
+			//Save old visualization in case there is already one that will be replaced
+			ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
+			ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
 
 			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
 			ActivityVisualizer *vis = nullptr;
@@ -1433,6 +1436,23 @@ void DiagramScene::display2DVisu(VisuType type)
 				return;
 				break;
 			}
+
+			if(oldProxy != nullptr)
+			{
+				vis->setPos(oldProxy->scenePos().x(), oldProxy->scenePos().y());
+				vis->setWidth(oldProxy->widget()->width());
+				vis->setHeight(oldProxy->widget()->height());
+				delete oldProxy;
+			}
+			else if(oldVis != nullptr)
+			{
+				vis->setPos(oldVis->scenePos().x(), oldVis->scenePos().y());
+				vis->setWidth(oldVis->width());
+				vis->setHeight(oldVis->height());
+				delete oldVis;
+			}
+			selectedBox->setIsActivityVisuEnabled(true);
+			selectedBox->setActivityVisualizer(vis);
 
 			// Create the activity fetcher with the topic name
 			ActivityFetcher *fetcher = nullptr;
@@ -1464,7 +1484,7 @@ void DiagramScene::display2DVisu(VisuType type)
 			DiagramChart *dChart = new DiagramChart(selectedBox);
 			dChart->setPos(selectedBox->pos().x(), selectedBox->pos().y() - 200);
 			addItem(dChart);
-			//*/
+			*/
 		}
 	}
 }
@@ -1494,9 +1514,9 @@ void DiagramScene::display3DVisu(VisuType type)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->isActivityVisuEnabled() || selectedBox->getDisplayedProxy() != nullptr)
+			if(selectedBox->getDisplayedProxy() != nullptr && selectedBox->getVisuType() == type)
 			{
-				emit displayStatusMessage("Visualization is already enabled for this box");
+				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
 			}
 
@@ -1513,8 +1533,26 @@ void DiagramScene::display3DVisu(VisuType type)
 					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
 					shaderMoveBar->setProxy(proxy);
 
-					proxy->setPos(0, shaderMoveBar->rect().height());
 					addItem(shaderMoveBar);
+
+					if(selectedBox->getDisplayedProxy() != nullptr)
+					{
+						ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
+						proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y());
+						proxy->resizeWidget(oldProxy->widget()->width(), oldProxy->widget()->height());
+						delete oldProxy;
+					}
+					else if(selectedBox->isActivityVisuEnabled())
+					{
+						ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
+						proxy->positionWidget(oldVis->x(), oldVis->y());
+						proxy->resizeWidget(oldVis->width(), oldVis->height());
+						delete oldVis;
+						selectedBox->setIsActivityVisuEnabled(false);
+					}
+					else
+						proxy->positionWidget(selectedBox->pos().x(), selectedBox->pos().y() - proxy->widget()->height() - 10);
+
 					selectedBox->setDisplayedProxy(proxy);
 
 					// Create the activity fetcher with the topic name

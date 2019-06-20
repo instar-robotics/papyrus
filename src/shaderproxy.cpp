@@ -7,11 +7,11 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 {
 
 	setWidget(m_widget);
-	m_moveBar->setRect(0, 0, m_widget->width(), m_moveBarHeight);
+	m_moveBar->setRect(0,0,m_widget->width(),m_moveBarHeight);
 	m_moveBar->setPen(QPen(Qt::black));
 	m_moveBar->setBrush(QBrush(Qt::black));
-	setPos(0, m_moveBar->rect().height());
 	setParentItem(m_moveBar);
+	positionWidget(0, 0);
 
 	m_moveBar->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_moveBar->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -50,6 +50,27 @@ void ShaderProxy::updateValues(QVector<qreal>* values)
 ShaderWidget *ShaderProxy::widget() const
 {
 	return m_widget;
+}
+
+void ShaderProxy::positionWidget(qreal x, qreal y)
+{
+	m_moveBar->setRect(x, y-m_moveBarHeight, m_widget->width(), m_moveBarHeight);
+	setPos(x, y);
+}
+
+void ShaderProxy::resizeWidget(int width, int height)
+{
+	resize(width, height);
+	m_moveBar->setRect(pos().x(), pos().y()-m_moveBarHeight, width, m_moveBarHeight);
+
+	//Resize the widget if it is too small
+	if(width<m_widget->minWidth())
+	{
+		m_widget->resize(m_widget->minWidth(), m_widget->height());
+		m_moveBar->setRect(pos().x(), pos().y()-m_moveBarHeight, m_widget->minWidth(),m_moveBarHeight);
+	}
+	if(height<m_widget->minHeight())
+		m_widget->resize(m_widget->width(), m_widget->minHeight());
 }
 
 qreal ShaderProxy::moveBarHeight() const
@@ -96,7 +117,6 @@ void ShaderProxy::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	m_clickPos = QPoint(event->pos().x(), event->pos().y());
 	m_oldWidth = m_widget->width();
 	m_oldHeight = m_widget->height();
-	qDebug() << m_clickPos.x() << m_clickPos.y() << m_oldWidth << m_oldHeight;
 }
 void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -111,29 +131,18 @@ void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		//Resize the widget if the the user clicked on a widget's border
 		if (m_clickPos.x() >= m_oldWidth - m_resizeMargin && m_clickPos.y() >= m_oldHeight - m_resizeMargin)
 		{
-			m_widget->resize(width+dx, height+dy);
-			m_moveBar->setRect(0,0,width+dx,m_moveBarHeight);
+			resizeWidget(width+dx, height+dy);
 		}
 		else if (m_clickPos.x() >= m_oldWidth - m_resizeMargin)
 		{
-			m_widget->resize(width+dx, height);
-			m_moveBar->setRect(0,0,width+dx,m_moveBarHeight);
+			resizeWidget(width+dx, height);
 		}
 		else if (m_clickPos.y() >= m_oldHeight - m_resizeMargin)
-			m_widget->resize(width, height+dy);
+			resizeWidget(width, height+dy);
 
 		//If the user doesn't resize the widget, transmit the mouseMoveEvent the opengl
 		else
 			m_widget->mouseMoved(pos, LEFT_BUTTON);
-
-		//Resize the widget if it is too small
-		if(width<m_widget->minWidth())
-		{
-			m_widget->resize(m_widget->minWidth(), m_widget->height());
-			m_moveBar->setRect(0,0,m_widget->minWidth(),m_moveBarHeight);
-		}
-		if(height<m_widget->minHeight())
-			m_widget->resize(m_widget->width(), m_widget->minHeight());
 	}
 	if (event->buttons() & Qt::RightButton)
 	{

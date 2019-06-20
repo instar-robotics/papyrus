@@ -549,6 +549,9 @@ void PropertiesPanel::displayZoneProperties(Zone *zone)
 	// Hide all other frames
 	hideAllFrames();
 
+	// Set the zone's scene to the zone color button
+	m_zoneColor.setCurrentScene(dynamic_cast<DiagramScene *>(zone->scene()));
+
 	// Populate fields
 	m_zoneTitle.setText(zone->title());
 	m_zoneColor.setColor(zone->color());

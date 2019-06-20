@@ -200,10 +200,18 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			emit displayStatusMessage(QObject::tr("No file for ") + m_name +
 			                          tr(", please select one..."), MSG_INFO);
 
+			// Hide visible 3D visualizations to prevent any conflict with the QFileDialog
+			if (m_scene != NULL)
+				m_scene->hide3DVisualizations();
+
 			QString savePath = QFileDialog::getSaveFileName(NULL,
 			                             QObject::tr("Save as..."),
 			                             basePath + "/" + mkFilenameFromScript(m_name.replace(' ', '_')),
 			                             QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
+
+			// Now the QDialogFile has been quit, set visible every 3D visualizations that just have been hide
+			if (m_scene != NULL)
+				m_scene->show3DVisualizations();
 
 			// Abort if it's empty
 			if (savePath.isEmpty()) {

@@ -45,12 +45,26 @@ void SetColorButton::setColor(const QColor &color)
 	updateColor();
 }
 
+void SetColorButton::setCurrentScene(DiagramScene *currentScene)
+{
+	m_currentScene = currentScene;
+}
+
+
 void SetColorButton::changeColor()
 {
+	//If opengl widgets are visible in the current scene, hide them while the user chose the color
+	if (m_currentScene != NULL)
+		m_currentScene->hide3DVisualizations();
+
 	QColor newColor = QColorDialog::getColor(m_color,
 	                                         parentWidget(),
 	                                         tr("Change comment zone color"),
 	                                         QColorDialog::ShowAlphaChannel);
 	if (newColor != m_color)
 		setColor(newColor);
+
+	// Once the choice color window has been quit, set visible every widgets that have been hide just before
+	if(m_currentScene != NULL)
+		m_currentScene->show3DVisualizations();
 }

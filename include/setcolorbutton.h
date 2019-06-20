@@ -24,6 +24,8 @@
 
 #include <QPushButton>
 #include <QColor>
+#include "diagramscene.h"
+#include "diagramview.h"
 
 class SetColorButton : public QPushButton
 {
@@ -37,8 +39,11 @@ public:
 	QColor color() const;
 	void setColor(const QColor &color);
 
+	void setCurrentScene(DiagramScene *currentScene);
+
 private:
 	QColor m_color;
+	DiagramScene *m_currentScene;
 
 private slots:
 	void changeColor();

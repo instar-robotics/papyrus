@@ -136,6 +136,8 @@ private slots:
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
+	void hideShaderWidgets();
+	void showShaderWidgets();
 
 };
 

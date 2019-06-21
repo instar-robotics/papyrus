@@ -21,7 +21,6 @@ protected:
 	float** m_matrix;
 	int m_xSize;
 	int m_ySize;
-	float m_range = 4.0f;
 };
 
 #endif // SHADERMATRIX_H

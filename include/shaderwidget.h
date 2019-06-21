@@ -76,9 +76,6 @@ protected:
 	QVector<QVector3D> m_vertexes; //save the coordinates of all the vertexes for the render
 	QVector<QVector3D> m_normals; //save the vertexes' normals for light gesture
 	QVector<QVector3D> m_colors; //save the vertexes' colors for the render
-	QVector<GLuint> m_wireframeIndexes; //save the indexes in the drawing order of the wireframe
-	QVector<QVector3D> m_wireframeVertexes; //save vertexes just a little bit higher than original ones
-	QVector<QVector3D> m_wireframeColors; //save the vertexes' colors for the wireframe
 
 	// GPU Buffer
 	QOpenGLBuffer m_indexbuffer{QOpenGLBuffer::IndexBuffer};
@@ -93,6 +90,7 @@ protected:
 	float m_gap = 0.2f;
 	Camera m_camera;
 	Light m_light;
+	float m_range = 4.0f;
 
 	// widget size
 	int m_startWidth = 300;

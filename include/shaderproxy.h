@@ -39,6 +39,8 @@ signals:
 public slots:
 	void updateProxy();
 	void updateValues(QVector<qreal>* values);
+	void hideDisplay();
+	void showDisplay();
 
 private:
 	ShaderWidget *m_widget;

@@ -1075,34 +1075,12 @@ QUndoStack& DiagramScene::undoStack()
 //If opengl widgets are visible in the current scene, hide them and save pointers of them
 void DiagramScene::hide3DVisualizations()
 {
-	m_shaderWidgetIndexes.clear(); //Remove all previous indexes
-	//Test for each item on the scene if it is an opengl widget or not
-	for(int i = 0; i < items().size(); i++)
-	{
-		if(dynamic_cast<ShaderProxy *>(items().at(i)))
-		{
-			// If the item is a visible opengl widget, hide it and save its index in the items' list
-			if(items().at(i)->isVisible())
-			{
-				items().at(i)->hide();
-				m_shaderWidgetIndexes.push_back(items().at(i));
-			}
-		}
-	}
+	emit hideShaderWidgets();
 }
 
 void DiagramScene::show3DVisualizations()
 {
-	// Once the open script window has been quit, set visible every widgets that have been hide just before
-	if(m_shaderWidgetIndexes.size()>0){
-		for(int i = 0; i < (int)m_shaderWidgetIndexes.size(); i++)
-		{
-			if(!m_shaderWidgetIndexes.at(i)->isVisible())
-			{
-				m_shaderWidgetIndexes.at(i)->show();
-			}
-		}
-	}
+	emit showShaderWidgets();
 }
 
 QGraphicsRectItem *DiagramScene::rect() const
@@ -1532,6 +1510,8 @@ void DiagramScene::display3DVisu(VisuType type)
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
 					shaderMoveBar->setProxy(proxy);
+					connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
+					connect(this, SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
 
 					addItem(shaderMoveBar);
 

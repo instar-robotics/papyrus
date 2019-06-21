@@ -90,7 +90,8 @@ HEADERS += include/category.h \
     include/shadermovebar.h \
     include/shaderbarchart.h \
     include/shaderwireframe.h \
-    include/shaderscaleplanes.h
+    include/shaderscaleplanes.h \
+    include/shaderaxesplanes.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -170,7 +171,8 @@ SOURCES += src/category.cpp \
     src/shaderconechart.cpp \
     src/shaderconechart.cpp \
     src/shaderwireframe.cpp \
-    src/shaderscaleplanes.cpp
+    src/shaderscaleplanes.cpp \
+    src/shaderaxesplanes.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

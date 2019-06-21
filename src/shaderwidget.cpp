@@ -68,6 +68,22 @@ void ShaderWidget::paintGL()
 	glDrawElements(drawingType, m_indexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
+	if(m_axesPlanes != nullptr)
+	{
+		m_axesPlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_axesPlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
+
+	else if(m_scalePlanes != nullptr)
+	{
+		m_scalePlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scalePlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
+
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Normal));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Color));

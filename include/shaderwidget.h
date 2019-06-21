@@ -23,6 +23,8 @@
 #include "camera.h"
 #include "light.h"
 #include "types.h"
+#include "shaderscaleplanes.h"
+#include "shaderaxesplanes.h"
 
 enum class Attribute { Vertex, Normal, Color };
 
@@ -85,6 +87,10 @@ protected:
 
 	// Shader program
 	QOpenGLShaderProgram m_program;
+
+	// Scale planes
+	ShaderScalePlanes *m_scalePlanes = nullptr;
+	ShaderAxesPlanes *m_axesPlanes = nullptr;
 
 	// 3D scene
 	float m_gap = 0.2f;

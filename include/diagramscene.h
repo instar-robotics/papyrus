@@ -129,7 +129,6 @@ private:
 	bool m_displayLabels;    // Whether or not to display input slots's names
 	bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
 	QUndoStack m_undoStack; // The stack to allow for undo / redo commands
-	std::vector<QGraphicsItem *> m_shaderWidgetIndexes; //Save the index of shader widgets when we hide them in order to make them visible later
 
 private slots:
 	void onSelectionChanged();

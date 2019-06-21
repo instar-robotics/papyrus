@@ -3,6 +3,8 @@
 ShaderMatrix::ShaderMatrix(int xSize, int ySize): m_xSize(xSize), m_ySize(ySize)
 {
 	initMatrix();
+	//m_axesPlanes = new ShaderAxesPlanes(m_xSize, m_ySize, m_range, m_gap);
+	m_scalePlanes = new ShaderScalePlanes(m_xSize, m_ySize, m_range, m_gap);
 }
 
 ShaderMatrix::~ShaderMatrix()
@@ -16,12 +18,12 @@ ShaderMatrix::~ShaderMatrix()
 
 float ShaderMatrix::calculateXcoord(int i)
 {
-	return i*m_gap - (m_ySize/2*m_gap);
+	return i*m_gap - (m_ySize*m_gap/2) + m_gap/2;
 }
 
 float ShaderMatrix::calculateZcoord(int j)
 {
-	return j*m_gap - (m_xSize/2*m_gap);
+	return j*m_gap - (m_xSize*m_gap/2) + m_gap/2;
 }
 
 float ShaderMatrix::calculateHeight(float value)

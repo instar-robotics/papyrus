@@ -1072,7 +1072,6 @@ QUndoStack& DiagramScene::undoStack()
 	return m_undoStack;
 }
 
-//If opengl widgets are visible in the current scene, hide them and save pointers of them
 void DiagramScene::hide3DVisualizations()
 {
 	emit hideShaderWidgets();

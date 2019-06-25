@@ -24,9 +24,11 @@ protected:
 
 private:
 
-	int m_nbMeasures = 11; //Number of measures on the XY and the YZ planes
+	int m_nbMeasuresXZ = 11; //Number of measures on the XY and the YZ planes
 	float m_measureX; //Distance between 2 measures on the XY plane
 	float m_measureZ; //Distance between 2 measures on the ZY plane
+	int m_nbMeasuresY = 5; //Number of measures on the Y axe
+	float m_measureY; //Distance between 2 measures on the Y axe
 	int m_rows; //Nb of rows in the matrix
 	int m_columns; //Nb of columns in the matrix
 	float m_range; //Max height (and min for the negatives) of the 3d display

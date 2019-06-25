@@ -170,8 +170,11 @@ void ShaderWidget::updateScene()
 	translation.translate(0.0f, m_camera.m_yTran, 0.0f);
 	translation.translate(0.0f, 0.0f, -m_camera.m_zTran);
 
+	QMatrix4x4 reverse;
+	reverse.rotate(180.0, QVector3D(0.0f, 1.0f, 0.0f));
+
 	// Send the matrix's position in space to the shaders
-	m_program.setUniformValue("matrix_position", projection * direction * rotation * translation);
+	m_program.setUniformValue("matrix_position", projection * direction * rotation * translation * reverse);
 
 	// Send the orientation of source light to the shaders
 	m_program.setUniformValue("light_normal", m_light.m_lightNormal);

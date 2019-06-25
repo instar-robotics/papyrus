@@ -52,7 +52,7 @@ void ShaderScalePlanes::fillVectors()
 	m_vertexes.push_back(vertex);//back left
 
 	// X and Y plane
-	vertex.setZ(m_measureZ*m_nbMeasuresXZ/2 - m_measureZ/2);
+	vertex.setZ(-m_measureZ*m_nbMeasuresXZ/2 + m_measureZ/2);
 	for(int i = 0; i<m_nbMeasuresXZ; i++)
 	{
 		vertex.setX(i*m_measureX - m_measureX*m_nbMeasuresXZ/2 + m_measureX/2);
@@ -75,7 +75,7 @@ void ShaderScalePlanes::fillVectors()
 	}
 
 	// Y and Z plane
-	vertex.setX(m_measureX*m_nbMeasuresXZ/2 - m_measureX/2);
+	vertex.setX(-m_measureX*m_nbMeasuresXZ/2 + m_measureX/2);
 	for(int i = 0; i<m_nbMeasuresXZ; i++)
 	{
 		vertex.setZ(i*m_measureZ - m_measureZ*m_nbMeasuresXZ/2 + m_measureZ/2);

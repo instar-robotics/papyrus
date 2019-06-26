@@ -137,7 +137,7 @@ void ShaderWidget::initShaders()
 	m_program.bind();
 
 	m_camera.updatePosition();
-	m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
+	m_light.positionLight(m_camera.m_yRot);
 
 	m_program.setUniformValue("light_normal", m_light.m_lightNormal);
 	m_program.setUniformValue("ambient_light", m_light.m_ambientLight);
@@ -203,7 +203,7 @@ void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 	{
 		m_camera.rotateView(dy*m_camera.m_rotSpeed, 0, 0);
 		m_camera.rotateView(0, dx*m_camera.m_rotSpeed, 0);
-		m_light.positionLight(m_camera.m_xRot, m_camera.m_yRot);
+		m_light.positionLight(m_camera.m_yRot);
 		m_camera.updatePosition();
 	}
 

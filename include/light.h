@@ -10,7 +10,7 @@ class Light
 {
 public:
 	Light();
-	void positionLight(int x, int y);
+	void positionLight(int y);
 
 	QVector4D m_lightNormal;
 	QVector4D m_ambientLight;

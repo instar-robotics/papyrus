@@ -6,10 +6,9 @@ Light::Light(): m_lightNormal(1.0, 1.0, 1.0, 1.0),
 {
 }
 
-void Light::positionLight(int x, int y)
+void Light::positionLight(int y)
 {
 	m_lightNormal.setX(-sin(MathTransfo::degToRad(y)));
-	//m_lightNormal.setY(sin(MathTransfo::degToRad(x)));
 	m_lightNormal.setY(0.5);
 	m_lightNormal.setZ(cos(MathTransfo::degToRad(y)));
 }

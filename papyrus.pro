@@ -74,11 +74,13 @@ HEADERS += include/category.h \
            include/deleteboxcommand.h \
            include/deletezonecommand.h \
            include/linkelement.h \
-           include/finddialog.h
+           include/finddialog.h \
+           include/scopewindow.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
-    src/nodeschooser.ui
+    src/nodeschooser.ui \
+    src/scopewindow.ui
 
 SOURCES += src/category.cpp \
            src/diagrambox.cpp \
@@ -133,6 +135,7 @@ SOURCES += src/category.cpp \
            src/deleteboxcommand.cpp \
            src/deletezonecommand.cpp \
            src/linkelement.cpp \
-           src/finddialog.cpp
+           src/finddialog.cpp \
+           src/scopewindow.cpp
 
 RESOURCES += icons.qrc

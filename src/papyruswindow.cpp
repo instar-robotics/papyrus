@@ -87,7 +87,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_autoSaveTimer(this),
     m_checkVersionTimer(this),
     m_preventROSPopup(true),
-    m_findDialog(nullptr)
+    m_findDialog(nullptr),
+    m_scopeWindow(nullptr)
 {
 	// First of all set the UI according to the UI file (MUST be called before the rest)
 	m_ui->setupUi(this);
@@ -377,7 +378,7 @@ void PapyrusWindow::readSettings(QString &lastOpenedScripts, int *lastActiveScri
 
 	// Query the screen's (available) size to set the main window's size
 	QScreen *screen = QGuiApplication::primaryScreen();
-	if (screen == NULL) {
+	if (screen == nullptr) {
 		qFatal("No screen detected!");
 	}
 	QSize availableSize = screen->availableSize();
@@ -1403,6 +1404,14 @@ void PapyrusWindow::reEnableROSPopUp()
 	m_preventROSPopup = false;
 }
 
+void PapyrusWindow::onScopeWindowClosed(int result)
+{
+	Q_UNUSED(result);
+
+	delete m_scopeWindow;
+	m_scopeWindow = nullptr;
+}
+
 /**
  * @brief PapyrusWindow::categoryExpanded is called when a user double clicks on a category to
  * expand it, we use this event to collapse all other categories (expect "Constants") so that only
@@ -2028,15 +2037,19 @@ void PapyrusWindow::on_actionScope_triggered()
 		return;
 	}
 
-	/*
-	if (m_activeScript->rosSession() == NULL) {
-		displayStatusMessage(tr("No ROS session for the active script: cannot scope"),
-							 MSG_ERROR);
-		return;
-	}
-	//*/
+	if (m_scopeWindow == nullptr) {
+		m_scopeWindow = new ScopeWindow(m_activeScript, this);
+		QString title = QString("%1's scope").arg(m_activeScript->name());
+		m_scopeWindow->setWindowTitle(title);
+		m_scopeWindow->setTitle(title);
 
-	displayStatusMessage(tr("Action scope not implemented yet"), MSG_WARNING);
+		connect(m_scopeWindow, SIGNAL(finished(int)), this, SLOT(onScopeWindowClosed(int)));
+
+		m_scopeWindow->show();
+		m_scopeWindow->raise();
+		m_scopeWindow->activateWindow();
+	}
+
 }
 
 void PapyrusWindow::on_actionEdit_paths_triggered()

@@ -48,6 +48,8 @@ public:
 	bool callServiceControl(QString cmd);
 	ScriptStatus queryScriptStatus();
 
+	bool callServiceOscillo(const QString &cmd);
+
 	bool shouldQuit() const;
 	void setShouldQuit(bool shouldQuit);
 

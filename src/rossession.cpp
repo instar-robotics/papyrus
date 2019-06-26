@@ -94,6 +94,23 @@ ScriptStatus ROSSession::queryScriptStatus()
 }
 
 /**
+ * @brief ROSSession::callServiceOscillo calls the ROSService "oscillo" with the given command.
+ * @param cmd the command to pass to the service, supported are: "start", "stop"
+ * @return whether the call was successful
+ */
+bool ROSSession::callServiceOscillo(const QString &cmd)
+{
+	ros::NodeHandle nh;
+	QString srvName = QString("%1/oscillo").arg(m_nodeName);
+
+	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = cmd.toStdString();
+
+	return client.call(srv);
+}
+
+/**
  * @brief ROSSession::activateOutput issue a ROS service call to activate a function's output (i.e.
  * make this function publish its output on the bus)
  * IMPORTANT: this requires the script to be running. This is meant to be used internally. Users

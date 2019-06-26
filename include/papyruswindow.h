@@ -31,6 +31,7 @@
 #include "rossession.h"
 #include "types.h"
 #include "xmldescriptionreader.h"
+#include "scopewindow.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -164,6 +165,8 @@ private:
 
 	QDialog *m_findDialog;      // A modeless dialog used to find boxes, links, etc.
 
+	ScopeWindow *m_scopeWindow; // A modeless dialog used to display a script's scope
+
 signals:
 	void toggleDisplayGrid(bool);
 	void launched();
@@ -185,6 +188,7 @@ private slots:
 	void openScript(QString path = "");
 	void checkForNewRelease();
 	void reEnableROSPopUp();
+	void onScopeWindowClosed(int result);
 
 	void on_actionExit_triggered();
 

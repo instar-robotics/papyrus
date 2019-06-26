@@ -97,7 +97,7 @@ void ShaderWidget::paintGL()
 		m_last_count = m_frame_count;
 		m_frame_count = 0;
 		m_timer.restart();
-		//qDebug() << m_last_count;
+		qDebug() << m_last_count;
 	}
 
 	update();

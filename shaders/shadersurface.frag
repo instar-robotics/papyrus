@@ -14,20 +14,19 @@ uniform vec4 camera_position;
 
 void main(void)
 {
-    if(abs(mod(vertex_coord.x,gap)) < 0.01 || abs(mod(vertex_coord.z,gap)) < 0.01)
-    {
-	color = vec4(0.0,0.0,0.0,0.0);
-    }
-    else
-    {
-	float distance = length(camera_position - vertex_coord) + 0.00001;
-	float attenuation = (1-distance/50)*3;
-	if(attenuation < 0)
-	    attenuation = 0;
-
+//    if(abs(mod(vertex_coord.x,gap)) < 0.05 || abs(mod(vertex_coord.z,gap)) < 0.05)
+//    {
+//	color = vec4(0.0,0.0,0.0,0.0);
+//    }
+//    else
+//    {
+	float distance = length(-camera_position - vertex_coord) + 0.00001;
+	float attenuation = min(max((2.5-distance/30), 0.2), 2.0);
+	vec4 V = normalize(vertex_normal);
+	vec4 L = normalize(light_normal);
 	vec4 ambient_color = ambient_light;
-	vec4 diffuse_color = diffuse_light * dot(vertex_normal, normalize(light_normal)) * attenuation;
-
-	color = vertex_color * (ambient_color + diffuse_color);
-    }
+	vec4 diffuse_color = diffuse_light * max(dot(V, L), 0.0) * attenuation;;
+	vec4 coef = vec4(vec3(1.0),1.0);
+	color = vertex_color * (diffuse_color + ambient_color);
+//    }
 }

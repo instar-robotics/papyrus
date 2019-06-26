@@ -14,6 +14,7 @@ ShaderWidget::ShaderWidget()
 
 ShaderWidget::~ShaderWidget()
 {
+	delete m_scalePlanes;
 }
 
 //Function run only on the opengl widget's creation
@@ -68,15 +69,7 @@ void ShaderWidget::paintGL()
 	glDrawElements(drawingType, m_indexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
-	if(m_axesPlanes != nullptr)
-	{
-		m_axesPlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_axesPlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
-
-	else if(m_scalePlanes != nullptr)
+	if(m_scalePlanes != nullptr)
 	{
 		m_scalePlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
 		m_indexbuffer.bind();
@@ -299,23 +292,4 @@ void ShaderWidget::clearVectors()
 	m_normals.clear();
 }
 
-void ShaderWidget::fillVectors()
-{
-
-}
-
-void ShaderWidget::initVectors()
-{
-
-}
-
-void ShaderWidget::addShaders()
-{
-
-}
-
-void ShaderWidget::updateValues(QVector<qreal>* values)
-{
-	Q_UNUSED(values);
-}
 

@@ -44,7 +44,7 @@ void ShaderProxy::updateProxy()
 void ShaderProxy::updateValues(QVector<qreal>* values)
 {
 	m_widget->updateValues(values);
-	//delete values;
+	delete values;
 }
 
 void ShaderProxy::hideDisplay()

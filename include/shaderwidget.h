@@ -37,7 +37,7 @@ public:
 	~ShaderWidget();
 
 	void initializeGL();
-	virtual void updateValues(QVector<qreal>* values);
+	virtual void updateValues(QVector<qreal>* values) = 0;
 
 	// Events
 	void wheelTurned(int delta);
@@ -56,10 +56,11 @@ protected:
 	void resizeGL(int width, int height) override;
 
 	void initGPUbuffers();
+	void destroyGPUbuffers();
 	void initShaders();
-	virtual void addShaders();
-	virtual void initVectors();
-	virtual void fillVectors();
+	virtual void addShaders() = 0;
+	virtual void initVectors() = 0;
+	virtual void fillVectors() = 0;
 	void clearVectors();
 	void updateScene();
 
@@ -90,7 +91,7 @@ protected:
 
 	// Scale planes
 	ShaderScalePlanes *m_scalePlanes = nullptr;
-	ShaderAxesPlanes *m_axesPlanes = nullptr;
+
 
 	// 3D scene
 	float m_gap = 0.2f;

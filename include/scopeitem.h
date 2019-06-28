@@ -3,6 +3,7 @@
 
 #include <QGraphicsItem>
 #include <QRectF>
+#include <QLineF>
 
 class ScopeItem : public QGraphicsItem
 {
@@ -28,6 +29,7 @@ private:
 	QRectF m_maxRect;     // Rectangle to draw max duration
 	QRectF m_minRect;     // Rectangle to draw min duration
 	QRectF m_currentRect; // Line to show current duration
+	QLineF m_startLine;   // The vertical line showing the start of the item
 
 };
 

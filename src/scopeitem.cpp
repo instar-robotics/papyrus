@@ -14,7 +14,8 @@ ScopeItem::ScopeItem(QGraphicsItem *parent)
       m_meansRect(QPointF(0, m_h1 + m_h2 / 2 - m_hAvg / 2), QPointF(0, m_h1 + m_h2 / 2 + m_hAvg / 2)),
       m_maxRect(QPointF(0, 0), QPointF(0, m_h1)),
       m_minRect(QPointF(0, m_h1 + m_h2), QPointF(0, m_h1 + m_h2 + m_h3)),
-      m_currentRect(QPointF(0, m_h1), QPointF(0, m_h1 + m_h2))
+      m_currentRect(QPointF(0, m_h1), QPointF(0, m_h1 + m_h2)),
+      m_startLine(QPointF(0, 0), QPointF(0, ScopeItem::barHeight))
 {
 
 }
@@ -37,6 +38,12 @@ void ScopeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	painter->fillRect(m_currentRect, QColor(0, 143, 17));
 	painter->fillRect(m_minRect, Qt::blue);
 	painter->fillRect(m_meansRect, QColor(Qt::gray).lighter());
+
+	// Also paint a small vertical line showing the start of the item
+	QPen p = painter->pen();
+	p.setColor(QColor(Qt::lightGray));
+	painter->setPen(p);
+	painter->drawLine(m_startLine);
 }
 
 void ScopeItem::setMaxRectWidth(qreal width)

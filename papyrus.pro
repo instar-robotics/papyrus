@@ -75,7 +75,9 @@ HEADERS += include/category.h \
            include/deletezonecommand.h \
            include/linkelement.h \
            include/finddialog.h \
-           include/scopewindow.h
+           include/scopewindow.h \
+           include/scopemessage.h \
+           include/scopeitem.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -136,6 +138,8 @@ SOURCES += src/category.cpp \
            src/deletezonecommand.cpp \
            src/linkelement.cpp \
            src/finddialog.cpp \
-           src/scopewindow.cpp
+           src/scopewindow.cpp \
+           src/scopemessage.cpp \
+           src/scopeitem.cpp
 
 RESOURCES += icons.qrc

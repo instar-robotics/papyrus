@@ -10,7 +10,6 @@ public:
 	~ShaderBarChart();
 
 protected:
-	virtual void addShaders() override;
 	virtual void initVectors() override;
 	virtual void fillVectors() override;
 

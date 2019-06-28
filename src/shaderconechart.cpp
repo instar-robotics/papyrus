@@ -8,18 +8,6 @@ ShaderConeChart::~ShaderConeChart()
 {
 }
 
-//Initialize the shaders during initializeGL()
-void ShaderConeChart::addShaders()
-{
-	// Init shader program
-	m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shader.vert");
-	m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shaderbarchart.frag");
-
-	m_program.bindAttributeLocation("in_vertex", static_cast<int>(Attribute::Vertex));
-	m_program.bindAttributeLocation("in_normal", static_cast<int>(Attribute::Normal));
-	m_program.bindAttributeLocation("in_color", static_cast<int>(Attribute::Color));
-}
-
 //Allocate the memory used by each vectors
 void ShaderConeChart::initVectors()
 {

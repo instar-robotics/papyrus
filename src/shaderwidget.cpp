@@ -142,6 +142,17 @@ void ShaderWidget::initShaders()
 	m_program.release();
 }
 
+void ShaderWidget::addShaders()
+{
+	// Init shader program
+	m_program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shader.vert");
+	m_program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shader.frag");
+
+	m_program.bindAttributeLocation("in_vertex", static_cast<int>(Attribute::Vertex));
+	m_program.bindAttributeLocation("in_normal", static_cast<int>(Attribute::Normal));
+	m_program.bindAttributeLocation("in_color", static_cast<int>(Attribute::Color));
+}
+
 //Define the positions of camera and light in the shaders
 void ShaderWidget::updateScene()
 {

@@ -60,7 +60,7 @@ protected:
 	void initGPUbuffers();
 	void destroyGPUbuffers();
 	void initShaders();
-	virtual void addShaders() = 0;
+	virtual void addShaders();
 	virtual void initVectors() = 0;
 	virtual void fillVectors() = 0;
 	void clearVectors();

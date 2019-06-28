@@ -54,11 +54,15 @@ public:
 	bool callServiceOscillo(const QString &cmd);
 	void registerOscillo();
 
+	bool callServiceRTToken(const QString &cmd);
+
 	bool shouldQuit() const;
 	void setShouldQuit(bool shouldQuit);
 
 	QString nodeName() const;
 	void setNodeName(const QString &nodeName);
+
+	void setShouldStartRTToken(bool shouldStartRTToken);
 
 private:
 	ros::NodeHandle *m_nh;   // The node handle used to interact with ROS
@@ -67,6 +71,8 @@ private:
 	QSet<QUuid> m_hotList;   // List of functions' uuids whose output to activate on-the-fly
 	bool m_isFirstRun;       // To differentiate a 'resume' on first launch or after a pause
 	QList<ros::Subscriber> m_subs; // A list of subscribers not to loose their scope
+
+	bool m_shouldStartRTToken; // Whether we are schedulded to start the RT Token next time we detect the script to start
 
 	void run() override;
 	void handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr& msg);

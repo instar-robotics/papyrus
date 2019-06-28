@@ -366,6 +366,13 @@ PapyrusWindow::~PapyrusWindow()
 void PapyrusWindow::closeEvent(QCloseEvent *evt)
 {
 	writeSettings();
+
+	// Close all scripts
+	foreach (Script *script, m_scripts) {
+		// Deleting the script will trigger the cleaning operations in its destructor
+		delete script;
+		script = nullptr;
+	}
 	evt->accept();
 }
 
@@ -532,7 +539,7 @@ Category *PapyrusWindow::addTreeRoot(QString name)
 void PapyrusWindow::on_actionExit_triggered()
 {
 	// Destroy scope window if it exists
-	onScopeWindowClosed(-2);
+//	onScopeWindowClosed(-2);
 
 	// Check if there are unsaved scripts and warn user before quitting
 	bool unsavedScripts = false;

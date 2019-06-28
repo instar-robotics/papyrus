@@ -30,7 +30,8 @@ ROSSession::ROSSession(const QString &nodeName, QObject *parent)
       m_nh(nullptr),
       m_shouldQuit(false),
       m_nodeName(nodeName),
-      m_isFirstRun(true)
+      m_isFirstRun(true),
+      m_shouldStartRTToken(false)
 {
 	m_nh = new ros::NodeHandle;
 	start();
@@ -39,6 +40,7 @@ ROSSession::ROSSession(const QString &nodeName, QObject *parent)
 ROSSession::~ROSSession()
 {
 	callServiceOscillo("stop");
+	callServiceRTToken("stop");
 
 	if (m_nh != nullptr) {
 		delete m_nh;
@@ -112,7 +114,6 @@ ScriptStatus ROSSession::queryScriptStatus()
  */
 bool ROSSession::callServiceOscillo(const QString &cmd)
 {
-//	ros::NodeHandle nh;
 	QString srvName = QString("%1/oscillo").arg(m_nodeName);
 
 	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
@@ -128,7 +129,23 @@ void ROSSession::registerOscillo()
 	m_subs << m_nh->subscribe(QString("%1/%2").arg(m_nodeName, "oscillo").toStdString(),
 	                                   1,
 	                                   &ROSSession::handleOscilloMessage,
-	                                   this);
+	                          this);
+}
+
+/**
+ * @brief ROSSession::callServiceRTToken calls the ROSService "rt_token" with the given command.
+ * @param cmd the command to pass to the service, supported are: "start", "stop"
+ * @return whether the call was successful
+ */
+bool ROSSession::callServiceRTToken(const QString &cmd)
+{
+	QString srvName = QString("%1/rt_token").arg(m_nodeName);
+
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = cmd.toStdString();
+
+	return client.call(srv);
 }
 
 /**
@@ -198,6 +215,11 @@ void ROSSession::setNodeName(const QString &nodeName)
 	m_nodeName = nodeName;
 }
 
+void ROSSession::setShouldStartRTToken(bool shouldStartRTToken)
+{
+	m_shouldStartRTToken = shouldStartRTToken;
+}
+
 void ROSSession::run()
 {
 	// Wait for the ROS master to become online
@@ -241,13 +263,19 @@ void ROSSession::handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr &m
 
 	if (key == "control") {
 		if (value == "resume") {
-			// When the script is first run, activate all functions if the hot list
+			// When the script is first run, activate all functions in the hot list
 			if (m_isFirstRun) {
 				foreach (QUuid uuid, m_hotList) {
 					activateOutput(uuid);
 				}
 			}
 			m_isFirstRun = false;
+
+			// Start the RTToken service if appropriate
+			if (m_shouldStartRTToken) {
+				m_shouldStartRTToken = false;
+				callServiceRTToken("start");
+			}
 			emit scriptResumed();
 		}
 		else if (value == "pause")

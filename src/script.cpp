@@ -843,6 +843,8 @@ void Script::run()
 		args << mainWin->getLibPath() + "/";
 		emit displayStatusMessage(tr("Starting script \"") + m_name + "\"...");
 		kheopsNode->start(prog, args);
+
+		m_rosSession->setShouldStartRTToken(true);
 	}
 	// Otherwise, if the node is already running, we just have to ask it to resume execution
 	else {
@@ -924,6 +926,7 @@ void Script::setupROSSession()
 		return;
 	}
 	m_rosSession = new ROSSession(m_nodeName);
+	m_rosSession->setShouldStartRTToken(true); // start the RT Token when we connect to a script
 
 	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 	connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));

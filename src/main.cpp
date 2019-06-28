@@ -22,6 +22,7 @@
 #include "papyruswindow.h"
 #include "constants.h"
 #include "messagehandler.h"
+#include "scopemessage.h"
 
 #include <QApplication>
 #include <QWindow>
@@ -33,6 +34,9 @@ int main(int argc, char *argv[])
 {
 	qInstallMessageHandler(coloredMessageHandler);
 	QApplication app(argc, argv);
+
+	// Register custom types
+	qRegisterMetaType<ScopeMessage>();
 
 	// Set application default's font to Open Sans
 	QFont globalFont = app.font();

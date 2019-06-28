@@ -110,5 +110,8 @@
 // Define the opacity level for commented boxes and links
 #define COMMENTED_OPACITY_LEVEL 0.2 // 0: transparent, 1: fully visible
 
+// Define an small value used to compare two floating point numbers
+#define EPSILON 1e-09
+
 #endif // CONSTANTS
 

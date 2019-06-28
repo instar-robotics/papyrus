@@ -531,6 +531,9 @@ Category *PapyrusWindow::addTreeRoot(QString name)
  */
 void PapyrusWindow::on_actionExit_triggered()
 {
+	// Destroy scope window if it exists
+	onScopeWindowClosed(-2);
+
 	// Check if there are unsaved scripts and warn user before quitting
 	bool unsavedScripts = false;
 	foreach (Script *script, m_scripts) {
@@ -1070,10 +1073,29 @@ void PapyrusWindow::setLastDir(const QString &lastDir)
 	m_lastDir = lastDir;
 }
 
+void PapyrusWindow::setActiveScript(Script *activeScript)
+{
+	// Don't do anything if the new script is the same as the current one
+	if (m_activeScript == activeScript)
+		return;
+
+	// If there is already an active script, make it aware it's not the active script anymore
+	if (m_activeScript != nullptr)
+		m_activeScript->setIsActiveScript(false);
+
+	m_activeScript = activeScript;
+
+	// If there is a new active script, make it aware it is the active script
+	if (m_activeScript != nullptr)
+		m_activeScript->setIsActiveScript(true);
+
+	emit activeScriptChanged(activeScript);
+}
+
 void PapyrusWindow::on_actionSave_Script_triggered()
 {
 	// Call the 'Save' function of the current script
-	if (m_activeScript == NULL) {
+	if (m_activeScript == nullptr) {
 		m_ui->statusBar->showMessage(tr("No open script to save."));
 		QMessageBox::warning(this, tr("No open script to save"), tr("There is no scripts opened to save!"));
 		return;
@@ -1408,8 +1430,21 @@ void PapyrusWindow::onScopeWindowClosed(int result)
 {
 	Q_UNUSED(result);
 
-	delete m_scopeWindow;
-	m_scopeWindow = nullptr;
+	if (m_scopeWindow != nullptr) {
+		delete m_scopeWindow;
+		m_scopeWindow = nullptr;
+	}
+}
+
+/**
+ * @brief PapyrusWindow::onActiveScriptChanged triggered everytime the user changes tab on the
+ * central tabwidget and makes a new script active
+ * @param newActiveScript the new active script
+ */
+void PapyrusWindow::onActiveScriptChanged(Script *newActiveScript)
+{
+	// Trigger the closing of the scope window if present
+	onScopeWindowClosed(-2);
 }
 
 /**
@@ -1660,39 +1695,34 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 		m_ui->actionRun->setEnabled(false);
 		m_ui->actionStop->setEnabled(false);
 		m_ui->actionScope->setEnabled(false);
-		if (m_runTimeDisplay != NULL) // this is null the first time, because its' not created yet
+		if (m_runTimeDisplay != nullptr) // this is null the first time, because its' not created yet
 			m_runTimeDisplay->setEnabled(false);
-		m_activeScript = NULL;
+		setActiveScript(nullptr);
 		return;
 	}
 
 	// Otherwise, try to get a DiagramView
 	DiagramView *currentView = dynamic_cast<DiagramView *>(m_ui->tabWidget->currentWidget());
 	// If there is none, there's an issue
-	if (currentView == NULL) {
+	if (currentView == nullptr) {
 		m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
 		                                "(this is an internal error, you should report it.)"));
-		m_activeScript = NULL;
+		setActiveScript(nullptr);
 		return;
 	}
 
 	// Get the scene associated with the view
 	DiagramScene *currentScene = dynamic_cast<DiagramScene *>(currentView->scene());
-	if (currentScene == NULL) {
+	if (currentScene == nullptr) {
 		// TODO: _actually_ automatically report it instead of asking the user to do it.
 		m_ui->statusBar->showMessage(tr("Error when switching tab and trying to update active script "
 		                                "(this is an internal error, you should report it.)"));
-		m_activeScript = NULL;
+		setActiveScript(nullptr);
 		return;
 	}
 
-	// De-active current script (is any)
-	if (m_activeScript != NULL)
-		m_activeScript->setIsActiveScript(false);
-
 	// Get the script associated with the scene and set it as the active script
-	m_activeScript = currentScene->script();
-	m_activeScript->setIsActiveScript(true);
+	setActiveScript(currentScene->script());
 
 	// Update the buttons state to match the new script's status)
 	updateButtonsState();
@@ -2032,7 +2062,7 @@ void PapyrusWindow::on_actionStop_triggered()
 void PapyrusWindow::on_actionScope_triggered()
 {
 	// Make sure we do have an active script and its associated ROS Session
-	if (m_activeScript == NULL) {
+	if (m_activeScript == nullptr) {
 		displayStatusMessage(tr("No active script: cannot scope"), MSG_ERROR);
 		return;
 	}
@@ -2044,12 +2074,12 @@ void PapyrusWindow::on_actionScope_triggered()
 		m_scopeWindow->setTitle(title);
 
 		connect(m_scopeWindow, SIGNAL(finished(int)), this, SLOT(onScopeWindowClosed(int)));
+		connect(this, SIGNAL(activeScriptChanged(Script*)), this, SLOT(onActiveScriptChanged(Script*)));
 
 		m_scopeWindow->show();
 		m_scopeWindow->raise();
 		m_scopeWindow->activateWindow();
 	}
-
 }
 
 void PapyrusWindow::on_actionEdit_paths_triggered()

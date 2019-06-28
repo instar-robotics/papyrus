@@ -20,6 +20,7 @@
 */
 
 #include "helpers.h"
+#include "constants.h"
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -615,4 +616,9 @@ bool shapesMatch(DiagramBox *from, InputSlot *to, LinkInvalidReason *reason)
 
 		    return false;
 	}
+}
+
+bool realAreEquals(qreal a, qreal b, qreal epsilon)
+{
+	return (a - b) < epsilon;
 }

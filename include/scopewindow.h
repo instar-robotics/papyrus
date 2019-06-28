@@ -2,11 +2,16 @@
 #define SCOPEWINDOW_H
 
 #include "script.h"
+#include "scopemessage.h"
+#include "scopeitem.h"
 
 #include <QDialog>
 #include <QGraphicsScene>
-#include <QGraphicsLineItem>
 #include <QGraphicsTextItem>
+#include <QGraphicsRectItem>
+#include <QMap>
+
+Q_DECLARE_METATYPE(hieroglyph::OscilloArray::ConstPtr)
 
 namespace Ui {
 class ScopeWindow;
@@ -25,12 +30,15 @@ public:
 	explicit ScopeWindow(Script *script, QWidget *parent = 0);
 	~ScopeWindow();
 
+	void showEvent(QShowEvent *evt);
+
 	void setTitle(const QString &title);
 	void initAxes();
 	void initTicks();
+	void initScopeItems();
 
 	void enableOscillo();
-	void disableOscillo();
+	bool disableOscillo();
 
 private:
 	Ui::ScopeWindow *m_ui;
@@ -46,6 +54,12 @@ private:
 	QList<QGraphicsLineItem *> m_timeTicks; // The ticks on the time axis
 	QList<QGraphicsTextItem *> m_timeTicksLabels;
 
+	qreal m_period; // Store the period in ms
+	QMap<QUuid, ScopeItem *> m_scopeItems; // The set of rectangles to draw duration, referenced by uuid
+	QMap<QUuid, QGraphicsTextItem *> m_scopeLabels; // The matching between Uuid and the name/title of a function
+
+private slots:
+	void onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages);
 };
 
 #endif // SCOPEWINDOW_H

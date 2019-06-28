@@ -130,6 +130,8 @@ public:
 	QTimer *autoSaveTimer() const;
 	void setAutoSaveTimer(QTimer *autoSaveTimer);
 
+	void setActiveScript(Script *activeScript);
+
 private:
 	Ui::PapyrusWindow *m_ui;
 	RosNode *m_rosnode;
@@ -170,6 +172,7 @@ private:
 signals:
 	void toggleDisplayGrid(bool);
 	void launched();
+	void activeScriptChanged(Script *newActiveScript);
 
 private slots:
 	void filterLibraryNames(const QString &text);
@@ -189,6 +192,7 @@ private slots:
 	void checkForNewRelease();
 	void reEnableROSPopUp();
 	void onScopeWindowClosed(int result);
+	void onActiveScriptChanged(Script *newActiveScript);
 
 	void on_actionExit_triggered();
 

@@ -27,11 +27,23 @@
 
 ROSSession::ROSSession(const QString &nodeName, QObject *parent)
     : QThread(parent),
+      m_nh(nullptr),
       m_shouldQuit(false),
       m_nodeName(nodeName),
       m_isFirstRun(true)
 {
+	m_nh = new ros::NodeHandle;
 	start();
+}
+
+ROSSession::~ROSSession()
+{
+	callServiceOscillo("stop");
+
+	if (m_nh != nullptr) {
+		delete m_nh;
+		m_nh = nullptr;
+	}
 }
 
 /**
@@ -58,10 +70,10 @@ void ROSSession::addToHotList(QUuid uuid)
  */
 bool ROSSession::callServiceControl(QString cmd)
 {
-	ros::NodeHandle nh;
+//	ros::NodeHandle nh;
 	QString srvName = QString("%1/control").arg(m_nodeName);
 
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = cmd.toStdString();
 
@@ -72,8 +84,8 @@ ScriptStatus ROSSession::queryScriptStatus()
 {
 	QString srvName = QString("%1/control").arg(m_nodeName);
 
-	ros::NodeHandle nh;
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+//	ros::NodeHandle nh;
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = "status";
 
@@ -100,14 +112,23 @@ ScriptStatus ROSSession::queryScriptStatus()
  */
 bool ROSSession::callServiceOscillo(const QString &cmd)
 {
-	ros::NodeHandle nh;
+//	ros::NodeHandle nh;
 	QString srvName = QString("%1/oscillo").arg(m_nodeName);
 
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = cmd.toStdString();
 
 	return client.call(srv);
+}
+
+void ROSSession::registerOscillo()
+{
+	// Subscribe to the 'oscillo' topic to listen to status change
+	m_subs << m_nh->subscribe(QString("%1/%2").arg(m_nodeName, "oscillo").toStdString(),
+	                                   1,
+	                                   &ROSSession::handleOscilloMessage,
+	                                   this);
 }
 
 /**
@@ -121,8 +142,8 @@ bool ROSSession::callServiceOscillo(const QString &cmd)
 void ROSSession::activateOutput(QUuid uuid)
 {
 	QString srvName = m_nodeName + "/output";
-	ros::NodeHandle nh;
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
+//	ros::NodeHandle nh;
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
 	hieroglyph::ArgCmd srv;
 	srv.request.cmd = "start";
 	srv.request.arg = uuid.toString().toStdString();
@@ -130,6 +151,31 @@ void ROSSession::activateOutput(QUuid uuid)
 	if (!client.call(srv)) {
 		qWarning() << "Failed to activate output on uuid" << uuid.toString() << "on node name" << m_nodeName;
 	}
+}
+
+void ROSSession::handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr &msg)
+{
+	QVector<ScopeMessage> *scopeMessages = new QVector<ScopeMessage>;
+
+	int n = msg->array.size();
+
+	for (int i = 0; i < n; i += 1) {
+		ScopeMessage message;
+		hieroglyph::OscilloData data = msg->array.at(i);
+
+		message.setUuid(QUuid(data.uuid.c_str()));
+		message.setPeriod(data.period);
+		message.setMeans(data.means);
+		message.setDuration(data.duration);
+		message.setStart(data.start);
+		message.setMinDuration(data.minDuration);
+		message.setMaxDuration(data.maxDuration);
+		message.setWarning(data.warning);
+
+		*scopeMessages << message;
+	}
+
+	emit newOscilloMessage(scopeMessages);
 }
 
 bool ROSSession::shouldQuit() const
@@ -163,12 +209,12 @@ void ROSSession::run()
 		msleep(100); // We cannot use ROS rate now because we need the ROS master to come up before
 	}
 
-	ros::NodeHandle nh;
+//	ros::NodeHandle nh;
 	ros::Rate rate(10); // 10Hz
 
 	// Subscribe to the 'status' topic to listen to status change
-	ros::Subscriber sub = nh.subscribe(QString("%1/%2").arg(m_nodeName, "status").toStdString(),
-	                                   1000,
+	ros::Subscriber sub = m_nh->subscribe(QString("%1/%2").arg(m_nodeName, "status").toStdString(),
+	                                   10,
 	                                   &ROSSession::handleStatusChange,
 	                                   this);
 

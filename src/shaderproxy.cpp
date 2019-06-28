@@ -167,3 +167,21 @@ void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	}
 	m_lastPos = pos;
 }
+
+void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	QGraphicsProxyWidget::paint(painter, option, widget);
+
+	QBrush brush(Qt::black, Qt::SolidPattern);
+	painter->setPen(Qt::NoPen); //Remove the pen to fill the polygon
+	painter->setBrush(brush);
+
+	QSize widgetSize = m_widget->size();
+	QVector<QPoint> points;
+	points.push_back(QPoint(widgetSize.width(),widgetSize.height()));
+	points.push_back(QPoint(widgetSize.width()-18,widgetSize.height()));
+	points.push_back(QPoint(widgetSize.width(),widgetSize.height()-18));
+
+	painter->drawPolygon(points);
+
+}

@@ -9,6 +9,8 @@
 #include "types.h"
 #include "shadermovebar.h"
 #include "diagrambox.h"
+#include <QPainter>
+#include <QBrush>
 
 class ShaderProxy : public QGraphicsProxyWidget
 {
@@ -25,6 +27,7 @@ public:
 	void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget) override;
 
 	qreal moveBarHeight() const;
 

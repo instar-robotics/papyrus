@@ -30,14 +30,14 @@ void ShaderWidget::initializeGL()
 	initShaders();
 
 	// GL options
-	glClearColor(0.52f, 0.52f, 0.52f, 1.0f);
+	//glClearColor(0.52f, 0.52f, 0.52f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 }
 
 //Function run on each frame
 void ShaderWidget::paintGL()
 {
-	emit repaint();
 	clearVectors();
 	fillVectors();
 	initGPUbuffers();
@@ -90,10 +90,11 @@ void ShaderWidget::paintGL()
 		m_last_count = m_frame_count;
 		m_frame_count = 0;
 		m_timer.restart();
-		qDebug() << m_last_count;
+		//qDebug() << m_last_count;
 	}
 
 	update();
+	emit repaint();
 }
 
 //Allocate the memory used by each buffers in graphical pipeline's data stream

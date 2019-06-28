@@ -19,6 +19,9 @@
 #include <QVector>
 #include <QVector3D>
 
+#include <QPainter>
+#include <QBrush>
+
 #include "mathtransfo.h"
 #include "camera.h"
 #include "light.h"
@@ -54,7 +57,6 @@ protected:
 	//OpenGL
 	void paintGL() override;
 	void resizeGL(int width, int height) override;
-
 	void initGPUbuffers();
 	void destroyGPUbuffers();
 	void initShaders();
@@ -91,7 +93,6 @@ protected:
 
 	// Scale planes
 	ShaderScalePlanes *m_scalePlanes = nullptr;
-
 
 	// 3D scene
 	float m_gap = 0.2f;

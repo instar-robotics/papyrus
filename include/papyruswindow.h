@@ -178,9 +178,9 @@ private slots:
 	void filterLibraryNames(const QString &text);
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
 	void onROSMasterChange(bool isOnline);
-	void onScriptResumed();
-	void onScriptPaused();
-	void onScriptStopped();
+	void onScriptResumed(int scriptIdx);
+	void onScriptPaused(int scriptIdx);
+	void onScriptStopped(int scriptIdx);
 	void updateStopWatch(int h, int m, int s, int ms);
 	void updateDevelopmentEnvironment(QAction *action);
 	void categoryExpanded(QTreeWidgetItem *item);

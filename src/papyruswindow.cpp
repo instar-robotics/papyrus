@@ -691,9 +691,9 @@ void PapyrusWindow::on_actionNew_script_triggered()
 	Script *newScript = new Script(newScene, newScriptName);
 	connect(newScript, SIGNAL(displayStatusMessage(QString,MessageUrgency)), this,
 	        SLOT(displayStatusMessage(QString,MessageUrgency)));
-	connect(newScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
-	connect(newScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
-	connect(newScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+	connect(newScript, SIGNAL(scriptPaused(int)), this, SLOT(onScriptPaused(int)));
+	connect(newScript, SIGNAL(scriptResumed(int)), this, SLOT(onScriptResumed(int)));
+	connect(newScript, SIGNAL(scriptStopped(int)), this, SLOT(onScriptStopped(int)));
 	connect(newScript, SIGNAL(rtTokenWarning(bool,int)), this, SLOT(onRTTokenWarning(bool,int)));
 	//    connect(newScript, SIGNAL(timeElapsed(int,int,int,int)), this,
 	//            SLOT(updateStopWatch(int,int,int,int)));
@@ -823,67 +823,85 @@ void PapyrusWindow::onROSMasterChange(bool isOnline)
  * @brief PapyrusWindow::onScriptResumed is called when the @ROSSession confirms the script was
  * resumed
  */
-void PapyrusWindow::onScriptResumed()
+void PapyrusWindow::onScriptResumed(int scriptIdx)
 {
-	// Make the play/pause button into its "pause" configuration
-	m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
-	m_ui->actionRun->setToolTip(tr("Pause script"));
-	m_ui->actionRun->setEnabled(true);
+	// Update the buttons only if this is the active script
+	if (scriptIdx == m_activeScript->tabIdx()) {
+		// Make the play/pause button into its "pause" configuration
+		m_ui->actionRun->setIcon(QIcon(":/icons/icons/pause.svg"));
+		m_ui->actionRun->setToolTip(tr("Pause script"));
+		m_ui->actionRun->setEnabled(true);
 
-	// Enable the stop button
-	m_ui->actionStop->setEnabled(true);
+		// Enable the stop button
+		m_ui->actionStop->setEnabled(true);
 
-	// Enable the scope button
-	m_ui->actionScope->setEnabled(true);
+		// Enable the scope button
+		m_ui->actionScope->setEnabled(true);
 
-	// Display a message in the status bar
-	displayStatusMessage(tr("Script \"%1\" resumed").arg(m_activeScript->nodeName()));
+		// Display a message in the status bar
+		displayStatusMessage(tr("Script \"%1\" resumed").arg(m_activeScript->nodeName()));
+	}
+
+	// Update the script's icon
+	m_ui->tabWidget->setTabIcon(scriptIdx, QIcon(":/icons/icons/script-play.svg"));
 }
 
 /**
  * @brief PapyrusWindow::onScriptPaused is called when the @ROSSession confirms the script was
  * paused
  */
-void PapyrusWindow::onScriptPaused()
+void PapyrusWindow::onScriptPaused(int scriptIdx)
 {
-	// Make the play/pause button into its "play" configuration
-	m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-	m_ui->actionRun->setToolTip(tr("Resume script"));
-	m_ui->actionRun->setEnabled(true);
+	// Update the buttons only if this is the active script
+	if (scriptIdx == m_activeScript->tabIdx()) {
+		// Make the play/pause button into its "play" configuration
+		m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+		m_ui->actionRun->setToolTip(tr("Resume script"));
+		m_ui->actionRun->setEnabled(true);
 
-	// Enable the stop button
-	m_ui->actionStop->setEnabled(true);
+		// Enable the stop button
+		m_ui->actionStop->setEnabled(true);
 
-	// Enable the scope button
-	// TODO: does it make sense to have scope when paused ?
-	m_ui->actionScope->setEnabled(true);
+		// Enable the scope button
+		// TODO: does it make sense to have scope when paused ?
+		m_ui->actionScope->setEnabled(true);
 
-	// Display a message in the status bar
-	displayStatusMessage(tr("Script \"%1\" paused").arg(m_activeScript->nodeName()));
+		// Display a message in the status bar
+		displayStatusMessage(tr("Script \"%1\" paused").arg(m_activeScript->nodeName()));
+	}
+
+	// Update the script's icon
+	m_ui->tabWidget->setTabIcon(scriptIdx, QIcon(":/icons/icons/script-pause.svg"));
 }
 
 /**
  * @brief PapyrusWindow::onScriptStopped is called when the @ROSSession confirms the script was
  * stopped
  */
-void PapyrusWindow::onScriptStopped()
+void PapyrusWindow::onScriptStopped(int scriptIdx)
 {
-	// Make the play/pause button into its "play" configuration
-	m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
-	m_ui->actionRun->setToolTip(tr("Start script"));             // Note here "start" vs "resume" :)
-	m_ui->actionRun->setEnabled(true);
+	// Update the buttons only if this is the active script
+	if (scriptIdx == m_activeScript->tabIdx()) {
+		// Make the play/pause button into its "play" configuration
+		m_ui->actionRun->setIcon(QIcon(":/icons/icons/play.svg"));
+		m_ui->actionRun->setToolTip(tr("Start script"));             // Note here "start" vs "resume" :)
+		m_ui->actionRun->setEnabled(true);
 
-	// Disable the stop button
-	m_ui->actionStop->setEnabled(false);
+		// Disable the stop button
+		m_ui->actionStop->setEnabled(false);
 
-	// disable scope button
-	m_ui->actionScope->setEnabled(false);
+		// disable scope button
+		m_ui->actionScope->setEnabled(false);
 
-	// Reset stopwatch
-	updateStopWatch(0, 0, 0, 0);
+		// Reset stopwatch
+		updateStopWatch(0, 0, 0, 0);
 
-	// Display a message in the status bar
-	displayStatusMessage(tr("Script \"%1\" stopped").arg(m_activeScript->nodeName()));
+		// Display a message in the status bar
+		displayStatusMessage(tr("Script \"%1\" stopped").arg(m_activeScript->nodeName()));
+	}
+
+	// Update the script's icon
+	m_ui->tabWidget->setTabIcon(scriptIdx, QIcon(":/icons/icons/script.svg"));
 }
 
 void PapyrusWindow::updateStopWatch(int h, int m, int s, int ms)
@@ -1174,9 +1192,9 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		connect(openScene, SIGNAL(displayStatusMessage(QString,MessageUrgency)),
 		        this, SLOT(displayStatusMessage(QString,MessageUrgency)));
 		connect(this, SIGNAL(toggleDisplayGrid(bool)), openScene, SLOT(toggleDisplayGrid(bool)));
-		connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
-		connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
-		connect(openScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+		connect(openScript, SIGNAL(scriptPaused(int)), this, SLOT(onScriptPaused(int)));
+		connect(openScript, SIGNAL(scriptResumed(int)), this, SLOT(onScriptResumed(int)));
+		connect(openScript, SIGNAL(scriptStopped(int)), this, SLOT(onScriptStopped(int)));
 		connect(openScript, SIGNAL(rtTokenWarning(bool,int)), this, SLOT(onRTTokenWarning(bool,int)));
 
 		// Add the script in the set of opened scripts
@@ -1472,7 +1490,7 @@ void PapyrusWindow::onActiveScriptChanged(Script *newActiveScript)
 void PapyrusWindow::onRTTokenWarning(bool warning, int scriptIdx)
 {
 	// The script index has already been checked by the Script before emitting
-	QIcon icon(QString(":/icons/icons/%1.svg").arg(warning ? "warning" : "script"));
+	QIcon icon(QString(":/icons/icons/%1.svg").arg(warning ? "warning" : "script-play"));
 	m_ui->tabWidget->setTabIcon(scriptIdx, icon);
 }
 

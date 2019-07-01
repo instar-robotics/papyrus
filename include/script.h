@@ -144,9 +144,9 @@ private slots:
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
-	void scriptResumed();
-	void scriptPaused();
-	void scriptStopped();
+	void scriptResumed(int idx);
+	void scriptPaused(int idx);
+	void scriptStopped(int idx);
 	void timeElapsed(int h, int m, int s, int ms);
 	void rtTokenWarning(bool warning, int idx);
 };

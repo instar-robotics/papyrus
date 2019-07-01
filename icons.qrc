@@ -36,6 +36,8 @@
         <file>icons/redo.svg</file>
         <file>icons/find.svg</file>
         <file>icons/warning.svg</file>
+        <file>icons/script-play.svg</file>
+        <file>icons/script-pause.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

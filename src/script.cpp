@@ -753,9 +753,8 @@ void Script::onScriptResumed()
 	m_isRunning = true;
 	m_isPaused = false;
 
-	// We only re-emit the event if we are the active script
-	if (m_isActiveScript)
-		emit scriptResumed();
+	if (m_tabIdx > 0)
+		emit scriptResumed(m_tabIdx);
 }
 
 void Script::onScriptPaused()
@@ -764,9 +763,8 @@ void Script::onScriptPaused()
 	m_isRunning = true;
 	m_isPaused = true;
 
-	// We only re-emit the event if we are the active script
-	if (m_isActiveScript)
-		emit scriptPaused();
+	if (m_tabIdx > 0)
+		emit scriptPaused(m_tabIdx);
 }
 
 void Script::onScriptStopped()
@@ -775,13 +773,9 @@ void Script::onScriptStopped()
 	m_isRunning = false;
 	m_isPaused = false;
 
-	// We only re-emit the event if we are the active script
-	if (m_isActiveScript)
-		emit scriptStopped();
 
-	// We also re-emit a last RT Token 'warning' to false to restore the script's normal icon
 	if (m_tabIdx > 0)
-		emit rtTokenWarning(false, m_tabIdx);
+		emit scriptStopped(m_tabIdx);
 }
 
 void Script::onTimeElapsed(int h, int m, int s, int ms)

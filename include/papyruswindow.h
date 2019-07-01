@@ -193,6 +193,7 @@ private slots:
 	void reEnableROSPopUp();
 	void onScopeWindowClosed(int result);
 	void onActiveScriptChanged(Script *newActiveScript);
+	void onRTTokenWarning(bool warning, int scriptIdx);
 
 	void on_actionExit_triggered();
 

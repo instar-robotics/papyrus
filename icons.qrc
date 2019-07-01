@@ -35,6 +35,7 @@
         <file>icons/undo.svg</file>
         <file>icons/redo.svg</file>
         <file>icons/find.svg</file>
+        <file>icons/warning.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

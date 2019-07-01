@@ -33,6 +33,7 @@
 
 #include "diagnostic_msgs/KeyValue.h"
 #include "hieroglyph/OscilloArray.h"
+#include "hieroglyph/OscilloData.h"
 
 /**
  * @brief The ROSSession class contains parameters related to the current ROS session (connection
@@ -53,6 +54,7 @@ public:
 
 	bool callServiceOscillo(const QString &cmd);
 	void registerOscillo();
+	void registerRTToken();
 
 	bool callServiceRTToken(const QString &cmd);
 
@@ -78,6 +80,7 @@ private:
 	void handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr& msg);
 	void activateOutput(QUuid uuid);
 	void handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr& msg);
+	void handleRTTokenMessage(const hieroglyph::OscilloData::ConstPtr& msg);
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
@@ -85,6 +88,7 @@ signals:
 	void scriptPaused();
 	void scriptStopped();
 	void newOscilloMessage(QVector<ScopeMessage> *scopeMessages);
+	void newRTTokenMessage(ScopeMessage *rtTokenMessage);
 };
 
 #endif // ROSSESSION_H

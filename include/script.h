@@ -106,12 +106,17 @@ public:
 	QString nodeName() const;
 	void setNodeName(const QString &nodeName);
 
+	void setTabIdx(int tabIdx);
+
+	int tabIdx() const;
+
 public slots:
 	void warnAboutModifiedScript();
 
 private:
 	DiagramScene *m_scene; // The associated scene for this script
 	bool m_hasTab; // Tells whether the scripts has a tab in the tabwidget or not
+	int m_tabIdx;  // The index of this script's tab in the main tab widget
 	ROSSession *m_rosSession; // The associated ROS Session for this script
 	QString m_name;        // Pretty name of the script (to display in tabs for instance)
 	QString m_nodeName;    // The ROS node name of the script
@@ -135,6 +140,7 @@ private slots:
 	void onScriptPaused();
 	void onScriptStopped();
 	void onTimeElapsed(int h, int m, int s, int ms);
+	void handleRTTokenMessage(ScopeMessage *rtTokenMessage);
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
@@ -142,6 +148,7 @@ signals:
 	void scriptPaused();
 	void scriptStopped();
 	void timeElapsed(int h, int m, int s, int ms);
+	void rtTokenWarning(bool warning, int idx);
 };
 
 #endif // SCRIPT_H

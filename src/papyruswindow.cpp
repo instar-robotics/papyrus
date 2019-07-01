@@ -692,14 +692,17 @@ void PapyrusWindow::on_actionNew_script_triggered()
 	connect(newScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 	connect(newScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
 	connect(newScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+	connect(newScript, SIGNAL(rtTokenWarning(bool,int)), this, SLOT(onRTTokenWarning(bool,int)));
 	//    connect(newScript, SIGNAL(timeElapsed(int,int,int,int)), this,
 	//            SLOT(updateStopWatch(int,int,int,int)));
 	addScript(newScript);
 
 	// Add the new scene as a new tab and make it active
-	m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
-	                                                         QIcon(":/icons/icons/script.svg"),
-	                                                         newScriptName));
+	int newCurrentIdx = m_ui->tabWidget->addTab(newView,
+	                                            QIcon(":/icons/icons/script.svg"),
+	                                            newScriptName);
+	m_ui->tabWidget->setCurrentIndex(newCurrentIdx);
+	newScript->setTabIdx(newCurrentIdx);
 	newScript->setHasTab(true);
 
 	m_propertiesPanel.displayScriptProperties(newScript);
@@ -1172,6 +1175,7 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		connect(openScript, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 		connect(openScript, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
 		connect(openScript, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+		connect(openScript, SIGNAL(rtTokenWarning(bool,int)), this, SLOT(onRTTokenWarning(bool,int)));
 
 		// Add the script in the set of opened scripts
 		addScript(openScript);
@@ -1184,9 +1188,11 @@ Script *PapyrusWindow::parseXmlScriptFile(const QString &scriptPath)
 		newView->centerOn(xmlReader.centerView());
 
 		// Add the new scene as a new tab and make it active
-		m_ui->tabWidget->setCurrentIndex(m_ui->tabWidget->addTab(newView,
-		                                                         QIcon(":/icons/icons/script.svg"),
-		                                                         openScript->name()));
+		int newScriptIdx = m_ui->tabWidget->addTab(newView,
+		                                           QIcon(":/icons/icons/script.svg"),
+		                                           openScript->name());
+		m_ui->tabWidget->setCurrentIndex(newScriptIdx);
+		openScript->setTabIdx(newScriptIdx);
 
 		openScript->setStatusModified(false);
 		openScript->setHasTab(true);
@@ -1452,6 +1458,20 @@ void PapyrusWindow::onActiveScriptChanged(Script *newActiveScript)
 {
 	// Trigger the closing of the scope window if present
 	onScopeWindowClosed(-2);
+}
+
+/**
+ * @brief PapyrusWindow::onRTTokenWarning receives a 'warning' value from @Script's RT Token. It is
+ * used to update the script's tab icon accordingly (to indicate the user if a script is having
+ * troubles maintaining its real-time constraint
+ * @param warning wether or not the given script is in warning
+ * @param scriptIdx the index of the script in the tab widget
+ */
+void PapyrusWindow::onRTTokenWarning(bool warning, int scriptIdx)
+{
+	// The script index has already been checked by the Script before emitting
+	QIcon icon(QString(":/icons/icons/%1.svg").arg(warning ? "warning" : "script"));
+	m_ui->tabWidget->setTabIcon(scriptIdx, icon);
 }
 
 /**
@@ -2054,14 +2074,6 @@ void PapyrusWindow::on_actionStop_triggered()
 		displayStatusMessage(tr("No active script: cannot stop"), MSG_ERROR);
 		return;
 	}
-
-	/*
-	if (m_activeScript->rosSession() == NULL) {
-		displayStatusMessage(tr("No ROS session for the active script: cannot stop"),
-							 MSG_ERROR);
-		return;
-	}
-	//*/
 
 	m_activeScript->stop();
 }

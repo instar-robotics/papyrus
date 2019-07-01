@@ -56,6 +56,7 @@
 
 Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_hasTab(false),
+                                                           m_tabIdx(-1),
                                                            m_rosSession(nullptr),
                                                            m_nodeName(QString("/kheops_%1").arg(name)),
                                                            m_modified(false),
@@ -679,6 +680,16 @@ void Script::warnAboutModifiedScript()
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
 }
 
+int Script::tabIdx() const
+{
+	return m_tabIdx;
+}
+
+void Script::setTabIdx(int tabIdx)
+{
+	m_tabIdx = tabIdx;
+}
+
 QString Script::nodeName() const
 {
 	return m_nodeName;
@@ -767,6 +778,10 @@ void Script::onScriptStopped()
 	// We only re-emit the event if we are the active script
 	if (m_isActiveScript)
 		emit scriptStopped();
+
+	// We also re-emit a last RT Token 'warning' to false to restore the script's normal icon
+	if (m_tabIdx > 0)
+		emit rtTokenWarning(false, m_tabIdx);
 }
 
 void Script::onTimeElapsed(int h, int m, int s, int ms)
@@ -774,6 +789,24 @@ void Script::onTimeElapsed(int h, int m, int s, int ms)
 	// We only re-emit the event if we are the active script
 	if (m_isActiveScript)
 		emit timeElapsed(h, m, s, ms);
+}
+
+/**
+ * @brief Script::handleRTTokenWarning receives the 'warning' attribute of the RT Token message and
+ * emit a signal informing the main window to update this script's icon accordingly.
+ * @param warning wether or not the script is in warning with respect to its real time constraint
+ */
+void Script::handleRTTokenMessage(ScopeMessage *rtTokenMessage)
+{
+	// For now, only report the RT Token warning
+
+	// Don't do anything if we don't have an index in the tab widget
+	if (m_tabIdx > 0) {
+		emit rtTokenWarning(rtTokenMessage->warning(), m_tabIdx);
+	}
+
+	// Delete the message because it was allocated in the ROSSession
+	delete rtTokenMessage;
 }
 
 /**
@@ -931,6 +964,8 @@ void Script::setupROSSession()
 	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 	connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
 	connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+	connect(m_rosSession, SIGNAL(newRTTokenMessage(ScopeMessage*)),
+	        this, SLOT(handleRTTokenMessage(ScopeMessage*)));
 }
 
 ROSSession *Script::rosSession() const

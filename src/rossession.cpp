@@ -132,6 +132,15 @@ void ROSSession::registerOscillo()
 	                          this);
 }
 
+void ROSSession::registerRTToken()
+{
+	// Subscribe to the 'rt_token' topic to listen to status change
+	m_subs << m_nh->subscribe(QString("%1/%2").arg(m_nodeName, "rt_token").toStdString(),
+	                          1,
+	                          &ROSSession::handleRTTokenMessage,
+	                          this);
+}
+
 /**
  * @brief ROSSession::callServiceRTToken calls the ROSService "rt_token" with the given command.
  * @param cmd the command to pass to the service, supported are: "start", "stop"
@@ -193,6 +202,27 @@ void ROSSession::handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr &
 	}
 
 	emit newOscilloMessage(scopeMessages);
+}
+
+/**
+ * @brief ROSSession::handleRTTokenMessage receives a message from the "rt_token" topic
+ * @param msg
+ */
+void ROSSession::handleRTTokenMessage(const hieroglyph::OscilloData::ConstPtr &msg)
+{
+	// This is the same as ScopeMessage, yes
+	ScopeMessage *rtTokenMessage = new ScopeMessage;
+
+	rtTokenMessage->setUuid(QUuid(msg->uuid.c_str()));
+	rtTokenMessage->setPeriod(msg->period);
+	rtTokenMessage->setMeans(msg->means);
+	rtTokenMessage->setDuration(msg->duration);
+	rtTokenMessage->setStart(msg->start);
+	rtTokenMessage->setMinDuration(msg->minDuration);
+	rtTokenMessage->setMaxDuration(msg->maxDuration);
+	rtTokenMessage->setWarning(msg->warning);
+
+	emit newRTTokenMessage(rtTokenMessage);
 }
 
 bool ROSSession::shouldQuit() const
@@ -275,6 +305,7 @@ void ROSSession::handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr &m
 			if (m_shouldStartRTToken) {
 				m_shouldStartRTToken = false;
 				callServiceRTToken("start");
+				registerRTToken();
 			}
 			emit scriptResumed();
 		}

@@ -62,6 +62,14 @@ private:
 	QPoint m_clickPos;
 	int m_oldWidth;
 	int m_oldHeight;
+
+	// HUD
+	int m_margin = 5; //Left margin of scales and down margin for down scales
+	int m_marginTop = 10; //Margin at top of Y scale
+	int m_marginFont = 2; //Margin between scale and value
+	int m_measureSize = 7; //Size of a scale's branch
+	int m_measureGap = 13; //Distance between two branches in a scale
+	int m_fontSize = 6;
 };
 
 #endif // SHADERPROXY_H

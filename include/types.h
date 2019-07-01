@@ -149,7 +149,7 @@ enum ScriptStatus {
 enum MouseControl{
     LEFT_BUTTON,
     RIGHT_BUTTON,
-    RIGHT_CTRL_BUTTON
+	RIGHT_SHIFT_BUTTON
 };
 
 // Visualization types

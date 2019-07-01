@@ -1,15 +1,18 @@
 #include "shaderscaleplanes.h"
 
-ShaderScalePlanes::ShaderScalePlanes(int rows, int columns, float range, float gap):
+ShaderScalePlanes::ShaderScalePlanes(int rows, int columns, float range, float gap, int nbMeasuresXZ, int nbMeasuresY):
     m_rows(rows),
     m_columns(columns),
+    m_startRange(range),
     m_range(range),
     m_gap(gap)
 {
-
-	m_measureX = columns*gap/(m_nbMeasuresXZ-1);
-	m_measureZ = rows*gap/(m_nbMeasuresXZ-1);
-	m_measureY = 2*range/(m_nbMeasuresY-1);
+	m_range *= m_max;
+	m_nbMeasuresXZ = nbMeasuresXZ;
+	m_nbMeasuresY = nbMeasuresY;
+	m_measureX = m_columns*m_gap/(m_nbMeasuresXZ-1);
+	m_measureZ = m_rows*m_gap/(m_nbMeasuresXZ-1);
+	m_measureY = 2*m_range/(m_nbMeasuresY-1);
 	initVectors();
 	fillVectors();
 }
@@ -29,8 +32,18 @@ void ShaderScalePlanes::initVectors()
 	m_normals.reserve(4 + m_nbMeasuresXZ*4 + m_nbMeasuresY*3);
 }
 
+
+void ShaderScalePlanes::clearVectors()
+{
+	m_vertexes.clear();
+	m_indexes.clear();
+	m_colors.clear();
+	m_normals.clear();
+}
+
 void ShaderScalePlanes::fillVectors()
 {
+	clearVectors();
 
 	/* Vertexes */
 	QVector3D vertex;
@@ -146,6 +159,31 @@ void ShaderScalePlanes::fillVectors()
 	}
 }
 
+int ShaderScalePlanes::columns() const
+{
+	return m_columns;
+}
+
+int ShaderScalePlanes::rows() const
+{
+	return m_rows;
+}
+
+float ShaderScalePlanes::max() const
+{
+	return m_max;
+}
+
+int ShaderScalePlanes::nbMeasuresY() const
+{
+	return m_nbMeasuresY;
+}
+
+int ShaderScalePlanes::nbMeasuresXZ() const
+{
+	return m_nbMeasuresXZ;
+}
+
 QVector<GLuint> ShaderScalePlanes::indexes() const
 {
 	return m_indexes;
@@ -176,4 +214,12 @@ void ShaderScalePlanes::initGPUbuffers(QOpenGLBuffer *indexbuffer, QOpenGLBuffer
 	indexbuffer->bind();
 	indexbuffer->allocate(m_indexes.constData(), sizeof(GLuint) * m_indexes.size());
 	indexbuffer->release();
+}
+
+void ShaderScalePlanes::updateScale(float max)
+{
+	m_max = max;
+	m_range = m_startRange * m_max;
+	m_measureY = 2*m_range/(m_nbMeasuresY-1);
+	fillVectors();
 }

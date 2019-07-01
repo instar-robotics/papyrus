@@ -3,7 +3,7 @@
 ShaderMatrix::ShaderMatrix(int xSize, int ySize): m_xSize(xSize), m_ySize(ySize)
 {
 	initMatrix();
-	m_scalePlanes = new ShaderScalePlanes(m_xSize, m_ySize, m_range, m_gap);
+	m_scalePlanes = new ShaderScalePlanes(m_xSize, m_ySize, m_range, m_gap, m_nbMeasuresXZ, m_nbMeasuresY);
 }
 
 ShaderMatrix::~ShaderMatrix()

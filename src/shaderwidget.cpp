@@ -32,7 +32,6 @@ void ShaderWidget::initializeGL()
 	// GL options
 	//glClearColor(0.52f, 0.52f, 0.52f, 1.0f);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
 }
 
 //Function run on each frame
@@ -158,7 +157,7 @@ void ShaderWidget::updateScene()
 {
 	// Model view proj matrices
 	QMatrix4x4 projection;
-	projection.perspective(30.0f, 1.0f * width() / height(), 0.1f, 100.0f);
+	projection.perspective(30.0f, 1.0f * width() / height(), 0.1f, 200.0f); //Las point is the display distance
 
 	QMatrix4x4 direction;
 	direction.lookAt(QVector3D(0.0, 0.0, -m_camera.m_distance),
@@ -221,7 +220,7 @@ void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 	}
 
 	// Translate camera
-	else if(mouseControl == RIGHT_CTRL_BUTTON)
+	else if(mouseControl == RIGHT_SHIFT_BUTTON)
 	{
 		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
 		m_camera.updatePosition();
@@ -283,6 +282,26 @@ QColor ShaderWidget::calculateColor(float const& value, float const& max_value)
 		qWarning() << "Normalized value (" << normalizedValue << ") outside of range [0, 1]";
 	}
 	return QColor::fromHsl(hue, 255, light * 255);
+}
+
+int ShaderWidget::startWidth() const
+{
+	return m_startWidth;
+}
+
+ShaderScalePlanes *ShaderWidget::scalePlanes() const
+{
+	return m_scalePlanes;
+}
+
+int ShaderWidget::nbMeasuresY() const
+{
+	return m_nbMeasuresY;
+}
+
+int ShaderWidget::nbMeasuresXZ() const
+{
+	return m_nbMeasuresXZ;
 }
 
 int ShaderWidget::minHeight() const

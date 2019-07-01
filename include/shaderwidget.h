@@ -50,6 +50,14 @@ public:
 	int minWidth() const;
 	int minHeight() const;
 
+	int nbMeasuresXZ() const;
+
+	int nbMeasuresY() const;
+
+	ShaderScalePlanes *scalePlanes() const;
+
+	int startWidth() const;
+
 signals:
 	void repaint();
 
@@ -93,6 +101,8 @@ protected:
 
 	// Scale planes
 	ShaderScalePlanes *m_scalePlanes = nullptr;
+	int m_nbMeasuresXZ = 11;
+	int m_nbMeasuresY = 5;
 
 	// 3D scene
 	float m_gap = 0.2f;

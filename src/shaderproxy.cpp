@@ -100,7 +100,14 @@ ShaderMoveBar *ShaderProxy::moveBar() const
 //Override the diagram scene's wheel event to focus it on the zoom in/zoom out in opengl
 void ShaderProxy::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
-	m_widget->wheelTurned(event->delta());
+	if (event->modifiers() & Qt::ShiftModifier) {
+		if(event->delta() > 0)
+			m_widget->scalePlanes()->updateScale(m_widget->scalePlanes()->max()*1.2);
+		else
+			m_widget->scalePlanes()->updateScale(m_widget->scalePlanes()->max()/1.2);
+	}
+	else
+		m_widget->wheelTurned(event->delta());
 }
 void ShaderProxy::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
@@ -156,9 +163,9 @@ void ShaderProxy::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	}
 	if (event->buttons() & Qt::RightButton)
 	{
-		if(event->modifiers() & Qt::ControlModifier)
+		if(event->modifiers() & Qt::ShiftModifier)
 		{
-			m_widget->mouseMoved(pos, RIGHT_CTRL_BUTTON);
+			m_widget->mouseMoved(pos, RIGHT_SHIFT_BUTTON);
 		}
 		else
 		{
@@ -172,6 +179,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 {
 	QGraphicsProxyWidget::paint(painter, option, widget);
 
+	// HUD
 	QBrush brush(Qt::black, Qt::SolidPattern);
 	painter->setPen(Qt::NoPen); //Remove the pen to fill the polygon
 	painter->setBrush(brush);
@@ -183,5 +191,76 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 	points.push_back(QPoint(widgetSize.width(),widgetSize.height()-18));
 
 	painter->drawPolygon(points);
+
+	if(m_widget->scalePlanes() != nullptr && m_widget->width() >= m_widget->startWidth())
+	{
+		painter->setPen(QPen(brush, 1)); //Set the pen for scales
+
+		//Scale measures for each axe
+		QVector<QLine> lines;
+		QFont font = painter->font();
+		font.setPixelSize(m_fontSize);
+		painter->setFont(font);
+		float max = m_widget->scalePlanes()->max();
+		float rows = m_widget->scalePlanes()->rows();
+		float columns = m_widget->scalePlanes()->columns();
+		float gap = 0.0;
+
+		/*Y axe*/
+		//Lines
+		lines.push_back(QLine(QPoint(m_margin,m_marginTop), QPoint(m_margin, m_marginTop + (m_widget->nbMeasuresY()-1)*m_measureGap)));
+		for(int i = 0; i<m_widget->nbMeasuresY(); i++)
+		{
+			lines.push_back(QLine(QPoint(m_margin, m_marginTop + i*m_measureGap), QPoint(m_margin + m_measureSize, m_marginTop + i*m_measureGap)));
+		}
+		//Values
+		gap = 2*max/(m_widget->nbMeasuresY()-1);
+		for(int i = 0; i<m_widget->nbMeasuresY(); i++)
+		{
+			float value = max - gap*i;
+			QString str = QString::fromStdString(std::to_string(value));
+			str.resize(4);
+			painter->drawText(m_margin + m_measureSize + m_marginFont, m_marginTop + i*m_measureGap + m_fontSize/2, str);
+		}
+		painter->drawText(m_margin * 2 - (m_fontSize+1)/2, m_marginTop + (m_widget->nbMeasuresY()-1)*m_measureGap + m_margin + (m_fontSize+1)/2, "Z");
+		// The Y and Z axes for 3d displayed are inversed in the matricial space
+
+		/*X axe*/
+		//Lines
+		lines.push_back(QLine(QPoint(m_marginTop,widgetSize.height()-m_margin), QPoint((m_widget->nbMeasuresXZ()-1) * m_measureGap-1 + m_marginTop,widgetSize.height()-m_margin)));
+		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+		{
+			lines.push_back(QLine(QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin), QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin-m_measureSize)));
+		}
+		//Values
+		gap = columns/(m_widget->nbMeasuresXZ()-1);
+		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+		{
+			int value = gap*i;
+			QString str = QString::fromStdString(std::to_string(value));
+			painter->drawText(i*m_measureGap+m_marginTop - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
+		}
+		painter->drawText(m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "X");
+
+		/*Z axe*/
+		//Lines
+		lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop,widgetSize.height()-m_margin), QPoint(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (m_widget->nbMeasuresXZ()-1) * m_measureGap,widgetSize.height()-m_margin))));
+		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+		{
+			lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + i*m_measureGap,widgetSize.height()-m_margin), QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (i*m_measureGap),widgetSize.height()-m_margin-m_measureSize)));
+		}
+		//Values
+		gap = rows/(m_widget->nbMeasuresXZ()-1);
+		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+		{
+			int value = gap*i;
+			QString str = QString::fromStdString(std::to_string(value));
+			painter->drawText(m_widget->nbMeasuresXZ()*m_measureGap+m_margin+m_marginTop+i*m_measureGap-(m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
+		}
+		painter->drawText(m_widget->nbMeasuresXZ() * m_measureGap + 2*m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "Y");
+		// The Y and Z axes for 3d displayed are inversed in the matricial space
+
+		painter->drawLines(lines);
+	}
 
 }

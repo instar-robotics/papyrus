@@ -316,6 +316,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
 	connect(&m_checkVersionTimer, SIGNAL(timeout()), this, SLOT(checkForNewRelease()));
 	m_checkVersionTimer.start(60000); // every 1 minute
 
+	connect(m_ui->tabWidget->tabBar(), SIGNAL(tabMoved(int,int)), this, SLOT(onTabMoved(int,int)));
+
 	// Show the changelog
 	QTimer::singleShot(100, this, SLOT(onLaunched()));
 
@@ -1472,6 +1474,32 @@ void PapyrusWindow::onRTTokenWarning(bool warning, int scriptIdx)
 	// The script index has already been checked by the Script before emitting
 	QIcon icon(QString(":/icons/icons/%1.svg").arg(warning ? "warning" : "script"));
 	m_ui->tabWidget->setTabIcon(scriptIdx, icon);
+}
+
+/**
+ * @brief PapyrusWindow::onTabMoved fires when the user moves a tab at another place in the tab
+ * bar.
+ * @param from original index of the tab
+ * @param to new position of the tab
+ */
+void PapyrusWindow::onTabMoved(int from, int to)
+{
+	Q_UNUSED(from);
+	Q_UNUSED(to);
+
+	// When we have a tab that moved, reset the tabIdx of all scripts
+	for(int i = 0; i < m_ui->tabWidget->count(); i += 1) {
+		DiagramView *view = dynamic_cast<DiagramView *>(m_ui->tabWidget->widget(i));
+		if (view != nullptr) {
+			DiagramScene *scene = dynamic_cast<DiagramScene *>(view->scene());
+			if (scene == nullptr) {
+				qWarning() << "[PapyrusWindow::onTabMoved] could not get scene from view!";
+				return;
+			}
+
+			scene->script()->setTabIdx(i);
+		}
+	}
 }
 
 /**

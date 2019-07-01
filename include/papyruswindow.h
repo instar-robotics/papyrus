@@ -194,6 +194,7 @@ private slots:
 	void onScopeWindowClosed(int result);
 	void onActiveScriptChanged(Script *newActiveScript);
 	void onRTTokenWarning(bool warning, int scriptIdx);
+	void onTabMoved(int from, int to);
 
 	void on_actionExit_triggered();
 

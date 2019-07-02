@@ -62,6 +62,15 @@ InputSlot::InputSlot(const QString &name) : InputSlot()
 	m_label.setVisible(false); // hide the names by defaults
 }
 
+InputSlot::InputSlot(const InputSlot &copy)
+    : InputSlot(copy.m_name)
+{
+	m_inputType = copy.m_inputType;
+	m_checkSize = copy.m_checkSize;
+	m_description = copy.m_description;
+	m_matrixShape = copy.m_matrixShape;
+}
+
 bool InputSlot::multiple() const
 {
 	return m_multiple;

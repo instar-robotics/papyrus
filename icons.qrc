@@ -38,6 +38,7 @@
         <file>icons/warning.svg</file>
         <file>icons/script-play.svg</file>
         <file>icons/script-pause.svg</file>
+        <file>icons/copy.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

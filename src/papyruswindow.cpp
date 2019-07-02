@@ -32,6 +32,7 @@
 #include "changelog.h"
 #include "activityvisualizer.h"
 #include "finddialog.h"
+#include "constantdiagrambox.h"
 
 #include <cryptopp/filters.h>
 #include <cryptopp/aes.h>
@@ -1476,6 +1477,8 @@ void PapyrusWindow::onScopeWindowClosed(int result)
  */
 void PapyrusWindow::onActiveScriptChanged(Script *newActiveScript)
 {
+	Q_UNUSED(newActiveScript);
+
 	// Trigger the closing of the scope window if present
 	onScopeWindowClosed(-2);
 }
@@ -2331,4 +2334,48 @@ void PapyrusWindow::on_actionFind_triggered()
 	m_findDialog->show();
 	m_findDialog->raise();
 	m_findDialog->activateWindow();
+}
+
+/**
+ * @brief PapyrusWindow::on_actionCopy_triggered copy selected items on the scene
+ */
+void PapyrusWindow::on_actionCopy_triggered()
+{
+	// First check that we have an active script and we are able to get the scene
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("Nothing to copy: no active script!"), MSG_WARNING);
+		return;
+	}
+
+	DiagramScene *scene = m_activeScript->scene();
+	if (scene == nullptr) {
+		emit displayStatusMessage(tr("Cannot copy items: no scene!"), MSG_WARNING);
+		return;
+	}
+
+	// For now, we only support copying ONE DiagramBox at a time
+	QList<QGraphicsItem *> selectedItems = scene->selectedItems();
+
+	if (selectedItems.size() == 0) {
+		emit displayStatusMessage(tr("No selected items to copy!"), MSG_WARNING);
+		return;
+	} else if (selectedItems.size() > 1) {
+		emit displayStatusMessage(tr("Copying is only supported for one box for now!"), MSG_WARNING);
+		return;
+	} else {
+		// Check that the selected item is a DiagramBox (we only support this for now)
+		DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(selectedItems.at(0));
+		ConstantDiagramBox *maybeConstantBox = dynamic_cast<ConstantDiagramBox *>(selectedItems.at(0));
+		if (maybeBox != nullptr && maybeConstantBox == nullptr) {
+			DiagramBox *copyBox = new DiagramBox(*maybeBox);
+			QPointF targetPos = maybeBox->scenePos();
+			targetPos.rx() += 50;
+			targetPos.ry() += 50;
+			scene->addBox(copyBox, targetPos);
+		} else {
+			emit displayStatusMessage(tr("Copying is only supported for non-constant Boxes for now."),
+			                          MSG_WARNING);
+			return;
+		}
+	}
 }

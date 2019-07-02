@@ -45,6 +45,7 @@ class InputSlot : public Slot
 public:
 	explicit InputSlot();
 	explicit InputSlot(const QString &name);
+	explicit InputSlot(const InputSlot &copy);
 
 	bool multiple() const;
 	void setMultiple(bool allowMultiple);

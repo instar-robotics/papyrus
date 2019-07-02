@@ -41,6 +41,12 @@ OutputSlot::OutputSlot() : Slot(),
 
 }
 
+OutputSlot::OutputSlot(const OutputSlot &copy)
+    : OutputSlot()
+{
+	m_outputType = copy.m_outputType;
+}
+
 std::set<Link *> OutputSlot::outputs() const
 {
 	return m_outputs;

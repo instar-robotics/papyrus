@@ -28,6 +28,8 @@
 #include "types.h"
 #include "shaderscaleplanes.h"
 #include "shaderaxesplanes.h"
+#include "shaderscalecircular.h"
+#include "shaderarrow.h"
 
 enum class Attribute { Vertex, Normal, Color };
 
@@ -103,6 +105,10 @@ protected:
 	ShaderScalePlanes *m_scalePlanes = nullptr;
 	int m_nbMeasuresXZ = 11;
 	int m_nbMeasuresY = 5;
+
+	//Scale circular
+	ShaderScaleCircular *m_scaleCircular = nullptr;
+	ShaderArrow *m_shaderArrow = nullptr;
 
 	// 3D scene
 	float m_gap = 0.2f;

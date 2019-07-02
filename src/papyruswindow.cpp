@@ -1809,7 +1809,6 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 		return;
 	}
 
-<<<<<<< HEAD
 	// De-active current script (is any)
 	if (m_activeScript != NULL)
 	{
@@ -1821,10 +1820,6 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 	m_activeScript = currentScene->script();
 	m_activeScript->setIsActiveScript(true);
 	m_activeScript->scene()->show3DVisualizations();
-=======
-	// Get the script associated with the scene and set it as the active script
-	setActiveScript(currentScene->script());
->>>>>>> f5ec0308bf1fb7027a6dd57a95ba3dbd9fe8a919
 
 	// Update the buttons state to match the new script's status)
 	updateButtonsState();

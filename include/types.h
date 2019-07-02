@@ -159,7 +159,14 @@ enum VisuType{
 	BAR_CHART_3D,
 	CONE_CHART_3D,
 	WIREFRAME_3D,
+	CROWN_3D,
 	UNKNOWN,
 	NONE
+};
+
+// Rotation direction for circular visualizations
+enum RotationDir{
+	CLOCKWISE,
+	COUNTERCLOCKWISE
 };
 #endif // TYPES_H

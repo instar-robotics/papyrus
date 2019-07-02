@@ -1508,7 +1508,6 @@ void DiagramScene::display3DVisu(VisuType type)
 					ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols());
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
-					shaderMoveBar->setProxy(proxy);
 					connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
 					connect(this, SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
 

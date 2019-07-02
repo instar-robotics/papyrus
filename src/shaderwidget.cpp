@@ -75,6 +75,20 @@ void ShaderWidget::paintGL()
 		glDrawElements(GL_LINES, m_scalePlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 	}
+	if(m_scaleCircular != nullptr)
+	{
+		m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
+	if(m_shaderArrow != nullptr)
+	{
+		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
 
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Normal));
@@ -157,7 +171,7 @@ void ShaderWidget::updateScene()
 {
 	// Model view proj matrices
 	QMatrix4x4 projection;
-	projection.perspective(30.0f, 1.0f * width() / height(), 0.1f, 200.0f); //Las point is the display distance
+	projection.perspective(30.0f, 1.0f * width() / height(), 0.1f, 200.0f); //Last value is the display distance
 
 	QMatrix4x4 direction;
 	direction.lookAt(QVector3D(0.0, 0.0, -m_camera.m_distance),

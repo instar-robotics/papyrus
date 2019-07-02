@@ -5,7 +5,6 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
     m_moveBar(moveBar),
     m_box(box)
 {
-
 	setWidget(m_widget);
 	m_moveBar->setRect(0,0,m_widget->width(),m_moveBarHeight);
 	m_moveBar->setPen(QPen(Qt::black));

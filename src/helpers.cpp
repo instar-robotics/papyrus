@@ -20,7 +20,6 @@
 */
 
 #include "helpers.h"
-#include "constants.h"
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -631,6 +630,8 @@ VisuType stringToVisuType(const QString &str)
 		return CONE_CHART_3D;
 	if(visuType == "WIREFRAME 3D")
 		return WIREFRAME_3D;
+	if(visuType == "CROWN 3D")
+		return CROWN_3D;
 	return UNKNOWN;
 }
 
@@ -646,6 +647,8 @@ QString visuTypeToString(const VisuType &visuType)
 		return "Cone chart 3D";
 	if(visuType == WIREFRAME_3D)
 		return "Wireframe 3D";
+	if(visuType == CROWN_3D)
+		return "Crown 3D";
 	return "Unknown";
 }
 
@@ -658,7 +661,11 @@ bool is2DVisuType(const VisuType &visuType)
 
 bool is3DVisuType(const VisuType &visuType)
 {
-	if(visuType == SURFACE_3D || visuType == BAR_CHART_3D || visuType == CONE_CHART_3D || visuType == WIREFRAME_3D)
+	if(visuType == SURFACE_3D ||
+	   visuType == BAR_CHART_3D ||
+	   visuType == CONE_CHART_3D ||
+	   visuType == WIREFRAME_3D ||
+	   visuType == CROWN_3D)
 		return true;
 	return false;
 }
@@ -671,10 +678,15 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 		return new ShaderBarChart(rows, cols);
 	else if(type == CONE_CHART_3D)
 		return new ShaderConeChart(rows, cols);
-	else
+	else if(type == WIREFRAME_3D)
 		return new ShaderWireframe(rows, cols);
-}
-bool realAreEquals(qreal a, qreal b, qreal epsilon)
-{
-	return (a - b) < epsilon;
+	else
+	{
+		if(rows == 1)
+			return new ShaderCrown(cols, 0, COUNTERCLOCKWISE);
+		else if(cols == 1)
+			return new ShaderCrown(rows, 0, COUNTERCLOCKWISE);
+		else
+			return new ShaderSurface(rows, cols);
+	}
 }

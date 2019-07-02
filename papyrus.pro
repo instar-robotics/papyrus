@@ -71,9 +71,7 @@ HEADERS += include/category.h \
            include/activityvisualizerthermal.h \
            include/inhibinput.h \
           include/mathtransfo.h \
-          include/mathtransfo.h \
-          include/openglbox.h \
-          include/openglproxy.h \
+	  include/mathtransfo.h \
           include/deletelinkcommand.h \
           include/deleteboxcommand.h \
           include/deletezonecommand.h \
@@ -85,8 +83,7 @@ HEADERS += include/category.h \
           include/shaderproxy.h \
           include/shadersurfacealpha.h \
           include/linkelement.h \
-          include/finddialog.h \
-    shadermovebar.h \
+	  include/finddialog.h \
     include/shadermovebar.h \
     include/shaderbarchart.h \
     include/shaderwireframe.h \
@@ -94,7 +91,11 @@ HEADERS += include/category.h \
     include/shaderaxesplanes.h \
     include/scopewindow.h \
     include/scopemessage.h \
-    include/scopeitem.h
+    include/scopeitem.h \
+    include/shadercircular.h \
+    include/shadercrown.h \
+    include/shaderscalecircular.h \
+    include/shaderarrow.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -152,17 +153,10 @@ SOURCES += src/category.cpp \
            src/inhibinput.cpp \
     	   src/camera.cpp \
     	   src/light.cpp \
-    	   src/shaderwidget.cpp \
-    	   src/openglmatrix.cpp \
-    	   src/openglproxy.cpp \
-    	   src/openglwidget.cpp \
+	   src/shaderwidget.cpp \
     	   src/shadermatrix.cpp \
     	   src/shadersurface.cpp \
-           src/mathtransfo.cpp \
-           src/openglmatrix.cpp \
-           src/openglwidget.cpp \
-           src/openglbox.cpp \
-           src/openglproxy.cpp \
+	   src/mathtransfo.cpp \
            src/deletelinkcommand.cpp \
            src/deleteboxcommand.cpp \
            src/deletezonecommand.cpp \
@@ -173,13 +167,16 @@ SOURCES += src/category.cpp \
     src/shadermovebar.cpp \
     src/shaderbarchart.cpp \
     src/shaderconechart.cpp \
-    src/shaderconechart.cpp \
     src/shaderwireframe.cpp \
     src/shaderscaleplanes.cpp \
     src/shaderaxesplanes.cpp \
     src/scopewindow.cpp \
     src/scopemessage.cpp \
-    src/scopeitem.cpp
+    src/scopeitem.cpp \
+    src/shadercircular.cpp \
+    src/shadercrown.cpp \
+    src/shaderscalecircular.cpp \
+    src/shaderarrow.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

@@ -20,6 +20,7 @@
 */
 
 #include "helpers.h"
+#include "constants.h"
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -672,4 +673,8 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 		return new ShaderConeChart(rows, cols);
 	else
 		return new ShaderWireframe(rows, cols);
+}
+bool realAreEquals(qreal a, qreal b, qreal epsilon)
+{
+	return (a - b) < epsilon;
 }

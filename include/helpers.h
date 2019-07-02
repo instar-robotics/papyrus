@@ -29,6 +29,7 @@
 #include "shaderconechart.h"
 #include "shadersurface.h"
 #include "shaderwireframe.h"
+#include "constants.h"
 
 #include <ros/ros.h>
 
@@ -104,5 +105,7 @@ bool is2DVisuType(const VisuType &visuType);
 bool is3DVisuType(const VisuType &visuType);
 
 ShaderWidget* createShaderWidget(VisuType type, int rows, int cols);
+
+bool realAreEquals(qreal a, qreal b, qreal epsilon = EPSILON);
 
 #endif // HELPERS_H

@@ -91,11 +91,15 @@ HEADERS += include/category.h \
     include/shaderbarchart.h \
     include/shaderwireframe.h \
     include/shaderscaleplanes.h \
-    include/shaderaxesplanes.h
+    include/shaderaxesplanes.h \
+    include/scopewindow.h \
+    include/scopemessage.h \
+    include/scopeitem.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
-    src/nodeschooser.ui
+    src/nodeschooser.ui \
+    src/scopewindow.ui
 
 SOURCES += src/category.cpp \
            src/diagrambox.cpp \
@@ -172,7 +176,10 @@ SOURCES += src/category.cpp \
     src/shaderconechart.cpp \
     src/shaderwireframe.cpp \
     src/shaderscaleplanes.cpp \
-    src/shaderaxesplanes.cpp
+    src/shaderaxesplanes.cpp \
+    src/scopewindow.cpp \
+    src/scopemessage.cpp \
+    src/scopeitem.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

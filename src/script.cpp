@@ -56,6 +56,7 @@
 
 Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_hasTab(false),
+                                                           m_tabIdx(-1),
                                                            m_rosSession(nullptr),
                                                            m_nodeName(QString("/kheops_%1").arg(name)),
                                                            m_modified(false),
@@ -709,6 +710,16 @@ void Script::warnAboutModifiedScript()
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
 }
 
+int Script::tabIdx() const
+{
+	return m_tabIdx;
+}
+
+void Script::setTabIdx(int tabIdx)
+{
+	m_tabIdx = tabIdx;
+}
+
 QString Script::nodeName() const
 {
 	return m_nodeName;
@@ -772,9 +783,8 @@ void Script::onScriptResumed()
 	m_isRunning = true;
 	m_isPaused = false;
 
-	// We only re-emit the event if we are the active script
-	if (m_isActiveScript)
-		emit scriptResumed();
+	if (m_tabIdx > 0)
+		emit scriptResumed(m_tabIdx);
 }
 
 void Script::onScriptPaused()
@@ -783,9 +793,8 @@ void Script::onScriptPaused()
 	m_isRunning = true;
 	m_isPaused = true;
 
-	// We only re-emit the event if we are the active script
-	if (m_isActiveScript)
-		emit scriptPaused();
+	if (m_tabIdx > 0)
+		emit scriptPaused(m_tabIdx);
 }
 
 void Script::onScriptStopped()
@@ -794,9 +803,9 @@ void Script::onScriptStopped()
 	m_isRunning = false;
 	m_isPaused = false;
 
-	// We only re-emit the event if we are the active script
-	if (m_isActiveScript)
-		emit scriptStopped();
+
+	if (m_tabIdx > 0)
+		emit scriptStopped(m_tabIdx);
 }
 
 void Script::onTimeElapsed(int h, int m, int s, int ms)
@@ -804,6 +813,24 @@ void Script::onTimeElapsed(int h, int m, int s, int ms)
 	// We only re-emit the event if we are the active script
 	if (m_isActiveScript)
 		emit timeElapsed(h, m, s, ms);
+}
+
+/**
+ * @brief Script::handleRTTokenWarning receives the 'warning' attribute of the RT Token message and
+ * emit a signal informing the main window to update this script's icon accordingly.
+ * @param warning wether or not the script is in warning with respect to its real time constraint
+ */
+void Script::handleRTTokenMessage(ScopeMessage *rtTokenMessage)
+{
+	// For now, only report the RT Token warning
+
+	// Don't do anything if we don't have an index in the tab widget
+	if (m_tabIdx > 0) {
+		emit rtTokenWarning(rtTokenMessage->warning(), m_tabIdx);
+	}
+
+	// Delete the message because it was allocated in the ROSSession
+	delete rtTokenMessage;
 }
 
 /**
@@ -873,6 +900,8 @@ void Script::run()
 		args << mainWin->getLibPath() + "/";
 		emit displayStatusMessage(tr("Starting script \"") + m_name + "\"...");
 		kheopsNode->start(prog, args);
+
+		m_rosSession->setShouldStartRTToken(true);
 	}
 	// Otherwise, if the node is already running, we just have to ask it to resume execution
 	else {
@@ -954,10 +983,13 @@ void Script::setupROSSession()
 		return;
 	}
 	m_rosSession = new ROSSession(m_nodeName);
+	m_rosSession->setShouldStartRTToken(true); // start the RT Token when we connect to a script
 
 	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 	connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
 	connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
+	connect(m_rosSession, SIGNAL(newRTTokenMessage(ScopeMessage*)),
+	        this, SLOT(handleRTTokenMessage(ScopeMessage*)));
 }
 
 ROSSession *Script::rosSession() const

@@ -27,11 +27,25 @@
 
 ROSSession::ROSSession(const QString &nodeName, QObject *parent)
     : QThread(parent),
+      m_nh(nullptr),
       m_shouldQuit(false),
       m_nodeName(nodeName),
-      m_isFirstRun(true)
+      m_isFirstRun(true),
+      m_shouldStartRTToken(false)
 {
+	m_nh = new ros::NodeHandle;
 	start();
+}
+
+ROSSession::~ROSSession()
+{
+	callServiceOscillo("stop");
+	callServiceRTToken("stop");
+
+	if (m_nh != nullptr) {
+		delete m_nh;
+		m_nh = nullptr;
+	}
 }
 
 /**
@@ -58,10 +72,10 @@ void ROSSession::addToHotList(QUuid uuid)
  */
 bool ROSSession::callServiceControl(QString cmd)
 {
-	ros::NodeHandle nh;
+//	ros::NodeHandle nh;
 	QString srvName = QString("%1/control").arg(m_nodeName);
 
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = cmd.toStdString();
 
@@ -72,8 +86,8 @@ ScriptStatus ROSSession::queryScriptStatus()
 {
 	QString srvName = QString("%1/control").arg(m_nodeName);
 
-	ros::NodeHandle nh;
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+//	ros::NodeHandle nh;
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
 	hieroglyph::SimpleCmd srv;
 	srv.request.cmd = "status";
 
@@ -94,6 +108,56 @@ ScriptStatus ROSSession::queryScriptStatus()
 }
 
 /**
+ * @brief ROSSession::callServiceOscillo calls the ROSService "oscillo" with the given command.
+ * @param cmd the command to pass to the service, supported are: "start", "stop"
+ * @return whether the call was successful
+ */
+bool ROSSession::callServiceOscillo(const QString &cmd)
+{
+	QString srvName = QString("%1/oscillo").arg(m_nodeName);
+
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = cmd.toStdString();
+
+	return client.call(srv);
+}
+
+void ROSSession::registerOscillo()
+{
+	// Subscribe to the 'oscillo' topic to listen to status change
+	m_subs << m_nh->subscribe(QString("%1/%2").arg(m_nodeName, "oscillo").toStdString(),
+	                                   1,
+	                                   &ROSSession::handleOscilloMessage,
+	                          this);
+}
+
+void ROSSession::registerRTToken()
+{
+	// Subscribe to the 'rt_token' topic to listen to status change
+	m_subs << m_nh->subscribe(QString("%1/%2").arg(m_nodeName, "rt_token").toStdString(),
+	                          1,
+	                          &ROSSession::handleRTTokenMessage,
+	                          this);
+}
+
+/**
+ * @brief ROSSession::callServiceRTToken calls the ROSService "rt_token" with the given command.
+ * @param cmd the command to pass to the service, supported are: "start", "stop"
+ * @return whether the call was successful
+ */
+bool ROSSession::callServiceRTToken(const QString &cmd)
+{
+	QString srvName = QString("%1/rt_token").arg(m_nodeName);
+
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::SimpleCmd>(srvName.toStdString());
+	hieroglyph::SimpleCmd srv;
+	srv.request.cmd = cmd.toStdString();
+
+	return client.call(srv);
+}
+
+/**
  * @brief ROSSession::activateOutput issue a ROS service call to activate a function's output (i.e.
  * make this function publish its output on the bus)
  * IMPORTANT: this requires the script to be running. This is meant to be used internally. Users
@@ -104,8 +168,8 @@ ScriptStatus ROSSession::queryScriptStatus()
 void ROSSession::activateOutput(QUuid uuid)
 {
 	QString srvName = m_nodeName + "/output";
-	ros::NodeHandle nh;
-	ros::ServiceClient client = nh.serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
+//	ros::NodeHandle nh;
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
 	hieroglyph::ArgCmd srv;
 	srv.request.cmd = "start";
 	srv.request.arg = uuid.toString().toStdString();
@@ -113,6 +177,52 @@ void ROSSession::activateOutput(QUuid uuid)
 	if (!client.call(srv)) {
 		qWarning() << "Failed to activate output on uuid" << uuid.toString() << "on node name" << m_nodeName;
 	}
+}
+
+void ROSSession::handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr &msg)
+{
+	QVector<ScopeMessage> *scopeMessages = new QVector<ScopeMessage>;
+
+	int n = msg->array.size();
+
+	for (int i = 0; i < n; i += 1) {
+		ScopeMessage message;
+		hieroglyph::OscilloData data = msg->array.at(i);
+
+		message.setUuid(QUuid(data.uuid.c_str()));
+		message.setPeriod(data.period);
+		message.setMeans(data.means);
+		message.setDuration(data.duration);
+		message.setStart(data.start);
+		message.setMinDuration(data.minDuration);
+		message.setMaxDuration(data.maxDuration);
+		message.setWarning(data.warning);
+
+		*scopeMessages << message;
+	}
+
+	emit newOscilloMessage(scopeMessages);
+}
+
+/**
+ * @brief ROSSession::handleRTTokenMessage receives a message from the "rt_token" topic
+ * @param msg
+ */
+void ROSSession::handleRTTokenMessage(const hieroglyph::OscilloData::ConstPtr &msg)
+{
+	// This is the same as ScopeMessage, yes
+	ScopeMessage *rtTokenMessage = new ScopeMessage;
+
+	rtTokenMessage->setUuid(QUuid(msg->uuid.c_str()));
+	rtTokenMessage->setPeriod(msg->period);
+	rtTokenMessage->setMeans(msg->means);
+	rtTokenMessage->setDuration(msg->duration);
+	rtTokenMessage->setStart(msg->start);
+	rtTokenMessage->setMinDuration(msg->minDuration);
+	rtTokenMessage->setMaxDuration(msg->maxDuration);
+	rtTokenMessage->setWarning(msg->warning);
+
+	emit newRTTokenMessage(rtTokenMessage);
 }
 
 bool ROSSession::shouldQuit() const
@@ -135,6 +245,11 @@ void ROSSession::setNodeName(const QString &nodeName)
 	m_nodeName = nodeName;
 }
 
+void ROSSession::setShouldStartRTToken(bool shouldStartRTToken)
+{
+	m_shouldStartRTToken = shouldStartRTToken;
+}
+
 void ROSSession::run()
 {
 	// Wait for the ROS master to become online
@@ -146,12 +261,12 @@ void ROSSession::run()
 		msleep(100); // We cannot use ROS rate now because we need the ROS master to come up before
 	}
 
-	ros::NodeHandle nh;
+//	ros::NodeHandle nh;
 	ros::Rate rate(10); // 10Hz
 
 	// Subscribe to the 'status' topic to listen to status change
-	ros::Subscriber sub = nh.subscribe(QString("%1/%2").arg(m_nodeName, "status").toStdString(),
-	                                   1000,
+	ros::Subscriber sub = m_nh->subscribe(QString("%1/%2").arg(m_nodeName, "status").toStdString(),
+	                                   10,
 	                                   &ROSSession::handleStatusChange,
 	                                   this);
 
@@ -178,13 +293,20 @@ void ROSSession::handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr &m
 
 	if (key == "control") {
 		if (value == "resume") {
-			// When the script is first run, activate all functions if the hot list
+			// When the script is first run, activate all functions in the hot list
 			if (m_isFirstRun) {
 				foreach (QUuid uuid, m_hotList) {
 					activateOutput(uuid);
 				}
 			}
 			m_isFirstRun = false;
+
+			// Start the RTToken service if appropriate
+			if (m_shouldStartRTToken) {
+				m_shouldStartRTToken = false;
+				callServiceRTToken("start");
+				registerRTToken();
+			}
 			emit scriptResumed();
 		}
 		else if (value == "pause")

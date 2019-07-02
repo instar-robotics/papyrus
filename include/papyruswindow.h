@@ -31,6 +31,7 @@
 #include "rossession.h"
 #include "types.h"
 #include "xmldescriptionreader.h"
+#include "scopewindow.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -129,6 +130,8 @@ public:
 	QTimer *autoSaveTimer() const;
 	void setAutoSaveTimer(QTimer *autoSaveTimer);
 
+	void setActiveScript(Script *activeScript);
+
 private:
 	Ui::PapyrusWindow *m_ui;
 	RosNode *m_rosnode;
@@ -164,17 +167,20 @@ private:
 
 	QDialog *m_findDialog;      // A modeless dialog used to find boxes, links, etc.
 
+	ScopeWindow *m_scopeWindow; // A modeless dialog used to display a script's scope
+
 signals:
 	void toggleDisplayGrid(bool);
 	void launched();
+	void activeScriptChanged(Script *newActiveScript);
 
 private slots:
 	void filterLibraryNames(const QString &text);
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
 	void onROSMasterChange(bool isOnline);
-	void onScriptResumed();
-	void onScriptPaused();
-	void onScriptStopped();
+	void onScriptResumed(int scriptIdx);
+	void onScriptPaused(int scriptIdx);
+	void onScriptStopped(int scriptIdx);
 	void updateStopWatch(int h, int m, int s, int ms);
 	void updateDevelopmentEnvironment(QAction *action);
 	void categoryExpanded(QTreeWidgetItem *item);
@@ -185,6 +191,10 @@ private slots:
 	void openScript(QString path = "");
 	void checkForNewRelease();
 	void reEnableROSPopUp();
+	void onScopeWindowClosed(int result);
+	void onActiveScriptChanged(Script *newActiveScript);
+	void onRTTokenWarning(bool warning, int scriptIdx);
+	void onTabMoved(int from, int to);
 
 	void on_actionExit_triggered();
 

@@ -30,6 +30,7 @@
 #include "shaderaxesplanes.h"
 #include "shaderscalecircular.h"
 #include "shaderarrow.h"
+#include "shaderadds.h"
 
 enum class Attribute { Vertex, Normal, Color };
 

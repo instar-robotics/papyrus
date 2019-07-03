@@ -9,34 +9,23 @@
 #include <math.h>
 
 #include "mathtransfo.h"
+#include "shaderadds.h"
 
-class ShaderScaleCircular
+class ShaderScaleCircular: public ShaderAdds
 {
 
 public:
 	ShaderScaleCircular(int radius);
 	~ShaderScaleCircular();
 
-	void initGPUbuffers(QOpenGLBuffer *indexbuffer, QOpenGLBuffer *vertexbuffer, QOpenGLBuffer *normalbuffer, QOpenGLBuffer *colorbuffer);
-
-	QVector<GLuint> indexes() const;
-
 protected:
 	void initVectors();
 	void fillVectors();
-	void clearVectors();
 
 private:
 
 	float m_radius;
 	float m_secRadius;
 	float m_thirdRadius;
-
-	//vectors
-	QVector<GLuint> m_indexes; //save the index of vertexes to use in the drawing order
-	QVector<QVector3D> m_vertexes; //save the coordinates of all the vertexes for the render
-	QVector<QVector3D> m_normals; //save the vertexes' normals for light gesture
-	QVector<QVector3D> m_colors; //save the vertexes' colors for the render
-
 };
 #endif // SHADERSCALECIRCULAR_H

@@ -20,14 +20,6 @@ void ShaderArrow::initVectors()
 }
 
 
-void ShaderArrow::clearVectors()
-{
-	m_vertexes.clear();
-	m_indexes.clear();
-	m_colors.clear();
-	m_normals.clear();
-}
-
 void ShaderArrow::fillVectors()
 {
 	clearVectors();
@@ -84,36 +76,4 @@ void ShaderArrow::fillVectors()
 	m_indexes.push_back(0);
 	m_indexes.push_back(1);
 	m_indexes.push_back(3);
-}
-
-QVector<GLuint> ShaderArrow::indexes() const
-{
-	return m_indexes;
-}
-
-void ShaderArrow::initGPUbuffers(QOpenGLBuffer *indexbuffer, QOpenGLBuffer *vertexbuffer, QOpenGLBuffer *normalbuffer, QOpenGLBuffer *colorbuffer)
-{
-	// Vertex buffer init
-	vertexbuffer->create();
-	vertexbuffer->bind();
-	vertexbuffer->allocate(m_vertexes.constData(), sizeof(QVector3D) * m_vertexes.size());
-	vertexbuffer->release();
-
-	// Normal buffer init
-	normalbuffer->create();
-	normalbuffer->bind();
-	normalbuffer->allocate(m_normals.constData(), sizeof(QVector3D) * m_normals.size());
-	normalbuffer->release();
-
-	// Colors buffer init
-	colorbuffer->create();
-	colorbuffer->bind();
-	colorbuffer->allocate(m_colors.constData(), sizeof(QVector3D) * m_colors.size());
-	colorbuffer->release();
-
-	// Indexes buffer init
-	indexbuffer->create();
-	indexbuffer->bind();
-	indexbuffer->allocate(m_indexes.constData(), sizeof(GLuint) * m_indexes.size());
-	indexbuffer->release();
 }

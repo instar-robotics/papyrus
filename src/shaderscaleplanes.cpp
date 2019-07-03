@@ -32,15 +32,6 @@ void ShaderScalePlanes::initVectors()
 	m_normals.reserve(4 + m_nbMeasuresXZ*4 + m_nbMeasuresY*3);
 }
 
-
-void ShaderScalePlanes::clearVectors()
-{
-	m_vertexes.clear();
-	m_indexes.clear();
-	m_colors.clear();
-	m_normals.clear();
-}
-
 void ShaderScalePlanes::fillVectors()
 {
 	clearVectors();
@@ -182,38 +173,6 @@ int ShaderScalePlanes::nbMeasuresY() const
 int ShaderScalePlanes::nbMeasuresXZ() const
 {
 	return m_nbMeasuresXZ;
-}
-
-QVector<GLuint> ShaderScalePlanes::indexes() const
-{
-	return m_indexes;
-}
-
-void ShaderScalePlanes::initGPUbuffers(QOpenGLBuffer *indexbuffer, QOpenGLBuffer *vertexbuffer, QOpenGLBuffer *normalbuffer, QOpenGLBuffer *colorbuffer)
-{
-	// Vertex buffer init
-	vertexbuffer->create();
-	vertexbuffer->bind();
-	vertexbuffer->allocate(m_vertexes.constData(), sizeof(QVector3D) * m_vertexes.size());
-	vertexbuffer->release();
-
-	// Normal buffer init
-	normalbuffer->create();
-	normalbuffer->bind();
-	normalbuffer->allocate(m_normals.constData(), sizeof(QVector3D) * m_normals.size());
-	normalbuffer->release();
-
-	// Colors buffer init
-	colorbuffer->create();
-	colorbuffer->bind();
-	colorbuffer->allocate(m_colors.constData(), sizeof(QVector3D) * m_colors.size());
-	colorbuffer->release();
-
-	// Indexes buffer init
-	indexbuffer->create();
-	indexbuffer->bind();
-	indexbuffer->allocate(m_indexes.constData(), sizeof(GLuint) * m_indexes.size());
-	indexbuffer->release();
 }
 
 void ShaderScalePlanes::updateScale(float max)

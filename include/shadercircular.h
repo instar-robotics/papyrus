@@ -23,7 +23,7 @@ protected:
 	int m_size;
 	int m_centerIndex;
 	RotationDir m_dir;
-	float m_radius = 5;
+	float m_radius = 8;
 };
 
 #endif // SHADERCIRCULAR_H

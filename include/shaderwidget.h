@@ -65,8 +65,6 @@ signals:
 
 protected:
 	//OpenGL
-	void paintGL() override;
-	void resizeGL(int width, int height) override;
 	void initGPUbuffers();
 	void destroyGPUbuffers();
 	void initShaders();
@@ -77,6 +75,11 @@ protected:
 	void updateScene();
 
 	QColor calculateColor(float const& value, const float &max_value);
+
+private:
+	void paintGL() override;
+	void resizeGL(int width, int height) override;
+	void displayScales();
 
 private:
 	// FPS

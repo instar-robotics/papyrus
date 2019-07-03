@@ -14,7 +14,6 @@ ShaderWidget::ShaderWidget()
 
 ShaderWidget::~ShaderWidget()
 {
-	delete m_scalePlanes;
 }
 
 //Function run only on the opengl widget's creation
@@ -68,27 +67,7 @@ void ShaderWidget::paintGL()
 	glDrawElements(drawingType, m_indexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
-	if(m_scalePlanes != nullptr)
-	{
-		m_scalePlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scalePlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
-	if(m_scaleCircular != nullptr)
-	{
-		m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
-	if(m_shaderArrow != nullptr)
-	{
-		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
+	displayScales();
 
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Normal));
@@ -204,6 +183,31 @@ void ShaderWidget::updateScene()
 void ShaderWidget::resizeGL(int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+void ShaderWidget::displayScales()
+{
+	if(m_scalePlanes != nullptr)
+	{
+		m_scalePlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scalePlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
+	if(m_scaleCircular != nullptr)
+	{
+		m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
+	if(m_shaderArrow != nullptr)
+	{
+		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
 }
 
 void ShaderWidget::mousePressed(QPoint pos)

@@ -1532,6 +1532,7 @@ void DiagramScene::display3DVisu(VisuType type)
 						proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() - 10);
 
 					selectedBox->setDisplayedProxy(proxy);
+					shaderMoveBar->setProxy(proxy);
 
 					// Create the activity fetcher with the topic name
 					ActivityFetcher *fetcher = nullptr;

@@ -77,7 +77,8 @@ HEADERS += include/category.h \
            include/finddialog.h \
            include/scopewindow.h \
            include/scopemessage.h \
-           include/scopeitem.h
+           include/scopeitem.h \
+           include/rttokenmessage.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -140,6 +141,7 @@ SOURCES += src/category.cpp \
            src/finddialog.cpp \
            src/scopewindow.cpp \
            src/scopemessage.cpp \
-           src/scopeitem.cpp
+           src/scopeitem.cpp \
+           src/rttokenmessage.cpp
 
 RESOURCES += icons.qrc

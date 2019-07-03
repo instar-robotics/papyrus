@@ -190,13 +190,13 @@ void ROSSession::handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr &
 		hieroglyph::OscilloData data = msg->array.at(i);
 
 		message.setUuid(QUuid(data.uuid.c_str()));
-		message.setPeriod(data.period);
+//		message.setPeriod(data.period);
 		message.setMeans(data.means);
 		message.setDuration(data.duration);
 		message.setStart(data.start);
 		message.setMinDuration(data.minDuration);
 		message.setMaxDuration(data.maxDuration);
-		message.setWarning(data.warning);
+//		message.setWarning(data.warning);
 
 		*scopeMessages << message;
 	}
@@ -208,10 +208,9 @@ void ROSSession::handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr &
  * @brief ROSSession::handleRTTokenMessage receives a message from the "rt_token" topic
  * @param msg
  */
-void ROSSession::handleRTTokenMessage(const hieroglyph::OscilloData::ConstPtr &msg)
+void ROSSession::handleRTTokenMessage(const hieroglyph::RtToken::ConstPtr &msg)
 {
-	// This is the same as ScopeMessage, yes
-	ScopeMessage *rtTokenMessage = new ScopeMessage;
+	RTTokenMessage *rtTokenMessage = new RTTokenMessage;
 
 	rtTokenMessage->setUuid(QUuid(msg->uuid.c_str()));
 	rtTokenMessage->setPeriod(msg->period);

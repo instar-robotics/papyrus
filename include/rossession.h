@@ -49,7 +49,7 @@ public:
 	ROSSession(const QString &nodeName, QObject *parent = nullptr);
 	~ROSSession();
 
-	void addToHotList(QUuid uuid);
+	void addToHotList(QSet<QUuid> uuids);
 
 	bool callServiceControl(QString cmd);
 	ScriptStatus queryScriptStatus();
@@ -80,7 +80,7 @@ private:
 
 	void run() override;
 	void handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr& msg);
-	void activateOutput(QUuid uuid);
+	void activateOutputs(QSet<QUuid> uuids);
 	void handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr& msg);
 	void handleRTTokenMessage(const hieroglyph::RtToken::ConstPtr& msg);
 

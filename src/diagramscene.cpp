@@ -1444,7 +1444,7 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
 				                                                            selectedBox->uuid().toString())),
 				                              selectedBox);
-				m_script->rosSession()->addToHotList(selectedBox->uuid());
+				m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 			}
 
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);

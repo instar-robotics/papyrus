@@ -22,7 +22,7 @@
 #include "rossession.h"
 #include "helpers.h"
 #include "papyruswindow.h"
-#include "hieroglyph/ArgCmd.h"
+#include "hieroglyph/ArgsCmd.h"
 #include "hieroglyph/SimpleCmd.h"
 
 ROSSession::ROSSession(const QString &nodeName, QObject *parent)
@@ -55,15 +55,15 @@ ROSSession::~ROSSession()
  * If called when the script is already running, then also call @activateOutput() directly
  * @param uuid
  */
-void ROSSession::addToHotList(QUuid uuid)
+void ROSSession::addToHotList(QSet<QUuid> uuids)
 {
-	if (!uuid.isNull()) {
-		m_hotList.insert(uuid);
+	//	if (!uuids.isNull()) {
+	//		m_hotList.insert(uuids);
+	    m_hotList.unite(uuids);
 
-		// If the script has already been launched, then activate output immediately
-		if (!m_isFirstRun)
-			activateOutput(uuid);
-	}
+	// If the script has already been launched, then activate output immediately
+	if (!m_isFirstRun)
+		activateOutputs(uuids);
 }
 
 /**
@@ -165,17 +165,19 @@ bool ROSSession::callServiceRTToken(const QString &cmd)
  * @param uuid the UUID of the function which output we want to activate
  * @return whether it succeeded or not
  */
-void ROSSession::activateOutput(QUuid uuid)
+void ROSSession::activateOutputs(QSet<QUuid> uuids)
 {
 	QString srvName = m_nodeName + "/output";
-//	ros::NodeHandle nh;
-	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
-	hieroglyph::ArgCmd srv;
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgsCmd>(srvName.toStdString());
+	hieroglyph::ArgsCmd srv;
 	srv.request.cmd = "start";
-	srv.request.arg = uuid.toString().toStdString();
+//	srv.request.arg = uuids.toString().toStdString();
+
+	foreach (QUuid uuid, uuids)
+		srv.request.args.push_back(uuid.toString().toStdString());
 
 	if (!client.call(srv)) {
-		qWarning() << "Failed to activate output on uuid" << uuid.toString() << "on node name" << m_nodeName;
+		qWarning() << "Failed to activate output on uuid" << uuids << "on node name" << m_nodeName;
 	}
 }
 
@@ -303,9 +305,7 @@ void ROSSession::handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr &m
 		if (value == "resume") {
 			// When the script is first run, activate all functions in the hot list
 			if (m_isFirstRun) {
-				foreach (QUuid uuid, m_hotList) {
-					activateOutput(uuid);
-				}
+				activateOutputs(m_hotList);
 			}
 			m_isFirstRun = false;
 

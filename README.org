@@ -833,11 +833,33 @@ You can see commenting and uncommenting Functions in action [[fig.democomment][i
 #+NAME: fig.democomment
 [[./demo-comment.gif]]
 
+*** Copying / Pasting Functions
+
+It is now possible to copy a group of Function on the scene and paste them on another place. This is
+sometimes cumbersome to go fetch the Functions one by one again from the panel.
+
+To use the copy/paste feature:
+- Select one or more Functions
+- Either click =Edit > Copy= or use the =CTRL + C= shortcut: at this point, a copy of all selected
+  Functions will follow your mouse on the scene
+- If you press =ESCAPE= it will cancel the copy
+- To validate your copy and effectively paste your Functions on the scene, you just have to left
+  click.
+- The copy/paste feature support undo/redo: you can cancel your copy with =CTRL + Z= and redo it
+  with =CTRL + Y=.
+
+[[fig.democopy][Below]] you can see it in action: I first copy a group of Function from the =Edit= menu, then I make
+another copy with =CTRL + C=. At the end I undo/redo the operation a couple of times.
+
+#+CAPTION: Copying and pasting Functions
+#+NAME: fig.democopy
+[[./demo-copy.gif]]
+
+Note that at the moment, only (non-constant) Functions can be copied: links and zones will be
+ignored from the selection.
 
 * Troubleshooting
 ** Network Setup
 If you encounter network issues with papyrus (typically no synchronisation), it may be due to your network configuration.
-Please be sure to follow the steps described here: 
-https://wiki.ros.org/ROS/NetworkSetup 
-
-
+Please be sure to follow the steps described here:
+https://wiki.ros.org/ROS/NetworkSetup

@@ -211,6 +211,8 @@ bool ScopeWindow::disableOscillo()
 	} else {
 		qWarning() << "[ScopeWindow::enableOscillo] ScopeWindow created without a Script!";
 	}
+
+	return false;
 }
 
 void ScopeWindow::onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages)

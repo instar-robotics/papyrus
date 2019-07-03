@@ -223,8 +223,7 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	}
 
 	// When it is moved, we need to move its connected Links
-//	if ((change == QGraphicsItem::ItemPositionChange || change == QGraphicsItem::ItemScenePositionHasChanged) && scene()) {
-	if (change == QGraphicsItem::ItemPositionChange && scene()) {
+	if ((change == QGraphicsItem::ItemPositionChange || change == QGraphicsItem::ItemScenePositionHasChanged) && scene()) {
 		// Get coordinate of the target new position
 		QPointF targetPos = value.toPointF();
 

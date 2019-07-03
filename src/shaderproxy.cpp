@@ -101,9 +101,9 @@ void ShaderProxy::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
 	if (event->modifiers() & Qt::ShiftModifier) {
 		if(event->delta() > 0)
-			m_widget->scalePlanes()->updateScale(m_widget->scalePlanes()->max()*1.2);
+			m_widget->updateScale(9.0/8.0); // multiplied by 1.125
 		else
-			m_widget->scalePlanes()->updateScale(m_widget->scalePlanes()->max()/1.2);
+			m_widget->updateScale(8.0/9.0); // divided by 1.125
 	}
 	else
 		m_widget->wheelTurned(event->delta());

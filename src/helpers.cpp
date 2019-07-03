@@ -683,9 +683,9 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 	else
 	{
 		if(rows == 1)
-			return new ShaderCrown(cols, 0, COUNTERCLOCKWISE);
+			return new ShaderCrown(cols, cols/2, CLOCKWISE);
 		else if(cols == 1)
-			return new ShaderCrown(rows, 0, COUNTERCLOCKWISE);
+			return new ShaderCrown(rows, rows/2, CLOCKWISE);
 		else
 			return new ShaderSurface(rows, cols);
 	}

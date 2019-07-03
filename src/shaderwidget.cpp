@@ -67,7 +67,7 @@ void ShaderWidget::paintGL()
 	glDrawElements(drawingType, m_indexes.size(), GL_UNSIGNED_INT, NULL);
 	m_indexbuffer.release();
 
-	displayScales();
+	displayScale();
 
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Vertex));
 	m_program.disableAttributeArray(static_cast<int>(Attribute::Normal));
@@ -185,7 +185,7 @@ void ShaderWidget::resizeGL(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void ShaderWidget::displayScales()
+void ShaderWidget::displayScale()
 {
 	if(m_scalePlanes != nullptr)
 	{
@@ -208,6 +208,11 @@ void ShaderWidget::displayScales()
 		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 	}
+}
+void ShaderWidget::updateScale(float coef)
+{
+	if(m_scalePlanes != nullptr)
+		m_scalePlanes->updateScale(m_scalePlanes->max()*coef);
 }
 
 void ShaderWidget::mousePressed(QPoint pos)

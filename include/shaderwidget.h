@@ -51,14 +51,11 @@ public:
 
 	int minWidth() const;
 	int minHeight() const;
-
 	int nbMeasuresXZ() const;
-
 	int nbMeasuresY() const;
-
 	ShaderScalePlanes *scalePlanes() const;
-
 	int startWidth() const;
+	void updateScale(float coef);
 
 signals:
 	void repaint();
@@ -79,13 +76,7 @@ protected:
 private:
 	void paintGL() override;
 	void resizeGL(int width, int height) override;
-	void displayScales();
-
-private:
-	// FPS
-	QTime m_timer;
-	size_t m_frame_count{};
-	size_t m_last_count{};
+	void displayScale();
 
 protected:
 
@@ -126,6 +117,12 @@ protected:
 	int m_minHeight = 150;
 
 	GLenum drawingType = GL_TRIANGLES;
+
+private:
+	// FPS
+	QTime m_timer;
+	size_t m_frame_count{};
+	size_t m_last_count{};
 
 };
 

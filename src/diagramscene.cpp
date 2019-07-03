@@ -937,6 +937,15 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 	} else if (key == Qt::Key_C) {
 		// Comment / decomment Function boxes
 		handleComment();
+	} else if (key == Qt::Key_Escape) {
+		// Pressing ESCAPE while copying cancels this copy
+		if (m_copyGroup != nullptr) {
+			removeItem(m_copyGroup);
+			delete m_copyGroup;
+			m_copyGroup = nullptr;
+
+			emit displayStatusMessage(tr("Copying cancelled."));
+		}
 	}
 
 	QGraphicsScene::keyPressEvent(evt);

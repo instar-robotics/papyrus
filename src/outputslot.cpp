@@ -85,8 +85,7 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 	qreal cx = 0;
 	qreal cy = 0;
-	qreal rx = 5;
-	qreal ry = 5;
+	qreal m_radius = 5;
 
 	if (option->state & QStyle::State_MouseOver) {
 		width += 1;
@@ -106,24 +105,22 @@ void OutputSlot::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 		// Make the slot bigger when the mouse is near it
 		qreal sizeOffset = (400 - m_dist) / 100; // Grows linearly with distance -> quadratic should be better
 
-		rx += pow(sizeOffset, 2) / 6;
-		ry += pow(sizeOffset, 2) / 6;
+		m_radius += pow(sizeOffset, 2) / 6;
 	}
 
 	// Subtract the half the line's width to prevent drawing outside the boudingRect
-	rx -= width / 2.0;
-	ry -= width / 2.0;
+	m_radius -= width / 2.0;
 
 	pen.setWidth(width);
 	painter->setPen(pen);
 
-	painter->drawEllipse(QPointF(cx, cy), rx, ry);
+	painter->drawEllipse(QPointF(cx, cy), m_radius, m_radius);
 
 	// Fill the output with the color associated to its type (use a QPainterPath because there is no
 	// painter->fillEllipse()) (if it's not drawing a line)
 	if (drawnLine == nullptr) {
 		QPainterPath path;
-		path.addEllipse(QPointF(cx, cy), rx, ry);
+		path.addEllipse(QPointF(cx, cy), m_radius, m_radius);
 		painter->fillPath(path, getTypeColor(m_outputType));
 	}
 }
@@ -211,7 +208,7 @@ void OutputSlot::updateLinks()
 {
 	foreach(Link *link, m_outputs) {
 		link->updateLines();
-		link->update();
+//		link->update();
 	}
 }
 

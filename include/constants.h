@@ -74,16 +74,19 @@
 #define MAX_TIME_VALUE 10000
 
 // Define the z-value for the links (used to put them behind slots to prevent hiding the slots)
-#define LINKS_Z_VALUE -1.0
+#define LINKS_Z_VALUE 2.0 //-11.0 // So that it's still behind a slot inside a zone
 
 // Define the z-value for the data visualization windows (above boxes and links)
-#define DATA_Z_VALUE 10
+#define DATA_Z_VALUE 4.0 //10
 
 // Define the z-value for the rectangular comments (under everything)
-#define COMMENTS_Z_VALUE -10.0
+#define COMMENTS_Z_VALUE 0.0 //-10.0
 
 // Define the z-value for the neural boxes
-#define BOXES_Z_VALUE 5
+#define BOXES_Z_VALUE 1.0 //5
+
+// Define the slot's z-value
+#define SLOTS_Z_VALUE 3.0
 
 // Define the time (in minutes) after which the user is notified about modified, unsaved scripts
 #define TIME_WARN_MODIFIED 10

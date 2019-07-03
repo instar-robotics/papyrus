@@ -69,10 +69,13 @@ public:
 	DiagramBox *box() const;
 	void setBox(DiagramBox *box);
 
+	qreal radius() const;
+
 protected:
 	QString m_name;    // The name of this slot
 	qreal m_dist;      // Distance to the mouse (used to highlight the slot when mouse approach)
 	DiagramBox *m_box; // The DiagramBox that is associated with this Slot
+	qreal m_radius;    // base radius for drawing the slot
 };
 
 #endif // SLOT_H

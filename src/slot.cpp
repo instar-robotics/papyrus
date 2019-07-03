@@ -20,10 +20,16 @@
 */
 
 #include "slot.h"
+#include "constants.h"
 
-Slot::Slot(QGraphicsItem *parent) : QGraphicsItem(parent), m_dist(0), m_box(NULL)
+Slot::Slot(QGraphicsItem *parent)
+    : QGraphicsItem(parent)
+    , m_dist(0)
+    , m_box(nullptr)
+    , m_radius(5.0)
 {
 	m_name.clear();
+	setZValue(SLOTS_Z_VALUE);
 }
 
 Slot::Slot(QString &name, QGraphicsItem *parent) : Slot(parent)
@@ -59,4 +65,9 @@ DiagramBox *Slot::box() const
 void Slot::setBox(DiagramBox *box)
 {
 	m_box = box;
+}
+
+qreal Slot::radius() const
+{
+	return m_radius;
 }

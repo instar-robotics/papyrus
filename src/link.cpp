@@ -93,7 +93,8 @@ QRectF Link::boundingRect() const
 		// the issue. I'm not sure why, but it works so for now, this stays like this.
 		// Elegant solution welcome.
 		if (m_line.line().p1().y() == m_line.line().p2().y())
-			return m_line.boundingRect().adjusted(-10, -10, 10, 10);
+//			return m_line.boundingRect().adjusted(-10, -10, 10, 10);
+			return m_line.boundingRect().adjusted(0, -10, 0, 10);
 		else
 			return m_line.boundingRect();
 	} else {
@@ -400,7 +401,20 @@ void Link::updateLines()
 
 	// Update the single line when it's not a self looping link
 	if (!m_selfLoop) {
-		m_line.setLine(QLineF(orig, end));
+		// We need to make the Link's line connecting the slots slightly shorter by 2 x slot's radius
+		// (half a radius at each extremity). This is so that links don't go above the slots. It
+		// could not be solved by z-index, because slots's parent is the box, and the box's z-index
+		// need to be less than the link's.
+		QLineF line(orig, end);
+		qreal length = line.length();
+		qreal radiusOrig = m_from->radius();
+		qreal radiusEnd = m_to->radius();
+
+		QPointF newEnd = line.pointAt(1.0 - (radiusEnd+1) / length);
+		QPointF newOrig = line.pointAt((radiusOrig+1) / length);
+		line.setP1(newOrig);
+		line.setP2(newEnd);
+		m_line.setLine(line);
 		m_label->setTextWidth(m_line.line().length());
 		if (orig.x() <= end.x()) {
 			QPointF p = m_line.scenePos();
@@ -429,6 +443,10 @@ void Link::updateLines()
 
 		one.rx() -= qAbs(yDiff);
 		two.rx() += qAbs(yDiff);
+
+		// To prevent link overlapping with slot, see above
+		orig.ry() -= m_from->radius() + 1;
+		end.ry() -= m_to->radius() + 1;
 
 		m_leftSegment.setLine(QLineF(two, end));
 		m_rightSegment.setLine(QLineF(orig, one));

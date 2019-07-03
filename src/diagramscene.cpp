@@ -237,8 +237,29 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 
 		// Check if we are copying items
 		if (m_copyGroup != nullptr) {
+			QList<QGraphicsItem *> children = m_copyGroup->childItems();
 			destroyItemGroup(m_copyGroup);
 			m_copyGroup = nullptr; // Then the items won't follow the mouse anymore
+
+			// Create a single batch command so CTRL + Z removed all copied boxes
+			QUndoCommand *batchCommand = new QUndoCommand;
+
+			// Create an AddCommand for each copied box
+			foreach (QGraphicsItem *item, children) {
+				DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(item);
+
+				if (maybeBox != nullptr) {
+					QPointF sP = maybeBox->scenePos();
+
+					// Remove the item from the scene as it will be added back by the command
+					removeItem(maybeBox);
+
+					// Create a new AddCommand to be chained with batchedCommand
+					new AddBoxCommand(this, maybeBox, sP, batchCommand);
+				}
+			}
+
+			m_undoStack.push(batchCommand);
 		}
 
 		// Check if we have clicked on something

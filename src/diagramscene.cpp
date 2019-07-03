@@ -71,7 +71,8 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_oSlot(nullptr),
                                             m_script(nullptr),
                                             m_displayLabels(false),
-                                            m_undoStack(this)
+                                            m_undoStack(this),
+                                            m_copyGroup(nullptr)
 {
 	m_mainWindow = getMainWindow();
 
@@ -234,6 +235,12 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 	if (evt->button() & Qt::LeftButton) {
 		m_leftBtnDown = true;
 
+		// Check if we are copying items
+		if (m_copyGroup != nullptr) {
+			destroyItemGroup(m_copyGroup);
+			m_copyGroup = nullptr; // Then the items won't follow the mouse anymore
+		}
+
 		// Check if we have clicked on something
 		QGraphicsItem *maybeItem = itemAt(mousePos, QTransform());
 		if (!maybeItem) {
@@ -351,6 +358,11 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		}
 
 		m_rect->setRect(r);
+	}
+
+	// Move the copied item (have them follow the mouse) when we are copying items
+	else if (m_copyGroup != nullptr) {
+		m_copyGroup->setPos(mousePos);
 	}
 
 	QGraphicsScene::mouseMoveEvent(evt);
@@ -1052,6 +1064,16 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
 	}
 
 	painter->drawPoints(dots.data(), dots.size());
+}
+
+QGraphicsItemGroup *DiagramScene::copyGroup() const
+{
+	return m_copyGroup;
+}
+
+void DiagramScene::setCopyGroup(QGraphicsItemGroup *copyGroup)
+{
+	m_copyGroup = copyGroup;
 }
 
 QUndoStack& DiagramScene::undoStack()

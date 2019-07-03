@@ -2372,6 +2372,14 @@ void PapyrusWindow::on_actionCopy_triggered()
 			targetPos.rx() += 50;
 			targetPos.ry() += 50;
 			scene->addBox(copyBox, targetPos);
+
+			scene->setCopyGroup(scene->createItemGroup(QList<QGraphicsItem *>() << copyBox));
+
+			// Group is created at position (0,0), so move it to where the mouse is
+			scene->copyGroup()->setPos(copyBox->scenePos());
+
+			// Now we have to map the box's coordinates from scene to group
+			copyBox->setPos(copyBox->sceneTransform().inverted().map(copyBox->scenePos()));
 		} else {
 			emit displayStatusMessage(tr("Copying is only supported for non-constant Boxes for now."),
 			                          MSG_WARNING);

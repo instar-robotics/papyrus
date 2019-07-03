@@ -36,7 +36,7 @@ void ScopeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
 	painter->fillRect(m_maxRect, Qt::red);
 	painter->fillRect(m_currentRect, QColor(0, 143, 17));
-	painter->fillRect(m_minRect, Qt::blue);
+	painter->fillRect(m_minRect, QColor(250, 250, 100));
 	painter->fillRect(m_meansRect, QColor(Qt::gray).lighter());
 
 	// Also paint a small vertical line showing the start of the item

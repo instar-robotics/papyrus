@@ -89,7 +89,7 @@ signals:
 	void scriptResumed();
 	void scriptPaused();
 	void scriptStopped();
-	void newOscilloMessage(QVector<ScopeMessage> *scopeMessages);
+	void newOscilloMessage(RTTokenMessage *rtTokenMessage, QVector<ScopeMessage> *scopeMessages);
 	void newRTTokenMessage(RTTokenMessage *rtTokenMessage);
 };
 

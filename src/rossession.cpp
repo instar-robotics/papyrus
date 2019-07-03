@@ -190,18 +190,27 @@ void ROSSession::handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr &
 		hieroglyph::OscilloData data = msg->array.at(i);
 
 		message.setUuid(QUuid(data.uuid.c_str()));
-//		message.setPeriod(data.period);
 		message.setMeans(data.means);
 		message.setDuration(data.duration);
 		message.setStart(data.start);
 		message.setMinDuration(data.minDuration);
 		message.setMaxDuration(data.maxDuration);
-//		message.setWarning(data.warning);
 
 		*scopeMessages << message;
 	}
 
-	emit newOscilloMessage(scopeMessages);
+	RTTokenMessage *rtTokenMessage = new RTTokenMessage;
+	rtTokenMessage->setUuid(QUuid(msg->rt_data.uuid.c_str()));
+	rtTokenMessage->setPeriod(msg->rt_data.period);
+	rtTokenMessage->setMeans(msg->rt_data.means);
+	rtTokenMessage->setSleep(msg->rt_data.sleep);
+	rtTokenMessage->setDuration(msg->rt_data.duration);
+	rtTokenMessage->setStart(msg->rt_data.start);
+	rtTokenMessage->setMinDuration(msg->rt_data.minDuration);
+	rtTokenMessage->setMaxDuration(msg->rt_data.maxDuration);
+	rtTokenMessage->setWarning(msg->rt_data.warning);
+
+	emit newOscilloMessage(rtTokenMessage, scopeMessages);
 }
 
 /**

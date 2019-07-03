@@ -252,6 +252,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 					QPointF sP = maybeBox->scenePos();
 
 					// Remove the item from the scene as it will be added back by the command
+					maybeBox->setPos(sP);
 					removeItem(maybeBox);
 
 					// Create a new AddCommand to be chained with batchedCommand
@@ -383,7 +384,17 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 
 	// Move the copied item (have them follow the mouse) when we are copying items
 	else if (m_copyGroup != nullptr) {
-		m_copyGroup->setPos(mousePos);
+		// Snap the group's position's (x, y) coordinates to the grid. I don't know why, but
+		// otherwise, itemChange() doesn't do its job for boxes inside the group
+		// I don't understand why itemChange() doesn't fix it for these copied boxes...
+		qreal newX = round(mousePos.x() / m_gridSize) * m_gridSize;
+		qreal newY = round(mousePos.y() / m_gridSize) * m_gridSize;
+
+		// Create the Point representing the new, snapped position
+		QPointF snappedPos(newX, newY);
+
+		// Remove the item from the scene as it will be added back by the command
+		m_copyGroup->setPos(snappedPos);
 	}
 
 	QGraphicsScene::mouseMoveEvent(evt);

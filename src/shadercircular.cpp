@@ -6,8 +6,10 @@ ShaderCircular::ShaderCircular(int size, int centerIndex, RotationDir dir):
     m_dir(dir)
 {
 	initMatrix();
-	m_scaleCircular = new ShaderScaleCircular(m_radius);
+	m_scaleCircular = new ShaderScaleCircular(m_radius, m_range, m_nbMeasuresY);
+	m_scaleCylinder = new ShaderScaleCylinder(m_radius, m_range, m_nbMeasuresY);
 	m_shaderArrow = new ShaderArrow();
+	m_circScale = true;
 }
 
 ShaderCircular::~ShaderCircular()

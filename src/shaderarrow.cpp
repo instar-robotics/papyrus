@@ -43,18 +43,18 @@ void ShaderArrow::fillVectors()
 	m_vertexes.push_back(vertex);
 
 	/* Colors */
-	for(int i = 0; i<4; i++)
-	{
-		m_colors.push_back(QVector3D(0.3, 0.3, 0.3));
-	}
+	m_colors.push_back(QVector3D(0.0, 0.35, 0.0));
+	m_colors.push_back(QVector3D(0.0, 0.35, 0.0));
+	m_colors.push_back(QVector3D(0.0, 0.35, 0.0));
+	m_colors.push_back(QVector3D(0.0, 1.0, 0.0));
 
 	/* Normals */
 	/*low vertexes*/
 	m_normals.push_back(QVector3D(-0.5,0.0,0.5)); //front left
 	m_normals.push_back(QVector3D(0.5,0.0,0.5)); //front right
-	m_normals.push_back(QVector3D(0.0,0.0,-1.0)); //direction vertex
+	m_normals.push_back(QVector3D(0.0,0.5,0.5)); //front top
 	/*top vertex*/
-	m_normals.push_back(QVector3D(0.0,0.5,0.5));
+	m_normals.push_back(QVector3D(0.0,0.0,-1.0)); //direction vertex
 
 	/* Indexes */
 	//Front triangle

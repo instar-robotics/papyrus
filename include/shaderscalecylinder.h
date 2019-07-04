@@ -1,5 +1,5 @@
-﻿#ifndef SHADERSCALECIRCULAR_H
-#define SHADERSCALECIRCULAR_H
+﻿#ifndef SHADERSCALECYLINDER_H
+#define SHADERSCALECYLINDER_H
 
 #include <QDebug>
 #include <QVector>
@@ -11,12 +11,12 @@
 #include "mathtransfo.h"
 #include "shaderadds.h"
 
-class ShaderScaleCircular: public ShaderAdds
+class ShaderScaleCylinder: public ShaderAdds
 {
 
 public:
-	ShaderScaleCircular(int radius, float range, int nbMeasuresY);
-	~ShaderScaleCircular();
+	ShaderScaleCylinder(int radius, float range, int nbMeasuresY);
+	~ShaderScaleCylinder();
 
 	void updateScale(float max);
 	float max() const;
@@ -36,6 +36,5 @@ private:
 	float m_startRange;
 	float m_range; //Max height (and min for the negatives) of the 3d display
 	float m_max = 1.0; //Max scale measure
-	int m_nbVertexes;
 };
-#endif // SHADERSCALECIRCULAR_H
+#endif // SHADERSCALECYLINDER_H

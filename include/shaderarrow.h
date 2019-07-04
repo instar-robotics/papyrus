@@ -23,8 +23,8 @@ protected:
 	void fillVectors();
 
 protected:
-	float m_width = 0.8;
-	float m_length = 2.0;
+	float m_width = 1.5;
+	float m_length = 3.2;
 
 };
 #endif // SHADERARROW_H

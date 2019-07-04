@@ -184,14 +184,15 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 	painter->setBrush(brush);
 
 	QSize widgetSize = m_widget->size();
-	QVector<QPoint> points;
+	QVector<QPoint> points; //Drax the triangle at the right down corner that marks the resizable zone
 	points.push_back(QPoint(widgetSize.width(),widgetSize.height()));
 	points.push_back(QPoint(widgetSize.width()-18,widgetSize.height()));
 	points.push_back(QPoint(widgetSize.width(),widgetSize.height()-18));
 
 	painter->drawPolygon(points);
 
-	if(m_widget->scalePlanes() != nullptr && m_widget->width() >= m_widget->startWidth())
+	if((m_widget->matrixScale() || m_widget->circScale()) &&
+	    m_widget->width() >= m_widget->startWidth())
 	{
 		painter->setPen(QPen(brush, 1)); //Set the pen for scales
 
@@ -200,11 +201,20 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		QFont font = painter->font();
 		font.setPixelSize(m_fontSize);
 		painter->setFont(font);
-		float max = m_widget->scalePlanes()->max();
-		float rows = m_widget->scalePlanes()->rows();
-		float columns = m_widget->scalePlanes()->columns();
+		float max = 0.0;
+		float rows = 0.0;
+		float columns = 0.0;
+		if(m_widget->matrixScale())
+		{
+			max = m_widget->scalePlanes()->max();
+			rows = m_widget->scalePlanes()->rows();
+			columns = m_widget->scalePlanes()->columns();
+		}
+		else if(m_widget->circScale())
+		{
+			max = m_widget->scaleCircular()->max();
+		}
 		float gap = 0.0;
-
 		/*Y axe*/
 		//Lines
 		lines.push_back(QLine(QPoint(m_margin,m_marginTop), QPoint(m_margin, m_marginTop + (m_widget->nbMeasuresY()-1)*m_measureGap)));
@@ -224,40 +234,43 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		painter->drawText(m_margin * 2 - (m_fontSize+1)/2, m_marginTop + (m_widget->nbMeasuresY()-1)*m_measureGap + m_margin + (m_fontSize+1)/2, "Z");
 		// The Y and Z axes for 3d displayed are inversed in the matricial space
 
-		/*X axe*/
-		//Lines
-		lines.push_back(QLine(QPoint(m_marginTop,widgetSize.height()-m_margin), QPoint((m_widget->nbMeasuresXZ()-1) * m_measureGap-1 + m_marginTop,widgetSize.height()-m_margin)));
-		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+		if(m_widget->matrixScale())
 		{
-			lines.push_back(QLine(QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin), QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin-m_measureSize)));
-		}
-		//Values
-		gap = columns/(m_widget->nbMeasuresXZ()-1);
-		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
-		{
-			int value = gap*i;
-			QString str = QString::fromStdString(std::to_string(value));
-			painter->drawText(i*m_measureGap+m_marginTop - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
-		}
-		painter->drawText(m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "X");
+			/*X axe*/
+			//Lines
+			lines.push_back(QLine(QPoint(m_marginTop,widgetSize.height()-m_margin), QPoint((m_widget->nbMeasuresXZ()-1) * m_measureGap-1 + m_marginTop,widgetSize.height()-m_margin)));
+			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+			{
+				lines.push_back(QLine(QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin), QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin-m_measureSize)));
+			}
+			//Values
+			gap = columns/(m_widget->nbMeasuresXZ()-1);
+			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+			{
+				int value = gap*i;
+				QString str = QString::fromStdString(std::to_string(value));
+				painter->drawText(i*m_measureGap+m_marginTop - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
+			}
+			painter->drawText(m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "X");
 
-		/*Z axe*/
-		//Lines
-		lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop,widgetSize.height()-m_margin), QPoint(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (m_widget->nbMeasuresXZ()-1) * m_measureGap,widgetSize.height()-m_margin))));
-		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
-		{
-			lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + i*m_measureGap,widgetSize.height()-m_margin), QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (i*m_measureGap),widgetSize.height()-m_margin-m_measureSize)));
+			/*Z axe*/
+			//Lines
+			lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop,widgetSize.height()-m_margin), QPoint(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (m_widget->nbMeasuresXZ()-1) * m_measureGap,widgetSize.height()-m_margin))));
+			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+			{
+				lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + i*m_measureGap,widgetSize.height()-m_margin), QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (i*m_measureGap),widgetSize.height()-m_margin-m_measureSize)));
+			}
+			//Values
+			gap = rows/(m_widget->nbMeasuresXZ()-1);
+			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
+			{
+				int value = gap*i;
+				QString str = QString::fromStdString(std::to_string(value));
+				painter->drawText(m_widget->nbMeasuresXZ()*m_measureGap+m_margin+m_marginTop+i*m_measureGap-(m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
+			}
+			painter->drawText(m_widget->nbMeasuresXZ() * m_measureGap + 2*m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "Y");
+			// The Y and Z axes for 3d displayed are inversed in the matricial space
 		}
-		//Values
-		gap = rows/(m_widget->nbMeasuresXZ()-1);
-		for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
-		{
-			int value = gap*i;
-			QString str = QString::fromStdString(std::to_string(value));
-			painter->drawText(m_widget->nbMeasuresXZ()*m_measureGap+m_margin+m_marginTop+i*m_measureGap-(m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
-		}
-		painter->drawText(m_widget->nbMeasuresXZ() * m_measureGap + 2*m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "Y");
-		// The Y and Z axes for 3d displayed are inversed in the matricial space
 
 		painter->drawLines(lines);
 	}

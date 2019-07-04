@@ -12,7 +12,7 @@ class ShaderAdds
 
 public:
 	ShaderAdds();
-	~ShaderAdds();
+	virtual ~ShaderAdds();
 
 	void initGPUbuffers(QOpenGLBuffer *indexbuffer, QOpenGLBuffer *vertexbuffer, QOpenGLBuffer *normalbuffer, QOpenGLBuffer *colorbuffer);
 

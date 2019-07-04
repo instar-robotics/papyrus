@@ -29,6 +29,7 @@
 #include "shaderscaleplanes.h"
 #include "shaderaxesplanes.h"
 #include "shaderscalecircular.h"
+#include "shaderscalecylinder.h"
 #include "shaderarrow.h"
 #include "shaderadds.h"
 
@@ -57,6 +58,14 @@ public:
 	ShaderScalePlanes *scalePlanes() const;
 	int startWidth() const;
 	void updateScale(float coef);
+
+	ShaderScaleCircular *scaleCircular() const;
+
+	ShaderScaleCylinder *scaleCylinder() const;
+
+	bool matrixScale() const;
+
+	bool circScale() const;
 
 signals:
 	void repaint();
@@ -101,9 +110,14 @@ protected:
 	int m_nbMeasuresXZ = 11;
 	int m_nbMeasuresY = 5;
 
-	//Scale circular
+	// Scale circular
 	ShaderScaleCircular *m_scaleCircular = nullptr;
+	ShaderScaleCylinder *m_scaleCylinder = nullptr;
 	ShaderArrow *m_shaderArrow = nullptr;
+
+	// Scales activated or not
+	bool m_matrixScale = false;
+	bool m_circScale = false;
 
 	// 3D scene
 	float m_gap = 0.2f;

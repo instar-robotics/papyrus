@@ -14,6 +14,10 @@ ShaderWidget::ShaderWidget()
 
 ShaderWidget::~ShaderWidget()
 {
+	delete m_scalePlanes;
+	delete m_scaleCircular;
+	delete m_scaleCylinder;
+	delete m_shaderArrow;
 }
 
 //Function run only on the opengl widget's creation
@@ -82,7 +86,7 @@ void ShaderWidget::paintGL()
 		m_last_count = m_frame_count;
 		m_frame_count = 0;
 		m_timer.restart();
-		//qDebug() << m_last_count;
+		qDebug() << m_last_count;
 	}
 
 	update();
@@ -187,32 +191,60 @@ void ShaderWidget::resizeGL(int width, int height)
 
 void ShaderWidget::displayScale()
 {
-	if(m_scalePlanes != nullptr)
+	if(m_matrixScale)
 	{
 		m_scalePlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
 		m_indexbuffer.bind();
 		glDrawElements(GL_LINES, m_scalePlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 	}
-	if(m_scaleCircular != nullptr)
+	if(m_circScale)
 	{
 		m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
 		m_indexbuffer.bind();
 		glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
-	}
-	if(m_shaderArrow != nullptr)
-	{
+
+		m_scaleCylinder->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scaleCylinder->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+
 		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
 		m_indexbuffer.bind();
 		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 	}
 }
+
+bool ShaderWidget::circScale() const
+{
+	return m_circScale;
+}
+
+bool ShaderWidget::matrixScale() const
+{
+	return m_matrixScale;
+}
+
+ShaderScaleCylinder *ShaderWidget::scaleCylinder() const
+{
+	return m_scaleCylinder;
+}
+
+ShaderScaleCircular *ShaderWidget::scaleCircular() const
+{
+	return m_scaleCircular;
+}
 void ShaderWidget::updateScale(float coef)
 {
-	if(m_scalePlanes != nullptr)
+	if(m_matrixScale)
 		m_scalePlanes->updateScale(m_scalePlanes->max()*coef);
+	if(m_circScale)
+	{
+		m_scaleCircular->updateScale(m_scaleCircular->max()*coef);
+		m_scaleCylinder->updateScale(m_scaleCylinder->max()*coef);
+	}
 }
 
 void ShaderWidget::mousePressed(QPoint pos)

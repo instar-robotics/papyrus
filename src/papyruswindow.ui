@@ -118,6 +118,8 @@
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionFind"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopy"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -317,7 +319,7 @@
     <string>Connect to kheops script</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+C</string>
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
   <action name="actionRun">
@@ -456,6 +458,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/copy.svg</normaloff>:/icons/icons/copy.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
    </property>
   </action>
  </widget>

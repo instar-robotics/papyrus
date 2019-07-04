@@ -91,9 +91,10 @@ public:
 	void setRect(QGraphicsRectItem *rect);
 
 	QUndoStack &undoStack();
-
 	void hide3DVisualizations();
 	void show3DVisualizations();
+	QGraphicsItemGroup *copyGroup() const;
+	void setCopyGroup(QGraphicsItemGroup *copyGroup);
 
 public slots:
 	void toggleDisplayGrid(bool shouldDraw);
@@ -129,6 +130,8 @@ private:
 	bool m_displayLabels;    // Whether or not to display input slots's names
 	bool m_prevDisplayLabels;// Remembers the value of 'displayLabel' when creating links (to restore afterward)
 	QUndoStack m_undoStack; // The stack to allow for undo / redo commands
+
+	QGraphicsItemGroup *m_copyGroup; // A pointer to a group of items being copied
 
 private slots:
 	void onSelectionChanged();

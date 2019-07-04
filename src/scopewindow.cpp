@@ -46,8 +46,8 @@ ScopeWindow::ScopeWindow(Script *script, QWidget *parent) :
 	initTicks();
 	m_ui->graphicsView->setScene(&m_scene);
 
-	connect(m_script->rosSession(), SIGNAL(newOscilloMessage(QVector<ScopeMessage>*)),
-	        this, SLOT(onNewOscilloMessage(QVector<ScopeMessage>*)));
+	connect(m_script->rosSession(), SIGNAL(newOscilloMessage(RTTokenMessage*,QVector<ScopeMessage>*)),
+	        this, SLOT(onNewOscilloMessage(RTTokenMessage*,QVector<ScopeMessage>*)));
 }
 
 ScopeWindow::~ScopeWindow()
@@ -211,9 +211,11 @@ bool ScopeWindow::disableOscillo()
 	} else {
 		qWarning() << "[ScopeWindow::enableOscillo] ScopeWindow created without a Script!";
 	}
+
+	return false;
 }
 
-void ScopeWindow::onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages)
+void ScopeWindow::onNewOscilloMessage(RTTokenMessage *rtTokenMessage, QVector<ScopeMessage> *scopeMessages)
 {
 	if (scopeMessages == nullptr) {
 		qWarning() << "[ScopeWindow::onNewOscilloMessage] got empty message";
@@ -224,10 +226,7 @@ void ScopeWindow::onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages)
 
 	// The first items in the array should be the RT token, which indicates the start time of the
 	// wave.
-	qreal waveStart = scopeMessages->at(0).start();
-
-	if (scopeMessages->at(0).uuid() != m_script->uuid())
-		qWarning() << "First scope item is not the RT Token!";
+	qreal waveStart = rtTokenMessage->start();
 
 	// Now that we have the start time, let's display the results
 	for (int i = 1; i < n; i += 1) {
@@ -241,14 +240,12 @@ void ScopeWindow::onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages)
 
 		// Check we have a corresponding scope item
 		if (!m_scopeItems.contains(msg.uuid())) {
-			// We skip the first item as it's the RT Token
 			qWarning() << "UUID" << msg.uuid() << "not in map";
 			continue;
 		}
 
 		// Check we have a corresponding scope label
 		if (!m_scopeLabels.contains(msg.uuid())) {
-			// We skip the first item as it's the RT Token
 			qWarning() << "Label for UUID" << msg.uuid() << "not in map";
 			continue;
 		}
@@ -260,7 +257,7 @@ void ScopeWindow::onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages)
 		}
 
 		// Set position and size of the scope item
-		qreal startedAt = (msg.start() - waveStart) / 1e6; // in ms after start of script
+		qreal startedAt = msg.start() - waveStart; // in ms after start of script
 		qreal x = m_xOffset + startedAt / m_period * (m_scene.width() - m_xOffset);
 		qreal meanWidth = (msg.means() * 1e3) / m_period * (m_scene.width() - m_xOffset);
 		qreal currentWidth = (msg.duration() * 1e3) / m_period * (m_scene.width() - m_xOffset);
@@ -268,10 +265,10 @@ void ScopeWindow::onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages)
 		qreal maxWidth = (msg.maxDuration() * 1e3) / m_period * (m_scene.width() - m_xOffset);
 		qreal y = m_yOffset + 2 + (i-1) * (ScopeItem::barHeight + 5);
 
-//		item->setMaxRectWidth(maxWidth);
+		item->setMaxRectWidth(maxWidth);
 		item->setMeansRectWidth(meanWidth);
 		item->setCurrentRectWidth(currentWidth);
-//		item->setMinRectWidth(minWidth);
+		item->setMinRectWidth(minWidth);
 		item->setPos(x, y);
 
 		// Set position of the scope label
@@ -285,5 +282,6 @@ void ScopeWindow::onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages)
 		              y);
 	}
 
+	delete rtTokenMessage;
 	delete scopeMessages;
 }

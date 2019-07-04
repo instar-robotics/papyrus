@@ -32,6 +32,7 @@
 #include "changelog.h"
 #include "activityvisualizer.h"
 #include "finddialog.h"
+#include "constantdiagrambox.h"
 
 #include <cryptopp/filters.h>
 #include <cryptopp/aes.h>
@@ -1476,6 +1477,8 @@ void PapyrusWindow::onScopeWindowClosed(int result)
  */
 void PapyrusWindow::onActiveScriptChanged(Script *newActiveScript)
 {
+	Q_UNUSED(newActiveScript);
+
 	// Trigger the closing of the scope window if present
 	onScopeWindowClosed(-2);
 }
@@ -2377,4 +2380,60 @@ void PapyrusWindow::on_actionFind_triggered()
 	m_findDialog->show();
 	m_findDialog->raise();
 	m_findDialog->activateWindow();
+}
+
+/**
+ * @brief PapyrusWindow::on_actionCopy_triggered copy selected items on the scene
+ */
+void PapyrusWindow::on_actionCopy_triggered()
+{
+	// First check that we have an active script and we are able to get the scene
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("Nothing to copy: no active script!"), MSG_WARNING);
+		return;
+	}
+
+	DiagramScene *scene = m_activeScript->scene();
+	if (scene == nullptr) {
+		emit displayStatusMessage(tr("Cannot copy items: no scene!"), MSG_WARNING);
+		return;
+	}
+
+	// For now, we only support copying DiagramBoxes
+	QList<QGraphicsItem *> selectedItems = scene->selectedItems();
+
+	if (selectedItems.size() == 0) {
+		emit displayStatusMessage(tr("No selected items to copy!"), MSG_WARNING);
+		return;
+	} else {
+		// Filter only DiagramBoxes (we only support them for now)
+		QList<QGraphicsItem *> boxesToCopy;
+
+		foreach (QGraphicsItem *item, selectedItems) {
+			DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(item);
+			ConstantDiagramBox *maybeConstantBox = dynamic_cast<ConstantDiagramBox *>(item);
+			if (maybeBox != nullptr && maybeConstantBox == nullptr) {
+				DiagramBox *copyBox = new DiagramBox(*maybeBox);
+				QPointF targetPos = maybeBox->scenePos();
+				targetPos.rx() += 50;
+				targetPos.ry() += 50;
+				scene->addBox(copyBox, targetPos);
+
+				boxesToCopy << copyBox;
+			}
+		}
+
+		// Now that boxes are filtered, create a group with them, to be able to move them
+		if (boxesToCopy.size() > 0) {
+			scene->setCopyGroup(scene->createItemGroup(boxesToCopy));
+
+			// Group is created at position (0,0), so move it to position of first item (temp)
+			scene->copyGroup()->setPos(boxesToCopy.at(0)->scenePos());
+
+			// Now we have to map all boxes' positions from scene to group
+			foreach (QGraphicsItem *copyBox, boxesToCopy) {
+				copyBox->setPos(scene->copyGroup()->sceneTransform().inverted().map(copyBox->pos()));
+			}
+		}
+	}
 }

@@ -50,7 +50,7 @@ DiagramBox::DiagramBox(const QString &name,
                        const QString &description,
                        const QUuid &uuid,
                        InhibInput *inhibInput,
-                       QGraphicsItem *parent) : QGraphicsItem(parent),
+                       QGraphicsItem *parent) : QGraphicsObject(parent),
                                                 m_name(name),
                                                 m_bWidth(120),
                                                 m_bHeight(70),
@@ -155,6 +155,43 @@ DiagramBox::DiagramBox(const QString &name,
 	updateSizeIcon();
 
 	setZValue(BOXES_Z_VALUE);
+}
+
+/**
+ * @brief DiagramBox::DiagramBox copy constructor. Make some changes for the copy:
+ * - generate new UUID
+ * - strip connected links
+ * - reset title
+ * - reset saveActivity
+ * - reset publish
+ * - reset topic name
+ * - reset activity visualizer
+ * @param copy
+ */
+DiagramBox::DiagramBox(const DiagramBox &copy)
+//    : QGraphicsObject(nullptr)
+    : DiagramBox(copy.m_name, new OutputSlot(*copy.m_outputSlot), std::vector<InputSlot *>(), copy.m_description,QUuid::createUuid(),new InhibInput)
+{
+	m_matrixShape = copy.m_matrixShape;
+	m_libname = copy.m_libname;
+	m_descriptionFile = copy.m_descriptionFile;
+//	m_outputSlot = new OutputSlot(*copy.m_outputSlot);
+
+	foreach (InputSlot *iSlot, copy.m_inputSlots) {
+		InputSlot *copySlot = new InputSlot(*iSlot);
+		copySlot->setParentItem(this);
+		copySlot->setBox(this);
+		copySlot->setAcceptHoverEvents(true);
+		copySlot->setPos(iSlot->pos()); // Remember pos() is w.r.t. to the parent
+
+		m_inputSlots.push_back(copySlot);
+	}
+
+	m_rows = copy.m_rows;
+	m_cols = copy.m_cols;
+	updateSizeIcon(); // So that the new copy has the correct icon
+	setIconFilepath(copy.m_iconFilepath); // use setter because it then creates the QIcon
+	m_isCommented = copy.m_isCommented;
 }
 
 DiagramBox::~DiagramBox()

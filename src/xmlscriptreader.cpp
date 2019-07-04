@@ -509,7 +509,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(b->scriptName(),
 				                                                            b->uuid().toString())),
 				                              b);
-				m_script->rosSession()->addToHotList(b->uuid());
+				m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
 			}
 			proxy->setActivityFetcher(fetcher);
 			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));

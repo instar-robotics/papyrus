@@ -96,7 +96,8 @@ HEADERS += include/category.h \
     include/shadercrown.h \
     include/shaderscalecircular.h \
     include/shaderarrow.h \
-    include/shaderadds.h
+    include/shaderadds.h \
+    include/rttokenmessage.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -178,7 +179,8 @@ SOURCES += src/category.cpp \
     src/shadercrown.cpp \
     src/shaderscalecircular.cpp \
     src/shaderarrow.cpp \
-    src/shaderadds.cpp
+    src/shaderadds.cpp \
+    src/rttokenmessage.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

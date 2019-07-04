@@ -25,6 +25,7 @@
 #include "diagramscene.h"
 #include "types.h"
 #include "rossession.h"
+#include "rttokenmessage.h"
 
 #include <QString>
 #include <QFile>
@@ -140,7 +141,7 @@ private slots:
 	void onScriptPaused();
 	void onScriptStopped();
 	void onTimeElapsed(int h, int m, int s, int ms);
-	void handleRTTokenMessage(ScopeMessage *rtTokenMessage);
+	void handleRTTokenMessage(RTTokenMessage *rtTokenMessage);
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);

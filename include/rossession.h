@@ -26,6 +26,7 @@
 
 #include "types.h"
 #include "scopemessage.h"
+#include "rttokenmessage.h"
 
 #include <QThread>
 #include <QString>
@@ -34,6 +35,7 @@
 #include "diagnostic_msgs/KeyValue.h"
 #include "hieroglyph/OscilloArray.h"
 #include "hieroglyph/OscilloData.h"
+#include "hieroglyph/RtToken.h"
 
 /**
  * @brief The ROSSession class contains parameters related to the current ROS session (connection
@@ -47,7 +49,7 @@ public:
 	ROSSession(const QString &nodeName, QObject *parent = nullptr);
 	~ROSSession();
 
-	void addToHotList(QUuid uuid);
+	void addToHotList(QSet<QUuid> uuids);
 
 	bool callServiceControl(QString cmd);
 	ScriptStatus queryScriptStatus();
@@ -78,17 +80,17 @@ private:
 
 	void run() override;
 	void handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr& msg);
-	void activateOutput(QUuid uuid);
+	void activateOutputs(QSet<QUuid> uuids);
 	void handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr& msg);
-	void handleRTTokenMessage(const hieroglyph::OscilloData::ConstPtr& msg);
+	void handleRTTokenMessage(const hieroglyph::RtToken::ConstPtr& msg);
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
 	void scriptResumed();
 	void scriptPaused();
 	void scriptStopped();
-	void newOscilloMessage(QVector<ScopeMessage> *scopeMessages);
-	void newRTTokenMessage(ScopeMessage *rtTokenMessage);
+	void newOscilloMessage(RTTokenMessage *rtTokenMessage, QVector<ScopeMessage> *scopeMessages);
+	void newRTTokenMessage(RTTokenMessage *rtTokenMessage);
 };
 
 #endif // ROSSESSION_H

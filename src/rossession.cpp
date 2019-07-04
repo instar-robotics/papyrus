@@ -22,7 +22,7 @@
 #include "rossession.h"
 #include "helpers.h"
 #include "papyruswindow.h"
-#include "hieroglyph/ArgCmd.h"
+#include "hieroglyph/ArgsCmd.h"
 #include "hieroglyph/SimpleCmd.h"
 
 ROSSession::ROSSession(const QString &nodeName, QObject *parent)
@@ -55,15 +55,15 @@ ROSSession::~ROSSession()
  * If called when the script is already running, then also call @activateOutput() directly
  * @param uuid
  */
-void ROSSession::addToHotList(QUuid uuid)
+void ROSSession::addToHotList(QSet<QUuid> uuids)
 {
-	if (!uuid.isNull()) {
-		m_hotList.insert(uuid);
+	//	if (!uuids.isNull()) {
+	//		m_hotList.insert(uuids);
+	    m_hotList.unite(uuids);
 
-		// If the script has already been launched, then activate output immediately
-		if (!m_isFirstRun)
-			activateOutput(uuid);
-	}
+	// If the script has already been launched, then activate output immediately
+	if (!m_isFirstRun)
+		activateOutputs(uuids);
 }
 
 /**
@@ -165,17 +165,19 @@ bool ROSSession::callServiceRTToken(const QString &cmd)
  * @param uuid the UUID of the function which output we want to activate
  * @return whether it succeeded or not
  */
-void ROSSession::activateOutput(QUuid uuid)
+void ROSSession::activateOutputs(QSet<QUuid> uuids)
 {
 	QString srvName = m_nodeName + "/output";
-//	ros::NodeHandle nh;
-	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
-	hieroglyph::ArgCmd srv;
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgsCmd>(srvName.toStdString());
+	hieroglyph::ArgsCmd srv;
 	srv.request.cmd = "start";
-	srv.request.arg = uuid.toString().toStdString();
+//	srv.request.arg = uuids.toString().toStdString();
+
+	foreach (QUuid uuid, uuids)
+		srv.request.args.push_back(uuid.toString().toStdString());
 
 	if (!client.call(srv)) {
-		qWarning() << "Failed to activate output on uuid" << uuid.toString() << "on node name" << m_nodeName;
+		qWarning() << "Failed to activate output on uuid" << uuids << "on node name" << m_nodeName;
 	}
 }
 
@@ -190,28 +192,36 @@ void ROSSession::handleOscilloMessage(const hieroglyph::OscilloArray::ConstPtr &
 		hieroglyph::OscilloData data = msg->array.at(i);
 
 		message.setUuid(QUuid(data.uuid.c_str()));
-		message.setPeriod(data.period);
 		message.setMeans(data.means);
 		message.setDuration(data.duration);
 		message.setStart(data.start);
 		message.setMinDuration(data.minDuration);
 		message.setMaxDuration(data.maxDuration);
-		message.setWarning(data.warning);
 
 		*scopeMessages << message;
 	}
 
-	emit newOscilloMessage(scopeMessages);
+	RTTokenMessage *rtTokenMessage = new RTTokenMessage;
+	rtTokenMessage->setUuid(QUuid(msg->rt_data.uuid.c_str()));
+	rtTokenMessage->setPeriod(msg->rt_data.period);
+	rtTokenMessage->setMeans(msg->rt_data.means);
+	rtTokenMessage->setSleep(msg->rt_data.sleep);
+	rtTokenMessage->setDuration(msg->rt_data.duration);
+	rtTokenMessage->setStart(msg->rt_data.start);
+	rtTokenMessage->setMinDuration(msg->rt_data.minDuration);
+	rtTokenMessage->setMaxDuration(msg->rt_data.maxDuration);
+	rtTokenMessage->setWarning(msg->rt_data.warning);
+
+	emit newOscilloMessage(rtTokenMessage, scopeMessages);
 }
 
 /**
  * @brief ROSSession::handleRTTokenMessage receives a message from the "rt_token" topic
  * @param msg
  */
-void ROSSession::handleRTTokenMessage(const hieroglyph::OscilloData::ConstPtr &msg)
+void ROSSession::handleRTTokenMessage(const hieroglyph::RtToken::ConstPtr &msg)
 {
-	// This is the same as ScopeMessage, yes
-	ScopeMessage *rtTokenMessage = new ScopeMessage;
+	RTTokenMessage *rtTokenMessage = new RTTokenMessage;
 
 	rtTokenMessage->setUuid(QUuid(msg->uuid.c_str()));
 	rtTokenMessage->setPeriod(msg->period);
@@ -295,9 +305,7 @@ void ROSSession::handleStatusChange(const diagnostic_msgs::KeyValue::ConstPtr &m
 		if (value == "resume") {
 			// When the script is first run, activate all functions in the hot list
 			if (m_isFirstRun) {
-				foreach (QUuid uuid, m_hotList) {
-					activateOutput(uuid);
-				}
+				activateOutputs(m_hotList);
 			}
 			m_isFirstRun = false;
 

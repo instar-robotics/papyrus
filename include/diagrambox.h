@@ -31,7 +31,7 @@
 
 #include <set>
 
-#include <QGraphicsItem>
+#include <QGraphicsObject>
 #include <QIcon>
 #include <QUuid>
 #include <QGraphicsSvgItem>
@@ -48,7 +48,7 @@ class ShaderProxy;
  * It can have @InputSlot s and @OutputSlot s attached.
  */
 
-class DiagramBox : public QObject, public QGraphicsItem
+class DiagramBox : public QGraphicsObject
 {
 	Q_OBJECT
 
@@ -64,6 +64,7 @@ public:
 	                    const QUuid &uuid = 0,
 	                    InhibInput *inhibInput = nullptr,
 	                    QGraphicsItem *parent = 0);
+	DiagramBox(const DiagramBox& copy);
 	~DiagramBox();
 
 	QRectF boundingRect() const override;

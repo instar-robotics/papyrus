@@ -3,6 +3,7 @@
 
 #include "script.h"
 #include "scopemessage.h"
+#include "rttokenmessage.h"
 #include "scopeitem.h"
 
 #include <QDialog>
@@ -59,7 +60,7 @@ private:
 	QMap<QUuid, QGraphicsTextItem *> m_scopeLabels; // The matching between Uuid and the name/title of a function
 
 private slots:
-	void onNewOscilloMessage(QVector<ScopeMessage> *scopeMessages);
+	void onNewOscilloMessage(RTTokenMessage *rtTokenMessage, QVector<ScopeMessage> *scopeMessages);
 };
 
 #endif // SCOPEWINDOW_H

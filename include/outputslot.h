@@ -42,6 +42,7 @@ class OutputSlot : public Slot
 	Q_OBJECT
 public:
 	explicit OutputSlot();
+	explicit OutputSlot(const OutputSlot& copy);
 
 	std::set<Link *> outputs() const;
 

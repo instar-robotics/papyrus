@@ -7,13 +7,11 @@ ScopeMessage::ScopeMessage()
 
 ScopeMessage::ScopeMessage(const ScopeMessage &other) :
     m_uuid(other.uuid()),
-    m_period(other.period()),
     m_means(other.means()),
     m_duration(other.duration()),
     m_start(other.start()),
     m_minDuration(other.minDuration()),
-    m_maxDuration(other.maxDuration()),
-    m_warning(other.warning())
+    m_maxDuration(other.maxDuration())
 {
 
 }
@@ -31,16 +29,6 @@ QUuid ScopeMessage::uuid() const
 void ScopeMessage::setUuid(const QUuid &uuid)
 {
 	m_uuid = uuid;
-}
-
-qreal ScopeMessage::period() const
-{
-	return m_period;
-}
-
-void ScopeMessage::setPeriod(const qreal &period)
-{
-	m_period = period;
 }
 
 qreal ScopeMessage::means() const
@@ -91,14 +79,4 @@ qreal ScopeMessage::maxDuration() const
 void ScopeMessage::setMaxDuration(const qreal &maxDuration)
 {
 	m_maxDuration = maxDuration;
-}
-
-bool ScopeMessage::warning() const
-{
-	return m_warning;
-}
-
-void ScopeMessage::setWarning(bool warning)
-{
-	m_warning = warning;
 }

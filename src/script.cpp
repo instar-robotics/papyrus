@@ -816,11 +816,11 @@ void Script::onTimeElapsed(int h, int m, int s, int ms)
 }
 
 /**
- * @brief Script::handleRTTokenWarning receives the 'warning' attribute of the RT Token message and
+ * @brief Script::handleRTTokenMessage receives the 'warning' attribute of the RT Token message and
  * emit a signal informing the main window to update this script's icon accordingly.
  * @param warning wether or not the script is in warning with respect to its real time constraint
  */
-void Script::handleRTTokenMessage(ScopeMessage *rtTokenMessage)
+void Script::handleRTTokenMessage(RTTokenMessage *rtTokenMessage)
 {
 	// For now, only report the RT Token warning
 
@@ -988,8 +988,8 @@ void Script::setupROSSession()
 	connect(m_rosSession, SIGNAL(scriptPaused()), this, SLOT(onScriptPaused()));
 	connect(m_rosSession, SIGNAL(scriptResumed()), this, SLOT(onScriptResumed()));
 	connect(m_rosSession, SIGNAL(scriptStopped()), this, SLOT(onScriptStopped()));
-	connect(m_rosSession, SIGNAL(newRTTokenMessage(ScopeMessage*)),
-	        this, SLOT(handleRTTokenMessage(ScopeMessage*)));
+	connect(m_rosSession, SIGNAL(newRTTokenMessage(RTTokenMessage*)),
+	        this, SLOT(handleRTTokenMessage(RTTokenMessage*)));
 }
 
 ROSSession *Script::rosSession() const

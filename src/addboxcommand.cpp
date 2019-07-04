@@ -73,7 +73,7 @@ void AddBoxCommand::redo()
 
 	m_scene->addBox(m_box, m_initialPos);
 
-	// Check if the boz was dropped on a zone
+	// Check if the box was dropped on a zone
 	foreach (QGraphicsItem *item, m_box->collidingItems()) {
 		Zone *zone = dynamic_cast<Zone *>(item);
 

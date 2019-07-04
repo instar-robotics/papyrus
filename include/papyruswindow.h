@@ -245,6 +245,7 @@ private slots:
 	void on_actionShow_outputs_triggered();
 	void on_actionHide_outputs_triggered();
 	void on_actionFind_triggered();
+	void on_actionCopy_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

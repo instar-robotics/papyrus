@@ -72,7 +72,8 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
                                             m_oSlot(nullptr),
                                             m_script(nullptr),
                                             m_displayLabels(false),
-                                            m_undoStack(this)
+                                            m_undoStack(this),
+                                            m_copyGroup(nullptr)
 {
 	m_mainWindow = getMainWindow();
 
@@ -235,6 +236,34 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 	if (evt->button() & Qt::LeftButton) {
 		m_leftBtnDown = true;
 
+		// Check if we are copying items
+		if (m_copyGroup != nullptr) {
+			QList<QGraphicsItem *> children = m_copyGroup->childItems();
+			destroyItemGroup(m_copyGroup);
+			m_copyGroup = nullptr; // Then the items won't follow the mouse anymore
+
+			// Create a single batch command so CTRL + Z removed all copied boxes
+			QUndoCommand *batchCommand = new QUndoCommand;
+
+			// Create an AddCommand for each copied box
+			foreach (QGraphicsItem *item, children) {
+				DiagramBox *maybeBox = dynamic_cast<DiagramBox *>(item);
+
+				if (maybeBox != nullptr) {
+					QPointF sP = maybeBox->scenePos();
+
+					// Remove the item from the scene as it will be added back by the command
+					maybeBox->setPos(sP);
+					removeItem(maybeBox);
+
+					// Create a new AddCommand to be chained with batchedCommand
+					new AddBoxCommand(this, maybeBox, sP, batchCommand);
+				}
+			}
+
+			m_undoStack.push(batchCommand);
+		}
+
 		// Check if we have clicked on something
 		QGraphicsItem *maybeItem = itemAt(mousePos, QTransform());
 		if (!maybeItem) {
@@ -352,6 +381,21 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		}
 
 		m_rect->setRect(r);
+	}
+
+	// Move the copied item (have them follow the mouse) when we are copying items
+	else if (m_copyGroup != nullptr) {
+		// Snap the group's position's (x, y) coordinates to the grid. I don't know why, but
+		// otherwise, itemChange() doesn't do its job for boxes inside the group
+		// I don't understand why itemChange() doesn't fix it for these copied boxes...
+		qreal newX = round(mousePos.x() / m_gridSize) * m_gridSize;
+		qreal newY = round(mousePos.y() / m_gridSize) * m_gridSize;
+
+		// Create the Point representing the new, snapped position
+		QPointF snappedPos(newX, newY);
+
+		// Remove the item from the scene as it will be added back by the command
+		m_copyGroup->setPos(snappedPos);
 	}
 
 	QGraphicsScene::mouseMoveEvent(evt);
@@ -900,6 +944,15 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 	} else if (key == Qt::Key_C) {
 		// Comment / decomment Function boxes
 		handleComment();
+	} else if (key == Qt::Key_Escape) {
+		// Pressing ESCAPE while copying cancels this copy
+		if (m_copyGroup != nullptr) {
+			removeItem(m_copyGroup);
+			delete m_copyGroup;
+			m_copyGroup = nullptr;
+
+			emit displayStatusMessage(tr("Copying cancelled."));
+		}
 	}
 
 	QGraphicsScene::keyPressEvent(evt);
@@ -1065,6 +1118,16 @@ void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
 	}
 
 	painter->drawPoints(dots.data(), dots.size());
+}
+
+QGraphicsItemGroup *DiagramScene::copyGroup() const
+{
+	return m_copyGroup;
+}
+
+void DiagramScene::setCopyGroup(QGraphicsItemGroup *copyGroup)
+{
+	m_copyGroup = copyGroup;
 }
 
 QUndoStack& DiagramScene::undoStack()
@@ -1439,7 +1502,7 @@ void DiagramScene::display2DVisu(VisuType type)
 				fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
 				                                                            selectedBox->uuid().toString())),
 				                              selectedBox);
-				m_script->rosSession()->addToHotList(selectedBox->uuid());
+				m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 			}
 
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);

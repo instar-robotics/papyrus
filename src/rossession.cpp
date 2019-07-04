@@ -158,6 +158,27 @@ bool ROSSession::callServiceRTToken(const QString &cmd)
 }
 
 /**
+ * @brief ROSSession::callServiceComment call 'comment' kheops service to either comment or uncomment
+ * a batch of functions
+ * @param comment true to comment, false to uncomment
+ * @param uuids the list of functions uuids to comment/uncomment
+ * @return
+ */
+bool ROSSession::callServiceComment(bool comment, QList<QUuid> uuids)
+{
+	QString srvName = QString("%1/comment").arg(m_nodeName);
+
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgsCmd>(srvName.toStdString());
+	hieroglyph::ArgsCmd srv;
+	srv.request.cmd = comment ? "true" : "false";
+
+	foreach (QUuid uuid, uuids)
+		srv.request.args.push_back(uuid.toString().toStdString());
+
+	return client.call(srv);
+}
+
+/**
  * @brief ROSSession::activateOutput issue a ROS service call to activate a function's output (i.e.
  * make this function publish its output on the bus)
  * IMPORTANT: this requires the script to be running. This is meant to be used internally. Users

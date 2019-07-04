@@ -60,6 +60,8 @@ public:
 
 	bool callServiceRTToken(const QString &cmd);
 
+	bool callServiceComment(bool comment, QList<QUuid> uuids);
+
 	bool shouldQuit() const;
 	void setShouldQuit(bool shouldQuit);
 

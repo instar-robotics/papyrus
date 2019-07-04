@@ -2391,3 +2391,18 @@ void PapyrusWindow::on_actionCopy_triggered()
 		}
 	}
 }
+
+/**
+ * @brief PapyrusWindow::on_actionSelect_All_triggered select all items on scene
+ */
+void PapyrusWindow::on_actionSelect_All_triggered()
+{
+	// Check that we have an active script
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("Cannot select all: no active script!"));
+		return;
+	}
+
+	foreach (QGraphicsItem *item, m_activeScript->scene()->items())
+		item->setSelected(true);
+}

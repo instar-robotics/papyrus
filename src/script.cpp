@@ -67,7 +67,8 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
                                                            m_encrypt(false),
                                                            m_isActiveScript(false),
                                                            m_isRunning(false),
-                                                           m_isPaused(false)
+                                                           m_isPaused(false),
+                                                           m_isLiveCommentEnabled(true)
 {
 	if (scene != NULL) {
 		scene->setScript(this);
@@ -678,6 +679,16 @@ void Script::warnAboutModifiedScript()
 	QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
 	QString msg(tr("You should save it to prevent data loss."));
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
+}
+
+bool Script::isLiveCommentEnabled() const
+{
+	return m_isLiveCommentEnabled;
+}
+
+void Script::setIsLiveCommentEnabled(bool isLiveCommentEnabled)
+{
+	m_isLiveCommentEnabled = isLiveCommentEnabled;
 }
 
 int Script::tabIdx() const

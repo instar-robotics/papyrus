@@ -111,6 +111,9 @@ public:
 
 	int tabIdx() const;
 
+	bool isLiveCommentEnabled() const;
+	void setIsLiveCommentEnabled(bool isLiveCommentEnabled);
+
 public slots:
 	void warnAboutModifiedScript();
 
@@ -134,6 +137,8 @@ private:
 	bool m_isActiveScript; // Tells this script if it's the currently active one
 	bool m_isRunning;      // Tells whether this script is running (launched)
 	bool m_isPaused;       // Tells whether this script is paused while running
+
+	bool m_isLiveCommentEnabled; // Whether or not to live comment/uncomment when commenting a function
 
 private slots:
 	void onROSSessionMessage(const QString &msg, MessageUrgency urgency = MSG_INFO);

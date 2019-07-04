@@ -1079,7 +1079,7 @@ void DiagramScene::handleComment()
 		return;
 	}
 
-	if (m_script->isRunning()) {
+	if (m_script->isRunning() && m_script->isLiveCommentEnabled()) {
 		if (m_script->rosSession() == nullptr) {
 			emit displayStatusMessage(tr("Cannot live-comment Functions: no ROS Session!"), MSG_WARNING);
 			return;
@@ -1094,6 +1094,8 @@ void DiagramScene::handleComment()
 			                     .arg(commentValue ? "comment" : "uncomment")
 			                     .arg(selectedUUids.size()), MSG_WARNING);
 		}
+	} else if (!m_script->isLiveCommentEnabled()) {
+		emit displayStatusMessage(tr("Live-comment/uncomment is disabled."));
 	}
 
 

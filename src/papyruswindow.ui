@@ -109,6 +109,8 @@
     </widget>
     <addaction name="menuDevelopment"/>
     <addaction name="actionReopen_last_scripts"/>
+    <addaction name="separator"/>
+    <addaction name="actionEnable_Live_Comment"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -480,6 +482,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionEnable_Live_Comment">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Live Comment</string>
    </property>
   </action>
  </widget>

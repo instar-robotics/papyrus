@@ -436,6 +436,12 @@ void PapyrusWindow::readSettings(QString &lastOpenedScripts, int *lastActiveScri
 	m_keyFile = settings.value("keyFile", "").toString();
 	m_ivFile = settings.value("ivFile", "").toString();
 	settings.endGroup(); // Cipher
+
+	// Live Interactions
+	settings.beginGroup("Interactions");
+	bool liveCommentEnabled = settings.value("liveComment", true).toBool();
+	m_ui->actionEnable_Live_Comment->setChecked(liveCommentEnabled);
+	settings.endGroup(); // Interactions
 }
 
 /**
@@ -515,6 +521,11 @@ void PapyrusWindow::writeSettings()
 	settings.setValue("keyFile", m_keyFile);
 	settings.setValue("ivFile", m_ivFile);
 	settings.endGroup(); // Cipher
+
+	// Live Interactions
+	settings.beginGroup("Interactions");
+	settings.setValue("liveComment", m_ui->actionEnable_Live_Comment->isChecked());
+	settings.endGroup(); // Interactions
 }
 
 /*
@@ -1630,6 +1641,7 @@ void PapyrusWindow::onLaunched()
 void PapyrusWindow::openScript(QString path)
 {
 	QString scriptPath;
+	Script *newScript = nullptr;
 
 	// Used when we want to re-open last opene scripts and don't need/want to open dialog
 	if (!path.isEmpty())
@@ -1735,9 +1747,9 @@ void PapyrusWindow::openScript(QString path)
 		                       new CryptoPP::StreamTransformationFilter(dec,
 		                                                                new CryptoPP::FileSink(tmpDestFile.toStdString().c_str())));
 
-		Script *newScript = parseXmlScriptFile(tmpDestFile);
+		newScript = parseXmlScriptFile(tmpDestFile);
 
-		if (newScript != NULL) {
+		if (newScript != nullptr) {
 			// Remove the temporary clear file used to decrypt
 			QFile::remove(tmpDestFile);
 
@@ -1748,7 +1760,12 @@ void PapyrusWindow::openScript(QString path)
 			newScript->setEncrypt(true);
 		}
 	} else {
-		parseXmlScriptFile(scriptPath);
+		newScript = parseXmlScriptFile(scriptPath);
+	}
+
+	// Now set the live comment value
+	if (newScript != nullptr) {
+		newScript->setIsLiveCommentEnabled(m_ui->actionEnable_Live_Comment->isChecked());
 	}
 
 	m_lastDir = fi.absoluteDir().canonicalPath();
@@ -2405,4 +2422,13 @@ void PapyrusWindow::on_actionSelect_All_triggered()
 
 	foreach (QGraphicsItem *item, m_activeScript->scene()->items())
 		item->setSelected(true);
+}
+
+void PapyrusWindow::on_actionEnable_Live_Comment_toggled(bool enabled)
+{
+	foreach (Script *script, m_scripts) {
+		if (script != nullptr) {
+			script->setIsLiveCommentEnabled(enabled);
+		}
+	}
 }

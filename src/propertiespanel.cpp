@@ -105,8 +105,12 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_timeUnit.addItem("ms", MS);
 	connect(&m_timeUnit, SIGNAL(currentIndexChanged(int)), SLOT(convertTimeValues(int)));
 	m_timeUnit.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	m_weightsSaveBtn.setText("Save weights");
-	m_weightsLoadBtn.setText("Load weights");
+	m_weightsSaveBtn.setText("Weights");
+	m_weightsSaveBtn.setIcon(QIcon(":/icons/icons/save-weights.svg"));
+	m_weightsSaveBtn.setToolTip(tr("<strong>Save</strong> weights in default location."));
+	m_weightsLoadBtn.setText("Weights");
+	m_weightsLoadBtn.setIcon(QIcon(":/icons/icons/load-weights.svg"));
+	m_weightsLoadBtn.setToolTip(tr("<strong>Load</strong> weights from default location."));
 
 	// Add fields to layout
 	scriptLayout->addRow(&scriptTitle);
@@ -117,6 +121,9 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	scriptLayout->addRow(tr("Crypted:"), &m_encrypt);
 
 	m_scriptFrame.setLayout(scriptLayout);
+
+	connect(&m_weightsSaveBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsSaveClicked(bool)));
+	connect(&m_weightsLoadBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsLoadClicked(bool)));
 
 	// Parameterize the fields
 	m_boxLayout = new QFormLayout;
@@ -148,9 +155,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxLayout->addRow(&m_displayVisu);
 
 	m_boxFrame.setLayout(m_boxLayout);
-
-	connect(&m_weightsSaveBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsSaveClicked(bool)));
-	connect(&m_weightsLoadBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsLoadClicked(bool)));
 
 	// Create layout for the Link
 	m_linkLayout = new QFormLayout;

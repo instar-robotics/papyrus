@@ -463,7 +463,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 					fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(b->scriptName(),
 					                                                            b->uuid().toString())),
 					                              b);
-					m_script->rosSession()->addToHotList(b->uuid());
+					m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
 				}
 
 				// This is dirty, but this is used to trigger the correct onSizeChanged() event (the

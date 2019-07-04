@@ -1605,7 +1605,7 @@ void DiagramScene::display3DVisu(VisuType type)
 						fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
 						                                                            selectedBox->uuid().toString())),
 						                              selectedBox);
-						m_script->rosSession()->addToHotList(selectedBox->uuid());
+						m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 					}
 					proxy->setActivityFetcher(fetcher);
 					connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));

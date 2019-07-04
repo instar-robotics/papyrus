@@ -61,6 +61,8 @@ public:
 	void stop();
 	ScriptStatus queryScriptStatus();
 	void setupROSSession();
+	bool saveWeights(const QString &filePath = "");
+	bool loadWeights(const QString &filePath = "");
 
 	QString name() const;
 	void setName(const QString &name);

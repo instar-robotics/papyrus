@@ -22,6 +22,7 @@
 #include "rossession.h"
 #include "helpers.h"
 #include "papyruswindow.h"
+#include "hieroglyph/ArgCmd.h"
 #include "hieroglyph/ArgsCmd.h"
 #include "hieroglyph/SimpleCmd.h"
 
@@ -174,6 +175,26 @@ bool ROSSession::callServiceComment(bool comment, QList<QUuid> uuids)
 
 	foreach (QUuid uuid, uuids)
 		srv.request.args.push_back(uuid.toString().toStdString());
+
+	return client.call(srv);
+}
+
+/**
+ * @brief ROSSession::callServiceWeight call 'weight' kheops service to save/load the script's
+ * weights
+ * @param cmd 'save' or 'load'
+ * @param filepath the filepath where to save the weights, default to empty string for default's
+ * location
+ * @return
+ */
+bool ROSSession::callServiceWeight(const QString &cmd, const QString &filepath)
+{
+	QString srvName = QString("%1/weight").arg(m_nodeName);
+
+	ros::ServiceClient client = m_nh->serviceClient<hieroglyph::ArgCmd>(srvName.toStdString());
+	hieroglyph::ArgCmd srv;
+	srv.request.cmd = cmd.toStdString();
+	srv.request.arg = filepath.toStdString();
 
 	return client.call(srv);
 }

@@ -29,6 +29,7 @@
 #include "setcolorbutton.h"
 #include "proplineedit.h"
 #include "propdoublespinbox.h"
+#include "diagramscene.h"
 
 #include <QGroupBox>
 #include <QLineEdit>
@@ -100,6 +101,8 @@ public:
 	QPushButton *cancelBtn();
 
 private:
+	DiagramScene *m_activeScene; // The currently visible scene
+
 	// Script
 	QVBoxLayout *m_panelLayout;  // The properties panel's main layout
 	QFrame m_scriptFrame;       // Container for script's properties
@@ -108,6 +111,8 @@ private:
 	PropDoubleSpinBox m_timeValue; // Used to input the script's frequency (or period)
 	QComboBox m_timeUnit;       // Used to select the unit (in Hz or ms)
 	QCheckBox m_encrypt;        // Whether or not the file is encrypted on save
+	QPushButton m_weightsSaveBtn; // Button used to save script's weight to default location
+	QPushButton m_weightsLoadBtn; // Button used to load script's weigth from default location
 
 	// Box
 	QFormLayout *m_boxLayout;    // Layout for the box properties (access needed to hide rows)
@@ -158,7 +163,8 @@ public slots:
 private slots:
 	void onTopicChanged(const QString &topic);
 	void onConnectivityChanged(int idx);
-
+	void onWeightsSaveClicked(bool);
+	void onWeightsLoadClicked(bool);
 signals:
 	void enterPressed();
 	void escapePressed();

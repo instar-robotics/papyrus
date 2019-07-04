@@ -973,6 +973,35 @@ void Script::setupROSSession()
 	        this, SLOT(handleRTTokenMessage(RTTokenMessage*)));
 }
 
+/**
+ * @brief Script::saveWeights requests kheops to save the script's weights
+ * @param filePath optional path where to save the weights
+ */
+bool Script::saveWeights(const QString &filePath)
+{
+	if (m_rosSession == nullptr) {
+		emit displayStatusMessage(tr("Could not save weights: no ROS Session!"), MSG_ERROR);
+		return false;
+	}
+
+	return m_rosSession->callServiceWeight("save", filePath);
+}
+
+/**
+ * @brief Script::loadWeights requests kheops to load the script's weights
+ * @param filePath optional paths from which to load the weights
+ * @return
+ */
+bool Script::loadWeights(const QString &filePath)
+{
+	if (m_rosSession == nullptr) {
+		emit displayStatusMessage(tr("Could not load weights: no ROS Session!"), MSG_ERROR);
+		return false;
+	}
+
+	return m_rosSession->callServiceWeight("load", filePath);
+}
+
 ROSSession *Script::rosSession() const
 {
 	return m_rosSession;

@@ -59,8 +59,8 @@ public:
 	void registerRTToken();
 
 	bool callServiceRTToken(const QString &cmd);
-
 	bool callServiceComment(bool comment, QList<QUuid> uuids);
+	bool callServiceWeight(const QString &cmd, const QString& filepath = "");
 
 	bool shouldQuit() const;
 	void setShouldQuit(bool shouldQuit);

@@ -1773,7 +1773,7 @@ void PapyrusWindow::openScript(QString path)
 
 /**
  * @brief Fires when the current tab changes. Used to update the pointer to the current active
- * script. Also update the properties panel to display the new script's properties
+ * script. Also update the properties panel to display the new script's properties.
  * @param index: the newly active tab index
  */
 void PapyrusWindow::on_tabWidget_currentChanged(int index)

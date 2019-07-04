@@ -13,7 +13,7 @@ protected:
 	virtual void initVectors() override;
 	virtual void fillVectors() override;
 
-private:
+protected:
 	float m_edgeSize = 0.1;
 };
 

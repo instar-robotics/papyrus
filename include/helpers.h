@@ -30,6 +30,7 @@
 #include "shadersurface.h"
 #include "shaderwireframe.h"
 #include "shadercrown.h"
+#include "shaderbarcircle.h"
 
 #include <ros/ros.h>
 

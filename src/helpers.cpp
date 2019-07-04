@@ -632,6 +632,8 @@ VisuType stringToVisuType(const QString &str)
 		return WIREFRAME_3D;
 	if(visuType == "CROWN 3D")
 		return CROWN_3D;
+	if(visuType == "BAR CIRCLE 3D")
+		return BAR_CIRCLE_3D;
 	return UNKNOWN;
 }
 
@@ -649,6 +651,8 @@ QString visuTypeToString(const VisuType &visuType)
 		return "Wireframe 3D";
 	if(visuType == CROWN_3D)
 		return "Crown 3D";
+	if(visuType == BAR_CIRCLE_3D)
+		return "Bar circle 3D";
 	return "Unknown";
 }
 
@@ -665,7 +669,8 @@ bool is3DVisuType(const VisuType &visuType)
 	   visuType == BAR_CHART_3D ||
 	   visuType == CONE_CHART_3D ||
 	   visuType == WIREFRAME_3D ||
-	   visuType == CROWN_3D)
+	   visuType == CROWN_3D ||
+	   visuType == BAR_CIRCLE_3D)
 		return true;
 	return false;
 }
@@ -680,12 +685,21 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 		return new ShaderConeChart(rows, cols);
 	else if(type == WIREFRAME_3D)
 		return new ShaderWireframe(rows, cols);
-	else
+	else if(type == CROWN_3D)
 	{
 		if(rows == 1)
 			return new ShaderCrown(cols, cols/2, CLOCKWISE);
 		else if(cols == 1)
 			return new ShaderCrown(rows, rows/2, CLOCKWISE);
+		else
+			return new ShaderSurface(rows, cols);
+	}
+	else
+	{
+		if(rows == 1)
+			return new ShaderBarCircle(cols, cols/2, CLOCKWISE);
+		else if(cols == 1)
+			return new ShaderBarCircle(rows, rows/2, CLOCKWISE);
 		else
 			return new ShaderSurface(rows, cols);
 	}

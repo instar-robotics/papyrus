@@ -239,6 +239,7 @@ void PropertiesPanel::addVisuChoices()
 	m_choseVisuType.addItem(visuTypeToString(CONE_CHART_3D));
 	m_choseVisuType.addItem(visuTypeToString(WIREFRAME_3D));
 	m_choseVisuType.addItem(visuTypeToString(CROWN_3D));
+	m_choseVisuType.addItem(visuTypeToString(BAR_CIRCLE_3D));
 }
 
 VisuType PropertiesPanel::getVisuType()

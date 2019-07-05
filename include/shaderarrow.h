@@ -15,7 +15,7 @@ class ShaderArrow: public ShaderAdds
 {
 
 public:
-	ShaderArrow();
+	ShaderArrow(float length);
 	~ShaderArrow();
 
 protected:
@@ -23,8 +23,8 @@ protected:
 	void fillVectors();
 
 protected:
-	float m_width = 1.5;
-	float m_length = 3.2;
+	float m_width;
+	float m_length;
 
 };
 #endif // SHADERARROW_H

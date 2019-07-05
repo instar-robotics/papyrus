@@ -99,7 +99,11 @@ HEADERS += include/category.h \
     include/shaderadds.h \
     include/rttokenmessage.h \
     include/shaderscalecylinder.h \
-    include/shaderbarcircle.h
+    include/shaderbarcircle.h \
+    include/shaderpolar.h \
+    include/shaderbarpolar.h \
+    include/shaderwireframepolar.h \
+    include/shadersurfacepolar.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -185,7 +189,11 @@ SOURCES += src/category.cpp \
     src/rttokenmessage.cpp \
     src/shadercircular.cpp \
     src/shaderscalecylinder.cpp \
-    src/shaderbarcircle.cpp
+    src/shaderbarcircle.cpp \
+    src/shaderpolar.cpp \
+    src/shaderbarpolar.cpp \
+    src/shaderwireframepolar.cpp \
+    src/shadersurfacepolar.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

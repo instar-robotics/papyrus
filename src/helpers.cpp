@@ -634,6 +634,12 @@ VisuType stringToVisuType(const QString &str)
 		return CROWN_3D;
 	if(visuType == "BAR CIRCLE 3D")
 		return BAR_CIRCLE_3D;
+	if(visuType == "WIREFRAME POLAR 3D")
+		return WIREFRAME_POLAR_3D;
+	if(visuType == "BAR POLAR 3D")
+		return BAR_POLAR_3D;
+	if(visuType == "SURFACE POLAR 3D")
+		return SURFACE_POLAR_3D;
 	return UNKNOWN;
 }
 
@@ -653,6 +659,12 @@ QString visuTypeToString(const VisuType &visuType)
 		return "Crown 3D";
 	if(visuType == BAR_CIRCLE_3D)
 		return "Bar circle 3D";
+	if(visuType == WIREFRAME_POLAR_3D)
+		return "Wireframe polar 3D";
+	if(visuType == BAR_POLAR_3D)
+		return "Bar polar 3D";
+	if(visuType == SURFACE_POLAR_3D)
+		return "Surface polar 3D";
 	return "Unknown";
 }
 
@@ -670,7 +682,10 @@ bool is3DVisuType(const VisuType &visuType)
 	   visuType == CONE_CHART_3D ||
 	   visuType == WIREFRAME_3D ||
 	   visuType == CROWN_3D ||
-	   visuType == BAR_CIRCLE_3D)
+	   visuType == BAR_CIRCLE_3D ||
+	   visuType == WIREFRAME_POLAR_3D ||
+	   visuType == BAR_POLAR_3D ||
+	   visuType == SURFACE_POLAR_3D)
 		return true;
 	return false;
 }
@@ -694,7 +709,7 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 		else
 			return new ShaderSurface(rows, cols);
 	}
-	else
+	else if(type == BAR_CIRCLE_3D)
 	{
 		if(rows == 1)
 			return new ShaderBarCircle(cols, cols/2, CLOCKWISE);
@@ -703,4 +718,10 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 		else
 			return new ShaderSurface(rows, cols);
 	}
+	else if(type == BAR_POLAR_3D)
+		return new ShaderBarPolar(rows, cols, cols/2, CLOCKWISE);
+	else if(type == WIREFRAME_POLAR_3D)
+		return new ShaderWireframePolar(rows, cols, cols/2, CLOCKWISE);
+	else
+		return new ShaderSurfacePolar(rows, cols, cols/2, CLOCKWISE);
 }

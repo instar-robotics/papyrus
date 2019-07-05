@@ -1,7 +1,10 @@
 #include "shaderarrow.h"
 
-ShaderArrow::ShaderArrow()
+ShaderArrow::ShaderArrow(float length)
 {
+
+	m_length = length;
+	m_width = length/3;
 	initVectors();
 	fillVectors();
 }

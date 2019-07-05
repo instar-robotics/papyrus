@@ -215,6 +215,18 @@ void ShaderWidget::displayScale()
 		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 	}
+	if(m_polarScale)
+	{
+		m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+
+		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
 }
 
 bool ShaderWidget::circScale() const

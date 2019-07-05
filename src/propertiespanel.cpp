@@ -240,6 +240,9 @@ void PropertiesPanel::addVisuChoices()
 	m_choseVisuType.addItem(visuTypeToString(WIREFRAME_3D));
 	m_choseVisuType.addItem(visuTypeToString(CROWN_3D));
 	m_choseVisuType.addItem(visuTypeToString(BAR_CIRCLE_3D));
+	m_choseVisuType.addItem(visuTypeToString(SURFACE_POLAR_3D));
+	m_choseVisuType.addItem(visuTypeToString(WIREFRAME_POLAR_3D));
+	m_choseVisuType.addItem(visuTypeToString(BAR_POLAR_3D));
 }
 
 VisuType PropertiesPanel::getVisuType()

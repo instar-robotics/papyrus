@@ -31,6 +31,9 @@
 #include "shaderwireframe.h"
 #include "shadercrown.h"
 #include "shaderbarcircle.h"
+#include "shaderbarpolar.h"
+#include "shaderwireframepolar.h"
+#include "shadersurfacepolar.h"
 
 #include <ros/ros.h>
 

@@ -118,6 +118,7 @@ protected:
 	// Scales activated or not
 	bool m_matrixScale = false;
 	bool m_circScale = false;
+	bool m_polarScale = false;
 
 	// 3D scene
 	float m_gap = 0.2f;

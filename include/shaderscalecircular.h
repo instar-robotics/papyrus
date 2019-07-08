@@ -15,7 +15,7 @@ class ShaderScaleCircular: public ShaderAdds
 {
 
 public:
-	ShaderScaleCircular(int radius, float range, int nbMeasuresY);
+	ShaderScaleCircular(float radius, float range, int nbMeasuresY);
 	~ShaderScaleCircular();
 
 	void updateScale(float max);

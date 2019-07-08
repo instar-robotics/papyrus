@@ -1,6 +1,6 @@
 #include "shaderscalecircular.h"
 
-ShaderScaleCircular::ShaderScaleCircular(int radius, float range, int nbMeasuresY):
+ShaderScaleCircular::ShaderScaleCircular(float radius, float range, int nbMeasuresY):
     m_radius(radius-0.05),
     m_secRadius(radius/1.5),
     m_thirdRadius(radius/1.15),

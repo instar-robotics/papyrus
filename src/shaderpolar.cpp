@@ -5,7 +5,7 @@ ShaderPolar::ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir):
     m_ySize(ySize),
     m_centerIndex(centerIndex),
     m_dir(dir),
-    m_radiusMin(xSize/100*(PI/2))
+    m_radiusMin(xSize/100.0*(PI/2.0))
 {
 	initMatrix();
 	m_scaleCircular = new ShaderScaleCircular(m_radiusMin,m_range,m_nbMeasuresY);
@@ -27,16 +27,16 @@ float ShaderPolar::calculateAngle(int j)
 	if(m_dir == COUNTERCLOCKWISE)
 	{
 		if(j >= m_centerIndex)
-			return 2*(j-m_centerIndex)*PI/m_xSize;
+			return 2*(j-m_centerIndex)*PI/(float)m_xSize;
 		else
-			return 2*(m_xSize-(m_centerIndex-j))*PI/m_xSize;
+			return 2*(m_xSize-(m_centerIndex-j))*PI/(float)m_xSize;
 	}
 	else
 	{
 		if(j <= m_centerIndex)
-			return 2*(m_centerIndex-j)*PI/m_xSize;
+			return 2*(m_centerIndex-j)*PI/(float)m_xSize;
 		else
-			return 2*(m_xSize-(j-m_centerIndex))*PI/m_xSize;
+			return 2*(m_xSize-(j-m_centerIndex))*PI/(float)m_xSize;
 	}
 }
 

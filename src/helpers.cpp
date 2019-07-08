@@ -719,9 +719,39 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
 			return new ShaderSurface(rows, cols);
 	}
 	else if(type == BAR_POLAR_3D)
-		return new ShaderBarPolar(rows, cols, cols/2, CLOCKWISE);
+	{
+		int indexZero = cols/2;
+		RotationDir rotationDir = CLOCKWISE;
+		CircularVisuDialog dialog(cols, cols/2);
+		if(dialog.exec() == QDialog::Accepted)
+		{
+			indexZero = dialog.getZeroIndex();
+			rotationDir = dialog.getRotationDirection();
+		}
+		return new ShaderBarPolar(rows, cols, indexZero, rotationDir);
+	}
 	else if(type == WIREFRAME_POLAR_3D)
-		return new ShaderWireframePolar(rows, cols, cols/2, CLOCKWISE);
+	{
+		int indexZero = cols/2;
+		RotationDir rotationDir = CLOCKWISE;
+		CircularVisuDialog dialog(cols, cols/2);
+		if(dialog.exec() == QDialog::Accepted)
+		{
+			indexZero = dialog.getZeroIndex();
+			rotationDir = dialog.getRotationDirection();
+		}
+		return new ShaderWireframePolar(rows, cols, indexZero, rotationDir);
+	}
 	else
-		return new ShaderSurfacePolar(rows, cols, cols/2, CLOCKWISE);
+	{
+		int indexZero = cols/2;
+		RotationDir rotationDir = CLOCKWISE;
+		CircularVisuDialog dialog(cols, cols/2);
+		if(dialog.exec() == QDialog::Accepted)
+		{
+			indexZero = dialog.getZeroIndex();
+			rotationDir = dialog.getRotationDirection();
+		}
+		return new ShaderSurfacePolar(rows, cols, indexZero, rotationDir);
+	}
 }

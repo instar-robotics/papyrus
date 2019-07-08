@@ -34,6 +34,7 @@
 #include "shaderbarpolar.h"
 #include "shaderwireframepolar.h"
 #include "shadersurfacepolar.h"
+#include "circularvisudialog.h"
 
 #include <ros/ros.h>
 

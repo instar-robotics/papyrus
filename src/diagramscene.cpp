@@ -1050,6 +1050,7 @@ void DiagramScene::handleComment()
 	// First, filter selected items to keep only (non-constant) boxes, and make us of this
 	// traversal to check if we found commented and uncommented boxes
 	QList<DiagramBox *> selectedBoxes;
+	QList<QUuid> selectedUUids;
 	foreach (QGraphicsItem *item, selectedItems()) {
 		DiagramBox *box = dynamic_cast<DiagramBox *>(item);
 		ConstantDiagramBox *cste = dynamic_cast<ConstantDiagramBox *>(item);
@@ -1058,6 +1059,7 @@ void DiagramScene::handleComment()
 
 		// Add this box to the list of selected boxes
 		selectedBoxes << box;
+		selectedUUids << box->uuid();
 
 		// Check if it's commented or not
 		if (box->isCommented())
@@ -1083,6 +1085,32 @@ void DiagramScene::handleComment()
 	foreach (DiagramBox *box, selectedBoxes) {
 		box->setIsCommented(commentValue);
 	}
+
+	// If the script is running, ask kheops to live-comment the selected functions
+	if (m_script == nullptr) {
+		emit displayStatusMessage(tr("Cannot live-comment Functions: no script found!"), MSG_WARNING);
+		return;
+	}
+
+	if (m_script->isRunning() && m_script->isLiveCommentEnabled()) {
+		if (m_script->rosSession() == nullptr) {
+			emit displayStatusMessage(tr("Cannot live-comment Functions: no ROS Session!"), MSG_WARNING);
+			return;
+		}
+
+		if (m_script->rosSession()->callServiceComment(commentValue, selectedUUids)) {
+			emit displayStatusMessage(QString("Live-%1 %2 functions")
+			                          .arg(commentValue ? "commented" : "uncommented")
+			                          .arg(selectedUUids.size()));
+		} else {
+			displayStatusMessage(QString("Failed to live-%1 %2 functions")
+			                     .arg(commentValue ? "comment" : "uncomment")
+			                     .arg(selectedUUids.size()), MSG_WARNING);
+		}
+	} else if (!m_script->isLiveCommentEnabled()) {
+		emit displayStatusMessage(tr("Live-comment/uncomment is disabled."));
+	}
+
 
 	script()->setStatusModified(true);
 }

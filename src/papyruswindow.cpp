@@ -436,6 +436,12 @@ void PapyrusWindow::readSettings(QString &lastOpenedScripts, int *lastActiveScri
 	m_keyFile = settings.value("keyFile", "").toString();
 	m_ivFile = settings.value("ivFile", "").toString();
 	settings.endGroup(); // Cipher
+
+	// Live Interactions
+	settings.beginGroup("Interactions");
+	bool liveCommentEnabled = settings.value("liveComment", true).toBool();
+	m_ui->actionEnable_Live_Comment->setChecked(liveCommentEnabled);
+	settings.endGroup(); // Interactions
 }
 
 /**
@@ -515,6 +521,11 @@ void PapyrusWindow::writeSettings()
 	settings.setValue("keyFile", m_keyFile);
 	settings.setValue("ivFile", m_ivFile);
 	settings.endGroup(); // Cipher
+
+	// Live Interactions
+	settings.beginGroup("Interactions");
+	settings.setValue("liveComment", m_ui->actionEnable_Live_Comment->isChecked());
+	settings.endGroup(); // Interactions
 }
 
 /*
@@ -1630,6 +1641,7 @@ void PapyrusWindow::onLaunched()
 void PapyrusWindow::openScript(QString path)
 {
 	QString scriptPath;
+	Script *newScript = nullptr;
 
 	// Used when we want to re-open last opened scripts and don't need/want to open dialog
 	if (!path.isEmpty())
@@ -1750,9 +1762,9 @@ void PapyrusWindow::openScript(QString path)
 		                       new CryptoPP::StreamTransformationFilter(dec,
 		                                                                new CryptoPP::FileSink(tmpDestFile.toStdString().c_str())));
 
-		Script *newScript = parseXmlScriptFile(tmpDestFile);
+		newScript = parseXmlScriptFile(tmpDestFile);
 
-		if (newScript != NULL) {
+		if (newScript != nullptr) {
 			// Remove the temporary clear file used to decrypt
 			QFile::remove(tmpDestFile);
 
@@ -1763,7 +1775,12 @@ void PapyrusWindow::openScript(QString path)
 			newScript->setEncrypt(true);
 		}
 	} else {
-		parseXmlScriptFile(scriptPath);
+		newScript = parseXmlScriptFile(scriptPath);
+	}
+
+	// Now set the live comment value
+	if (newScript != nullptr) {
+		newScript->setIsLiveCommentEnabled(m_ui->actionEnable_Live_Comment->isChecked());
 	}
 
 	m_lastDir = fi.absoluteDir().canonicalPath();
@@ -1771,7 +1788,7 @@ void PapyrusWindow::openScript(QString path)
 
 /**
  * @brief Fires when the current tab changes. Used to update the pointer to the current active
- *        script.
+ * script. Also update the properties panel to display the new script's properties.
  * @param index: the newly active tab index
  */
 void PapyrusWindow::on_tabWidget_currentChanged(int index)
@@ -1826,6 +1843,9 @@ void PapyrusWindow::on_tabWidget_currentChanged(int index)
 
 	// Update the buttons state to match the new script's status)
 	updateButtonsState();
+
+	// Display script's properties
+	m_propertiesPanel.displayScriptProperties(currentScene->script());
 }
 
 void PapyrusWindow::on_tabWidget_tabBarDoubleClicked(int index)
@@ -2434,6 +2454,30 @@ void PapyrusWindow::on_actionCopy_triggered()
 			foreach (QGraphicsItem *copyBox, boxesToCopy) {
 				copyBox->setPos(scene->copyGroup()->sceneTransform().inverted().map(copyBox->pos()));
 			}
+		}
+	}
+}
+
+/**
+ * @brief PapyrusWindow::on_actionSelect_All_triggered select all items on scene
+ */
+void PapyrusWindow::on_actionSelect_All_triggered()
+{
+	// Check that we have an active script
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("Cannot select all: no active script!"));
+		return;
+	}
+
+	foreach (QGraphicsItem *item, m_activeScript->scene()->items())
+		item->setSelected(true);
+}
+
+void PapyrusWindow::on_actionEnable_Live_Comment_toggled(bool enabled)
+{
+	foreach (Script *script, m_scripts) {
+		if (script != nullptr) {
+			script->setIsLiveCommentEnabled(enabled);
 		}
 	}
 }

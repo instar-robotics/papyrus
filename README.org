@@ -824,15 +824,21 @@ When a Function is commented, several things happen:
 - when you launch the script, Kheops will "ignore" this Function by setting its activity to 0 and
   stop this Function from publishing its output (it means the Functions after this one will receive
   an activity with value 0, keep this in mind when commenting Functions).
+- if the =Live Comment= feature is enabled, and your script is running when you press =C=, then the
+  selected Functions will also be instantaneously commented or uncommented in the running script.
 
 Note that you cannot comment Constants.
 
-You can see commenting and uncommenting Functions in action [[fig.democomment][in the video below]].
+You can see commenting and uncommenting Functions in action [[fig.democomment][in the video below]], and [[fig.demolivecomment][in this one]], you
+can see the live comment feature (note how the activity of the function changes).
 
 #+CAPTION: Commenting and uncommenting Functions
 #+NAME: fig.democomment
 [[./demo-comment.gif]]
 
+#+CAPTION: Live comment feature in action: commenting/uncommenting a Function also requests the kheops node to comment/uncomment the Function
+#+NAME: fig.demolivecomment
+[[./demo-live-comment.gif]]
 *** Copying / Pasting Functions
 
 It is now possible to copy a group of Function on the scene and paste them on another place. This is
@@ -857,6 +863,8 @@ another copy with =CTRL + C=. At the end I undo/redo the operation a couple of t
 
 Note that at the moment, only (non-constant) Functions can be copied: links and zones will be
 ignored from the selection.
+
+
 
 * Troubleshooting
 ** Network Setup

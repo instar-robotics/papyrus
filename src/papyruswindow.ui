@@ -109,6 +109,8 @@
     </widget>
     <addaction name="menuDevelopment"/>
     <addaction name="actionReopen_last_scripts"/>
+    <addaction name="separator"/>
+    <addaction name="actionEnable_Live_Comment"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -120,6 +122,8 @@
     <addaction name="actionFind"/>
     <addaction name="separator"/>
     <addaction name="actionCopy"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelect_All"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -470,6 +474,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionSelect_All">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionEnable_Live_Comment">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Live Comment</string>
    </property>
   </action>
  </widget>

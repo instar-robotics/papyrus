@@ -36,13 +36,16 @@
 #include <QScreen>
 
 PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
-                                                    m_panelLayout(NULL),
+                                                    m_activeScene(nullptr),
+                                                    m_panelLayout(nullptr),
                                                     m_scriptFrame(this),
                                                     m_scriptName(this),
                                                     m_timeLabel(tr("Freq:"), this),
                                                     m_timeValue(this),
                                                     m_timeUnit(this),
                                                     m_encrypt(this),
+                                                    m_weightsSaveBtn(this),
+                                                    m_weightsLoadBtn(this),
                                                     m_boxLayout(nullptr),
                                                     m_boxFrame(this),
                                                     m_boxName(this),
@@ -55,7 +58,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_topic(this),
                                                     m_displayVisu(tr("Visualize Activity"), this),
                                                     m_choseVisuType(this),
-                                                    m_linkLayout(NULL),
+                                                    m_linkLayout(nullptr),
                                                     m_linkFrame(this),
                                                     m_linkType(this),
                                                     m_linkSecondary(tr("Secondary"), this),
@@ -103,15 +106,25 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_timeUnit.addItem("ms", MS);
 	connect(&m_timeUnit, SIGNAL(currentIndexChanged(int)), SLOT(convertTimeValues(int)));
 	m_timeUnit.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	m_weightsSaveBtn.setText("Weights");
+	m_weightsSaveBtn.setIcon(QIcon(":/icons/icons/save-weights.svg"));
+	m_weightsSaveBtn.setToolTip(tr("<strong>Save</strong> weights in default location."));
+	m_weightsLoadBtn.setText("Weights");
+	m_weightsLoadBtn.setIcon(QIcon(":/icons/icons/load-weights.svg"));
+	m_weightsLoadBtn.setToolTip(tr("<strong>Load</strong> weights from default location."));
 
 	// Add fields to layout
 	scriptLayout->addRow(&scriptTitle);
 	scriptLayout->addRow(tr("Name:"), &m_scriptName);
 	scriptLayout->addRow(&m_timeLabel, &m_timeValue);
 	scriptLayout->addRow(tr("Unit:"), &m_timeUnit);
+	scriptLayout->addRow(&m_weightsSaveBtn, &m_weightsLoadBtn);
 	scriptLayout->addRow(tr("Crypted:"), &m_encrypt);
 
 	m_scriptFrame.setLayout(scriptLayout);
+
+	connect(&m_weightsSaveBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsSaveClicked(bool)));
+	connect(&m_weightsLoadBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsLoadClicked(bool)));
 
 	// Parameterize the fields
 	m_boxLayout = new QFormLayout;
@@ -515,8 +528,11 @@ void PropertiesPanel::displayLinkProperties(Link *link)
  */
 void PropertiesPanel::displayScriptProperties(Script *script)
 {
-	if (script == NULL)
+	if (script == nullptr)
 		informUserAndCrash(tr("Cannot display script's properties because script is null!"));
+
+	// Set the current active scene
+	m_activeScene = script->scene();
 
 	// Hide the other frames
 	hideAllFrames();
@@ -624,6 +640,60 @@ void PropertiesPanel::onConnectivityChanged(int idx)
 	else {
 		m_linkRegexes.hide();
 	}
+}
+
+/**
+ * @brief PropertiesPanel::onWeightsSaveClicked ask the script's to save its weights if its running
+ */
+void PropertiesPanel::onWeightsSaveClicked(bool)
+{
+	if (m_activeScene == nullptr) {
+		emit displayStatusMessage(tr("Cannot save script's weights: no active scene!"), MSG_WARNING);
+		return;
+	}
+
+	if (m_activeScene->script() == nullptr) {
+		emit displayStatusMessage(tr("Could not save script's weights: active scene has no script!"), MSG_WARNING);
+		return;
+	}
+
+	// Make sure the script is running
+	if (!m_activeScene->script()->isRunning()) {
+		emit displayStatusMessage(tr("Cannot save script's weights: script is not running!"), MSG_WARNING);
+		return;
+	}
+
+	if (m_activeScene->script()->saveWeights())
+		emit displayStatusMessage(tr("Weights saved successfully!"));
+	else
+		emit displayStatusMessage(tr("Failed to save weights."), MSG_ERROR);
+}
+
+/**
+ * @brief PropertiesPanel::onWeightsSaveClicked ask the script's to load its weights if its running
+ */
+void PropertiesPanel::onWeightsLoadClicked(bool)
+{
+	if (m_activeScene == nullptr) {
+		emit displayStatusMessage(tr("Cannot load script's weights: no active scene!"), MSG_WARNING);
+		return;
+	}
+
+	if (m_activeScene->script() == nullptr) {
+		emit displayStatusMessage(tr("Could not load script's weights: active scene has no script!"), MSG_WARNING);
+		return;
+	}
+
+	// Make sure the script is running
+	if (!m_activeScene->script()->isRunning()) {
+		emit displayStatusMessage(tr("Cannot load script's weights: script is not running!"), MSG_WARNING);
+		return;
+	}
+
+	if (m_activeScene->script()->loadWeights(""))
+		emit displayStatusMessage(tr("Weights loaded successfully!"));
+	else
+		emit displayStatusMessage(tr("Failed to load weights."), MSG_ERROR);
 }
 
 /**
@@ -856,4 +926,3 @@ QPushButton *PropertiesPanel::displayVisu()
 {
 	return &m_displayVisu;
 }
-

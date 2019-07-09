@@ -23,12 +23,14 @@
 #include "constants.h"
 #include "messagehandler.h"
 #include "scopemessage.h"
+#include "helpers.h"
 
 #include <QApplication>
 #include <QWindow>
 #include <QIcon>
 #include <QScreen>
 #include <iostream>
+#include <QSysInfo>
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +45,8 @@ int main(int argc, char *argv[])
 	globalFont.setFamily("Open Sans");
 	QApplication::setFont(globalFont);
 
-	ros::init(argc, argv, "Papyrus");
+	ros::init(argc, argv, QString("Papyrus_%1")
+	          .arg(sanitizeTopicName(QSysInfo::machineHostName())).toStdString());
 
 	ros::NodeHandle nh; // Creating this node handles fully initializes ROS ressources
 

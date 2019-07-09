@@ -217,9 +217,14 @@ void ShaderWidget::displayScale()
 	}
 	if(m_polarScale)
 	{
-		m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_scalePolar->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
 		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_LINES, m_scalePolar->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+
+		m_scaleCylinder->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scaleCylinder->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 
 		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
@@ -227,6 +232,11 @@ void ShaderWidget::displayScale()
 		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 	}
+}
+
+bool ShaderWidget::polarScale() const
+{
+	return m_polarScale;
 }
 
 bool ShaderWidget::circScale() const
@@ -255,6 +265,11 @@ void ShaderWidget::updateScale(float coef)
 	if(m_circScale)
 	{
 		m_scaleCircular->updateScale(m_scaleCircular->max()*coef);
+		m_scaleCylinder->updateScale(m_scaleCylinder->max()*coef);
+	}
+	if(m_polarScale)
+	{
+		m_scalePolar->updateScale(m_scalePolar->max()*coef);
 		m_scaleCylinder->updateScale(m_scaleCylinder->max()*coef);
 	}
 }

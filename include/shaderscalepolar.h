@@ -1,5 +1,5 @@
-﻿#ifndef SHADERSCALECYLINDER_H
-#define SHADERSCALECYLINDER_H
+﻿#ifndef SHADERSCALEPOLAR_H
+#define SHADERSCALEPOLAR_H
 
 #include <QDebug>
 #include <QVector>
@@ -11,12 +11,12 @@
 #include "mathtransfo.h"
 #include "shaderadds.h"
 
-class ShaderScaleCylinder: public ShaderAdds
+class ShaderScalePolar: public ShaderAdds
 {
 
 public:
-	ShaderScaleCylinder(float radius, float range, int nbMeasuresY);
-	~ShaderScaleCylinder();
+	ShaderScalePolar(float minRadius, float maxRadius, float range);
+	~ShaderScalePolar();
 
 	void updateScale(float max);
 	float max() const;
@@ -27,12 +27,12 @@ protected:
 
 private:
 
-	float m_radius;
+	float m_minRadius;
+	float m_maxRadius; //Value used as the radius limit of angle measures
 
-	int m_nbMeasuresY; //Number of measures on the Y axe
-	float m_measureY; //Distance between 2 measures on the Y axe
 	float m_startRange;
 	float m_range; //Max height (and min for the negatives) of the 3d display
 	float m_max = 1.0; //Max scale measure
+	int m_nbVertexes;
 };
-#endif // SHADERSCALECYLINDER_H
+#endif // SHADERSCALEPOLAR_H

@@ -1,9 +1,7 @@
 #include "shaderscalecylinder.h"
 
-ShaderScaleCylinder::ShaderScaleCylinder(int radius, float range, int nbMeasuresY):
+ShaderScaleCylinder::ShaderScaleCylinder(float radius, float range, int nbMeasuresY):
     m_radius(radius-0.05),
-    m_secRadius(radius/1.5),
-    m_thirdRadius(radius/1.15),
     m_startRange(range),
     m_range(range)
 {

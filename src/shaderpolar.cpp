@@ -8,7 +8,11 @@ ShaderPolar::ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir):
     m_radiusMin(xSize/100.0*(PI/2.0))
 {
 	initMatrix();
-	m_scaleCircular = new ShaderScaleCircular(m_radiusMin,m_range,m_nbMeasuresY);
+	//m_scaleCircular = new ShaderScaleCircular(m_radiusMin,m_range,m_nbMeasuresY);
+
+	m_radiusMax = m_radiusMin + m_radiusGap*m_ySize + 0.2;
+	m_scalePolar = new ShaderScalePolar(m_radiusMin, m_radiusMax, m_range);
+	m_scaleCylinder = new ShaderScaleCylinder(m_radiusMax+0.05, m_range, m_nbMeasuresY);
 	m_shaderArrow = new ShaderArrow(m_radiusMin/1.5);
 	m_polarScale = true;
 }

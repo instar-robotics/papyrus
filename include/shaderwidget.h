@@ -32,6 +32,7 @@
 #include "shaderscalecylinder.h"
 #include "shaderarrow.h"
 #include "shaderadds.h"
+#include "shaderscalepolar.h"
 
 enum class Attribute { Vertex, Normal, Color };
 
@@ -66,6 +67,8 @@ public:
 	bool matrixScale() const;
 
 	bool circScale() const;
+
+	bool polarScale() const;
 
 signals:
 	void repaint();
@@ -114,6 +117,9 @@ protected:
 	ShaderScaleCircular *m_scaleCircular = nullptr;
 	ShaderScaleCylinder *m_scaleCylinder = nullptr;
 	ShaderArrow *m_shaderArrow = nullptr;
+
+	// Scale polar
+	ShaderScalePolar *m_scalePolar = nullptr;
 
 	// Scales activated or not
 	bool m_matrixScale = false;

@@ -25,7 +25,8 @@ protected:
 	int m_centerIndex;
 	RotationDir m_dir;
 	float m_radiusGap = 0.1;
-	float m_radiusMin ;
+	float m_radiusMin;
+	float m_radiusMax;
 };
 
 #endif // SHADERPOLAR_H

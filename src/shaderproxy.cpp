@@ -191,7 +191,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 	painter->drawPolygon(points);
 
-	if((m_widget->matrixScale() || m_widget->circScale()) &&
+	if((m_widget->matrixScale() || m_widget->circScale() || m_widget->polarScale()) &&
 	    m_widget->width() >= m_widget->startWidth())
 	{
 		painter->setPen(QPen(brush, 1)); //Set the pen for scales
@@ -210,9 +210,9 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 			rows = m_widget->scalePlanes()->rows();
 			columns = m_widget->scalePlanes()->columns();
 		}
-		else if(m_widget->circScale())
+		else if(m_widget->circScale() || m_widget->polarScale())
 		{
-			max = m_widget->scaleCircular()->max();
+			max = m_widget->scaleCylinder()->max();
 		}
 		float gap = 0.0;
 		/*Y axe*/

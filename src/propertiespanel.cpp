@@ -127,14 +127,14 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	connect(&m_weightsLoadBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsLoadClicked(bool)));
 
 	// Parameterize the fields
-	m_boxLayout = new QFormLayout;
+	m_boxLayout = new QGridLayout;
 	m_boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
 	m_boxName.setAlignment(Qt::AlignCenter);
 	QFont f(m_boxName.font());
 	f.setBold(true);
 	m_boxName.setFont(f);
-	m_boxTitle.setSizeHint(QSize(170, 35));
-	m_topic.setSizeHint(QSize(170, 35));
+	m_boxTitle.setSizeHint(QSize(130, 35));
+	m_topic.setSizeHint(QSize(130, 35));
 	m_rowsInput.setRange(1, MAX_ROWS);
 	m_colsInput.setRange(1, MAX_COLS);
 	m_rowsInput.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -143,18 +143,33 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	connect(&m_publish, SIGNAL(toggled(bool)), this, SLOT(toggleTopic(bool)));
 	connect(&m_topic, SIGNAL(textChanged(QString)), this, SLOT(onTopicChanged(QString)));
 
+	// Fill the labels
+	m_boxTitleLabel.setText(tr("Title:"));
+	m_boxOutputTypeLabel.setText(tr("Type:"));
+	m_boxMatrixShapeLabel.setText(tr("Shape:"));
+	m_rowsInputLabel.setText(tr("Rows:"));
+	m_colsInputLabel.setText(tr("Cols:"));
+	m_topicLabel.setText(tr("Topic:"));
+
 	// Add the fields to the layout
-	m_boxLayout->addRow(&m_boxName);
-	m_boxLayout->addRow(tr("Title:"), &m_boxTitle);
-	m_boxLayout->addRow(tr("Type:"), &m_boxOutputType);
-	m_boxLayout->addRow(tr("Shape:"), &m_boxMatrixShape);
-	m_boxLayout->addRow(tr("Rows:"), &m_rowsInput);
-	m_boxLayout->addRow(tr("Cols:"), &m_colsInput);
-	m_boxLayout->addRow(&m_saveActivity);
-	m_boxLayout->addRow(&m_publish);
-	m_boxLayout->addRow(tr("Topic:"), &m_topic);
-	m_boxLayout->addRow(&m_displayVisu);
-	m_boxLayout->addRow(&m_choseVisuType);
+	int i = 0;
+	m_boxLayout->addWidget(&m_boxName,i++,0,1,2);
+	m_boxLayout->addWidget(&m_boxTitleLabel,i,0,1,1);
+	m_boxLayout->addWidget(&m_boxTitle,i++,1,1,1);
+	m_boxLayout->addWidget(&m_boxOutputTypeLabel,i,0,1,1);
+	m_boxLayout->addWidget(&m_boxOutputType,i++,1,1,1);
+	m_boxLayout->addWidget(&m_boxMatrixShapeLabel,i,0,1,1);
+	m_boxLayout->addWidget(&m_boxMatrixShape,i++,1,1,1);
+	m_boxLayout->addWidget(&m_rowsInputLabel,i,0,1,1);
+	m_boxLayout->addWidget(&m_rowsInput,i++,1,1,1);
+	m_boxLayout->addWidget(&m_colsInputLabel,i,0,1,1);
+	m_boxLayout->addWidget(&m_colsInput,i++,1,1,1);
+	m_boxLayout->addWidget(&m_saveActivity,i,0,1,1);
+	m_boxLayout->addWidget(&m_publish,i++,1,1,1);
+	m_boxLayout->addWidget(&m_topicLabel,i++,0,1,2);
+	m_boxLayout->addWidget(&m_topic,i++,0,1,2);
+	m_boxLayout->addWidget(&m_displayVisu,i++,0,1,2);
+	m_boxLayout->addWidget(&m_choseVisuType,i++,0,1,1);
 
 	m_boxFrame.setLayout(m_boxLayout);
 	addVisuChoices();
@@ -264,6 +279,7 @@ VisuType PropertiesPanel::getVisuType()
 }
 
 
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -306,13 +322,13 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Re-insert input for row and columns since it's a matrix
 		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
+		if ((dimLabel = &m_colsInputLabel))
 			dimLabel->show();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
 		m_rowsInput.show();
 
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
+		if ((dimLabel = &m_rowsInputLabel))
 			dimLabel->show();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
@@ -338,7 +354,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		// Show the shape of the box (since it's matrix)
 		m_boxMatrixShape.setText(matrixShapeToString(box->matrixShape()));
 		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
+		if ((shapeLabel = &m_boxMatrixShapeLabel))
 			shapeLabel->show();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
@@ -349,13 +365,13 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide input for rows and columns since it's a scalar
 		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
+		if ((dimLabel = &m_colsInputLabel))
 			dimLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
 		m_colsInput.hide();
 
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
+		if ((dimLabel = &m_rowsInputLabel))
 			m_rowsInput.hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
@@ -363,7 +379,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide the shape field
 		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
+		if ((shapeLabel = &m_boxMatrixShapeLabel))
 			shapeLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
@@ -373,13 +389,13 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide input for rows and columns since it's not a matrix
 		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
+		if ((dimLabel = &m_colsInputLabel))
 			dimLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
 		m_colsInput.hide();
 
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
+		if ((dimLabel = &m_rowsInputLabel))
 			m_rowsInput.hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
@@ -387,7 +403,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide the shape field
 		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
+		if ((shapeLabel = &m_boxMatrixShapeLabel))
 			shapeLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
@@ -397,7 +413,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 	}
 
 	// Hide fields for constant box
-	QWidget *topicLabel = m_boxLayout->labelForField(&m_topic);
+	QWidget *topicLabel = &m_topicLabel;
 	if (topicLabel == nullptr)
 		informUserAndCrash(tr("Failed to fetch label for topic name."));
 

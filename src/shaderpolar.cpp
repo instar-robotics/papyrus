@@ -51,7 +51,7 @@ float ShaderPolar::calculateXcoord(int i, int j)
 
 float ShaderPolar::calculateZcoord(int i, int j)
 {
-	//Z is inversed compared to the sinus, so we multiplie by -1
+	//Z is reversed compared to the sinus, so we multiplie by -1
 	return -(m_radiusMin + m_radiusGap*i)*sin(calculateAngle(j)+PI/2); // -radius * sin(angle)
 }
 

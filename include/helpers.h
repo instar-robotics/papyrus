@@ -109,6 +109,14 @@ bool is2DVisuType(const VisuType &visuType);
 
 bool is3DVisuType(const VisuType &visuType);
 
-ShaderWidget* createShaderWidget(VisuType type, int rows, int cols);
+bool is3DMatrixVisuType(const VisuType &visuType);
+
+bool is3DCircularVisuType(const VisuType &visuType);
+
+bool is3DPolarVisuType(const VisuType &visuType);
+
+ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVariant> parameters);
+
+RotationDir intToRotationDir(int rotDir);
 
 #endif // HELPERS_H

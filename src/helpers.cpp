@@ -690,68 +690,89 @@ bool is3DVisuType(const VisuType &visuType)
 	return false;
 }
 
-ShaderWidget* createShaderWidget(VisuType type, int rows, int cols)
+bool is3DMatrixVisuType(const VisuType &visuType)
 {
-	if(type == SURFACE_3D)
-		return new ShaderSurface(rows, cols);
-	else if(type == BAR_CHART_3D)
-		return new ShaderBarChart(rows, cols);
-	else if(type == CONE_CHART_3D)
-		return new ShaderConeChart(rows, cols);
-	else if(type == WIREFRAME_3D)
-		return new ShaderWireframe(rows, cols);
-	else if(type == CROWN_3D)
+	if(visuType == SURFACE_3D ||
+	   visuType == BAR_CHART_3D ||
+	   visuType == CONE_CHART_3D ||
+	   visuType == WIREFRAME_3D)
+		return true;
+	return false;
+}
+
+bool is3DCircularVisuType(const VisuType &visuType)
+{
+	if(visuType == CROWN_3D ||
+	   visuType == BAR_CIRCLE_3D)
+		return true;
+	return false;
+}
+
+bool is3DPolarVisuType(const VisuType &visuType)
+{
+	if(visuType == WIREFRAME_POLAR_3D ||
+	   visuType == BAR_POLAR_3D ||
+	   visuType == SURFACE_POLAR_3D)
+		return true;
+	return false;
+}
+
+ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVariant> parameters)
+{
+	if(is3DMatrixVisuType(type))
 	{
-		if(rows == 1)
-			return new ShaderCrown(cols, cols/2, CLOCKWISE);
-		else if(cols == 1)
-			return new ShaderCrown(rows, rows/2, CLOCKWISE);
+		if(type== BAR_CHART_3D)
+			return new ShaderBarChart(rows, cols);
+		else if(type == CONE_CHART_3D)
+			return new ShaderConeChart(rows, cols);
+		else if(type == WIREFRAME_3D)
+			return new ShaderWireframe(rows, cols);
 		else
 			return new ShaderSurface(rows, cols);
 	}
-	else if(type == BAR_CIRCLE_3D)
+	else if(is3DCircularVisuType(type))
 	{
-		if(rows == 1)
-			return new ShaderBarCircle(cols, cols/2, CLOCKWISE);
-		else if(cols == 1)
-			return new ShaderBarCircle(rows, rows/2, CLOCKWISE);
-		else
+		if(rows != 1 && cols != 1)
 			return new ShaderSurface(rows, cols);
+		else if(type == BAR_CIRCLE_3D)
+		{
+			if(rows == 1)
+				return new ShaderBarCircle(cols, cols/2, CLOCKWISE);
+			else
+				return new ShaderBarCircle(rows, rows/2, CLOCKWISE);
+		}
+		else
+		{
+			if(rows == 1)
+				return new ShaderCrown(cols, cols/2, CLOCKWISE);
+			else
+				return new ShaderCrown(rows, rows/2, CLOCKWISE);
+		}
 	}
-	else if(type == BAR_POLAR_3D)
+	else if(is3DPolarVisuType(type))
 	{
 		int indexZero = cols/2;
 		RotationDir rotationDir = CLOCKWISE;
-		CircularVisuDialog dialog(cols, cols/2);
-		if(dialog.exec() == QDialog::Accepted)
+		if(parameters.size() == 2)
 		{
-			indexZero = dialog.getZeroIndex();
-			rotationDir = dialog.getRotationDirection();
+			rotationDir = RotationDir(parameters.at(0).toInt());
+			indexZero = parameters.at(1).toInt();
 		}
-		return new ShaderBarPolar(rows, cols, indexZero, rotationDir);
-	}
-	else if(type == WIREFRAME_POLAR_3D)
-	{
-		int indexZero = cols/2;
-		RotationDir rotationDir = CLOCKWISE;
-		CircularVisuDialog dialog(cols, cols/2);
-		if(dialog.exec() == QDialog::Accepted)
-		{
-			indexZero = dialog.getZeroIndex();
-			rotationDir = dialog.getRotationDirection();
-		}
-		return new ShaderWireframePolar(rows, cols, indexZero, rotationDir);
+		if(type == BAR_POLAR_3D)
+			return new ShaderBarPolar(rows, cols, indexZero, rotationDir);
+		else if(type == WIREFRAME_POLAR_3D)
+			return new ShaderWireframePolar(rows, cols, indexZero, rotationDir);
+		else
+			return new ShaderSurfacePolar(rows, cols, indexZero, rotationDir);
 	}
 	else
-	{
-		int indexZero = cols/2;
-		RotationDir rotationDir = CLOCKWISE;
-		CircularVisuDialog dialog(cols, cols/2);
-		if(dialog.exec() == QDialog::Accepted)
-		{
-			indexZero = dialog.getZeroIndex();
-			rotationDir = dialog.getRotationDirection();
-		}
-		return new ShaderSurfacePolar(rows, cols, indexZero, rotationDir);
-	}
+		return new ShaderSurface(rows, cols);
+}
+
+RotationDir intToRotationDir(int rotDir)
+{
+	if(rotDir <= 0)
+		return CLOCKWISE;
+	else
+		return COUNTERCLOCKWISE;
 }

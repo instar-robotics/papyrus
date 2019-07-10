@@ -139,9 +139,12 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_colsInput.setRange(1, MAX_COLS);
 	m_rowsInput.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_colsInput.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	m_changeParameters.setText(tr("Change parameters"));
 //	m_displayVisu.setText(tr("Visualize Activity"));
 	connect(&m_publish, SIGNAL(toggled(bool)), this, SLOT(toggleTopic(bool)));
 	connect(&m_topic, SIGNAL(textChanged(QString)), this, SLOT(onTopicChanged(QString)));
+	connect(&m_displayVisu, SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
+	connect(&m_changeParameters, SIGNAL(clicked(bool)), this, SLOT(onChangeParametersClicked(bool)));
 
 	// Fill the labels
 	m_boxTitleLabel.setText(tr("Title:"));
@@ -153,23 +156,24 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
 	// Add the fields to the layout
 	int i = 0;
-	m_boxLayout->addWidget(&m_boxName,i++,0,1,2);
-	m_boxLayout->addWidget(&m_boxTitleLabel,i,0,1,1);
-	m_boxLayout->addWidget(&m_boxTitle,i++,1,1,1);
-	m_boxLayout->addWidget(&m_boxOutputTypeLabel,i,0,1,1);
-	m_boxLayout->addWidget(&m_boxOutputType,i++,1,1,1);
-	m_boxLayout->addWidget(&m_boxMatrixShapeLabel,i,0,1,1);
-	m_boxLayout->addWidget(&m_boxMatrixShape,i++,1,1,1);
-	m_boxLayout->addWidget(&m_rowsInputLabel,i,0,1,1);
-	m_boxLayout->addWidget(&m_rowsInput,i++,1,1,1);
-	m_boxLayout->addWidget(&m_colsInputLabel,i,0,1,1);
-	m_boxLayout->addWidget(&m_colsInput,i++,1,1,1);
-	m_boxLayout->addWidget(&m_saveActivity,i,0,1,1);
-	m_boxLayout->addWidget(&m_publish,i++,1,1,1);
-	m_boxLayout->addWidget(&m_topicLabel,i++,0,1,2);
-	m_boxLayout->addWidget(&m_topic,i++,0,1,2);
-	m_boxLayout->addWidget(&m_displayVisu,i++,0,1,2);
-	m_boxLayout->addWidget(&m_choseVisuType,i++,0,1,1);
+	m_boxLayout->addWidget(&m_boxName,i,0,1,2);
+	m_boxLayout->addWidget(&m_boxTitleLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_boxTitle,i,1,1,1);
+	m_boxLayout->addWidget(&m_boxOutputTypeLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_boxOutputType,i,1,1,1);
+	m_boxLayout->addWidget(&m_boxMatrixShapeLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_boxMatrixShape,i,1,1,1);
+	m_boxLayout->addWidget(&m_rowsInputLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_rowsInput,i,1,1,1);
+	m_boxLayout->addWidget(&m_colsInputLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_colsInput,i,1,1,1);
+	m_boxLayout->addWidget(&m_saveActivity,++i,0,1,1);
+	m_boxLayout->addWidget(&m_publish,i,1,1,1);
+	m_boxLayout->addWidget(&m_topicLabel,++i,0,1,2);
+	m_boxLayout->addWidget(&m_topic,++i,0,1,2);
+	m_boxLayout->addWidget(&m_displayVisu,++i,0,1,2);
+	m_boxLayout->addWidget(&m_choseVisuType,++i,0,1,1);
+	m_boxLayout->addWidget(&m_changeParameters,i,1,1,1);
 
 	m_boxFrame.setLayout(m_boxLayout);
 	addVisuChoices();
@@ -221,7 +225,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 
 	// By default, hide the frames and the buttons
 	hideAllFrames(true);
-	connect(&m_displayVisu, SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
 }
 void PropertiesPanel::onDisplayVisuClicked(bool)
 {
@@ -424,6 +427,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		m_topic.hide();
 		m_displayVisu.hide();
 		m_choseVisuType.hide();
+		m_changeParameters.hide();
 	} else {
 		m_saveActivity.show();
 		m_publish.show();
@@ -431,6 +435,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		m_topic.show();
 		m_displayVisu.show();
 		m_choseVisuType.show();
+		m_changeParameters.show();
 	}
 
 	// Show the box frame and the buttons
@@ -619,6 +624,11 @@ void PropertiesPanel::convertTimeValues(int idx)
 void PropertiesPanel::toggleTopic(bool isChecked)
 {
 	m_topic.setEnabled(isChecked);
+}
+
+void PropertiesPanel::onChangeParametersClicked(bool)
+{
+	emit changeParameters(stringToVisuType(m_choseVisuType.currentText()));
 }
 
 /**

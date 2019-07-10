@@ -135,6 +135,7 @@ private:
 	PropLineEdit m_topic;        // To input the topic name for publishing
 	QPushButton m_displayVisu;   // Display the box's data vizualisation in 2d
 	QComboBox m_choseVisuType; //combo box to chose the 3d vizualisation to display
+	QPushButton m_changeParameters; //Display the visu parameter window
 	QLabel m_boxTitleLabel;
 	QLabel m_boxOutputTypeLabel;
 	QLabel m_boxMatrixShapeLabel;
@@ -173,6 +174,7 @@ public slots:
 	void displayZoneProperties(Zone *zone);
 	void convertTimeValues(int idx);
 	void toggleTopic(bool isChecked);
+	void onChangeParametersClicked(bool);
 
 private slots:
 	void onTopicChanged(const QString &topic);
@@ -186,6 +188,7 @@ signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
 	void displayVisu(VisuType type);
 	void changeCurrentVisuType(QString);
+	void changeParameters(VisuType type);
 };
 
 #endif // PROPERTIESPANEL_H

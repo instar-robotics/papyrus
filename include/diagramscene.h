@@ -36,6 +36,7 @@
 #include <QGraphicsScene>
 #include <QUuid>
 #include <QUndoStack>
+#include <QVariant>
 
 // Forward declaration because of recursive include
 class Script;
@@ -102,7 +103,8 @@ public slots:
 	void onCancelBtnClicked(bool);
 	void onDisplayVisuClicked(VisuType type);
 	void display2DVisu(VisuType type);
-	void display3DVisu(VisuType type);
+	void display3DVisu(VisuType type, QVector<QVariant> parameters);
+	void onChangeParametersClicked(VisuType type);
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);

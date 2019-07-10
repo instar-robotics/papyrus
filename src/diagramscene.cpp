@@ -82,6 +82,7 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
 	connect(propPanel, SIGNAL(displayVisu(VisuType)), this, SLOT(onDisplayVisuClicked(VisuType)));
+	connect(propPanel, SIGNAL(changeParameters(VisuType)), this, SLOT(onChangeParametersClicked(VisuType)));
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
 /**
@@ -1430,13 +1431,51 @@ void DiagramScene::onCancelBtnClicked(bool)
 		}
 	}
 }
+void DiagramScene::onChangeParametersClicked(VisuType type)
+{
+	QList<QGraphicsItem *> sItems = selectedItems();
+	if (sItems.count() != 1)
+	{
+		emit displayStatusMessage("No selected box");
+		return;
+	}
+	QGraphicsItem *item = sItems.at(0);
+	DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
+	if (selectedBox == nullptr)
+	{
+		emit displayStatusMessage("No selected box");
+		return;
+	}
+	QVector<QVariant> parameters;
+	int cols = selectedBox->cols();
+	if(is3DVisuType(type))
+	{
+		if(is3DPolarVisuType(type)) //Ask for parameters specific to 3d polar visu
+		{
+			int indexZero = cols/2;
+			RotationDir rotationDir = CLOCKWISE;
+			CircularVisuDialog dialog(cols, cols/2);
+			if(dialog.exec() == QDialog::Accepted)
+			{
+				indexZero = dialog.getZeroIndex();
+				rotationDir = dialog.getRotationDirection();
+			}
+			parameters.push_back(QVariant(rotationDir));
+			parameters.push_back(QVariant(indexZero));
+		}
+		else
+			emit displayStatusMessage("No adjustable parameters for this visualization");
+	}
+	else
+		emit displayStatusMessage("No adjustable parameters for this visualization");
+}
 
 void DiagramScene::onDisplayVisuClicked(VisuType type)
 {
 	if(is2DVisuType(type))
 		display2DVisu(type);
 	else if(is3DVisuType(type))
-		display3DVisu(type);
+		display3DVisu(type, QVector<QVariant>());
 	else
 	{
 		qWarning() << "No existing visualization corresponding to this type";
@@ -1557,7 +1596,7 @@ void DiagramScene::display2DVisu(VisuType type)
 	}
 }
 
-void DiagramScene::display3DVisu(VisuType type)
+void DiagramScene::display3DVisu(VisuType type, QVector<QVariant> parameters)
 {
 	// React to event only if we are the active script
 	if (m_script == nullptr)
@@ -1582,7 +1621,7 @@ void DiagramScene::display3DVisu(VisuType type)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->getDisplayedProxy() != nullptr && selectedBox->getVisuType() == type)
+			if(selectedBox->getDisplayedProxy() != nullptr && selectedBox->getVisuType() == type && parameters.size() == 0)
 			{
 				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
@@ -1596,7 +1635,7 @@ void DiagramScene::display3DVisu(VisuType type)
 				{
 					selectedBox->setVisuType(type);
 					// Insert the 3D widget
-					ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols());
+					ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols(), parameters);
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
 					connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));

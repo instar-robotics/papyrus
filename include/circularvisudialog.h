@@ -15,7 +15,7 @@ class CircularVisuDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	CircularVisuDialog(int maxIndex, int defaultZeroIndex);
+	CircularVisuDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir);
 	int getZeroIndex();
 	RotationDir getRotationDirection();
 

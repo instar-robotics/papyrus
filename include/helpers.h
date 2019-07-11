@@ -25,16 +25,6 @@
 #include "types.h"
 #include "papyruswindow.h"
 #include "slot.h"
-#include "shaderbarchart.h"
-#include "shaderconechart.h"
-#include "shadersurface.h"
-#include "shaderwireframe.h"
-#include "shadercrown.h"
-#include "shaderbarcircle.h"
-#include "shaderbarpolar.h"
-#include "shaderwireframepolar.h"
-#include "shadersurfacepolar.h"
-#include "circularvisudialog.h"
 
 #include <ros/ros.h>
 
@@ -100,23 +90,5 @@ qreal qrealAbsMax(const qreal a, qreal b);
 MatrixShape stringToMatrixShape(const QString &str);
 
 QString matrixShapeToString(const MatrixShape shape);
-
-VisuType stringToVisuType(const QString &str);
-
-QString visuTypeToString(const VisuType &visuType);
-
-bool is2DVisuType(const VisuType &visuType);
-
-bool is3DVisuType(const VisuType &visuType);
-
-bool is3DMatrixVisuType(const VisuType &visuType);
-
-bool is3DCircularVisuType(const VisuType &visuType);
-
-bool is3DPolarVisuType(const VisuType &visuType);
-
-ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVariant> parameters);
-
-RotationDir intToRotationDir(int rotDir);
 
 #endif // HELPERS_H

@@ -442,6 +442,14 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		stream.writeTextElement("y", QString::number(pos.y()));
 		stream.writeEndElement(); // position
 
+		if(item->visuParameters().size() > 0)
+		{
+			stream.writeStartElement("parameters");
+			for(int i = 0; i<item->visuParameters().size(); i++)
+				stream.writeTextElement("parameter", item->visuParameters().at(i).toString());
+			stream.writeEndElement(); // parameters
+		}
+
 		stream.writeTextElement("visuType", visuTypeToString(item->getVisuType()));
 
 		// Save position of the activity visualizer if it was displayed

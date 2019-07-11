@@ -288,6 +288,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QPointF visuPos;
 	QSizeF visuSize;
 	VisuType visuType = NONE;
+	QVector<QVariant> parameters;
 	bool isCommented = false; // defaults to non commented
 
 	readUUID(&uuid);
@@ -311,6 +312,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			readOutputSlot(outputSlot, &rows, &cols);
 		else if (reader.name() == "position")
 			readPosition(&pos);
+		else if (reader.name() == "parameters")
+			readParameters(parameters);
 		else if (reader.name() == "visuType")
 			readVisuType(visuType);
 		else if (reader.name() == "visualizer")
@@ -412,12 +415,13 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		b->setIsCommented(isCommented);
 	}
 	if(visuType == NONE)
-		visuType = THERMAL_2D;
+		visuType = UNKNOWN;
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);
 	b->setMatrixShape(matrixShape);
 	b->setVisuType(visuType);
+	b->fillVisuParameters(parameters);
 	m_script->scene()->addBox(b, pos);
 
 	// Check whether we should create the visualizer, and if yes, check which one
@@ -923,6 +927,17 @@ void XmlScriptReader::readCommented(bool &isCommented)
 void XmlScriptReader::readVisuType(VisuType &visuType)
 {
 	visuType = stringToVisuType(reader.readElementText());
+}
+
+void XmlScriptReader::readParameters(QVector<QVariant> &parameters)
+{
+	while (reader.readNextStartElement())
+	{
+		if (reader.name() == "parameter")
+		{
+			parameters.push_back(QVariant(reader.readElementText()));
+		}
+	}
 }
 
 void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

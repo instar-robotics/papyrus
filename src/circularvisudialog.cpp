@@ -1,6 +1,6 @@
 #include "circularvisudialog.h"
 
-CircularVisuDialog::CircularVisuDialog(int maxIndex, int defaultZeroIndex)
+CircularVisuDialog::CircularVisuDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir)
 {
 	setWindowTitle("Data needed");
 	m_layout = new QVBoxLayout();
@@ -11,7 +11,10 @@ CircularVisuDialog::CircularVisuDialog(int maxIndex, int defaultZeroIndex)
 	m_radioBox = new QGroupBox(this);
 	m_clockwise = new QRadioButton("Clockwise");
 	m_counterclockwise = new QRadioButton("Counterclockwise");
-	m_clockwise->setChecked(true);
+	if(defaultRotationDir == CLOCKWISE)
+		m_clockwise->setChecked(true);
+	else
+		m_counterclockwise->setChecked(true);
 	m_radioBoxLayout = new QVBoxLayout();
 	m_radioBox->setLayout(m_radioBoxLayout);
 

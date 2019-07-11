@@ -31,6 +31,7 @@
 #include "shadersurface.h"
 #include "shaderproxy.h"
 #include "shadermovebar.h"
+#include "visufunctions.h"
 
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
@@ -105,6 +106,7 @@ public slots:
 	void display2DVisu(VisuType type);
 	void display3DVisu(VisuType type, QVector<QVariant> parameters);
 	void onChangeParametersClicked(VisuType type);
+	DiagramBox *getSelectedBox();
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);

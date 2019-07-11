@@ -70,6 +70,8 @@ public:
 
 	bool polarScale() const;
 
+	virtual QVector<QVariant> getParameters();
+
 signals:
 	void repaint();
 

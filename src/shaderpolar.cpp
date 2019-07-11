@@ -26,6 +26,14 @@ ShaderPolar::~ShaderPolar()
 	delete [] m_matrix;
 }
 
+QVector<QVariant> ShaderPolar::getParameters()
+{
+	QVector<QVariant> parameters;
+	parameters.push_back(QVariant(m_dir));
+	parameters.push_back(QVariant(m_centerIndex));
+	return parameters;
+}
+
 float ShaderPolar::calculateAngle(int j)
 {
 	if(m_dir == COUNTERCLOCKWISE)

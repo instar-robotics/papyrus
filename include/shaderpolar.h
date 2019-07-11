@@ -8,6 +8,7 @@ class ShaderPolar : public ShaderWidget
 public:
 	ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir);
 	~ShaderPolar();
+	QVector<QVariant> getParameters() override;
 
 protected:
 	void initMatrix();

@@ -239,6 +239,11 @@ bool ShaderWidget::polarScale() const
 	return m_polarScale;
 }
 
+QVector<QVariant> ShaderWidget::getParameters()
+{
+	return QVector<QVariant>();
+}
+
 bool ShaderWidget::circScale() const
 {
 	return m_circScale;

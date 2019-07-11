@@ -1433,14 +1433,7 @@ void DiagramScene::onCancelBtnClicked(bool)
 }
 void DiagramScene::onChangeParametersClicked(VisuType type)
 {
-	QList<QGraphicsItem *> sItems = selectedItems();
-	if (sItems.count() != 1)
-	{
-		emit displayStatusMessage("No selected box");
-		return;
-	}
-	QGraphicsItem *item = sItems.at(0);
-	DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
+	DiagramBox *selectedBox = getSelectedBox();
 	if (selectedBox == nullptr)
 	{
 		emit displayStatusMessage("No selected box");
@@ -1454,7 +1447,12 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		{
 			int indexZero = cols/2;
 			RotationDir rotationDir = CLOCKWISE;
-			CircularVisuDialog dialog(cols, cols/2);
+			if(selectedBox->visuParameters().size() == 2 && is3DPolarVisuType(selectedBox->getVisuType()))
+			{
+				rotationDir = RotationDir(selectedBox->visuParameters().at(0).toInt());
+				indexZero = selectedBox->visuParameters().at(1).toInt();
+			}
+			CircularVisuDialog dialog(cols, indexZero, rotationDir);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				indexZero = dialog.getZeroIndex();
@@ -1464,18 +1462,52 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			parameters.push_back(QVariant(indexZero));
 		}
 		else
+		{
 			emit displayStatusMessage("No adjustable parameters for this visualization");
+			return;
+		}
 	}
 	else
+	{
 		emit displayStatusMessage("No adjustable parameters for this visualization");
+		return;
+	}
+	selectedBox->fillVisuParameters(parameters);
+	if(selectedBox->getDisplayedProxy() != nullptr)
+	{
+		display3DVisu(type, parameters);
+	}
+}
+
+DiagramBox *DiagramScene::getSelectedBox()
+{
+	QList<QGraphicsItem *> sItems = selectedItems();
+	if (sItems.count() != 1)
+	{
+		return nullptr;
+	}
+	QGraphicsItem *item = sItems.at(0);
+	DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
+	return selectedBox;
 }
 
 void DiagramScene::onDisplayVisuClicked(VisuType type)
 {
+	DiagramBox *selectedBox = getSelectedBox();
+	QVector<QVariant> parameters;
+	if (selectedBox == nullptr)
+	{
+		emit displayStatusMessage("No selected box");
+		return;
+	}
+	else
+	{
+		copyVisuParameters(selectedBox->visuParameters(), &parameters);
+	}
 	if(is2DVisuType(type))
 		display2DVisu(type);
 	else if(is3DVisuType(type))
-		display3DVisu(type, QVector<QVariant>());
+		display3DVisu(type, parameters);
 	else
 	{
 		qWarning() << "No existing visualization corresponding to this type";
@@ -1638,6 +1670,7 @@ void DiagramScene::display3DVisu(VisuType type, QVector<QVariant> parameters)
 					ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols(), parameters);
 					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
+					selectedBox->fillVisuParameters(parameters);
 					connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
 					connect(this, SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
 

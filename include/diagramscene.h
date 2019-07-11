@@ -104,7 +104,7 @@ public slots:
 	void onCancelBtnClicked(bool);
 	void onDisplayVisuClicked(VisuType type);
 	void display2DVisu(VisuType type);
-	void display3DVisu(VisuType type, QVector<QVariant> parameters);
+	void display3DVisu(VisuType type, QMap<QString, QVariant> parameters);
 	void onChangeParametersClicked(VisuType type);
 	DiagramBox *getSelectedBox();
 

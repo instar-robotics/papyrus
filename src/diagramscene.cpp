@@ -1439,7 +1439,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		emit displayStatusMessage("No selected box");
 		return;
 	}
-	QVector<QVariant> parameters;
+	QMap<QString, QVariant> parameters;
 	int cols = selectedBox->cols();
 	int rows = selectedBox->rows();
 	if(is3DVisuType(type))
@@ -1448,19 +1448,18 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		{
 			int indexZero = cols/2;
 			RotationDir rotationDir = CLOCKWISE;
-			if(selectedBox->visuParameters().size() == 2 && is3DPolarVisuType(selectedBox->getVisuType()))
-			{
-				rotationDir = RotationDir(selectedBox->visuParameters().at(0).toInt());
-				indexZero = selectedBox->visuParameters().at(1).toInt();
-			}
+			if(selectedBox->visuParameters().contains("RotationDir"))
+				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
+			if(selectedBox->visuParameters().contains("IndexZero"))
+				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
 			CircularVisuDialog dialog(cols, indexZero, rotationDir);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				indexZero = dialog.getZeroIndex();
 				rotationDir = dialog.getRotationDirection();
 			}
-			parameters.push_back(QVariant(rotationDir));
-			parameters.push_back(QVariant(indexZero));
+			parameters.insert("RotationDir", QVariant(rotationDir));
+			parameters.insert("IndexZero", QVariant(indexZero));
 		}
 		else if(is3DCircularVisuType(type)) //Ask for parameters specific to 3d circular visu
 		{
@@ -1470,19 +1469,18 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			else
 				indexZero = rows/2;
 			RotationDir rotationDir = CLOCKWISE;
-			if(selectedBox->visuParameters().size() == 2 && is3DCircularVisuType(selectedBox->getVisuType()))
-			{
-				rotationDir = RotationDir(selectedBox->visuParameters().at(0).toInt());
-				indexZero = selectedBox->visuParameters().at(1).toInt();
-			}
+			if(selectedBox->visuParameters().contains("RotationDir"))
+				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
+			if(selectedBox->visuParameters().contains("IndexZero"))
+				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
 			CircularVisuDialog dialog(cols, indexZero, rotationDir);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				indexZero = dialog.getZeroIndex();
 				rotationDir = dialog.getRotationDirection();
 			}
-			parameters.push_back(QVariant(rotationDir));
-			parameters.push_back(QVariant(indexZero));
+			parameters.insert("RotationDir", QVariant(rotationDir));
+			parameters.insert("IndexZero", QVariant(indexZero));
 		}
 		else
 		{
@@ -1517,7 +1515,7 @@ DiagramBox *DiagramScene::getSelectedBox()
 void DiagramScene::onDisplayVisuClicked(VisuType type)
 {
 	DiagramBox *selectedBox = getSelectedBox();
-	QVector<QVariant> parameters;
+	QMap<QString, QVariant> parameters;
 	if (selectedBox == nullptr)
 	{
 		emit displayStatusMessage("No selected box");
@@ -1651,7 +1649,7 @@ void DiagramScene::display2DVisu(VisuType type)
 	}
 }
 
-void DiagramScene::display3DVisu(VisuType type, QVector<QVariant> parameters)
+void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> parameters)
 {
 	// React to event only if we are the active script
 	if (m_script == nullptr)

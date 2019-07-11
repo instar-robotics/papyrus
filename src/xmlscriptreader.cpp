@@ -288,7 +288,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	QPointF visuPos;
 	QSizeF visuSize;
 	VisuType visuType = NONE;
-	QVector<QVariant> parameters;
+	QMap<QString, QVariant> parameters;
 	bool isCommented = false; // defaults to non commented
 
 	readUUID(&uuid);
@@ -493,7 +493,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		}
 		else if(is3DVisuType(visuType))
 		{
-			ShaderWidget *widget = createShaderWidget(visuType, b->getRows(), b->getCols(), QVector<QVariant>());
+			ShaderWidget *widget = createShaderWidget(visuType, b->getRows(), b->getCols(), QMap<QString, QVariant>());
 			ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 			ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, b);
 			shaderMoveBar->setProxy(proxy);
@@ -929,14 +929,11 @@ void XmlScriptReader::readVisuType(VisuType &visuType)
 	visuType = stringToVisuType(reader.readElementText());
 }
 
-void XmlScriptReader::readParameters(QVector<QVariant> &parameters)
+void XmlScriptReader::readParameters(QMap<QString, QVariant> &parameters)
 {
 	while (reader.readNextStartElement())
 	{
-		if (reader.name() == "parameter")
-		{
-			parameters.push_back(QVariant(reader.readElementText()));
-		}
+		parameters.insert(reader.name().toString(), QVariant(reader.readElementText()));
 	}
 }
 

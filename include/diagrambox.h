@@ -175,9 +175,9 @@ public:
 
 	void setVisuType(const VisuType &visuType);
 
-	QVector<QVariant> visuParameters() const;
+	QMap<QString, QVariant> visuParameters() const;
 
-	void fillVisuParameters(QVector<QVariant> parameters);
+	void fillVisuParameters(QMap<QString, QVariant> parameters);
 
 protected:
 
@@ -193,7 +193,7 @@ protected:
 	QGraphicsSvgItem m_sizeIcon;     // Contains the svg that hints the box's size
 	QGraphicsSvgItem *m_functionIcon; // Contains the SVG icon of the function
 
-	QVector<QVariant> m_visuParameters; //Contains every parameters used by the visu
+	QMap<QString, QVariant> m_visuParameters; //Contains every parameters used by the visu
 
 private:
 	QUuid m_uuid;          // Unique ID of the function's box (to identify links for instance)

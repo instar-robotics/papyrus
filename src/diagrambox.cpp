@@ -355,12 +355,12 @@ void DiagramBox::setVisuType(const VisuType &visuType)
 	m_visuType = visuType;
 }
 
-QVector<QVariant> DiagramBox::visuParameters() const
+QMap<QString, QVariant> DiagramBox::visuParameters() const
 {
 	return m_visuParameters;
 }
 
-void DiagramBox::fillVisuParameters(QVector<QVariant> parameters)
+void DiagramBox::fillVisuParameters(QMap<QString, QVariant> parameters)
 {
 	copyVisuParameters(parameters, &m_visuParameters);
 }

@@ -26,10 +26,10 @@ bool is3DCircularVisuType(const VisuType &visuType);
 
 bool is3DPolarVisuType(const VisuType &visuType);
 
-ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVariant> parameters);
+ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString, QVariant> parameters);
 
 RotationDir intToRotationDir(int rotDir);
 
-void copyVisuParameters(QVector<QVariant> origin, QVector<QVariant>* destination);
+void copyVisuParameters(QMap<QString, QVariant> origin, QMap<QString, QVariant> *destination);
 
 #endif // VISUFUNCTIONS_H

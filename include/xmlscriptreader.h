@@ -79,7 +79,7 @@ private:
 	void readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize);
 	void readCommented(bool &isCommented);
 	void readVisuType(VisuType &visuType);
-	void readParameters(QVector<QVariant> &parameters);
+	void readParameters(QMap<QString, QVariant> &parameters);
 };
 
 #endif // XMLSCRIPTREADER_H

@@ -445,8 +445,9 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		if(item->visuParameters().size() > 0)
 		{
 			stream.writeStartElement("parameters");
-			for(int i = 0; i<item->visuParameters().size(); i++)
-				stream.writeTextElement("parameter", item->visuParameters().at(i).toString());
+			QList<QString> keys = item->visuParameters().keys();
+			for(int i = 0; i<keys.size(); i++)
+				stream.writeTextElement(keys.at(i), item->visuParameters().value(keys.at(i)).toString());
 			stream.writeEndElement(); // parameters
 		}
 

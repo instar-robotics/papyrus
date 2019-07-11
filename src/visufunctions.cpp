@@ -100,7 +100,7 @@ bool is3DPolarVisuType(const VisuType &visuType)
 	return false;
 }
 
-ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVariant> parameters)
+ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString, QVariant> parameters)
 {
 	if(is3DMatrixVisuType(type))
 	{
@@ -131,11 +131,10 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVar
 			indexZero = rows/2;
 			size = rows;
 		}
-		if(parameters.size() == 2)
-		{
-			rotationDir = RotationDir(parameters.at(0).toInt());
-			indexZero = parameters.at(1).toInt();
-		}
+		if(parameters.contains("RotationDir"))
+			rotationDir = RotationDir(parameters.value("RotationDir").toInt());
+		if(parameters.contains("IndexZero"))
+			indexZero = parameters.value("IndexZero").toInt();
 		if(type == BAR_CIRCLE_3D)
 			return new ShaderBarCircle(size, indexZero, rotationDir);
 		else
@@ -145,11 +144,10 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVar
 	{
 		int indexZero = cols/2;
 		RotationDir rotationDir = CLOCKWISE;
-		if(parameters.size() == 2)
-		{
-			rotationDir = RotationDir(parameters.at(0).toInt());
-			indexZero = parameters.at(1).toInt();
-		}
+		if(parameters.contains("RotationDir"))
+			rotationDir = RotationDir(parameters.value("RotationDir").toInt());
+		if(parameters.contains("IndexZero"))
+			indexZero = parameters.value("IndexZero").toInt();
 		if(type == BAR_POLAR_3D)
 			return new ShaderBarPolar(rows, cols, indexZero, rotationDir);
 		else if(type == WIREFRAME_POLAR_3D)
@@ -169,11 +167,12 @@ RotationDir intToRotationDir(int rotDir)
 		return COUNTERCLOCKWISE;
 }
 
-void copyVisuParameters(QVector<QVariant> origin, QVector<QVariant> *destination)
+void copyVisuParameters(QMap<QString, QVariant> origin, QMap<QString, QVariant> *destination)
 {
 	destination->clear();
+	QList<QString> keys = origin.keys();
 	for(int i = 0; i<origin.size(); i++)
 	{
-		destination->push_back(origin.at(i));
+		destination->insert(keys.at(i), origin.value(keys.at(i)));
 	}
 }

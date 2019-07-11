@@ -117,20 +117,29 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QVector<QVar
 	{
 		if(rows != 1 && cols != 1)
 			return new ShaderSurface(rows, cols);
-		else if(type == BAR_CIRCLE_3D)
+
+		RotationDir rotationDir = CLOCKWISE;
+		int indexZero;
+		int size;
+		if(rows == 1)
 		{
-			if(rows == 1)
-				return new ShaderBarCircle(cols, cols/2, CLOCKWISE);
-			else
-				return new ShaderBarCircle(rows, rows/2, CLOCKWISE);
+			indexZero = cols/2;
+			size = cols;
 		}
 		else
 		{
-			if(rows == 1)
-				return new ShaderCrown(cols, cols/2, CLOCKWISE);
-			else
-				return new ShaderCrown(rows, rows/2, CLOCKWISE);
+			indexZero = rows/2;
+			size = rows;
 		}
+		if(parameters.size() == 2)
+		{
+			rotationDir = RotationDir(parameters.at(0).toInt());
+			indexZero = parameters.at(1).toInt();
+		}
+		if(type == BAR_CIRCLE_3D)
+			return new ShaderBarCircle(size, indexZero, rotationDir);
+		else
+			return new ShaderCrown(size, indexZero, rotationDir);
 	}
 	else if(is3DPolarVisuType(type))
 	{

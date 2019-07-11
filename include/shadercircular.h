@@ -8,6 +8,7 @@ class ShaderCircular : public ShaderWidget
 public:
 	ShaderCircular(int size, int centerIndex, RotationDir dir);
 	~ShaderCircular();
+	QVector<QVariant> getParameters() override;
 
 protected:
 	void initMatrix();

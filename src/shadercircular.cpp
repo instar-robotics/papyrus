@@ -17,6 +17,14 @@ ShaderCircular::~ShaderCircular()
 	delete [] m_matrix;
 }
 
+QVector<QVariant> ShaderCircular::getParameters()
+{
+	QVector<QVariant> parameters;
+	parameters.push_back(QVariant(m_dir));
+	parameters.push_back(QVariant(m_centerIndex));
+	return parameters;
+}
+
 float ShaderCircular::calculateAngle(int i)
 {
 	if(m_dir == COUNTERCLOCKWISE)

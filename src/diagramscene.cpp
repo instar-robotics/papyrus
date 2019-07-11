@@ -1441,6 +1441,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 	}
 	QVector<QVariant> parameters;
 	int cols = selectedBox->cols();
+	int rows = selectedBox->rows();
 	if(is3DVisuType(type))
 	{
 		if(is3DPolarVisuType(type)) //Ask for parameters specific to 3d polar visu
@@ -1448,6 +1449,28 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			int indexZero = cols/2;
 			RotationDir rotationDir = CLOCKWISE;
 			if(selectedBox->visuParameters().size() == 2 && is3DPolarVisuType(selectedBox->getVisuType()))
+			{
+				rotationDir = RotationDir(selectedBox->visuParameters().at(0).toInt());
+				indexZero = selectedBox->visuParameters().at(1).toInt();
+			}
+			CircularVisuDialog dialog(cols, indexZero, rotationDir);
+			if(dialog.exec() == QDialog::Accepted)
+			{
+				indexZero = dialog.getZeroIndex();
+				rotationDir = dialog.getRotationDirection();
+			}
+			parameters.push_back(QVariant(rotationDir));
+			parameters.push_back(QVariant(indexZero));
+		}
+		else if(is3DCircularVisuType(type)) //Ask for parameters specific to 3d circular visu
+		{
+			int indexZero;
+			if(rows==1)
+				indexZero = cols/2;
+			else
+				indexZero = rows/2;
+			RotationDir rotationDir = CLOCKWISE;
+			if(selectedBox->visuParameters().size() == 2 && is3DCircularVisuType(selectedBox->getVisuType()))
 			{
 				rotationDir = RotationDir(selectedBox->visuParameters().at(0).toInt());
 				indexZero = selectedBox->visuParameters().at(1).toInt();

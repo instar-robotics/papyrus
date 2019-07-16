@@ -39,3 +39,8 @@ void Camera::updatePosition()
 	m_position.setY(sin(MathTransfo::degToRad(m_xRot)) * m_distance + m_yTran);
 	m_position.setZ(-cos(MathTransfo::degToRad(m_yRot)) * m_distance + m_zTran);
 }
+
+void Camera::setDistance(float distance)
+{
+	m_distance = distance;
+}

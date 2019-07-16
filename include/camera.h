@@ -29,6 +29,7 @@ public:
 	QVector4D m_position;
 
 	QPoint m_lastPos;
+	void setDistance(float distance);
 };
 
 #endif // CAMERA_H

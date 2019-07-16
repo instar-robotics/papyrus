@@ -10,6 +10,8 @@ ShaderPolar::ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir):
 	initMatrix();
 	//m_scaleCircular = new ShaderScaleCircular(m_radiusMin,m_coefSize,m_nbMeasuresY);
 
+	m_coefSize = (m_xSize+m_ySize)/40.0;
+	m_camera.setDistance((m_xSize+2*m_ySize)/(3*PI/1.75));
 	m_radiusMax = m_radiusMin + m_radiusGap*m_ySize + 0.2;
 	m_scalePolar = new ShaderScalePolar(m_radiusMin, m_radiusMax, m_coefSize);
 	m_scaleCylinder = new ShaderScaleCylinder(m_radiusMax+0.05, m_coefSize, m_nbMeasuresY);

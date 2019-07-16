@@ -23,7 +23,6 @@ protected:
 	virtual void fillVectors() = 0;
 	void clearVectors();
 
-protected:
 	//vectors
 	QVector<GLuint> m_indexes; //save the index of vertexes to use in the drawing order
 	QVector<QVector3D> m_vertexes; //save the coordinates of all the vertexes for the render

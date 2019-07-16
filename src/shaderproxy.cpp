@@ -101,9 +101,15 @@ void ShaderProxy::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
 	if (event->modifiers() & Qt::ShiftModifier) {
 		if(event->delta() > 0)
+		{
 			m_widget->updateScale(9.0/8.0); // multiplied by 1.125
+			m_max *= (8.0/9.0);
+		}
 		else
+		{
 			m_widget->updateScale(8.0/9.0); // divided by 1.125
+			m_max *= (9.0/8.0);
+		}
 	}
 	else
 		m_widget->wheelTurned(event->delta());
@@ -201,18 +207,12 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		QFont font = painter->font();
 		font.setPixelSize(m_fontSize);
 		painter->setFont(font);
-		float max = 0.0;
 		float rows = 0.0;
 		float columns = 0.0;
 		if(m_widget->matrixScale())
 		{
-			max = m_widget->scalePlanes()->max();
 			rows = m_widget->scalePlanes()->rows();
 			columns = m_widget->scalePlanes()->columns();
-		}
-		else if(m_widget->circScale() || m_widget->polarScale())
-		{
-			max = m_widget->scaleCylinder()->max();
 		}
 		float gap = 0.0;
 		/*Y axe*/
@@ -223,10 +223,10 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 			lines.push_back(QLine(QPoint(m_margin, m_marginTop + i*m_measureGap), QPoint(m_margin + m_measureSize, m_marginTop + i*m_measureGap)));
 		}
 		//Values
-		gap = 2*max/(m_widget->nbMeasuresY()-1);
+		gap = 2*m_max/(m_widget->nbMeasuresY()-1);
 		for(int i = 0; i<m_widget->nbMeasuresY(); i++)
 		{
-			float value = max - gap*i;
+			float value = m_max - gap*i;
 			QString str = QString::fromStdString(std::to_string(value));
 			str.resize(4);
 			painter->drawText(m_margin + m_measureSize + m_marginFont, m_marginTop + i*m_measureGap + m_fontSize/2, str);

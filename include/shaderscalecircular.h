@@ -9,33 +9,23 @@
 #include <math.h>
 
 #include "mathtransfo.h"
-#include "shaderadds.h"
+#include "shaderscale.h"
 
-class ShaderScaleCircular: public ShaderAdds
+class ShaderScaleCircular: public ShaderScale
 {
 
 public:
 	ShaderScaleCircular(float radius, float range, int nbMeasuresY);
 	~ShaderScaleCircular();
 
-	void updateScale(float max);
-	float max() const;
-
 protected:
-	void initVectors();
-	void fillVectors();
-
-private:
+	virtual void initVectors() override;
+	virtual void fillVectors() override;
 
 	float m_radius;
 	float m_secRadius;
 	float m_thirdRadius;
 
-	int m_nbMeasuresY; //Number of measures on the Y axe
-	float m_measureY; //Distance between 2 measures on the Y axe
-	float m_startRange;
-	float m_range; //Max height (and min for the negatives) of the 3d display
-	float m_max = 1.0; //Max scale measure
 	int m_nbVertexes;
 };
 #endif // SHADERSCALECIRCULAR_H

@@ -70,6 +70,7 @@ private:
 	int m_measureSize = 7; //Size of a scale's branch
 	int m_measureGap = 13; //Distance between two branches in a scale
 	int m_fontSize = 6;
+	float m_max = 1.0;
 };
 
 #endif // SHADERPROXY_H

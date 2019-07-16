@@ -9,30 +9,21 @@
 #include <math.h>
 
 #include "mathtransfo.h"
-#include "shaderadds.h"
+#include "shaderscale.h"
 
-class ShaderScaleCylinder: public ShaderAdds
+class ShaderScaleCylinder: public ShaderScale
 {
 
 public:
 	ShaderScaleCylinder(float radius, float range, int nbMeasuresY);
 	~ShaderScaleCylinder();
 
-	void updateScale(float max);
-	float max() const;
-
 protected:
-	void initVectors();
-	void fillVectors();
+	virtual void initVectors() override;
+	virtual void fillVectors() override;
 
 private:
 
 	float m_radius;
-
-	int m_nbMeasuresY; //Number of measures on the Y axe
-	float m_measureY; //Distance between 2 measures on the Y axe
-	float m_startRange;
-	float m_range; //Max height (and min for the negatives) of the 3d display
-	float m_max = 1.0; //Max scale measure
 };
 #endif // SHADERSCALECYLINDER_H

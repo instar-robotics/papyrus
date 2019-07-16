@@ -89,7 +89,6 @@ void ShaderWidget::paintGL()
 		//qDebug() << m_last_count;
 	}
 
-	update();
 	emit repaint();
 }
 
@@ -234,6 +233,11 @@ void ShaderWidget::displayScale()
 	}
 }
 
+float ShaderWidget::range() const
+{
+	return m_range;
+}
+
 bool ShaderWidget::polarScale() const
 {
 	return m_polarScale;
@@ -265,18 +269,7 @@ ShaderScaleCircular *ShaderWidget::scaleCircular() const
 }
 void ShaderWidget::updateScale(float coef)
 {
-	if(m_matrixScale)
-		m_scalePlanes->updateScale(m_scalePlanes->max()*coef);
-	if(m_circScale)
-	{
-		m_scaleCircular->updateScale(m_scaleCircular->max()*coef);
-		m_scaleCylinder->updateScale(m_scaleCylinder->max()*coef);
-	}
-	if(m_polarScale)
-	{
-		m_scalePolar->updateScale(m_scalePolar->max()*coef);
-		m_scaleCylinder->updateScale(m_scaleCylinder->max()*coef);
-	}
+	m_range *= coef;
 }
 
 void ShaderWidget::mousePressed(QPoint pos)

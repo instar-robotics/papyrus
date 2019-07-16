@@ -72,6 +72,8 @@ public:
 
 	virtual QVector<QVariant> getParameters();
 
+	float range() const;
+
 signals:
 	void repaint();
 
@@ -132,7 +134,8 @@ protected:
 	float m_gap = 0.2f;
 	Camera m_camera;
 	Light m_light;
-	float m_range = 4.0f;
+	float m_range = 1.0f;
+	float m_coefSize = 4.0f;
 
 	// widget size
 	int m_startWidth = 300;

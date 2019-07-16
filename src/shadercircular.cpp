@@ -6,8 +6,8 @@ ShaderCircular::ShaderCircular(int size, int centerIndex, RotationDir dir):
     m_dir(dir)
 {
 	initMatrix();
-	m_scaleCircular = new ShaderScaleCircular(m_radius, m_range, m_nbMeasuresY);
-	m_scaleCylinder = new ShaderScaleCylinder(m_radius, m_range, m_nbMeasuresY);
+	m_scaleCircular = new ShaderScaleCircular(m_radius, m_coefSize, m_nbMeasuresY);
+	m_scaleCylinder = new ShaderScaleCylinder(m_radius, m_coefSize, m_nbMeasuresY);
 	m_shaderArrow = new ShaderArrow(3.0);
 	m_circScale = true;
 }
@@ -56,7 +56,7 @@ float ShaderCircular::calculateZcoord(int i)
 
 float ShaderCircular::calculateHeight(float value)
 {
-	return value*m_range;
+	return value*m_range*m_coefSize;
 }
 
 void ShaderCircular::initMatrix()

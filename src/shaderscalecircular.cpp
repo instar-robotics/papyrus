@@ -1,15 +1,11 @@
 #include "shaderscalecircular.h"
 
 ShaderScaleCircular::ShaderScaleCircular(float radius, float range, int nbMeasuresY):
+    ShaderScale(range, nbMeasuresY),
     m_radius(radius-0.05),
     m_secRadius(radius/1.5),
-    m_thirdRadius(radius/1.15),
-    m_startRange(range),
-    m_range(range)
+    m_thirdRadius(radius/1.15)
 {
-	m_range *= m_max;
-	m_nbMeasuresY = nbMeasuresY;
-	m_measureY = 2*m_range/(m_nbMeasuresY-1);
 	initVectors();
 	fillVectors();
 }
@@ -136,15 +132,3 @@ void ShaderScaleCircular::fillVectors()
 	}
 }
 
-float ShaderScaleCircular::max() const
-{
-	return m_max;
-}
-
-void ShaderScaleCircular::updateScale(float max)
-{
-	m_max = max;
-	m_range = m_startRange * m_max;
-	m_measureY = 2*m_range/(m_nbMeasuresY-1);
-	fillVectors();
-}

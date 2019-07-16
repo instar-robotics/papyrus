@@ -1,13 +1,9 @@
 #include "shaderscalecylinder.h"
 
 ShaderScaleCylinder::ShaderScaleCylinder(float radius, float range, int nbMeasuresY):
-    m_radius(radius-0.05),
-    m_startRange(range),
-    m_range(range)
+    ShaderScale(range, nbMeasuresY),
+    m_radius(radius-0.05)
 {
-	m_range *= m_max;
-	m_nbMeasuresY = nbMeasuresY;
-	m_measureY = 2*m_range/(m_nbMeasuresY-1);
 	initVectors();
 	fillVectors();
 }
@@ -70,15 +66,3 @@ void ShaderScaleCylinder::fillVectors()
 	}
 }
 
-float ShaderScaleCylinder::max() const
-{
-	return m_max;
-}
-
-void ShaderScaleCylinder::updateScale(float max)
-{
-	m_max = max;
-	m_range = m_startRange * m_max;
-	m_measureY = 2*m_range/(m_nbMeasuresY-1);
-	fillVectors();
-}

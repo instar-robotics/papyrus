@@ -1,18 +1,14 @@
 #include "shaderscaleplanes.h"
 
 ShaderScalePlanes::ShaderScalePlanes(int rows, int columns, float range, float gap, int nbMeasuresXZ, int nbMeasuresY):
+    ShaderScale(range, nbMeasuresY),
     m_rows(rows),
     m_columns(columns),
-    m_startRange(range),
-    m_range(range),
     m_gap(gap)
 {
-	m_range *= m_max;
 	m_nbMeasuresXZ = nbMeasuresXZ;
-	m_nbMeasuresY = nbMeasuresY;
 	m_measureX = m_columns*m_gap/(m_nbMeasuresXZ-1);
 	m_measureZ = m_rows*m_gap/(m_nbMeasuresXZ-1);
-	m_measureY = 2*m_range/(m_nbMeasuresY-1);
 	initVectors();
 	fillVectors();
 }
@@ -160,25 +156,8 @@ int ShaderScalePlanes::rows() const
 	return m_rows;
 }
 
-float ShaderScalePlanes::max() const
-{
-	return m_max;
-}
-
-int ShaderScalePlanes::nbMeasuresY() const
-{
-	return m_nbMeasuresY;
-}
-
 int ShaderScalePlanes::nbMeasuresXZ() const
 {
 	return m_nbMeasuresXZ;
 }
 
-void ShaderScalePlanes::updateScale(float max)
-{
-	m_max = max;
-	m_range = m_startRange * m_max;
-	m_measureY = 2*m_range/(m_nbMeasuresY-1);
-	fillVectors();
-}

@@ -281,6 +281,7 @@ void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 {
 	int dx = pos.x() - m_camera.m_lastPos.x();
 	int dy = pos.y() - m_camera.m_lastPos.y();
+	m_moveCameraCoef = m_camera.m_distance/7.0;
 
 	// Rotate camera and light
 	if (mouseControl == LEFT_BUTTON)
@@ -294,15 +295,15 @@ void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 	// Translate camera
 	else if (mouseControl == RIGHT_BUTTON)
 	{
-		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
-		m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot)), 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot)));
+		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef, 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef);
+		m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef, 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef);
 		m_camera.updatePosition();
 	}
 
 	// Translate camera
 	else if(mouseControl == RIGHT_SHIFT_BUTTON)
 	{
-		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot)), -dy, dx*sin(MathTransfo::degToRad(m_camera.m_yRot)));
+		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef, -dy*m_moveCameraCoef, dx*sin(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef);
 		m_camera.updatePosition();
 	}
 

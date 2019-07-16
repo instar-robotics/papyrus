@@ -12,7 +12,7 @@ class Camera
 public:
 	Camera();
 	void rotateView(int x, int y, int z);
-	void translateView(int x, int y, int z);
+	void translateView(float x, float y, float z);
 	void updatePosition();
 
 	float m_distance = 40.0f;

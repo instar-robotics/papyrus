@@ -136,6 +136,7 @@ protected:
 	Light m_light;
 	float m_range = 1.0f;
 	float m_coefSize = 4.0f;
+	float m_moveCameraCoef = 1.0;
 
 	// widget size
 	int m_startWidth = 300;

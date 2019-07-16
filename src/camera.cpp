@@ -26,7 +26,7 @@ void Camera::rotateView(int x, int y, int z)
 		m_zRot += 360;
 }
 
-void Camera::translateView(int x, int y, int z)
+void Camera::translateView(float x, float y, float z)
 {
 	m_xTran += x/100.0f;
 	m_yTran += y/100.0f;

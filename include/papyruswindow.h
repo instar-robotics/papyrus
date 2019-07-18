@@ -32,6 +32,7 @@
 #include "types.h"
 #include "xmldescriptionreader.h"
 #include "scopewindow.h"
+#include "variablewindow.h"
 
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -168,6 +169,7 @@ private:
 	QDialog *m_findDialog;      // A modeless dialog used to find boxes, links, etc.
 
 	ScopeWindow *m_scopeWindow; // A modeless dialog used to display a script's scope
+	VariableWindow *m_variableWindow; // A modal dialog to set script's variables
 
 signals:
 	void toggleDisplayGrid(bool);
@@ -195,6 +197,7 @@ private slots:
 	void onActiveScriptChanged(Script *newActiveScript);
 	void onRTTokenWarning(bool warning, int scriptIdx);
 	void onTabMoved(int from, int to);
+	void onVariableWindowClosed(int code);
 
 	void on_actionExit_triggered();
 
@@ -248,6 +251,7 @@ private slots:
 	void on_actionCopy_triggered();
 	void on_actionSelect_All_triggered();
 	void on_actionEnable_Live_Comment_toggled(bool arg1);
+	void on_actionEdit_variables_triggered();
 };
 
 #endif // PAPYRUSWINDOW_H

@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QUuid>
 #include <QTimer>
+#include <QMap>
 
 // Forward declaration because of recursive includes
 class DiagramScene;
@@ -116,6 +117,9 @@ public:
 	bool isLiveCommentEnabled() const;
 	void setIsLiveCommentEnabled(bool isLiveCommentEnabled);
 
+	QMap<QString, QPair<QString, QString> > variables() const;
+	void setVariables(const QMap<QString, QPair<QString, QString> > &variables);
+
 public slots:
 	void warnAboutModifiedScript();
 
@@ -141,6 +145,8 @@ private:
 	bool m_isPaused;       // Tells whether this script is paused while running
 
 	bool m_isLiveCommentEnabled; // Whether or not to live comment/uncomment when commenting a function
+
+	QMap<QString, QPair<QString, QString>> m_variables; // Pairs of <value, description>
 
 private slots:
 	void onROSSessionMessage(const QString &msg, MessageUrgency urgency = MSG_INFO);

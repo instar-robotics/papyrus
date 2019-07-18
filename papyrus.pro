@@ -78,12 +78,14 @@ HEADERS += include/category.h \
            include/scopewindow.h \
            include/scopemessage.h \
            include/scopeitem.h \
-           include/rttokenmessage.h
+           include/rttokenmessage.h \
+           include/variablewindow.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
-    src/nodeschooser.ui \
-    src/nodeschooser.ui \
-    src/scopewindow.ui
+         src/nodeschooser.ui \
+         src/nodeschooser.ui \
+         src/scopewindow.ui \
+         src/variablewindow.ui
 
 SOURCES += src/category.cpp \
            src/diagrambox.cpp \
@@ -142,6 +144,7 @@ SOURCES += src/category.cpp \
            src/scopewindow.cpp \
            src/scopemessage.cpp \
            src/scopeitem.cpp \
-           src/rttokenmessage.cpp
+           src/rttokenmessage.cpp \
+           src/variablewindow.cpp
 
 RESOURCES += icons.qrc

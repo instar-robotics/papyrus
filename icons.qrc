@@ -41,6 +41,8 @@
         <file>icons/copy.svg</file>
         <file>icons/load-weights.svg</file>
         <file>icons/save-weights.svg</file>
+        <file>icons/variables.svg</file>
+        <file>icons/add.svg</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

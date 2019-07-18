@@ -64,6 +64,8 @@
 #include <QRegularExpression>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 
 #include "hieroglyph/SimpleCmd.h"
 
@@ -89,7 +91,8 @@ PapyrusWindow::PapyrusWindow(int argc, char **argv, QWidget *parent) :
     m_checkVersionTimer(this),
     m_preventROSPopup(true),
     m_findDialog(nullptr),
-    m_scopeWindow(nullptr)
+    m_scopeWindow(nullptr),
+    m_variableWindow(nullptr)
 {
 	// First of all set the UI according to the UI file (MUST be called before the rest)
 	m_ui->setupUi(this);
@@ -1534,6 +1537,60 @@ void PapyrusWindow::onTabMoved(int from, int to)
 	}
 }
 
+void PapyrusWindow::onVariableWindowClosed(int code)
+{
+	// Don't do anything if the user cancelled
+	if (code == 0) {
+		displayStatusMessage(tr("Variables editing cancelled."));
+		return;
+	}
+
+	// Make sure the window was not destroyed
+	if (m_variableWindow == nullptr) {
+		displayStatusMessage(tr("Cannot save variables: the window was destroyed!"), MSG_ERROR);
+		return;
+	}
+
+	// Make sure we have an active script
+	if (m_activeScript == nullptr) {
+		displayStatusMessage(tr("Cannot save variables: no active script!"), MSG_ERROR);
+		return;
+	}
+
+	// Make sure the window's script is the same as the currently active script
+	if (m_variableWindow->script() != m_activeScript) {
+		displayStatusMessage(tr("Cannot save variables: script has changed!"), MSG_ERROR);
+		return;
+	}
+
+	// Now we can update the variables
+	m_activeScript->variables().clear();
+
+	int nbRows = m_variableWindow->getTabWidget()->rowCount();
+	QMap<QString, QPair<QString, QString>> newVariables;
+
+	for (int i = 0; i < nbRows; i += 1) {
+		QTableWidgetItem *varItem = m_variableWindow->getTabWidget()->item(i, 0);
+		QTableWidgetItem *valueItem = m_variableWindow->getTabWidget()->item(i, 1);
+		QTableWidgetItem *descItem = m_variableWindow->getTabWidget()->item(i, 2);
+
+		// Add the variable only if the var and the value are not null
+		if (varItem == nullptr || valueItem == nullptr
+		    || varItem->text().isEmpty() || valueItem->text().isEmpty())
+			continue;
+
+		QString var = varItem->text();
+		QString value = valueItem->text();
+		QString desc = (descItem == nullptr) ? "" : descItem->text();
+
+		newVariables.insert(var, QPair<QString, QString>(value, desc));
+	}
+
+	m_activeScript->setVariables(newVariables);
+
+	displayStatusMessage(tr("Variables saved!"));
+}
+
 /**
  * @brief PapyrusWindow::categoryExpanded is called when a user double clicks on a category to
  * expand it, we use this event to collapse all other categories (expect "Constants") so that only
@@ -2434,4 +2491,29 @@ void PapyrusWindow::on_actionEnable_Live_Comment_toggled(bool enabled)
 			script->setIsLiveCommentEnabled(enabled);
 		}
 	}
+}
+
+/**
+ * @brief PapyrusWindow::on_actionEdit_variables_triggered show the windows allowing to set
+ * variables values.
+ */
+void PapyrusWindow::on_actionEdit_variables_triggered()
+{
+	if (m_activeScript == nullptr) {
+		emit displayStatusMessage(tr("Cannot edit variables: no script active!"), MSG_WARNING);
+		return;
+	}
+
+	if (m_variableWindow == nullptr) {
+		m_variableWindow = new VariableWindow(this);
+		m_variableWindow->setModal(true);
+
+		connect(m_variableWindow, SIGNAL(finished(int)), this, SLOT(onVariableWindowClosed(int)));
+	}
+
+	m_variableWindow->setScript(m_activeScript);
+
+	m_variableWindow->show();
+	m_variableWindow->raise();
+	m_variableWindow->activateWindow();
 }

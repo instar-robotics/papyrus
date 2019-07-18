@@ -96,6 +96,8 @@
     <addaction name="separator"/>
     <addaction name="actionHide_outputs"/>
     <addaction name="actionShow_outputs"/>
+    <addaction name="separator"/>
+    <addaction name="actionEdit_variables"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -490,6 +492,18 @@
    </property>
    <property name="text">
     <string>Enable Live Comment</string>
+   </property>
+  </action>
+  <action name="actionEdit_variables">
+   <property name="icon">
+    <iconset resource="../icons.qrc">
+     <normaloff>:/icons/icons/variables.svg</normaloff>:/icons/icons/variables.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Edit variables</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+V</string>
    </property>
   </action>
  </widget>

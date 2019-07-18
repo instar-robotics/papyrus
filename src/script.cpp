@@ -84,6 +84,9 @@ Script::Script(DiagramScene *scene, const QString &name) : m_scene(scene),
 	// Create the ROS session only if we have a name (otherwise there's no valid node name)
 	if (!m_name.isEmpty())
 		setupROSSession();
+
+//	m_variables.insert("VAR_1", QPair<QString, QString>("45.77357", "The fist variable"));
+//	m_variables.insert("VAR_2", QPair<QString, QString>("/ros/topic/name", "Name of a ros topic"));
 }
 
 Script::~Script()
@@ -679,6 +682,16 @@ void Script::warnAboutModifiedScript()
 	QString title("\"" + m_name + "\"" + tr(" was not saved for ") + QString::number(TIME_WARN_MODIFIED) + tr(" minutes!"));
 	QString msg(tr("You should save it to prevent data loss."));
 	m_scene->mainWindow()->getTrayIcon()->showMessage(title, msg, QSystemTrayIcon::Warning);
+}
+
+void Script::setVariables(const QMap<QString, QPair<QString, QString> > &variables)
+{
+	m_variables = variables;
+}
+
+QMap<QString, QPair<QString, QString> > Script::variables() const
+{
+	return m_variables;
 }
 
 bool Script::isLiveCommentEnabled() const

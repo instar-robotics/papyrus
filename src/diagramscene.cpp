@@ -1233,6 +1233,8 @@ void DiagramScene::onSelectionChanged()
 			propPanel->displayLinkProperties(link);
 		} else if ((zone = dynamic_cast<Zone *>(item))) {
 			propPanel->displayZoneProperties(zone);
+		} else {
+			propPanel->displayScriptProperties(m_script);
 		}
 
 	} else if (sItems.count() == 0) {
@@ -1380,8 +1382,9 @@ void DiagramScene::onOkBtnClicked(bool)
 		} else if ((selectedZone = dynamic_cast<Zone *>(item))) {
 			propPanel->updateZoneProperties(selectedZone);
 		} else {
-			informUserAndCrash(tr("Unsupported element for updating properties, only function "
-			                      "boxes, links and zones are supported at the moment."));
+			propPanel->updateScriptProperties(m_script);
+//			informUserAndCrash(tr("Unsupported element for updating properties, only function "
+//			                      "boxes, links and zones are supported at the moment."));
 		}
 	}
 

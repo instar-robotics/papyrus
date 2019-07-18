@@ -197,16 +197,19 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 	painter->drawPolygon(points);
 
+	//Set pen to write text and draw lines
+	painter->setPen(QPen(brush, 1));
+
 	if((m_widget->matrixScale() || m_widget->circScale() || m_widget->polarScale()) &&
 	    m_widget->width() >= m_widget->startWidth())
 	{
-		painter->setPen(QPen(brush, 1)); //Set the pen for scales
 
-		//Scale measures for each axe
-		QVector<QLine> lines;
 		QFont font = painter->font();
 		font.setPixelSize(m_fontSize);
 		painter->setFont(font);
+
+		//Scale measures for each axe
+		QVector<QLine> lines;
 		float rows = 0.0;
 		float columns = 0.0;
 		if(m_widget->matrixScale())
@@ -271,8 +274,16 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 			painter->drawText(m_widget->nbMeasuresXZ() * m_measureGap + 2*m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "Y");
 			// The Y and Z axes for 3d displayed are inversed in the matricial space
 		}
-
 		painter->drawLines(lines);
 	}
+
+	QFont font = painter->font();
+	font.setPixelSize(m_titleFontSize);
+	painter->setFont(font);
+
+	//Display the box's name
+	QString title = m_box->title();
+	QRectF rect(m_widget->width()-m_titleFontSize*title.length()-m_margin, m_margin, m_titleFontSize*title.length(), m_titleFontSize*2);
+	painter->drawText(rect, title, QTextOption(Qt::AlignRight));
 
 }

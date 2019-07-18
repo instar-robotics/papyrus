@@ -37,7 +37,6 @@ VariableWindow::~VariableWindow()
 
 void VariableWindow::setScript(Script *script)
 {
-	qDebug() << "Set Script";
 	if (script == nullptr)
 		return;
 
@@ -56,8 +55,6 @@ void VariableWindow::setScript(Script *script)
 	foreach(QString var, m_script->variables().keys()) {
 		QString value = m_script->variables()[var].first;
 		QString desc = m_script->variables()[var].second;
-
-		qDebug() << "var:" << var << ", value:" << value << ", desc:" << desc;
 
 		QTableWidgetItem *itemVar = new QTableWidgetItem(var);
 		QTableWidgetItem *itemValue = new QTableWidgetItem(value);

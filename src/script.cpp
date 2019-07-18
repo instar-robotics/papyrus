@@ -39,6 +39,8 @@
 #include <QTemporaryFile>
 #include <QProcess>
 #include <QTimer>
+#include <QMap>
+#include <QPair>
 
 #include <iostream>
 #include <fstream>
@@ -481,6 +483,19 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		stream.writeEndElement(); // zone
 	}
 	stream.writeEndElement(); // zones
+
+	stream.writeStartElement("variables");
+	foreach(QString var, m_variables.keys()) {
+		QString value = m_variables[var].first;
+		QString desc = m_variables[var].second;
+
+		stream.writeStartElement("variable");
+		stream.writeTextElement("name", var);
+		stream.writeTextElement("value", value);
+		stream.writeTextElement("description", desc);
+		stream.writeEndElement(); // variable
+	}
+	stream.writeEndElement(); // "variables
 
 	stream.writeEndDocument(); //Close the document
 

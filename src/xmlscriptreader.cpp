@@ -29,6 +29,9 @@
 #include "activityfetcher.h"
 
 #include <QDebug>
+#include <QMap>
+#include <QPair>
+
 #include <iostream>
 
 XmlScriptReader::XmlScriptReader(Script *script, const QString &descriptionPath, Library *library) :
@@ -251,6 +254,11 @@ void XmlScriptReader::readScript()
 				else
 					reader.skipCurrentElement();
 			}
+		}
+
+		// then read <variables>
+		else if (reader.name() == "variables") {
+			readVariables();
 		}
 	}
 
@@ -810,6 +818,38 @@ void XmlScriptReader::readZone()
 	zone->setTitle(title);
 	m_script->scene()->addItem(zone);
 	zone->updateGroup();
+}
+
+void XmlScriptReader::readVariables()
+{
+	Q_ASSERT(reader.isStartElement() && reader.name() == "variables");
+
+	QMap<QString, QPair<QString, QString>> variables;
+
+	while(reader.readNextStartElement()) {
+		if (reader.name() == "variable") {
+			QString varName;
+			QString varValue;
+			QString varDesc;
+			while(reader.readNextStartElement()) {
+				if (reader.name() == "name") {
+					varName = reader.readElementText();
+				} else if (reader.name() == "value") {
+					varValue = reader.readElementText();
+				} else if (reader.name() == "description") {
+					varDesc = reader.readElementText();
+				} else
+					reader.skipCurrentElement();
+			}
+
+			if (!varName.isEmpty() && !varValue.isEmpty()) {
+				variables.insert(varName, QPair<QString, QString>(varValue, varDesc));
+			}
+		} else
+			reader.skipCurrentElement();
+	}
+
+	m_script->setVariables(variables);
 }
 
 void XmlScriptReader::readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize)

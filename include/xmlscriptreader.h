@@ -76,6 +76,7 @@ private:
 	void readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
 	              std::set<std::pair<QUuid, Link *> > *incompleteLinks);
 	void readZone();
+	void readVariables();
 	void readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize);
 	void readCommented(bool &isCommented);
 };

@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -264,16 +264,20 @@ QPushButton *PropertiesPanel::cancelBtn()
 
 void PropertiesPanel::addVisuChoices()
 {
-	m_choseVisuType.addItem(visuTypeToString(THERMAL_2D));
-	m_choseVisuType.addItem(visuTypeToString(SURFACE_3D));
-	m_choseVisuType.addItem(visuTypeToString(BAR_CHART_3D));
-	m_choseVisuType.addItem(visuTypeToString(CONE_CHART_3D));
-	m_choseVisuType.addItem(visuTypeToString(WIREFRAME_3D));
-	m_choseVisuType.addItem(visuTypeToString(CROWN_3D));
-	m_choseVisuType.addItem(visuTypeToString(BAR_CIRCLE_3D));
-	m_choseVisuType.addItem(visuTypeToString(SURFACE_POLAR_3D));
-	m_choseVisuType.addItem(visuTypeToString(WIREFRAME_POLAR_3D));
-	m_choseVisuType.addItem(visuTypeToString(BAR_POLAR_3D));
+	int i = 0;
+	m_choseVisuType.insertItem(i++,visuTypeToString(THERMAL_2D));
+	m_choseVisuType.insertSeparator(i++);
+	m_choseVisuType.insertItem(i++,visuTypeToString(SURFACE_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_CHART_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(CONE_CHART_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(WIREFRAME_3D));
+	m_choseVisuType.insertSeparator(i++);
+	m_choseVisuType.insertItem(i++,visuTypeToString(CROWN_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_CIRCLE_3D));
+	m_choseVisuType.insertSeparator(i++);
+	m_choseVisuType.insertItem(i++,visuTypeToString(SURFACE_POLAR_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_POLAR_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(WIREFRAME_POLAR_3D));
 }
 
 VisuType PropertiesPanel::getVisuType()

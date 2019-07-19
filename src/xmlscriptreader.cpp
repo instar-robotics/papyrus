@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -493,17 +493,15 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		}
 		else if(is3DVisuType(visuType))
 		{
-			ShaderWidget *widget = createShaderWidget(visuType, b->getRows(), b->getCols(), QMap<QString, QVariant>());
-			ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-			ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, b);
-			shaderMoveBar->setProxy(proxy);
-			proxy->positionWidget(visuPos.x(), visuPos.y());
-			proxy->resizeWidget(visuSize.width(), visuSize.height());
-			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
-			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
 
-			b->scene()->addItem(shaderMoveBar);
-			b->setDisplayedProxy(proxy);
+			// Insert the 3D widget
+			ThreadShader *thread = new ThreadShader(b, visuType, parameters);
+			thread->proxy()->positionWidget(visuPos.x(), visuPos.y());
+			thread->proxy()->resizeWidget(visuSize.width(), visuSize.height());
+			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
+			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
+
+			b->scene()->addItem(thread->shaderMoveBar());
 
 			// Create the activity fetcher with the topic name
 			ActivityFetcher *fetcher = nullptr;
@@ -515,9 +513,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				                              b);
 				m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
 			}
-			proxy->setActivityFetcher(fetcher);
-			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
-			proxy->setVisible(visuVisible);
+			thread->proxy()->setActivityFetcher(fetcher);
+			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
+			thread->proxy()->setVisible(visuVisible);
 		}
 		else
 			qWarning() << "Unknown visualization type";

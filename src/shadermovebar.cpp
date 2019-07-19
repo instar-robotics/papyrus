@@ -1,4 +1,4 @@
-#include "shadermovebar.h"
+﻿#include "shadermovebar.h"
 
 #include <QDebug>
 
@@ -20,4 +20,14 @@ ShaderProxy* ShaderMoveBar::proxy() const
 void ShaderMoveBar::setProxy(ShaderProxy *proxy)
 {
 	m_proxy = proxy;
+}
+
+ThreadShader *ShaderMoveBar::thread() const
+{
+	return m_thread;
+}
+
+void ShaderMoveBar::setThread(ThreadShader *thread)
+{
+	m_thread = thread;
 }

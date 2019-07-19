@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -847,8 +847,10 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				delete vis;  // we don't provide CTRL + Z for deleting visualizer for now
 			else if (moveBar != nullptr)
 			{
+				ThreadShader *thread = moveBar->thread();
 				ShaderProxy *proxy = moveBar->proxy();
-				delete proxy;  // we don't provide CTRL + Z for deleting visualizer for now
+				delete proxy;
+				thread->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
 			}
 			else
 				qWarning() << "Unknown item to delete.";
@@ -1690,36 +1692,12 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 				else
 				{
 					selectedBox->setVisuType(type);
-					// Insert the 3D widget
-					ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols(), parameters);
-					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
 					selectedBox->fillVisuParameters(parameters);
-					connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
-					connect(this, SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
-
-					addItem(shaderMoveBar);
-
-					if(selectedBox->getDisplayedProxy() != nullptr)
-					{
-						ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
-						proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y());
-						proxy->resizeWidget(oldProxy->widget()->width(), oldProxy->widget()->height());
-						delete oldProxy;
-					}
-					else if(selectedBox->isActivityVisuEnabled())
-					{
-						ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
-						proxy->positionWidget(oldVis->x(), oldVis->y());
-						proxy->resizeWidget(oldVis->width(), oldVis->height());
-						delete oldVis;
-						selectedBox->setIsActivityVisuEnabled(false);
-					}
-					else
-						proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() - 10);
-
-					selectedBox->setDisplayedProxy(proxy);
-					shaderMoveBar->setProxy(proxy);
+					// Insert the 3D widget
+					ThreadShader *thread = new ThreadShader(selectedBox, type, parameters);
+					connect(this, SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
+					connect(this, SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
+					addItem(thread->shaderMoveBar());
 
 					// Create the activity fetcher with the topic name
 					ActivityFetcher *fetcher = nullptr;
@@ -1731,8 +1709,8 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 						                              selectedBox);
 						m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 					}
-					proxy->setActivityFetcher(fetcher);
-					connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+					thread->proxy()->setActivityFetcher(fetcher);
+					connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
 				}
 			}
 			else

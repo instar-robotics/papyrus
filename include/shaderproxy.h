@@ -1,4 +1,4 @@
-#ifndef SHADERPROXY_H
+﻿#ifndef SHADERPROXY_H
 #define SHADERPROXY_H
 
 #include <QGraphicsRectItem>
@@ -11,13 +11,15 @@
 #include "diagrambox.h"
 #include <QPainter>
 #include <QBrush>
+#include <QMutex>
 
 class ShaderProxy : public QGraphicsProxyWidget
 {
 	Q_OBJECT
 
 public:
-	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox *box);
+	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box);
+	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox *box, QMutex *mutex);
 	~ShaderProxy();
 
 	ShaderMoveBar *moveBar() const;
@@ -72,6 +74,8 @@ private:
 	int m_fontSize = 6;
 	int m_titleFontSize = 10;
 	float m_max = 1.0;
+
+	QMutex *m_mutex;
 };
 
 #endif // SHADERPROXY_H

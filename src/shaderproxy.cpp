@@ -1,4 +1,23 @@
-#include "shaderproxy.h"
+﻿#include "shaderproxy.h"
+
+ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box, QMutex *mutex):
+    m_widget(widget),
+    m_moveBar(moveBar),
+    m_box(box),
+    m_mutex(mutex)
+{
+	setWidget(m_widget);
+	m_moveBar->setRect(0,0,m_widget->width(),m_moveBarHeight);
+	m_moveBar->setPen(QPen(Qt::black));
+	m_moveBar->setBrush(QBrush(Qt::black));
+	setParentItem(m_moveBar);
+	positionWidget(0, 0);
+
+	m_moveBar->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_moveBar->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	connect(m_widget, SIGNAL(repaint()), this, SLOT(updateProxy()));
+}
 
 ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box):
     m_widget(widget),
@@ -38,6 +57,7 @@ ShaderProxy::~ShaderProxy()
 void ShaderProxy::updateProxy()
 {
 	update();
+	m_mutex->lock();
 }
 
 void ShaderProxy::updateValues(QVector<qreal>* values)

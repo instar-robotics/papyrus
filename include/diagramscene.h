@@ -32,6 +32,7 @@
 #include "shaderproxy.h"
 #include "shadermovebar.h"
 #include "visufunctions.h"
+#include "threadshader.h"
 
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>

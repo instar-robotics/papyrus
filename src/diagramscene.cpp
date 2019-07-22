@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -1229,6 +1229,7 @@ void DiagramScene::onSelectionChanged()
 		// Display a box's, link's or comment zone properties only if there is only one selected
 		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
 			propPanel->displayBoxProperties(selectedBox);
+			propPanel->updateVisuTypeChoices(selectedBox->rows(), selectedBox->cols());
 		} else if ((link = dynamic_cast<Link *>(item))) {
 			propPanel->displayLinkProperties(link);
 		} else if ((zone = dynamic_cast<Zone *>(item))) {
@@ -1329,7 +1330,12 @@ void DiagramScene::onOkBtnClicked(bool)
 		Zone *selectedZone;
 
 		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
+			if(selectedBox->getDisplayedProxy() != nullptr)
+				delete selectedBox->getDisplayedProxy();
+			if(selectedBox->activityVisualizer() != nullptr)
+				delete selectedBox->activityVisualizer();
 			propPanel->updateBoxProperties(selectedBox);
+			propPanel->updateVisuTypeChoices(selectedBox->rows(), selectedBox->cols());
 
 			// Now check all SCALAR_MATRIX links for invalidity and if there was one found, trigger
 			// a recheck for the entire script
@@ -1519,14 +1525,13 @@ void DiagramScene::onDisplayVisuClicked(VisuType type)
 {
 	DiagramBox *selectedBox = getSelectedBox();
 	QMap<QString, QVariant> parameters;
-	if (selectedBox == nullptr)
-	{
-		emit displayStatusMessage("No selected box");
+	if(selectedBox == nullptr)
 		return;
-	}
-	else
+	copyVisuParameters(selectedBox->visuParameters(), &parameters);
+	if(!doesVisuFit(type, selectedBox->rows(), selectedBox->cols()))
 	{
-		copyVisuParameters(selectedBox->visuParameters(), &parameters);
+		emit displayStatusMessage("Visualization type doesn't fit with matrix dimensions");
+		return;
 	}
 	if(is2DVisuType(type))
 		display2DVisu(type);
@@ -1534,7 +1539,7 @@ void DiagramScene::onDisplayVisuClicked(VisuType type)
 		display3DVisu(type, parameters);
 	else
 	{
-		qWarning() << "No existing visualization corresponding to this type";
+		emit displayStatusMessage("No existing visualization corresponding to this type");
 		return;
 	}
 }
@@ -1684,56 +1689,50 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 			}
 
 			if (selectedBox->outputType() == MATRIX) {
-				// (1,1) matrix is treated as a scalar
-				if (selectedBox->rows() == 1 && selectedBox->cols() == 1)
-					emit displayStatusMessage("Unable to display 3D visualization for (1,1) matrix");
-				else
+				selectedBox->setVisuType(type);
+				// Insert the 3D widget
+				ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols(), parameters);
+				ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
+				ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
+				selectedBox->fillVisuParameters(parameters);
+				connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
+				connect(this, SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
+
+				addItem(shaderMoveBar);
+
+				if(selectedBox->getDisplayedProxy() != nullptr)
 				{
-					selectedBox->setVisuType(type);
-					// Insert the 3D widget
-					ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols(), parameters);
-					ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-					ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
-					selectedBox->fillVisuParameters(parameters);
-					connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
-					connect(this, SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
-
-					addItem(shaderMoveBar);
-
-					if(selectedBox->getDisplayedProxy() != nullptr)
-					{
-						ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
-						proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y());
-						proxy->resizeWidget(oldProxy->widget()->width(), oldProxy->widget()->height());
-						delete oldProxy;
-					}
-					else if(selectedBox->isActivityVisuEnabled())
-					{
-						ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
-						proxy->positionWidget(oldVis->x(), oldVis->y());
-						proxy->resizeWidget(oldVis->width(), oldVis->height());
-						delete oldVis;
-						selectedBox->setIsActivityVisuEnabled(false);
-					}
-					else
-						proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() - 10);
-
-					selectedBox->setDisplayedProxy(proxy);
-					shaderMoveBar->setProxy(proxy);
-
-					// Create the activity fetcher with the topic name
-					ActivityFetcher *fetcher = nullptr;
-					if (selectedBox->publish()) {
-						fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
-					} else {
-						fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
-						                                                            selectedBox->uuid().toString())),
-						                              selectedBox);
-						m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
-					}
-					proxy->setActivityFetcher(fetcher);
-					connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+					ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
+					proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y());
+					proxy->resizeWidget(oldProxy->widget()->width(), oldProxy->widget()->height());
+					delete oldProxy;
 				}
+				else if(selectedBox->isActivityVisuEnabled())
+				{
+					ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
+					proxy->positionWidget(oldVis->x(), oldVis->y());
+					proxy->resizeWidget(oldVis->width(), oldVis->height());
+					delete oldVis;
+					selectedBox->setIsActivityVisuEnabled(false);
+				}
+				else
+					proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() - 10);
+
+				selectedBox->setDisplayedProxy(proxy);
+				shaderMoveBar->setProxy(proxy);
+
+				// Create the activity fetcher with the topic name
+				ActivityFetcher *fetcher = nullptr;
+				if (selectedBox->publish()) {
+					fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
+				} else {
+					fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
+					                                                            selectedBox->uuid().toString())),
+					                              selectedBox);
+					m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
+				}
+				proxy->setActivityFetcher(fetcher);
+				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
 			}
 			else
 				qWarning() << "Ouput type not supported for 3D visualization";

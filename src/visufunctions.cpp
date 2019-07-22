@@ -1,4 +1,4 @@
-#include "visufunctions.h"
+﻿#include "visufunctions.h"
 
 VisuType stringToVisuType(const QString &str)
 {
@@ -97,6 +97,23 @@ bool is3DPolarVisuType(const VisuType &visuType)
 	   visuType == BAR_POLAR_3D ||
 	   visuType == SURFACE_POLAR_3D)
 		return true;
+	return false;
+}
+
+bool doesVisuFit(VisuType type, int rows, int cols)
+{
+	if(is2DVisuType(type))
+		return true;
+	if(is3DMatrixVisuType(type) || is3DPolarVisuType(type))
+	{
+		if(cols > 1 && rows > 1)
+			return true;
+	}
+	else if(is3DCircularVisuType(type))
+	{
+		if((rows > 1 && cols == 1) || (rows == 1 && cols > 1))
+			return true;
+	}
 	return false;
 }
 

@@ -1,4 +1,4 @@
-#ifndef VISUFUNCTIONS_H
+﻿#ifndef VISUFUNCTIONS_H
 #define VISUFUNCTIONS_H
 
 #include "shaderbarchart.h"
@@ -31,5 +31,7 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString
 RotationDir intToRotationDir(int rotDir);
 
 void copyVisuParameters(QMap<QString, QVariant> origin, QMap<QString, QVariant> *destination);
+
+bool doesVisuFit(VisuType type, int rows, int cols);
 
 #endif // VISUFUNCTIONS_H

@@ -105,7 +105,7 @@ public:
 
 	VisuType getVisuType();
 
-
+	void updateVisuTypeChoices(int rows, int cols);
 
 private:
 	DiagramScene *m_activeScene; // The currently visible scene

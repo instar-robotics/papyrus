@@ -267,14 +267,17 @@ void PropertiesPanel::addVisuChoices()
 	int i = 0;
 	m_choseVisuType.insertItem(i++,visuTypeToString(THERMAL_2D));
 	m_choseVisuType.insertSeparator(i++);
+
 	m_choseVisuType.insertItem(i++,visuTypeToString(SURFACE_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_CHART_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(CONE_CHART_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(WIREFRAME_3D));
 	m_choseVisuType.insertSeparator(i++);
+
 	m_choseVisuType.insertItem(i++,visuTypeToString(CROWN_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_CIRCLE_3D));
 	m_choseVisuType.insertSeparator(i++);
+
 	m_choseVisuType.insertItem(i++,visuTypeToString(SURFACE_POLAR_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_POLAR_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(WIREFRAME_POLAR_3D));
@@ -283,6 +286,25 @@ void PropertiesPanel::addVisuChoices()
 VisuType PropertiesPanel::getVisuType()
 {
 	return stringToVisuType(m_choseVisuType.currentText());
+}
+
+void PropertiesPanel::updateVisuTypeChoices(int rows, int cols)
+{
+	QModelIndex index;
+	QVariant var;
+	for(int i = 0; i < m_choseVisuType.count(); i++)
+	{
+		VisuType type = stringToVisuType(m_choseVisuType.itemText(i));
+		if(type != UNKNOWN)
+		{
+			index = m_choseVisuType.model()->index(i,0);
+			if(doesVisuFit(type, rows, cols))
+				var = QVariant(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+			else
+				var = QVariant(Qt::NoItemFlags);
+			m_choseVisuType.model()->setData(index, var, Qt::UserRole-1);
+		}
+	}
 }
 
 

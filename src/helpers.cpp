@@ -24,8 +24,12 @@
 
 #include <unistd.h>
 #include <sys/stat.h>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
 
 #include <QMessageBox>
+#include <QTemporaryFile>
 
 /**
  * @brief getMainWindow returns the instance of the main Papyrus window, checking that is exists
@@ -621,4 +625,64 @@ bool shapesMatch(DiagramBox *from, InputSlot *to, LinkInvalidReason *reason)
 bool realAreEquals(qreal a, qreal b, qreal epsilon)
 {
 	return (a - b) < epsilon;
+}
+
+/**
+ * @brief computeVariableValue given a dictionnary of variables and their corresponding values,
+ * compute the result of an expression containing variables
+ * @param variables the dictionnary of variables
+ * @param expression the expression to evaluate
+ * @param ok if not null, it will be set to true or false depending on whether we could compute the expression
+ * @return
+ */
+qreal computeVariableValue(QMap<QString, QPair<QString, QString> > variables, QString expression, bool *ok)
+{
+	QTemporaryFile tmpFile;
+	tmpFile.open();  // we have to open it once to generate its name
+
+	// Set all variables for bc (keep only numeric values)
+	QString vars;
+	foreach(QString varName, variables.keys()) {
+		QString varStrValue = variables[varName].first;
+		bool ok = false;
+		varStrValue.toDouble(&ok);
+		if (ok) // if we could parse a double from it, add this variable to the list of processed variables
+			vars += sanitizeVariableName(varName) + "=" + varStrValue + ";";
+	}
+
+	QString expr = vars + expression;
+
+	int r = std::system(QString("echo \"%1\" | bc -l > %2 2> /dev/null").arg(expr).arg(tmpFile.fileName()).toStdString().c_str());
+	Q_UNUSED(r) // just to prevent "discard result of call ..." warning
+
+	double result;
+	FILE *fp = fopen(tmpFile.fileName().toStdString().c_str(), "r");
+	int nb = fscanf(fp, "%lf", &result);
+
+	// We should be getting exactly one match, if not, something went wrong
+	if (nb != 1 && ok != nullptr) {
+		*ok = false;
+	} else if (ok != nullptr)
+		*ok = true;
+
+	qDebug() << "expr:" << expr << ", ok:" << *ok << ", result:" << result;
+
+	fclose(fp);
+
+	return result;
+}
+
+/**
+ * @brief sanitizeVariableName takes a string as input and returned the string modified to that it
+ * is a valid `bc` (linux-calculator) variable name
+ * @param str variable name to sanitize
+ * @return
+ */
+QString sanitizeVariableName(QString str)
+{
+	QString correct = str.replace('-', '_');
+	correct = correct.replace(' ', '_');
+	correct = correct.toLower();
+
+	return correct;
 }

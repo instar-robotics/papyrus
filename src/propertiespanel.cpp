@@ -741,8 +741,6 @@ void PropertiesPanel::onWeightsLoadClicked(bool)
 
 void PropertiesPanel::onBoxRadioValueToggled(bool isSelected)
 {
-	qDebug() << "Value toggled to" << isSelected;
-
 	// If we chose to input value
 	if (isSelected) {
 		hideLayoutItem(&m_rowsVarInput, true, m_boxLayout);
@@ -773,6 +771,52 @@ void PropertiesPanel::onBoxRadioValueToggled(bool isSelected)
  */
 void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
+	// If the rows/cols input selection is set to "variable", then we first compute the expressions
+	// and if they compute ok, we update the numeric rows/cols value with the newly-computed values
+	// and then we create the @UpdateBoxCommand.
+	// If the parse fails, we don't apply any change
+	if (m_radioBoxVariable.isChecked()) {
+		bool rowsOk = false;
+		bool colsOk = false;
+
+		if (box->getScript() == nullptr) {
+			emit displayStatusMessage(tr("Cannot update box properties: no script!"), MSG_ERROR);
+			return;
+		}
+
+		int computedRows = computeVariableValue(box->getScript()->variables(), m_rowsVarInput.text(), &rowsOk);
+		int computedCols = computeVariableValue(box->getScript()->variables(), m_colsVarInput.text(), &colsOk);
+
+		if (!rowsOk) {
+			QPalette palette = m_rowsVarInput.palette();
+			palette.setColor(QPalette::Base, Qt::red);
+			m_rowsVarInput.setPalette(palette);
+		} else {
+			QPalette palette = m_rowsVarInput.palette();
+			palette.setColor(QPalette::Base, Qt::white);
+			m_rowsVarInput.setPalette(palette);
+		}
+
+		if (!colsOk) {
+			QPalette palette = m_colsVarInput.palette();
+			palette.setColor(QPalette::Base, Qt::red);
+			m_colsVarInput.setPalette(palette);
+		} else {
+			QPalette palette = m_colsVarInput.palette();
+			palette.setColor(QPalette::Base, Qt::white);
+			m_colsVarInput.setPalette(palette);
+		}
+
+		if (!colsOk || !rowsOk) {
+			emit displayStatusMessage(tr("Box's parameters not changed: invalid expression(s)!"), MSG_WARNING);
+			return;
+		}
+
+		// Otherwise, update values and proceed
+		m_rowsInput.setValue(computedRows);
+		m_colsInput.setValue(computedCols);
+	}
+
 	UpdateBoxCommand *updateCommand = new UpdateBoxCommand(this, box);
 
 	DiagramScene *dScene = dynamic_cast<DiagramScene *>(box->scene());

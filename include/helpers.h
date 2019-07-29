@@ -94,4 +94,10 @@ QString matrixShapeToString(const MatrixShape shape);
 
 bool realAreEquals(qreal a, qreal b, qreal epsilon = EPSILON);
 
+qreal computeVariableValue(QMap<QString, QPair<QString, QString>> variables,
+                           QString expression,
+                           bool *ok = nullptr);
+
+QString sanitizeVariableName(QString str);
+
 #endif // HELPERS_H

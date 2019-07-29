@@ -53,10 +53,14 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_boxMatrixShape(this),
                                                     m_rowsInput(this),
                                                     m_colsInput(this),
+//                                                    m_rowsVarInput(this),
+//                                                    m_colsVarInput(this),
                                                     m_saveActivity(tr("Save Activity"), this),
                                                     m_publish(tr("Publish output"), this),
                                                     m_topic(this),
                                                     m_displayVisu(tr("Visualize Activity"), this),
+                                                    m_radioBoxValue(tr("Value"), this),
+                                                    m_radioBoxVariable(tr("Variable"), this),
                                                     m_linkLayout(nullptr),
                                                     m_linkFrame(this),
                                                     m_linkType(this),
@@ -138,23 +142,38 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_colsInput.setRange(1, MAX_COLS);
 	m_rowsInput.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_colsInput.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//	m_displayVisu.setText(tr("Visualize Activity"));
+	m_radioBoxValue.setChecked(true);
 	connect(&m_publish, SIGNAL(toggled(bool)), this, SLOT(toggleTopic(bool)));
 	connect(&m_topic, SIGNAL(textChanged(QString)), this, SLOT(onTopicChanged(QString)));
+	connect(&m_radioBoxValue, SIGNAL(toggled(bool)), this, SLOT(onBoxRadioValueToggled(bool)));
 
 	// Add the fields to the layout
 	m_boxLayout->addRow(&m_boxName);
 	m_boxLayout->addRow(tr("Title:"), &m_boxTitle);
 	m_boxLayout->addRow(tr("Type:"), &m_boxOutputType);
 	m_boxLayout->addRow(tr("Shape:"), &m_boxMatrixShape);
+	m_boxLayout->addRow(&m_radioBoxValue, &m_radioBoxVariable);
 	m_boxLayout->addRow(tr("Rows:"), &m_rowsInput);
 	m_boxLayout->addRow(tr("Cols:"), &m_colsInput);
+	m_boxLayout->addRow(tr("Rows:"), &m_rowsVarInput);
+	m_boxLayout->addRow(tr("Cols:"), &m_colsVarInput);
 	m_boxLayout->addRow(&m_saveActivity);
 	m_boxLayout->addRow(&m_publish);
 	m_boxLayout->addRow(tr("Topic:"), &m_topic);
 	m_boxLayout->addRow(&m_displayVisu);
 
 	m_boxFrame.setLayout(m_boxLayout);
+
+	// Hide the variable inputs
+	QWidget * widget = m_boxLayout->labelForField(&m_rowsVarInput);
+	if (widget != nullptr)
+		widget->hide();
+	m_rowsVarInput.hide();
+
+	widget = m_boxLayout->labelForField(&m_colsVarInput);
+	if (widget != nullptr)
+		widget->hide();
+	m_colsVarInput.hide();
 
 	// Create layout for the Link
 	m_linkLayout = new QFormLayout;
@@ -177,6 +196,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_linkLayout->addRow(&m_linkType);
 	m_linkLayout->addRow(tr("Weight:"), &m_linkWeight);
 	m_linkLayout->addRow(tr("Value:"), &m_linkValue);
+	m_linkLayout->addRow(&m_radioValue, &m_radioVariable);
 	m_linkLayout->addRow(&m_linkSecondary);
 	m_linkLayout->addRow(tr("One to"), &m_linkConnectivity);
 	m_linkLayout->addRow(&m_linkRegexes);
@@ -236,6 +256,78 @@ QPushButton *PropertiesPanel::cancelBtn()
 }
 
 /**
+ * @brief PropertiesPanel::hideLayoutItem hides a layout item from a given QFormLayout
+ * @param tohide the item to hide
+ * @param alsoHideLabel whether to also hide its label
+ * @param fromLayout the @QFormLayout in which the item to hide is
+ */
+void PropertiesPanel::hideLayoutItem(QWidget *tohide, bool alsoHideLabel, QFormLayout *fromLayout)
+{
+	// First check that we have an item to hide
+	if (tohide == nullptr) {
+		qWarning() << "[PropertiesPanel::hideLayoutItem] cannot hide item: no item given!";
+		return;
+	}
+
+	// Hide the given item
+	tohide->hide();
+
+	// Now check whether we should also hide its label
+	if (alsoHideLabel) {
+		// Check if we have an originating QFormLayout
+		if (fromLayout == nullptr) {
+			qWarning() << "[PropertiesPanel::hideLayoutItem] cannot hide item's label: no layout given!";
+			return;
+		}
+
+		QWidget *widget = fromLayout->labelForField(tohide);
+		if (widget == nullptr) {
+			qWarning() << "[PropertiesPanel::hideLayoutItem] cannot hide item's label: failed to"
+			              "retrieve its label!";
+			return;
+		}
+
+		widget->hide();
+	}
+}
+
+/**
+ * @brief PropertiesPanel::showLayoutItem shows a layout item from a given QFormLayout
+ * @param toShow the item to show
+ * @param alsoShowLabel whether to also showits label
+ * @param fromLayout the @QFormLayout in which the item to hide is
+ */
+void PropertiesPanel::showLayoutItem(QWidget *toShow, bool alsoShowLabel, QFormLayout *fromLayout)
+{
+	// First check that we have an item to hide
+	if (toShow == nullptr) {
+		qWarning() << "[PropertiesPanel::showLayoutItem] cannot show item: no item given!";
+		return;
+	}
+
+	// Show the given item
+	toShow->show();
+
+	// Now check whether we should also show its label
+	if (alsoShowLabel) {
+		// Check if we have an originating QFormLayout
+		if (fromLayout == nullptr) {
+			qWarning() << "[PropertiesPanel::showLayoutItem] cannot show item's label: no layout given!";
+			return;
+		}
+
+		QWidget *widget = fromLayout->labelForField(toShow);
+		if (widget == nullptr) {
+			qWarning() << "[PropertiesPanel::showLayoutItem] cannot show item's label: failed to"
+			              "retrieve its label!";
+			return;
+		}
+
+		widget->show();
+	}
+}
+
+/**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
  */
@@ -271,118 +363,104 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 	if (oType == MATRIX) {
 		m_boxOutputType.setText(tr("matrix"));
+
+		showLayoutItem(&m_radioBoxValue, false);
+		showLayoutItem(&m_radioBoxVariable, false);
+
+		m_radioBoxValue.setChecked(box->useValue());
+		m_radioBoxVariable.setChecked(!box->useValue()); // we have to do both :/
+
+		// Hide/show fields and restore values based on whether this box uses value or variable input
+		// We update both values and variables because hey need to be set for when we toggle between them
 		m_rowsInput.setValue(box->rows());
 		m_colsInput.setValue(box->cols());
+		m_rowsVarInput.setText(box->rowsVariable());
+		m_colsVarInput.setText(box->colsVariable());
 
-		// Re-insert input for row and columns since it's a matrix
-		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
-			dimLabel->show();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
-		m_rowsInput.show();
-
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
-			dimLabel->show();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
-		m_colsInput.show();
+		if (box->useValue()) {
+			// Since it's a matrix, show input/cols (value) inputs (but hide variable inputs)
+			showLayoutItem(&m_colsInput, true, m_boxLayout);
+			showLayoutItem(&m_rowsInput, true, m_boxLayout);
+			hideLayoutItem(&m_colsVarInput, true, m_boxLayout);
+			hideLayoutItem(&m_rowsVarInput, true, m_boxLayout);
+		} else {
+			// Since it's a matrix, show input/cols (variable) inputs (but hide value inputs)
+			showLayoutItem(&m_colsVarInput, true, m_boxLayout);
+			showLayoutItem(&m_rowsVarInput, true, m_boxLayout);
+			hideLayoutItem(&m_colsInput, true, m_boxLayout);
+			hideLayoutItem(&m_rowsInput, true, m_boxLayout);
+		}
 
 		// Gray out appropriate fields based on the shape
 		MatrixShape matrixShape = box->matrixShape();
 		if (matrixShape == POINT) {
 			m_colsInput.setEnabled(false);
 			m_rowsInput.setEnabled(false);
+			m_colsVarInput.setEnabled(false);
+			m_rowsVarInput.setEnabled(false);
 		} else if (matrixShape == ROW_VECT) {
 			m_rowsInput.setEnabled(false);
 			m_colsInput.setEnabled(true);
+			m_rowsVarInput.setEnabled(false);
+			m_colsVarInput.setEnabled(true);
 		} else if (matrixShape == COL_VECT) {
 			m_rowsInput.setEnabled(true);
 			m_colsInput.setEnabled(false);
+			m_rowsVarInput.setEnabled(true);
+			m_colsVarInput.setEnabled(false);
 		} else {
 			m_rowsInput.setEnabled(true);
 			m_colsInput.setEnabled(true);
+			m_rowsVarInput.setEnabled(true);
+			m_colsVarInput.setEnabled(true);
 		}
 
 		if (!isConstantBox) {
-		// Show the shape of the box (since it's matrix)
-		m_boxMatrixShape.setText(matrixShapeToString(box->matrixShape()));
-		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
-			shapeLabel->show();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
-		m_boxMatrixShape.show();
+			// Show the shape of the box (since it's matrix)
+			m_boxMatrixShape.setText(matrixShapeToString(box->matrixShape()));
+
+			showLayoutItem(&m_boxMatrixShape, true, m_boxLayout);
 		}
 	} else if (oType == SCALAR) {
 		m_boxOutputType.setText(tr("scalar"));
 
-		// Hide input for rows and columns since it's a scalar
-		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
-			dimLabel->hide();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
-		m_colsInput.hide();
+		hideLayoutItem(&m_radioBoxValue, false);
+		hideLayoutItem(&m_radioBoxVariable, false);
 
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
-			m_rowsInput.hide();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
-		dimLabel->hide();
+		hideLayoutItem(&m_colsInput, true, m_boxLayout);
+		hideLayoutItem(&m_rowsInput, true, m_boxLayout);
+		hideLayoutItem(&m_rowsVarInput, true, m_boxLayout);
+		hideLayoutItem(&m_colsVarInput, true, m_boxLayout);
+		hideLayoutItem(&m_boxMatrixShape, true, m_boxLayout);
 
-		// Hide the shape field
-		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
-			shapeLabel->hide();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
-		m_boxMatrixShape.hide();
 	} else if (oType == STRING) {
 		m_boxOutputType.setText(tr("string"));
 
+		hideLayoutItem(&m_radioBoxValue, false);
+		hideLayoutItem(&m_radioBoxVariable, false);
+
 		// Hide input for rows and columns since it's not a matrix
-		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
-			dimLabel->hide();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
-		m_colsInput.hide();
-
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
-			m_rowsInput.hide();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
-		dimLabel->hide();
-
-		// Hide the shape field
-		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
-			shapeLabel->hide();
-		else
-			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
-		m_boxMatrixShape.hide();
+		hideLayoutItem(&m_colsInput, true, m_boxLayout);
+		hideLayoutItem(&m_colsInput, true, m_boxLayout);
+		hideLayoutItem(&m_rowsInput, true, m_boxLayout);
+		hideLayoutItem(&m_rowsVarInput, true, m_boxLayout);
+		hideLayoutItem(&m_colsVarInput, true, m_boxLayout);
+		hideLayoutItem(&m_boxMatrixShape, true, m_boxLayout);
 	} else {
 		informUserAndCrash(tr("Unsupported output type for a box. Supported types are MATRIX and SCALAR"));
 	}
 
 	// Hide fields for constant box
-	QWidget *topicLabel = m_boxLayout->labelForField(&m_topic);
-	if (topicLabel == nullptr)
-		informUserAndCrash(tr("Failed to fetch label for topic name."));
-
 	if (isConstantBox) {
-		m_saveActivity.hide();
-		m_publish.hide();
-		topicLabel->hide();
-		m_topic.hide();
-		m_displayVisu.hide();
+		hideLayoutItem(&m_saveActivity, false);
+		hideLayoutItem(&m_publish, false);
+		hideLayoutItem(&m_topic, true, m_boxLayout);
+		hideLayoutItem(&m_displayVisu, false);
 	} else {
-		m_saveActivity.show();
-		m_publish.show();
-		topicLabel->show();
-		m_topic.show();
-		m_displayVisu.show();
+		showLayoutItem(&m_saveActivity, false);
+		showLayoutItem(&m_publish, false);
+		showLayoutItem(&m_topic, true, m_boxLayout);
+		showLayoutItem(&m_displayVisu, false);
 	}
 
 	// Show the box frame and the buttons
@@ -661,6 +739,32 @@ void PropertiesPanel::onWeightsLoadClicked(bool)
 		emit displayStatusMessage(tr("Failed to load weights."), MSG_ERROR);
 }
 
+void PropertiesPanel::onBoxRadioValueToggled(bool isSelected)
+{
+	qDebug() << "Value toggled to" << isSelected;
+
+	// If we chose to input value
+	if (isSelected) {
+		hideLayoutItem(&m_rowsVarInput, true, m_boxLayout);
+		hideLayoutItem(&m_colsVarInput, true, m_boxLayout);
+
+		// Then show rows and cols numeric inputs
+		showLayoutItem(&m_rowsInput, true, m_boxLayout);
+		showLayoutItem(&m_colsInput, true, m_boxLayout);
+	}
+	// If we chose to input variable
+	else {
+		// Hide rows and cols numeric inputs
+		hideLayoutItem(&m_rowsInput, true, m_boxLayout);
+		hideLayoutItem(&m_colsInput, true, m_boxLayout);
+
+		// Then show rows and cols variable inputs
+		showLayoutItem(&m_rowsVarInput, true, m_boxLayout);
+		showLayoutItem(&m_colsVarInput, true, m_boxLayout);
+
+	}
+}
+
 /**
  * @brief PropertiesPanel::updateBoxProperties is called when the user clicked "OK" after changing
  * some properties of the selected box. It updates the selected box's properties based on the
@@ -676,11 +780,6 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 		qWarning() << "Cannot update box's properties: no scene!";
 		return;
 	}
-
-//	if (dScene->undoStack() == nullptr) {
-//		qWarning() << "Cannot update box's properties: no undo stack!";
-//		return;
-//	}
 
 	dScene->undoStack().push(updateCommand);
 }
@@ -818,6 +917,21 @@ bool PropertiesPanel::getBoxPublish()
 QString PropertiesPanel::getBoxTopic()
 {
 	return m_topic.text();
+}
+
+bool PropertiesPanel::getBoxUseValue()
+{
+	return m_radioBoxValue.isChecked();
+}
+
+QString PropertiesPanel::getBoxRowsVariable()
+{
+	return m_rowsVarInput.text();
+}
+
+QString PropertiesPanel::getBoxColsVariable()
+{
+	return m_colsVarInput.text();
 }
 
 bool PropertiesPanel::getLinkSecondary()

@@ -162,6 +162,15 @@ public:
 	bool isCommented() const;
 	void setIsCommented(bool isCommented);
 
+	bool useValue() const;
+	void setUseValue(bool useValue);
+
+	QString rowsVariable() const;
+	void setRowsVariable(const QString &rowsVariable);
+
+	QString colsVariable() const;
+	void setColsVariable(const QString &colsVariable);
+
 protected:
 
 	QString m_name;    // Name of the function
@@ -176,6 +185,8 @@ protected:
 	QGraphicsSvgItem m_sizeIcon;     // Contains the svg that hints the box's size
 	QGraphicsSvgItem *m_functionIcon; // Contains the SVG icon of the function
 
+	bool m_useValue; // Wether it takes rows/cols from value (true) or variable(false)
+
 private:
 	QUuid m_uuid;          // Unique ID of the function's box (to identify links for instance)
 	QString m_libname;     // Name of the library this function belongs to (for kheops's linking)
@@ -189,6 +200,8 @@ private:
 
 	int m_rows;              // Number of rows in the output (if matrix)
 	int m_cols;              // Number of columns in the output (if matrix)
+	QString m_rowsVariable;  // Variable expression to define rows in output (if matrix)
+	QString m_colsVariable;  // Variable expression to define columns in output (if matrix)
 
 	/*
 	 * Whether or not this function saves its activity in memory. It defaults to false. Saving the

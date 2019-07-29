@@ -47,17 +47,23 @@ private:
 	QString m_oldTitle;
 	int m_oldRows;
 	int m_oldCols;
+	QString m_oldRowsVariable;
+	QString m_oldColsVariable;
 	bool m_oldActivity;
 	bool m_oldPublish;
 	QString m_oldTopic;
+	bool m_oldUseValue;
 
 	// New parameters (ones the box will have after updating its parameters)
 	QString m_newTitle;
 	int m_newRows;
 	int m_newCols;
+	QString m_newRowsVariable;
+	QString m_newColsVariable;
 	bool m_newActivity;
 	bool m_newPublish;
 	QString m_newTopic;
+	bool m_newUseValue;
 };
 
 #endif // UPDATEBOXCOMMAND_H

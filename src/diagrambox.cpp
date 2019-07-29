@@ -58,6 +58,7 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_matrixShape(SHAPE_NONE),
                                                 m_sizeIcon(":/icons/icons/size-icon.svg", this),
                                                 m_functionIcon(nullptr),
+                                                m_useValue(true),
                                                 m_uuid(uuid),
                                                 m_description(description),
                                                 m_outputSlot(outputSlot),
@@ -320,6 +321,36 @@ void DiagramBox::setIsCommented(bool isCommented)
 			link->update();
 		}
 	}
+}
+
+bool DiagramBox::useValue() const
+{
+	return m_useValue;
+}
+
+void DiagramBox::setUseValue(bool useValue)
+{
+	m_useValue = useValue;
+}
+
+QString DiagramBox::rowsVariable() const
+{
+	return m_rowsVariable;
+}
+
+void DiagramBox::setRowsVariable(const QString &rowsVariable)
+{
+	m_rowsVariable = rowsVariable;
+}
+
+QString DiagramBox::colsVariable() const
+{
+	return m_colsVariable;
+}
+
+void DiagramBox::setColsVariable(const QString &colsVariable)
+{
+	m_colsVariable = colsVariable;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const

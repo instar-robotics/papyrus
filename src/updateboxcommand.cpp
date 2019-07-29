@@ -43,17 +43,23 @@ UpdateBoxCommand::UpdateBoxCommand(PropertiesPanel *panel, DiagramBox *box, QUnd
 	m_oldTitle = m_box->title();
 	m_oldRows = m_box->rows();
 	m_oldCols = m_box->cols();
+	m_oldRowsVariable = m_box->rowsVariable();
+	m_oldColsVariable = m_box->colsVariable();
 	m_oldActivity = m_box->saveActivity();
 	m_oldPublish = m_box->publish();
 	m_oldTopic = m_box->topic();
+	m_oldUseValue = m_box->useValue();
 
 	// Save new parameter values
 	m_newTitle = m_panel->getBoxTitle();
 	m_newRows = m_panel->getBoxRows();
 	m_newCols = m_panel->getBoxCols();
+	m_newRowsVariable = m_panel->getBoxRowsVariable();
+	m_newColsVariable = m_panel->getBoxColsVariable();
 	m_newActivity = m_panel->getBoxSaveActivity();
 	m_newPublish = m_panel->getBoxPublish();
 	m_newTopic = m_panel->getBoxTopic();
+	m_newUseValue = m_panel->getBoxUseValue();
 }
 
 void UpdateBoxCommand::undo()
@@ -62,9 +68,12 @@ void UpdateBoxCommand::undo()
 	m_box->setTitle(m_oldTitle);
 	m_box->setRows(m_oldRows);
 	m_box->setCols(m_oldCols);
+	m_box->setRowsVariable(m_oldRowsVariable);
+	m_box->setColsVariable(m_oldColsVariable);
 	m_box->setSaveActivity(m_oldActivity);
 	m_box->setPublish(m_oldPublish);
 	m_box->setTopic(m_oldTopic);
+	m_box->setUseValue(m_oldUseValue);
 
 	m_box->update();
 
@@ -121,7 +130,11 @@ void UpdateBoxCommand::redo()
 		if (okToUpdateSize) {
 			m_box->setRows(m_newRows);
 			m_box->setCols(m_newCols);
+			m_box->setRowsVariable(m_newRowsVariable);
+			m_box->setColsVariable(m_newColsVariable);
 		}
+
+		m_box->setUseValue(m_newUseValue);
 
 		m_box->updateSizeIcon();
 	}

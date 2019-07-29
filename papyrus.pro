@@ -107,7 +107,9 @@ HEADERS += include/category.h \
     include/circularvisudialog.h \
     include/shaderscalepolar.h \
     include/visufunctions.h \
-    include/shaderscale.h
+    include/shaderscale.h \
+    include/shadercompass.h \
+    include/shaderscaleallplanes.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -201,7 +203,9 @@ SOURCES += src/category.cpp \
     src/circularvisudialog.cpp \
     src/shaderscalepolar.cpp \
     src/visufunctions.cpp \
-    src/shaderscale.cpp
+    src/shaderscale.cpp \
+    src/shadercompass.cpp \
+    src/shaderscaleallplanes.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

@@ -1,4 +1,4 @@
-#include "shaderconechart.h"
+﻿#include "shaderconechart.h"
 
 ShaderConeChart::ShaderConeChart(int xSize, int ySize):ShaderMatrix(xSize, ySize)
 {

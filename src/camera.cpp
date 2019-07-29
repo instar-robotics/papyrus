@@ -1,4 +1,4 @@
-#include "camera.h"
+﻿#include "camera.h"
 
 Camera::Camera(): m_position(0.0,0.0,0.0,1.0)
 {
@@ -35,9 +35,9 @@ void Camera::translateView(float x, float y, float z)
 
 void Camera::updatePosition()
 {
-	m_position.setX(sin(MathTransfo::degToRad(m_yRot)) * m_distance + m_xTran);
-	m_position.setY(sin(MathTransfo::degToRad(m_xRot)) * m_distance + m_yTran);
-	m_position.setZ(-cos(MathTransfo::degToRad(m_yRot)) * m_distance + m_zTran);
+	m_position.setX(sin(degToRad(m_yRot)) * m_distance + m_xTran);
+	m_position.setY(sin(degToRad(m_xRot)) * m_distance + m_yTran);
+	m_position.setZ(-cos(degToRad(m_yRot)) * m_distance + m_zTran);
 }
 
 void Camera::setDistance(float distance)

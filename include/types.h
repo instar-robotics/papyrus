@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -162,8 +162,9 @@ enum VisuType{
 	CROWN_3D,
 	BAR_CIRCLE_3D,
 	SURFACE_POLAR_3D,
-	WIREFRAME_POLAR_3D,
 	BAR_POLAR_3D,
+	WIREFRAME_POLAR_3D,
+	COMPASS_3D,
 	UNKNOWN,
 	NONE
 };

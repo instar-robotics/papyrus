@@ -1,4 +1,4 @@
-#include "shaderwidget.h"
+﻿#include "shaderwidget.h"
 #include <QMouseEvent>
 #include <cmath>
 #include <QMatrix4x4>
@@ -231,6 +231,13 @@ void ShaderWidget::displayScale()
 		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
 		m_indexbuffer.release();
 	}
+	if(m_compassScale)
+	{
+		m_scaleAllPlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+		m_indexbuffer.bind();
+		glDrawElements(GL_LINES, m_scaleAllPlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
+		m_indexbuffer.release();
+	}
 }
 
 float ShaderWidget::range() const
@@ -295,15 +302,15 @@ void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)
 	// Translate camera
 	else if (mouseControl == RIGHT_BUTTON)
 	{
-		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef, 0, dx*sin(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef);
-		m_camera.translateView(dy*-sin(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef, 0, dy*cos(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef);
+		m_camera.translateView(dx*cos(degToRad(m_camera.m_yRot))*m_moveCameraCoef, 0, dx*sin(degToRad(m_camera.m_yRot))*m_moveCameraCoef);
+		m_camera.translateView(dy*-sin(degToRad(m_camera.m_yRot))*m_moveCameraCoef, 0, dy*cos(degToRad(m_camera.m_yRot))*m_moveCameraCoef);
 		m_camera.updatePosition();
 	}
 
 	// Translate camera
 	else if(mouseControl == RIGHT_SHIFT_BUTTON)
 	{
-		m_camera.translateView(dx*cos(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef, -dy*m_moveCameraCoef, dx*sin(MathTransfo::degToRad(m_camera.m_yRot))*m_moveCameraCoef);
+		m_camera.translateView(dx*cos(degToRad(m_camera.m_yRot))*m_moveCameraCoef, -dy*m_moveCameraCoef, dx*sin(degToRad(m_camera.m_yRot))*m_moveCameraCoef);
 		m_camera.updatePosition();
 	}
 

@@ -1,11 +1,11 @@
-#include "shaderscalepolar.h"
+﻿#include "shaderscalepolar.h"
 
 ShaderScalePolar::ShaderScalePolar(float minRadius,  float maxRadius, float range):
+    ShaderScale(range, 1),
     m_minRadius(minRadius/1.5),
-    m_maxRadius(maxRadius),
-    m_startRange(range)
+    m_maxRadius(maxRadius)
 {
-	m_range = range*m_max;
+	m_range = range;
 	initVectors();
 	fillVectors();
 }
@@ -117,14 +117,3 @@ void ShaderScalePolar::fillVectors()
 	}
 }
 
-float ShaderScalePolar::max() const
-{
-	return m_max;
-}
-
-void ShaderScalePolar::updateScale(float max)
-{
-	m_max = max;
-	m_range = m_startRange * m_max;
-	fillVectors();
-}

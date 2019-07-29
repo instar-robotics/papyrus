@@ -281,6 +281,9 @@ void PropertiesPanel::addVisuChoices()
 	m_choseVisuType.insertItem(i++,visuTypeToString(SURFACE_POLAR_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_POLAR_3D));
 	m_choseVisuType.insertItem(i++,visuTypeToString(WIREFRAME_POLAR_3D));
+	m_choseVisuType.insertSeparator(i++);
+
+	m_choseVisuType.insertItem(i++,visuTypeToString(COMPASS_3D));
 }
 
 VisuType PropertiesPanel::getVisuType()

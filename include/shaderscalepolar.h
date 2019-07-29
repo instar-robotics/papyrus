@@ -9,17 +9,14 @@
 #include <math.h>
 
 #include "mathtransfo.h"
-#include "shaderadds.h"
+#include "shaderscale.h"
 
-class ShaderScalePolar: public ShaderAdds
+class ShaderScalePolar: public ShaderScale
 {
 
 public:
 	ShaderScalePolar(float minRadius, float maxRadius, float range);
 	~ShaderScalePolar();
-
-	void updateScale(float max);
-	float max() const;
 
 protected:
 	void initVectors();
@@ -29,10 +26,6 @@ private:
 
 	float m_minRadius;
 	float m_maxRadius; //Value used as the radius limit of angle measures
-
-	float m_startRange;
-	float m_range; //Max height (and min for the negatives) of the 3d display
-	float m_max = 1.0; //Max scale measure
 	int m_nbVertexes;
 };
 #endif // SHADERSCALEPOLAR_H

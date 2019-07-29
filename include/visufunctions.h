@@ -11,6 +11,7 @@
 #include "shaderwireframepolar.h"
 #include "shadersurfacepolar.h"
 #include "circularvisudialog.h"
+#include "shadercompass.h"
 
 VisuType stringToVisuType(const QString &str);
 

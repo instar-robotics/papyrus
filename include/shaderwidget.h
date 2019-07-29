@@ -1,4 +1,4 @@
-#ifndef SHADERWIDGET_H
+﻿#ifndef SHADERWIDGET_H
 #define SHADERWIDGET_H
 
 #include <QDebug>
@@ -33,6 +33,7 @@
 #include "shaderarrow.h"
 #include "shaderadds.h"
 #include "shaderscalepolar.h"
+#include "shaderscaleallplanes.h"
 
 enum class Attribute { Vertex, Normal, Color };
 
@@ -125,17 +126,21 @@ protected:
 	// Scale polar
 	ShaderScalePolar *m_scalePolar = nullptr;
 
+	// Scale all planes (for compass)
+	ShaderScaleAllPlanes *m_scaleAllPlanes = nullptr;
+
 	// Scales activated or not
 	bool m_matrixScale = false;
 	bool m_circScale = false;
 	bool m_polarScale = false;
+	bool m_compassScale = false;
 
 	// 3D scene
-	float m_gap = 0.2f;
+	float m_gap = 0.2f; //Distance between 2 values in the 3d space
 	Camera m_camera;
 	Light m_light;
-	float m_range = 1.0f;
-	float m_coefSize = 4.0f;
+	float m_range = 1.0f; //Coefficient used to modify height of data depending of scale modifications
+	float m_coefSize = 4.0f; //Coefficient used to set height of data to a visible size without modifying scale
 	float m_moveCameraCoef = 1.0;
 
 	// widget size

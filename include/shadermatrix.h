@@ -1,4 +1,4 @@
-#ifndef SHADERMATRIX_H
+﻿#ifndef SHADERMATRIX_H
 #define SHADERMATRIX_H
 
 #include "shaderwidget.h"
@@ -19,8 +19,8 @@ protected:
 
 protected:
 	float** m_matrix;
-	int m_xSize;
-	int m_ySize;
+	int m_xSize; //nb of columns
+	int m_ySize; //nb of lines
 };
 
 #endif // SHADERMATRIX_H

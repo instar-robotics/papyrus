@@ -1,4 +1,4 @@
-#include "shaderscaleplanes.h"
+﻿#include "shaderscaleplanes.h"
 
 ShaderScalePlanes::ShaderScalePlanes(int rows, int columns, float range, float gap, int nbMeasuresXZ, int nbMeasuresY):
     ShaderScale(range, nbMeasuresY),
@@ -23,7 +23,7 @@ void ShaderScalePlanes::initVectors()
 	//plane ZY = m_measures * 2 vertexes
 	//plane XZ = 4 vertexes
 	m_vertexes.reserve(4 + m_nbMeasuresXZ*4 + m_nbMeasuresY*3);
-	m_indexes.reserve(8 + (m_nbMeasuresXZ+1)*4  + m_nbMeasuresY*4);
+	m_indexes.reserve(8 + m_nbMeasuresXZ*4 + m_nbMeasuresY*4);
 	m_colors.reserve(4 + m_nbMeasuresXZ*4 + m_nbMeasuresY*3);
 	m_normals.reserve(4 + m_nbMeasuresXZ*4 + m_nbMeasuresY*3);
 }
@@ -122,28 +122,12 @@ void ShaderScalePlanes::fillVectors()
 	m_indexes.push_back(0);
 
 	// X and Y plane
-	for(int i = 0; i<m_nbMeasuresXZ; i++) //X axe
+	for(int i = 0; i<(m_nbMeasuresXZ*4 + m_nbMeasuresY*4)/2; i++) //X axe
 	{
-		m_indexes.push_back(i*2 + 4);
-		m_indexes.push_back(i*2 + 5);
-	}
-	for(int i = 0; i<m_nbMeasuresY; i++) //Y axe
-	{
-		m_indexes.push_back(i*2 + 4 + m_nbMeasuresXZ*2);
-		m_indexes.push_back(i*2 + 5 + m_nbMeasuresXZ*2);
+		m_indexes.push_back(i*2+4);
+		m_indexes.push_back(i*2+5);
 	}
 
-	// Y and Z plane
-	for(int i = 0; i<m_nbMeasuresXZ; i++) //Z axe
-	{
-		m_indexes.push_back(i*2 + 4 + m_nbMeasuresXZ*2 + m_nbMeasuresY*2);
-		m_indexes.push_back(i*2 + 5 + m_nbMeasuresXZ*2 + m_nbMeasuresY*2);
-	}
-	for(int i = 0; i<m_nbMeasuresY; i++) //Y axe
-	{
-		m_indexes.push_back(i*2 + 4 + m_nbMeasuresXZ*4 + m_nbMeasuresY*2);
-		m_indexes.push_back(i*2 + 5 + m_nbMeasuresXZ*4 + m_nbMeasuresY*2);
-	}
 }
 
 int ShaderScalePlanes::columns() const

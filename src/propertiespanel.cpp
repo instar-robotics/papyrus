@@ -53,8 +53,6 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_boxMatrixShape(this),
                                                     m_rowsInput(this),
                                                     m_colsInput(this),
-//                                                    m_rowsVarInput(this),
-//                                                    m_colsVarInput(this),
                                                     m_saveActivity(tr("Save Activity"), this),
                                                     m_publish(tr("Publish output"), this),
                                                     m_topic(this),
@@ -69,6 +67,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_linkValue(this),
                                                     m_linkConnectivity(this),
                                                     m_linkRegexes(this),
+                                                    m_radioLinkValue(tr("Value"), this),
+                                                    m_radioLinkVariable(tr("Variable"), this),
                                                     m_zoneFrame(this),
                                                     m_zoneTitle(this),
                                                     m_zoneColor(this),
@@ -165,15 +165,8 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_boxFrame.setLayout(m_boxLayout);
 
 	// Hide the variable inputs
-	QWidget * widget = m_boxLayout->labelForField(&m_rowsVarInput);
-	if (widget != nullptr)
-		widget->hide();
-	m_rowsVarInput.hide();
-
-	widget = m_boxLayout->labelForField(&m_colsVarInput);
-	if (widget != nullptr)
-		widget->hide();
-	m_colsVarInput.hide();
+	hideLayoutItem(&m_rowsVarInput, true, m_boxLayout);
+	hideLayoutItem(&m_colsVarInput, true, m_boxLayout);
 
 	// Create layout for the Link
 	m_linkLayout = new QFormLayout;
@@ -194,9 +187,9 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_linkRegexes.setPlaceholderText(tr("Connectivity regexes"));
 
 	m_linkLayout->addRow(&m_linkType);
+	m_linkLayout->addRow(&m_radioLinkValue, &m_radioLinkVariable);
 	m_linkLayout->addRow(tr("Weight:"), &m_linkWeight);
 	m_linkLayout->addRow(tr("Value:"), &m_linkValue);
-	m_linkLayout->addRow(&m_radioValue, &m_radioVariable);
 	m_linkLayout->addRow(&m_linkSecondary);
 	m_linkLayout->addRow(tr("One to"), &m_linkConnectivity);
 	m_linkLayout->addRow(&m_linkRegexes);
@@ -204,6 +197,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	m_linkFrame.setLayout(m_linkLayout);
 
 	m_linkLayout->setSizeConstraint(QLayout::SetFixedSize);
+	connect(&m_radioLinkValue, SIGNAL(toggled(bool)), this, SLOT(onLinkRadioValueToggled(bool)));
 
 	// Create the layout for the zone
 	m_zoneLayout = new QFormLayout;
@@ -486,31 +480,30 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 	// Populate the panels with the link's properties
 	m_linkType.setText(inputTypeToString(linkType));
 	m_linkSecondary.setChecked(link->secondary());
+	m_radioLinkValue.setChecked(link->useValue());
+	m_radioLinkVariable.setChecked(!link->useValue()); // we have to do both :/
 
-	QWidget *weightFieldLabel = m_linkLayout->labelForField(&m_linkWeight);
-	QWidget *valueFieldLabel = m_linkLayout->labelForField(&m_linkValue);
 
-	if (weightFieldLabel == NULL)
-		informUserAndCrash(tr("Failed to fetch label for field 'weight'"));
-
-	if (valueFieldLabel == NULL)
-		informUserAndCrash(tr("Failed to fetch label for field 'value'"));
-
-	// If the link is not a string field, display the weight input
-	if (!link->isStringLink()) {
-		m_linkValue.hide();
-		valueFieldLabel->hide();
+	// If the link is not a string field and it is set to numeric value, display the weight input
+	if (!link->isStringLink() && link->useValue()) {
+		hideLayoutItem(&m_linkValue, true, m_linkLayout);
 		m_linkWeight.setValue(link->weight());
-		weightFieldLabel->show();
-		m_linkWeight.show();
+		showLayoutItem(&m_linkWeight, true, m_linkLayout);
 	}
-	// If the link is a string link, then display its value instead
+	// If the link is a string link or was set to use variable, then display its value instead
 	else {
-		m_linkWeight.hide();
-		weightFieldLabel->hide();
+		hideLayoutItem(&m_linkWeight, true, m_linkLayout);
 		m_linkValue.setText(link->value());
-		valueFieldLabel->show();
-		m_linkValue.show();
+		showLayoutItem(&m_linkValue, true, m_linkLayout);
+	}
+
+	// If this is a string link, remove radio buttons as text input is the only possibility
+	if (link->isStringLink()) {
+		hideLayoutItem(&m_radioLinkValue, false);
+		hideLayoutItem(&m_radioLinkVariable, false);
+	} else {
+		showLayoutItem(&m_radioLinkValue, false);
+		showLayoutItem(&m_radioLinkVariable, false);
 	}
 
 	// Disable secondary if the link is self-looping (necessary a secondary link)
@@ -520,12 +513,8 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 		m_linkSecondary.setEnabled(true);
 
 	// Show the connectivity button for links of type MATRIX_MATRIX
-	QWidget *linkConnectivityLabel = m_linkLayout->labelForField(&m_linkConnectivity);
 	if (linkType == MATRIX_MATRIX) {
-		m_linkConnectivity.show();
-
-		if (linkConnectivityLabel != nullptr)
-			linkConnectivityLabel->show();
+		showLayoutItem(&m_linkConnectivity, true, m_linkLayout);
 
 		// Hide the regexes (will be shown only when necessary)
 		m_linkRegexes.hide();
@@ -548,15 +537,10 @@ void PropertiesPanel::displayLinkProperties(Link *link)
 
 			default:
 				emit displayStatusMessage(tr("Unsupported connectivity."));
-				m_linkConnectivity.hide();
-				if (linkConnectivityLabel != nullptr)
-					linkConnectivityLabel->hide();
+				hideLayoutItem(&m_linkConnectivity, true, m_linkLayout);
 		}
 	} else {
-		m_linkConnectivity.hide();
-
-		if (linkConnectivityLabel != nullptr)
-			linkConnectivityLabel->hide();
+		hideLayoutItem(&m_linkConnectivity, true, m_linkLayout);
 
 		m_linkRegexes.hide();
 	}
@@ -760,6 +744,20 @@ void PropertiesPanel::onBoxRadioValueToggled(bool isSelected)
 		showLayoutItem(&m_rowsVarInput, true, m_boxLayout);
 		showLayoutItem(&m_colsVarInput, true, m_boxLayout);
 
+	}
+}
+
+void PropertiesPanel::onLinkRadioValueToggled(bool isSelected)
+{
+	// If we chose to input numeric values
+	if (isSelected) {
+		hideLayoutItem(&m_linkValue, true, m_linkLayout);
+		showLayoutItem(&m_linkWeight, true, m_linkLayout);
+	}
+	// If we chose to input text variables
+	else {
+		hideLayoutItem(&m_linkWeight, true, m_linkLayout);
+		showLayoutItem(&m_linkValue, true, m_linkLayout);
 	}
 }
 

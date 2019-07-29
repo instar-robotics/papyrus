@@ -101,6 +101,9 @@ public:
 	QGraphicsTextItem *label() const;
 	void setLabel(QGraphicsTextItem *label);
 
+	bool useValue() const;
+	void setUseValue(bool useValue);
+
 private:
 	bool checkIfSelfLoop();
 
@@ -127,6 +130,8 @@ private:
 	// the cursor is above the label, but we still can't click and select the link in this situation
 	// so only solution I found was to not make it a child item (so manually delete it, too)
 	QGraphicsTextItem *m_label;   // Display the weight or string value
+
+	bool m_useValue;              // Wether the weight is input using numeric value (true) or variable (false)
 };
 
 #endif // LINK_H

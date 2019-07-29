@@ -140,16 +140,16 @@ private:
 	QRadioButton m_radioBoxVariable; // Radio button to select variable for box's size
 
 	// Link
-	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
-	QFrame m_linkFrame;           // Container for link's properties
-	QLabel m_linkType;            // Display the type of the link
-	QCheckBox m_linkSecondary;    // Will display if the link is secondary or not
-	QDoubleSpinBox m_linkWeight;  // Spin box to set the weight of the link
-	QLineEdit m_linkValue;        // Text field to enter the link's value (for string links)
-	QComboBox m_linkConnectivity; // Change the connectivity of the link (for MATRIX_MATRIX)
-	QTextEdit m_linkRegexes;      // The ONE_TO_NEI regexes to define neighbors
-	QRadioButton m_radioValue;    // Radio button to select value for input
-	QRadioButton m_radioVariable; // Radio button to select variable for input
+	QFormLayout *m_linkLayout;        // Layout for the link properties (access needed to hide rows)
+	QFrame m_linkFrame;               // Container for link's properties
+	QLabel m_linkType;                // Display the type of the link
+	QCheckBox m_linkSecondary;        // Will display if the link is secondary or not
+	QDoubleSpinBox m_linkWeight;      // Spin box to set the weight of the link
+	QLineEdit m_linkValue;            // Text field to enter the link's value (for string links or variable input)
+	QComboBox m_linkConnectivity;     // Change the connectivity of the link (for MATRIX_MATRIX)
+	QTextEdit m_linkRegexes;          // The ONE_TO_NEI regexes to define neighbors
+	QRadioButton m_radioLinkValue;    // Radio button to select value for input
+	QRadioButton m_radioLinkVariable; // Radio button to select variable for input
 
 	// Zone
 	QFormLayout *m_zoneLayout;     // Contains the layout to display comment zone's properties
@@ -179,6 +179,7 @@ private slots:
 	void onWeightsSaveClicked(bool);
 	void onWeightsLoadClicked(bool);
 	void onBoxRadioValueToggled(bool isSelected);
+	void onLinkRadioValueToggled(bool isSelected);
 signals:
 	void enterPressed();
 	void escapePressed();

@@ -43,7 +43,8 @@ Link::Link(OutputSlot *f, InputSlot *t, QGraphicsObject *parent) : QGraphicsObje
                                     m_rightSegment(this),
                                     m_weight(1.0),
                                     m_isInvalid(false),
-                                    m_connectivity(ONE_TO_ONE) // chose one by default
+                                    m_connectivity(ONE_TO_ONE), // chose one by default
+                                    m_useValue(true)
 {
 	m_uuid = QUuid::createUuid();
 
@@ -298,6 +299,16 @@ bool Link::checkIfSelfLoop()
 	else {
 		return false;
 	}
+}
+
+bool Link::useValue() const
+{
+	return m_useValue;
+}
+
+void Link::setUseValue(bool useValue)
+{
+	m_useValue = useValue;
 }
 
 //*

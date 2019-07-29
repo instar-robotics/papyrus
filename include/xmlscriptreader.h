@@ -68,7 +68,8 @@ private:
 	void readInputSlots(std::vector<InputSlot *> *inputSlots,
 	                    std::map<QUuid, DiagramBox *> *allBoxes,
 	                    std::set<std::pair<QUuid, Link *>> *incompleteLinks);
-	void readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols);
+	void readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols,
+	                    QString &rowsVariable, QString &colsVariable, bool &useValue);
 	void readUUID(QUuid *uuid);
 	void readPosition(QPointF *pos);
 	void readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,

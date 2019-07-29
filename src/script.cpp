@@ -427,10 +427,13 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		// Save output slot
 		stream.writeStartElement("output");
 		stream.writeAttribute("type", outputTypeToString(item->outputType()));
+		stream.writeAttribute("variable", item->useValue() ? "false" : "true");
 		// If the function outputs a matrix, write the dimensions
 		if (item->outputType() == MATRIX) {
 			stream.writeTextElement("rows", QString::number(item->rows()));
 			stream.writeTextElement("cols", QString::number(item->cols()));
+			stream.writeTextElement("rows_variable", item->rowsVariable());
+			stream.writeTextElement("cols_variable", item->colsVariable());
 		}
 		stream.writeEndElement(); // output
 

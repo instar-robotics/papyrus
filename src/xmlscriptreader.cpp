@@ -286,6 +286,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	OutputSlot *outputSlot = new OutputSlot;
 	int rows = 1;
 	int cols = 1;
+	QString rowsVariable;
+	QString colsVariable;
+	bool useValue = true;
 	std::vector<InputSlot *> inputSlots;
 	QUuid uuid;
 	QString topic;
@@ -315,7 +318,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		else if (reader.name() == "inputs")
 			readInputSlots(&inputSlots, allBoxes, incompleteLinks);
 		else if (reader.name() == "output")
-			readOutputSlot(outputSlot, &rows, &cols);
+			readOutputSlot(outputSlot, &rows, &cols, rowsVariable, colsVariable, useValue);
 		else if (reader.name() == "position")
 			readPosition(&pos);
 		else if (reader.name() == "visualizer")
@@ -420,6 +423,9 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);
+	b->setRowsVariable(rowsVariable);
+	b->setColsVariable(colsVariable);
+	b->setUseValue(useValue);
 	b->setMatrixShape(matrixShape);
 	m_script->scene()->addBox(b, pos);
 
@@ -613,10 +619,20 @@ void XmlScriptReader::readInputSlots(std::vector<InputSlot *> *inputSlots,
 	}
 }
 
-void XmlScriptReader::readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols)
+void XmlScriptReader::readOutputSlot(OutputSlot *outputSlot, int *rows, int *cols, QString &rowsVariable, QString &colsVariable, bool &useValue)
 {
 	Q_ASSERT(reader.isStartElement() && reader.name() == "output" && reader.attributes().hasAttribute("type"));
 	OutputType oType = stringToOutputType(reader.attributes().value("type").toString());
+
+	if (reader.attributes().hasAttribute("variable")) {
+		QString v = reader.attributes().value("variable").toString();
+		if (v == "true")
+			useValue = false;
+		else if (v == "false")
+			useValue = true;
+		else
+			reader.skipCurrentElement();
+	}
 
 	outputSlot->setOutputType(oType);
 
@@ -632,6 +648,10 @@ void XmlScriptReader::readOutputSlot(OutputSlot *outputSlot, int *rows, int *col
 			*rows = reader.readElementText().toInt();
 		} else if (name == "cols") {
 			*cols = reader.readElementText().toInt();
+		} else if (name == "rows_variable") {
+			rowsVariable = reader.readElementText();
+		} else if (name == "cols_variable") {
+			colsVariable = reader.readElementText();
 		} else {
 			reader.skipCurrentElement();
 		}

@@ -34,6 +34,7 @@
 #include <QMessageBox>
 #include <QToolButton>
 #include <QScreen>
+#include <QRegularExpression>
 
 PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_activeScene(nullptr),
@@ -828,6 +829,76 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 
 void PropertiesPanel::updateLinkProperties(Link *link)
 {
+	/*
+	TODO: here we have to split cases between string links are non-string links.
+			String links should have the thing with variable substitutions
+			Non-string links should have their variable computed
+			//*/
+
+	// If the weight input selection is set to "variable", then we first compute the expression
+	// and if it computes ok, we update the numeric weight value with the newly-computed value
+	// and then we create the @UpdateLinkCommand.
+	// If the parse fails, we don't apply any change
+
+	if (m_radioLinkVariable.isChecked() || link->isStringLink()) {
+		// We will need to get the set of variables from the script
+		if (link->from() == nullptr) {
+			emit displayStatusMessage(tr("Cannot update link properties: link has no originating output slot!"), MSG_ERROR);
+			return;
+		}
+
+		if (link->from()->box() == nullptr) {
+			emit displayStatusMessage(tr("Cannot update link properties: link has no originating box!"), MSG_ERROR);
+			return;
+		}
+
+		if (link->from()->box()->getScript() == nullptr) {
+			emit displayStatusMessage(tr("Cannot udpate link properties: originating box has no script!"), MSG_ERROR);
+			return;
+		}
+
+		QMap<QString, QPair<QString, QString>> variables = link->from()->box()->getScript()->variables();
+
+		// If we are dealing with a string link, we will substitute variables
+		if (link->isStringLink()) {
+			int nbFailed = -1;
+
+			// We don't need the computed value for now (as we won't save it in the link's value)
+			// we just need to check if it is parsed correctly
+			substituteVariables(variables, m_linkValue.text(), &nbFailed);
+
+			// Don't make any changes if some variables could not be substituted
+			if (nbFailed > 0) {
+				emit displayStatusMessage(tr("Link properties not updated: %1 variable%2 not found.")
+				                          .arg(nbFailed)
+				                          .arg(nbFailed == 1 ? "" : "s"), MSG_WARNING);
+				return;
+			}
+
+		}
+		// Otherwise, if we are dealing with a non-string link with text-input, we suppose it's an
+		// expression that can be computed down to a single number
+		else if (m_radioLinkVariable.isChecked()) {
+			bool ok = false;
+			double weight = computeVariableValue(variables, m_linkValue.text(), &ok);
+
+			if (!ok) {
+				emit displayStatusMessage(tr("Cannot update link's properties: the variable "
+				                             "expression is computed to\"%1\", which is not a valid"
+				                             " number!").arg(m_linkValue.text()), MSG_WARNING);
+				return;
+			}
+
+			m_linkWeight.setValue(weight);
+		}
+		// Otherwise it's a corner case (should not happen)
+		else {
+			emit displayStatusMessage(tr("Error while trying to update link's properties: non "
+			                             "supported case"), MSG_ERROR);
+			return;
+		}
+	}
+
 	UpdateLinkCommand *updateCommand = new UpdateLinkCommand(this, link);
 
 	DiagramScene *dScene = dynamic_cast<DiagramScene *>(link->to()->box()->scene());
@@ -835,11 +906,6 @@ void PropertiesPanel::updateLinkProperties(Link *link)
 		qWarning() << "Cannot update link's properties: no scene!";
 		return;
 	}
-
-//	if (dScene->undoStack() == nullptr) {
-//		qWarning() << "Cannot update link's properties: no undo stack!";
-//		return;
-//	}
 
 	dScene->undoStack().push(updateCommand);
 }
@@ -999,6 +1065,11 @@ Connectivity PropertiesPanel::getLinkConnectivity()
 QString PropertiesPanel::getLinkRegexes()
 {
 	return m_linkRegexes.toPlainText();
+}
+
+bool PropertiesPanel::getLinkUseValue()
+{
+	return m_radioLinkValue.isChecked();
 }
 
 QString PropertiesPanel::getZoneTitle()

@@ -84,6 +84,7 @@ public:
 	QString getLinkValue();
 	Connectivity getLinkConnectivity();
 	QString getLinkRegexes();
+	bool getLinkUseValue();
 
 	QString getZoneTitle();
 	QColor getZoneColor();

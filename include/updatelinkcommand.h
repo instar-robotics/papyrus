@@ -50,6 +50,7 @@ private:
 	bool m_oldSecondary;
 	Connectivity m_oldConnectivity;
 	QString m_oldRegexes;
+	bool m_oldUseValue;
 
 	// New parameters
 	qreal m_newWeight;
@@ -57,6 +58,7 @@ private:
 	bool m_newSecondary;
 	Connectivity m_newConnectivity;
 	QString m_newRegexes;
+	bool m_newUseValue;
 };
 
 #endif // UPDATELINKCOMMAND_H

@@ -44,6 +44,7 @@ UpdateLinkCommand::UpdateLinkCommand(PropertiesPanel *panel, Link *link, QUndoCo
 	m_oldSecondary = m_link->secondary();
 	m_oldConnectivity = m_link->connectivity();
 	m_oldRegexes = m_link->regexes();
+	m_oldUseValue = m_link->useValue();
 
 	// Save new parameter values
 	m_newWeight = m_panel->getLinkWeight();
@@ -51,13 +52,14 @@ UpdateLinkCommand::UpdateLinkCommand(PropertiesPanel *panel, Link *link, QUndoCo
 	m_newSecondary = m_panel->getLinkSecondary();
 	m_newConnectivity = m_panel->getLinkConnectivity();
 	m_newRegexes = m_panel->getLinkRegexes();
+	m_newUseValue = m_panel->getLinkUseValue();
 }
 
 void UpdateLinkCommand::undo()
 {
-	if (m_link->isStringLink())
-		m_link->setValue(m_oldValue);
-	else
+//	if (m_link->isStringLink())
+	    m_link->setValue(m_oldValue);
+//	else
 		m_link->setWeight(m_oldWeight);
 
 	m_link->setSecondary(m_oldSecondary);
@@ -73,6 +75,8 @@ void UpdateLinkCommand::undo()
 
 	m_link->setConnectivity(m_oldConnectivity);
 	m_link->setRegexes(m_oldRegexes);
+
+	m_link->setUseValue(m_oldUseValue);
 }
 
 void UpdateLinkCommand::redo()
@@ -87,9 +91,9 @@ void UpdateLinkCommand::redo()
 		return;
 	}
 
-	if (m_link->isStringLink())
-		m_link->setValue(m_newValue);
-	else
+//	if (m_link->isStringLink())
+	    m_link->setValue(m_newValue);
+//	else
 		m_link->setWeight(m_newWeight);
 
 	m_link->setSecondary(m_newSecondary);
@@ -105,4 +109,6 @@ void UpdateLinkCommand::redo()
 
 	m_link->setConnectivity(m_newConnectivity);
 	m_link->setRegexes(m_newRegexes);
+
+	m_link->setUseValue(m_newUseValue);
 }

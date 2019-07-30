@@ -100,4 +100,8 @@ qreal computeVariableValue(QMap<QString, QPair<QString, QString>> variables,
 
 QString sanitizeVariableName(QString str);
 
+QString substituteVariables(QMap<QString, QPair<QString, QString>> variables,
+                            QString expression,
+                            int *nbFailed = nullptr);
+
 #endif // HELPERS_H

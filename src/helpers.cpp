@@ -665,8 +665,6 @@ qreal computeVariableValue(QMap<QString, QPair<QString, QString> > variables, QS
 	} else if (ok != nullptr)
 		*ok = true;
 
-	qDebug() << "expr:" << expr << ", ok:" << *ok << ", result:" << result;
-
 	fclose(fp);
 
 	return result;
@@ -685,4 +683,52 @@ QString sanitizeVariableName(QString str)
 	correct = correct.toLower();
 
 	return correct;
+}
+
+/**
+ * @brief substituteVariables takes a dictionnary of variables and an expression and substitute
+ * variables in the expression (expressed at ${variable}) by the corresponding value found in the
+ * dictionnary.
+ * @param variables the set of variables and their definition
+ * @param expression the expression in which to substitute variables
+ * @param nbFailed if the pointer is not null, it will report the number of failed subsitution (i.e.
+ * variables detected but whose value could not be found in the dictionnary)
+ * @return
+ */
+QString substituteVariables(QMap<QString, QPair<QString, QString> > variables, QString expression, int *nbFailed)
+{
+	int nbFailed_ = 0;
+
+	// RegExp to match a var name written like ${var_name}, parentheses are used to extract the
+	// variable name and get rid of the '$', '{' and '}' signs when matching.
+	QRegularExpression re("\\${([a-z_]+)}");
+
+	// Start from the given expression
+	QString computedValue = expression;
+
+	// Perform the matches
+	QRegularExpressionMatchIterator i = re.globalMatch(expression);
+
+	// Iterate over RegExp matches
+	while (i.hasNext()) {
+		QRegularExpressionMatch match = i.next();
+		QString varName = match.captured(1);
+
+
+		// Check if the matched variable is set
+		if (!variables.contains(varName)) {
+			nbFailed_ += 1;
+			continue;
+		}
+
+		computedValue.replace("${" + varName + "}",
+		                      variables[varName].first);
+	}
+
+	// If the user submitted a valid pointer, set it to the number of failed substitutions
+	if (nbFailed != nullptr)
+		*nbFailed = nbFailed_;
+
+	// And return the string with the variables (hopefully) substituted
+	return computedValue;
 }

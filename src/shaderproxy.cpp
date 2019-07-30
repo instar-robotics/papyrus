@@ -1,4 +1,4 @@
-#include "shaderproxy.h"
+﻿#include "shaderproxy.h"
 
 ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box):
     m_widget(widget),
@@ -200,8 +200,8 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 	//Set pen to write text and draw lines
 	painter->setPen(QPen(brush, 1));
 
-	if((m_widget->matrixScale() || m_widget->circScale() || m_widget->polarScale()) &&
-	    m_widget->width() >= m_widget->startWidth())
+	if((m_widget->matrixScale() || m_widget->circScale() || m_widget->polarScale() || m_widget->compassScale())
+	        && m_widget->width() >= m_widget->startWidth())
 	{
 
 		QFont font = painter->font();
@@ -237,7 +237,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		painter->drawText(m_margin * 2 - (m_fontSize+1)/2, m_marginTop + (m_widget->nbMeasuresY()-1)*m_measureGap + m_margin + (m_fontSize+1)/2, "Z");
 		// The Y and Z axes for 3d displayed are inversed in the matricial space
 
-		if(m_widget->matrixScale())
+		if(m_widget->matrixScale() || m_widget->compassScale())
 		{
 			/*X axe*/
 			//Lines
@@ -247,10 +247,19 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 				lines.push_back(QLine(QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin), QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin-m_measureSize)));
 			}
 			//Values
-			gap = columns/(m_widget->nbMeasuresXZ()-1);
+			int value = 0;
+
+			if(m_widget->matrixScale())
+				gap = columns/(m_widget->nbMeasuresXZ()-1);
+			else
+				gap = 2*m_max/(m_widget->nbMeasuresXZ()-1);
+
 			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
 			{
-				int value = gap*i;
+				if(m_widget->matrixScale())
+					value = gap*i;
+				else
+					value = gap*i - m_max;
 				QString str = QString::fromStdString(std::to_string(value));
 				painter->drawText(i*m_measureGap+m_marginTop - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
 			}
@@ -264,10 +273,17 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 				lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + i*m_measureGap,widgetSize.height()-m_margin), QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (i*m_measureGap),widgetSize.height()-m_margin-m_measureSize)));
 			}
 			//Values
-			gap = rows/(m_widget->nbMeasuresXZ()-1);
+			if(m_widget->matrixScale())
+				gap = rows/(m_widget->nbMeasuresXZ()-1);
+			else
+				gap = 2*m_max/(m_widget->nbMeasuresXZ()-1);
+
 			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
 			{
-				int value = gap*i;
+				if(m_widget->matrixScale())
+					value = gap*i;
+				else
+					value = gap*i - m_max;
 				QString str = QString::fromStdString(std::to_string(value));
 				painter->drawText(m_widget->nbMeasuresXZ()*m_measureGap+m_margin+m_marginTop+i*m_measureGap-(m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
 			}

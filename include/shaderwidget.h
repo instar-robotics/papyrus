@@ -75,6 +75,10 @@ public:
 
 	float range() const;
 
+	bool compassScale() const;
+
+	float gap() const;
+
 signals:
 	void repaint();
 

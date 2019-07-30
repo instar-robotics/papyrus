@@ -6,7 +6,7 @@ ShaderCompass::ShaderCompass()
 	initNormalsMatrix();
 	calculateDirectionAngles();
 	rotateBasePosition();
-	m_camera.setDistance(5.0);
+	m_camera.setDistance(7.0);
 	m_scaleAllPlanes = new ShaderScaleAllPlanes(m_gap, m_nbMeasuresXZ, m_nbMeasuresY);
 	m_compassScale = true;
 }
@@ -19,10 +19,12 @@ ShaderCompass::~ShaderCompass()
 //Allocate the memory used by each vectors
 void ShaderCompass::initVectors()
 {
-	m_vertexes.reserve(4);
-	m_indexes.reserve(12);
-	m_colors.reserve(4);
-	m_normals.reserve(4);
+	//4 vertexes for the arrow
+	//3 vertexes for the "north" mark (-z direction)
+	m_vertexes.reserve(7);
+	m_indexes.reserve(15);
+	m_colors.reserve(7);
+	m_normals.reserve(7);
 }
 
 void ShaderCompass::fillVectors()
@@ -35,11 +37,19 @@ void ShaderCompass::fillVectors()
 	m_vertexes.push_back(m_c);
 	m_vertexes.push_back(m_rescaledDirectionPoint);
 
+	m_vertexes.push_back(QVector3D(-0.25, 0.0, -1.0));
+	m_vertexes.push_back(QVector3D(0.25, 0.0, -1.0));
+	m_vertexes.push_back(QVector3D(0.0, 0.0, -1.4));
+
 	/* Colors */
 	m_colors.push_back(QVector3D(0.35, 0.0, 0.0));
 	m_colors.push_back(QVector3D(0.35, 0.0, 0.0));
 	m_colors.push_back(QVector3D(0.35, 0.0, 0.0));
 	m_colors.push_back(QVector3D(1.0, 0.0, 0.0));
+
+	m_colors.push_back(QVector3D(0.0, 0.0, 0.0));
+	m_colors.push_back(QVector3D(0.0, 0.0, 0.0));
+	m_colors.push_back(QVector3D(0.0, 0.0, 0.0));
 
 	/* Normals */
 	for(int i = 0; i < 4; i++)
@@ -67,6 +77,11 @@ void ShaderCompass::fillVectors()
 	m_indexes.push_back(1);
 	m_indexes.push_back(2);
 	m_indexes.push_back(3);
+
+	//North mark
+	m_indexes.push_back(4);
+	m_indexes.push_back(5);
+	m_indexes.push_back(6);
 
 }
 
@@ -98,9 +113,25 @@ void ShaderCompass::calculateDirectionAngles()
 	else
 	{
 		if(m_directionPoint.z() <= 0.0)
+		{
 			m_directionAngles.setY(acos(m_directionPoint.x()/m_directionRadius));
+
+			//Switch angle calculation for asin(z) instead of acos(x) when asin is more precise
+			if(m_directionAngles.y() <= PI/4)
+				m_directionAngles.setY(-asin(m_directionPoint.z()/m_directionRadius));
+			else if(m_directionAngles.y() >= 3*PI/4)
+				m_directionAngles.setY(PI+asin(m_directionPoint.z()/m_directionRadius));
+		}
 		else
+		{
 			m_directionAngles.setY(-acos(m_directionPoint.x()/m_directionRadius));
+
+			//Switch angle calculation for asin(z) instead of acos(x) when asin is more precise
+			if(m_directionAngles.y() >= -PI/4)
+				m_directionAngles.setY(-asin(m_directionPoint.z()/m_directionRadius));
+			else if(m_directionAngles.y() <= -3*PI/4)
+				m_directionAngles.setY(PI+asin(m_directionPoint.z()/m_directionRadius));
+		}
 
 		if(m_directionPoint.x() >= 0.0)
 			m_directionAngles.setZ(asin(m_directionPoint.y()/m_directionRadius));
@@ -182,7 +213,7 @@ void ShaderCompass::updateValues(QVector<qreal> *values)
 {
 	if(values->size() == 3)
 	{
-		m_directionPoint = QVector3D(values->at(0), values->at(1), values->at(2));
+		m_directionPoint = QVector3D(values->at(0), values->at(1), -values->at(2));
 		calculateDirectionAngles();
 		rotateBasePosition();
 		updateNormals();

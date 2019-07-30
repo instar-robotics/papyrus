@@ -1,7 +1,7 @@
 ﻿#include "shaderscaleallplanes.h"
 
 ShaderScaleAllPlanes::ShaderScaleAllPlanes(float gap, int nbMeasuresXZ, int nbMeasuresY):
-    ShaderScale(gap*(nbMeasuresXZ+1)/2, nbMeasuresY)
+    ShaderScale(gap*(nbMeasuresXZ)/2, nbMeasuresY)
 {
 	m_gap = gap;
 	m_nbMeasuresXZ = nbMeasuresXZ;

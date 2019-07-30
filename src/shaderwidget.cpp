@@ -240,6 +240,16 @@ void ShaderWidget::displayScale()
 	}
 }
 
+float ShaderWidget::gap() const
+{
+	return m_gap;
+}
+
+bool ShaderWidget::compassScale() const
+{
+	return m_compassScale;
+}
+
 float ShaderWidget::range() const
 {
 	return m_range;

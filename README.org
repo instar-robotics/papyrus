@@ -49,6 +49,7 @@ In order to build and run =Papyrus=, you will need those dependencies:
 	* =Qt5::Svg=
   * [[https://cmake.org/][=CMake=]] (=>=3.1.0=)
   * [[https://www.cryptopp.com/][=crypto++=]] (=>=5.6.5=)
+  * [[https://www.gnu.org/software/bc/][=bc=]]
 - ROS:
   * [[https://wiki.ros.org/Documentation][ROS]] (at least =lunar=, but we recommend using =melodic= if you can)
   * [[https://wiki.ros.org/roscpp][=roscpp=]]

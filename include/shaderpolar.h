@@ -1,4 +1,4 @@
-#ifndef SHADERPOLAR_H
+﻿#ifndef SHADERPOLAR_H
 #define SHADERPOLAR_H
 
 #include "shaderwidget.h"
@@ -6,7 +6,7 @@
 class ShaderPolar : public ShaderWidget
 {
 public:
-	ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir);
+	ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection);
 	~ShaderPolar();
 	QVector<QVariant> getParameters() override;
 
@@ -28,6 +28,7 @@ protected:
 	float m_radiusGap = 0.1;
 	float m_radiusMin;
 	float m_radiusMax;
+	MatrixReadDirection m_matrixReadDirection;
 };
 
 #endif // SHADERPOLAR_H

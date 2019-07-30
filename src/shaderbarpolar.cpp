@@ -1,7 +1,7 @@
-#include "shaderbarpolar.h"
+﻿#include "shaderbarpolar.h"
 
-ShaderBarPolar::ShaderBarPolar(int xSize, int ySize, int centerIndex, RotationDir dir):
-    ShaderPolar(xSize, ySize, centerIndex, dir)
+ShaderBarPolar::ShaderBarPolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection):
+    ShaderPolar(xSize, ySize, centerIndex, dir, matrixReadDirection)
 {
 }
 

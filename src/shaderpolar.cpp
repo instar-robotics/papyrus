@@ -1,11 +1,12 @@
-#include "shaderpolar.h"
+﻿#include "shaderpolar.h"
 
-ShaderPolar::ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir):
+ShaderPolar::ShaderPolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection):
     m_xSize(xSize),
     m_ySize(ySize),
     m_centerIndex(centerIndex),
     m_dir(dir),
-    m_radiusMin(xSize/100.0*(PI/2.0))
+    m_radiusMin(xSize/100.0*(PI/2.0)),
+    m_matrixReadDirection(matrixReadDirection)
 {
 	initMatrix();
 	//m_scaleCircular = new ShaderScaleCircular(m_radiusMin,m_coefSize,m_nbMeasuresY);
@@ -90,11 +91,18 @@ void ShaderPolar::updateValues(QVector<qreal> *values)
 {
 	if(values->size() == m_xSize * m_ySize)
 	{
-		for(int i = 0; i<m_ySize; i++){
-			for(int j = 0; j<m_xSize; j++){
-				m_matrix[i][j] = values->at(i*m_xSize+j);
+		if(m_matrixReadDirection == LINE_PER_LINE)
+			for(int i = 0; i<m_ySize; i++){
+				for(int j = 0; j<m_xSize; j++){
+					m_matrix[i][j] = values->at(i*m_xSize+j);
+				}
 			}
-		}
+		else
+			for(int i = 0; i<m_xSize; i++){
+				for(int j = 0; j<m_ySize; j++){
+					m_matrix[i][j] = values->at(i+m_xSize*j);
+				}
+			}
 	}
 }
 

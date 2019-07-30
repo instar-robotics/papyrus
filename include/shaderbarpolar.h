@@ -1,4 +1,4 @@
-#ifndef SHADERBARPOLAR_H
+﻿#ifndef SHADERBARPOLAR_H
 #define SHADERBARPOLAR_H
 
 #include "shaderpolar.h"
@@ -6,7 +6,7 @@
 class ShaderBarPolar : public ShaderPolar
 {
 public:
-	ShaderBarPolar(int xSize, int ySize, int centerIndex, RotationDir dir);
+	ShaderBarPolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection);
 	~ShaderBarPolar();
 
 protected:

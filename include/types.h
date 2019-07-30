@@ -174,4 +174,10 @@ enum RotationDir{
 	CLOCKWISE,
 	COUNTERCLOCKWISE
 };
+
+// How to read the matrix : line per line or column per column
+enum MatrixReadDirection{
+	LINE_PER_LINE,
+	COLUMN_PER_COLUMN
+};
 #endif // TYPES_H

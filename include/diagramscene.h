@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -32,6 +32,8 @@
 #include "shaderproxy.h"
 #include "shadermovebar.h"
 #include "visufunctions.h"
+#include "polarvisudialog.h"
+#include "circularvisudialog.h"
 
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>

@@ -1,4 +1,4 @@
-#ifndef SHADERSURFACEPOLAR_H
+﻿#ifndef SHADERSURFACEPOLAR_H
 #define SHADERSURFACEPOLAR_H
 
 #include "shaderpolar.h"
@@ -6,7 +6,7 @@
 class ShaderSurfacePolar : public ShaderPolar
 {
 public:
-	ShaderSurfacePolar(int xSize,int ySize, int centerIndex, RotationDir dir);
+	ShaderSurfacePolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection);
 	~ShaderSurfacePolar();
 
 protected:

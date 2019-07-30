@@ -1457,18 +1457,25 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		{
 			int indexZero = cols/2;
 			RotationDir rotationDir = CLOCKWISE;
+			MatrixReadDirection matrixReadDirection = LINE_PER_LINE;
+
 			if(selectedBox->visuParameters().contains("RotationDir"))
 				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
 			if(selectedBox->visuParameters().contains("IndexZero"))
 				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
-			CircularVisuDialog dialog(cols, indexZero, rotationDir);
+			if(selectedBox->visuParameters().contains("MatrixReadDirection"))
+				matrixReadDirection = MatrixReadDirection(selectedBox->visuParameters().take("MatrixReadDirection").toInt());
+
+			PolarVisuDialog dialog(cols, indexZero, rotationDir, matrixReadDirection);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				indexZero = dialog.getZeroIndex();
 				rotationDir = dialog.getRotationDirection();
+				matrixReadDirection = dialog.getMatrixReadDirection();
 			}
 			parameters.insert("RotationDir", QVariant(rotationDir));
 			parameters.insert("IndexZero", QVariant(indexZero));
+			parameters.insert("MatrixReadDirection", QVariant(matrixReadDirection));
 		}
 		else if(is3DCircularVisuType(type)) //Ask for parameters specific to 3d circular visu
 		{

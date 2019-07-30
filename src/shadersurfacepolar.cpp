@@ -1,7 +1,7 @@
-#include "shadersurfacepolar.h"
+﻿#include "shadersurfacepolar.h"
 
-ShaderSurfacePolar::ShaderSurfacePolar(int xSize,int ySize, int centerIndex, RotationDir dir):
-    ShaderPolar(xSize, ySize, centerIndex, dir)
+ShaderSurfacePolar::ShaderSurfacePolar(int xSize,int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection):
+    ShaderPolar(xSize, ySize, centerIndex, dir, matrixReadDirection)
 {
 	initNormalsMatrixes();
 }

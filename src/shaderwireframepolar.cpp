@@ -1,7 +1,7 @@
-#include "shaderwireframepolar.h"
+﻿#include "shaderwireframepolar.h"
 
-ShaderWireframePolar::ShaderWireframePolar(int xSize,int ySize, int centerIndex, RotationDir dir):
-    ShaderPolar(xSize, ySize, centerIndex, dir)
+ShaderWireframePolar::ShaderWireframePolar(int xSize,int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection):
+    ShaderPolar(xSize, ySize, centerIndex, dir, matrixReadDirection)
 {
 	drawingType = GL_LINES;
 }

@@ -33,6 +33,8 @@ QVector<QVariant> ShaderPolar::getParameters()
 	QVector<QVariant> parameters;
 	parameters.push_back(QVariant(m_dir));
 	parameters.push_back(QVariant(m_centerIndex));
+	parameters.push_back(QVariant(m_matrixReadDirection));
+	parameters.push_back(QVariant(m_extremum));
 	return parameters;
 }
 

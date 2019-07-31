@@ -1,4 +1,4 @@
-#ifndef SHADERCROWN_H
+﻿#ifndef SHADERCROWN_H
 #define SHADERCROWN_H
 
 #include "shadercircular.h"
@@ -6,7 +6,7 @@
 class ShaderCrown : public ShaderCircular
 {
 public:
-	ShaderCrown(int size, int centerIndex, RotationDir dir);
+	ShaderCrown(int size, int centerIndex, RotationDir dir, int extremum);
 	~ShaderCrown();
 
 protected:

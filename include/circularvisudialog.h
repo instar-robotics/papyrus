@@ -6,7 +6,7 @@
 class CircularVisuDialog : public VisuDialog
 {
 public:
-	CircularVisuDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir);
+	CircularVisuDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir, int defaultExtremum);
 };
 
 #endif // CIRCULARVISUDIALOG_H

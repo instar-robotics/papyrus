@@ -6,7 +6,7 @@
 class PolarVisuDialog : public VisuDialog
 {
 public:
-	PolarVisuDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir, MatrixReadDirection defaultReadDir, int extremum);
+	PolarVisuDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir, MatrixReadDirection defaultReadDir, int defaultExtremum);
 };
 
 #endif // POLARVISUDIALOG_H

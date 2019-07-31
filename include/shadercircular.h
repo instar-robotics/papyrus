@@ -1,4 +1,4 @@
-#ifndef SHADERCIRCULAR_H
+﻿#ifndef SHADERCIRCULAR_H
 #define SHADERCIRCULAR_H
 
 #include "shaderwidget.h"
@@ -6,7 +6,7 @@
 class ShaderCircular : public ShaderWidget
 {
 public:
-	ShaderCircular(int size, int centerIndex, RotationDir dir);
+	ShaderCircular(int size, int centerIndex, RotationDir dir, int extremum);
 	~ShaderCircular();
 	QVector<QVariant> getParameters() override;
 
@@ -25,6 +25,7 @@ protected:
 	int m_centerIndex;
 	RotationDir m_dir;
 	float m_radius = 8;
+	float m_extremum; //Max and abs(min) angle value
 };
 
 #endif // SHADERCIRCULAR_H

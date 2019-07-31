@@ -1,7 +1,7 @@
-#include "shadercrown.h"
+﻿#include "shadercrown.h"
 
-ShaderCrown::ShaderCrown(int size, int centerIndex, RotationDir dir)
-    :ShaderCircular(size, centerIndex, dir)
+ShaderCrown::ShaderCrown(int size, int centerIndex, RotationDir dir, int extremum):
+    ShaderCircular(size, centerIndex, dir, extremum)
 {
 }
 
@@ -13,7 +13,10 @@ ShaderCrown::~ShaderCrown()
 void ShaderCrown::initVectors()
 {
 	m_vertexes.reserve(m_size * 2);
-	m_indexes.reserve(m_size * 6);
+	if(radToDeg(m_extremum) == 360)
+		m_indexes.reserve(m_size * 6);
+	else
+		m_indexes.reserve((m_size-1)*6);
 	m_colors.reserve(m_size * 2);
 	m_normals.reserve(m_size * 2);
 }
@@ -60,16 +63,20 @@ void ShaderCrown::fillVectors()
 		m_indexes.push_back(current + 3);
 	}
 
-	// The last indexes are linked to the first ones to complete the circle
-	current = (m_size-1)*2;
+	// The last indexes are linked to the first ones to complete the circle if it is a 360 degres circular visu
+	if(radToDeg(m_extremum) == 360)
+	{
+		current = (m_size-1)*2;
 
-	m_indexes.push_back(current);
-	m_indexes.push_back(current + 1);
-	m_indexes.push_back(0);
+		m_indexes.push_back(current);
+		m_indexes.push_back(current + 1);
+		m_indexes.push_back(0);
 
-	m_indexes.push_back(current + 1);
-	m_indexes.push_back(0);
-	m_indexes.push_back(1);
+		m_indexes.push_back(current + 1);
+		m_indexes.push_back(0);
+		m_indexes.push_back(1);
+	}
+
 }
 
 

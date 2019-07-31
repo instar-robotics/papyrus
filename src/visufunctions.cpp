@@ -146,6 +146,7 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString
 			return new ShaderSurface(rows, cols);
 
 		RotationDir rotationDir = CLOCKWISE;
+		int extremum = 360;
 		int indexZero;
 		int size;
 		if(rows == 1)
@@ -162,10 +163,13 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString
 			rotationDir = RotationDir(parameters.value("RotationDir").toInt());
 		if(parameters.contains("IndexZero"))
 			indexZero = parameters.value("IndexZero").toInt();
+		if(parameters.contains("Extremum"))
+			extremum = parameters.value("Extremum").toInt();
+
 		if(type == BAR_CIRCLE_3D)
-			return new ShaderBarCircle(size, indexZero, rotationDir);
+			return new ShaderBarCircle(size, indexZero, rotationDir, extremum);
 		else
-			return new ShaderCrown(size, indexZero, rotationDir);
+			return new ShaderCrown(size, indexZero, rotationDir, extremum);
 	}
 	else if(is3DPolarVisuType(type))
 	{

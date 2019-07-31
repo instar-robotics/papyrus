@@ -1,7 +1,7 @@
-#include "shaderbarcircle.h"
+﻿#include "shaderbarcircle.h"
 
-ShaderBarCircle::ShaderBarCircle(int size, int centerIndex, RotationDir dir)
-    :ShaderCircular(size, centerIndex, dir)
+ShaderBarCircle::ShaderBarCircle(int size, int centerIndex, RotationDir dir, int extremum):
+    ShaderCircular(size, centerIndex, dir, extremum)
 {
 }
 

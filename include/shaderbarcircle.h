@@ -1,4 +1,4 @@
-#ifndef SHADERBARCIRCLE_H
+﻿#ifndef SHADERBARCIRCLE_H
 #define SHADERBARCIRCLE_H
 
 #include "shadercircular.h"
@@ -6,7 +6,7 @@
 class ShaderBarCircle : public ShaderCircular
 {
 public:
-	ShaderBarCircle(int size, int centerIndex, RotationDir dir);
+	ShaderBarCircle(int size, int centerIndex, RotationDir dir, int extremum);
 	~ShaderBarCircle();
 
 protected:

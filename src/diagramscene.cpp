@@ -1490,18 +1490,30 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			else
 				indexZero = rows/2;
 			RotationDir rotationDir = CLOCKWISE;
+			int extremum = 360;
+
 			if(selectedBox->visuParameters().contains("RotationDir"))
 				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
 			if(selectedBox->visuParameters().contains("IndexZero"))
 				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
-			CircularVisuDialog dialog(cols-1, indexZero, rotationDir);
+			if(selectedBox->visuParameters().contains("Extremum"))
+				extremum = selectedBox->visuParameters().take("Extremum").toInt();
+
+			int maxIndex;
+			if(cols>1)
+				maxIndex = cols-1;
+			else
+				maxIndex = rows-1;
+			CircularVisuDialog dialog(maxIndex, indexZero, rotationDir, extremum);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				indexZero = dialog.getZeroIndex();
 				rotationDir = dialog.getRotationDirection();
+				extremum = dialog.getExtremum();
 			}
 			parameters.insert("RotationDir", QVariant(rotationDir));
 			parameters.insert("IndexZero", QVariant(indexZero));
+			parameters.insert("Extremum", QVariant(extremum));
 		}
 		else
 		{

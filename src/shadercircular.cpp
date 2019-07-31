@@ -1,9 +1,10 @@
-#include "shadercircular.h"
+﻿#include "shadercircular.h"
 
-ShaderCircular::ShaderCircular(int size, int centerIndex, RotationDir dir):
+ShaderCircular::ShaderCircular(int size, int centerIndex, RotationDir dir, int extremum):
     m_size(size),
     m_centerIndex(centerIndex),
-    m_dir(dir)
+    m_dir(dir),
+    m_extremum(degToRad(extremum))
 {
 	initMatrix();
 	m_coefSize = 4.0;
@@ -24,25 +25,16 @@ QVector<QVariant> ShaderCircular::getParameters()
 	QVector<QVariant> parameters;
 	parameters.push_back(QVariant(m_dir));
 	parameters.push_back(QVariant(m_centerIndex));
+	parameters.push_back(QVariant(m_extremum));
 	return parameters;
 }
 
 float ShaderCircular::calculateAngle(int i)
 {
 	if(m_dir == COUNTERCLOCKWISE)
-	{
-		if(i >= m_centerIndex)
-			return 2*(i-m_centerIndex)*PI/m_size;
-		else
-			return 2*(m_size-(m_centerIndex-i))*PI/m_size;
-	}
+		return (i-m_centerIndex)*m_extremum/(float)m_size;
 	else
-	{
-		if(i <= m_centerIndex)
-			return 2*(m_centerIndex-i)*PI/m_size;
-		else
-			return 2*(m_size-(i-m_centerIndex))*PI/m_size;
-	}
+		return (m_centerIndex-i)*m_extremum/(float)m_size;
 }
 
 float ShaderCircular::calculateXcoord(int i)

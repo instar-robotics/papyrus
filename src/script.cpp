@@ -391,9 +391,13 @@ void Script::save(const QString &basePath, bool isAutoSave)
 					stream.writeAttribute("secondary", isSecondary ? "true" : "false");
 
 					// Write the weight or value based on the link being a string link or not
-					if (link->isStringLink())
-						stream.writeTextElement("value", link->value());
-					else
+					// Store the computed value in <value> and the variable in <value_variable>
+					if (link->isStringLink()) {
+						// For now, ignore if it there were errors or not
+						QString computedValue = substituteVariables(m_variables, link->value());
+						stream.writeTextElement("value", computedValue);
+						stream.writeTextElement("value_variable", link->value());
+					} else
 						stream.writeTextElement("weight", QString::number(link->weight()));
 					// Be careful to use the box's uuid and not the slot's
 					stream.writeTextElement("from", link->from()->box()->uuid().toString());

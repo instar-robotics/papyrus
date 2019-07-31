@@ -713,6 +713,9 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 		reader.raiseError(QObject::tr("Missing secondary attribute for a link."));
 	}
 
+	// Indicate that we parsed a <value_variable> and thus should not parse a <value>
+	bool readValueVariable = false;
+
 	while (reader.readNextStartElement()) {
 		if (reader.name() == "weight") {
 			bool ok = false;
@@ -723,7 +726,15 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 				reader.raiseError(QObject::tr("Invalid weight for a type."));
 			}
 		} else if (reader.name() == "value") {
+			QString value = reader.readElementText();
+
+			// Only set the value if we did not parsed a <value_variable>
+			if (!readValueVariable)
+				link->setValue(value);
+		} else if (reader.name() == "value_variable") {
+			// Read the value variable, set it as the link's value and prevent parsing <value>
 			link->setValue(reader.readElementText());
+			readValueVariable = true;
 		} else if (reader.name() == "from") {
 			QUuid fromUuid(reader.readElementText());
 

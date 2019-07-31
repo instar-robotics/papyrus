@@ -1458,6 +1458,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			int indexZero = cols/2;
 			RotationDir rotationDir = CLOCKWISE;
 			MatrixReadDirection matrixReadDirection = LINE_PER_LINE;
+			int extremum = 360;
 
 			if(selectedBox->visuParameters().contains("RotationDir"))
 				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
@@ -1465,17 +1466,21 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
 			if(selectedBox->visuParameters().contains("MatrixReadDirection"))
 				matrixReadDirection = MatrixReadDirection(selectedBox->visuParameters().take("MatrixReadDirection").toInt());
+			if(selectedBox->visuParameters().contains("Extremum"))
+				extremum = selectedBox->visuParameters().take("Extremum").toInt();
 
-			PolarVisuDialog dialog(cols, indexZero, rotationDir, matrixReadDirection);
+			PolarVisuDialog dialog(cols-1, indexZero, rotationDir, matrixReadDirection, extremum);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				indexZero = dialog.getZeroIndex();
 				rotationDir = dialog.getRotationDirection();
 				matrixReadDirection = dialog.getMatrixReadDirection();
+				extremum = dialog.getExtremum();
 			}
 			parameters.insert("RotationDir", QVariant(rotationDir));
 			parameters.insert("IndexZero", QVariant(indexZero));
 			parameters.insert("MatrixReadDirection", QVariant(matrixReadDirection));
+			parameters.insert("Extremum", QVariant(extremum));
 		}
 		else if(is3DCircularVisuType(type)) //Ask for parameters specific to 3d circular visu
 		{
@@ -1489,7 +1494,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
 			if(selectedBox->visuParameters().contains("IndexZero"))
 				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
-			CircularVisuDialog dialog(cols, indexZero, rotationDir);
+			CircularVisuDialog dialog(cols-1, indexZero, rotationDir);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				indexZero = dialog.getZeroIndex();

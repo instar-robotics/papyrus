@@ -172,6 +172,7 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString
 		int indexZero = cols/2;
 		RotationDir rotationDir = CLOCKWISE;
 		MatrixReadDirection matrixReadDirection = LINE_PER_LINE;
+		int extremum = 360;
 
 		if(parameters.contains("IndexZero"))
 			indexZero = parameters.value("IndexZero").toInt();
@@ -179,13 +180,14 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString
 			rotationDir = RotationDir(parameters.value("RotationDir").toInt());
 		if(parameters.contains("MatrixReadDirection"))
 			matrixReadDirection = MatrixReadDirection(parameters.value("MatrixReadDirection").toInt());
-
+		if(parameters.contains("Extremum"))
+			extremum = parameters.value("Extremum").toInt();
 		if(type == BAR_POLAR_3D)
-			return new ShaderBarPolar(rows, cols, indexZero, rotationDir, matrixReadDirection);
+			return new ShaderBarPolar(rows, cols, indexZero, rotationDir, matrixReadDirection, extremum);
 		else if(type == WIREFRAME_POLAR_3D)
-			return new ShaderWireframePolar(rows, cols, indexZero, rotationDir, matrixReadDirection);
+			return new ShaderWireframePolar(rows, cols, indexZero, rotationDir, matrixReadDirection, extremum);
 		else
-			return new ShaderSurfacePolar(rows, cols, indexZero, rotationDir, matrixReadDirection);
+			return new ShaderSurfacePolar(rows, cols, indexZero, rotationDir, matrixReadDirection, extremum);
 	}
 	else if(type == COMPASS_3D)
 	{

@@ -1,7 +1,8 @@
 ﻿#include "shaderwireframepolar.h"
 
-ShaderWireframePolar::ShaderWireframePolar(int xSize,int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection):
-    ShaderPolar(xSize, ySize, centerIndex, dir, matrixReadDirection)
+ShaderWireframePolar::ShaderWireframePolar(int xSize,int ySize, int centerIndex, RotationDir dir,
+                                           MatrixReadDirection matrixReadDirection, int extremum):
+    ShaderPolar(xSize, ySize, centerIndex, dir, matrixReadDirection, extremum)
 {
 	drawingType = GL_LINES;
 }
@@ -14,7 +15,10 @@ ShaderWireframePolar::~ShaderWireframePolar()
 void ShaderWireframePolar::initVectors()
 {
 	m_vertexes.reserve(m_xSize * m_ySize);
-	m_indexes.reserve(m_xSize * (m_ySize-1) * 4 + m_xSize*2);
+	if(m_extremum == degToRad(360))
+		m_indexes.reserve(m_xSize * (m_ySize-1) * 4 + m_xSize*2);
+	else
+		m_indexes.reserve((m_xSize-1) * (m_ySize-1) * 4 + m_xSize*2);
 	m_colors.reserve(m_xSize * m_ySize);
 	m_normals.reserve(m_xSize * m_ySize);
 }
@@ -55,11 +59,16 @@ void ShaderWireframePolar::fillVectors()
 			m_indexes.push_back(current);
 			m_indexes.push_back(current + m_xSize);
 		}
-		//Link the last column with the first one
-		m_indexes.push_back(i * m_xSize + m_xSize-1);
-		m_indexes.push_back(i * m_xSize);
+		//Link the last column with the first one if the polar view is 360 degres view
+		if(m_extremum == degToRad(360))
+		{
+			m_indexes.push_back(i * m_xSize + m_xSize-1);
+			m_indexes.push_back(i * m_xSize);
+		}
+		//Link the last column points together, whatever it is a 360 degrees view or not
 		m_indexes.push_back(i * m_xSize + m_xSize-1);
 		m_indexes.push_back((i+1) * m_xSize + m_xSize-1);
+
 	}
 	for (int j = 0; j < m_xSize-1; j++)
 	{
@@ -67,8 +76,11 @@ void ShaderWireframePolar::fillVectors()
 		m_indexes.push_back(current);
 		m_indexes.push_back(current + 1);
 	}
-	//Link the last point of the last column with the last point of the first one
-	m_indexes.push_back((m_ySize-1) * m_xSize + m_xSize-1);
-	m_indexes.push_back((m_ySize-1) * m_xSize);
+	//Link the last point of the last column with the last point of the first one if it is a 360 degres view
+	if(m_extremum == degToRad(360))
+	{
+		m_indexes.push_back((m_ySize-1) * m_xSize + m_xSize-1);
+		m_indexes.push_back((m_ySize-1) * m_xSize);
+	}
 }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -493,7 +493,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		}
 		else if(is3DVisuType(visuType))
 		{
-			ShaderWidget *widget = createShaderWidget(visuType, b->getRows(), b->getCols(), QMap<QString, QVariant>());
+			ShaderWidget *widget = createShaderWidget(visuType, b->getRows(), b->getCols(), parameters);
 			ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 			ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, b);
 			shaderMoveBar->setProxy(proxy);

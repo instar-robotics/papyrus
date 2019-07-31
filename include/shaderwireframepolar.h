@@ -6,7 +6,7 @@
 class ShaderWireframePolar : public ShaderPolar
 {
 public:
-	ShaderWireframePolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection);
+	ShaderWireframePolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection, int extremum);
 	~ShaderWireframePolar();
 
 protected:

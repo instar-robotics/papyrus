@@ -1,16 +1,15 @@
 ﻿#include "shaderpolar.h"
 
-ShaderPolar::ShaderPolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection):
+ShaderPolar::ShaderPolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection, int extremum):
     m_xSize(xSize),
     m_ySize(ySize),
     m_centerIndex(centerIndex),
     m_dir(dir),
     m_radiusMin(xSize/100.0*(PI/2.0)),
-    m_matrixReadDirection(matrixReadDirection)
+    m_matrixReadDirection(matrixReadDirection),
+    m_extremum(degToRad(extremum))
 {
 	initMatrix();
-	//m_scaleCircular = new ShaderScaleCircular(m_radiusMin,m_coefSize,m_nbMeasuresY);
-
 	m_coefSize = (m_xSize+m_ySize)/40.0;
 	m_camera.setDistance((m_xSize+2*m_ySize)/(3*PI/1.75));
 	m_radiusMax = m_radiusMin + m_radiusGap*m_ySize + 0.2;
@@ -40,19 +39,9 @@ QVector<QVariant> ShaderPolar::getParameters()
 float ShaderPolar::calculateAngle(int j)
 {
 	if(m_dir == COUNTERCLOCKWISE)
-	{
-		if(j >= m_centerIndex)
-			return 2*(j-m_centerIndex)*PI/(float)m_xSize;
-		else
-			return 2*(m_xSize-(m_centerIndex-j))*PI/(float)m_xSize;
-	}
+		return (j-m_centerIndex)*m_extremum/(float)m_xSize;
 	else
-	{
-		if(j <= m_centerIndex)
-			return 2*(m_centerIndex-j)*PI/(float)m_xSize;
-		else
-			return 2*(m_xSize-(j-m_centerIndex))*PI/(float)m_xSize;
-	}
+		return (m_centerIndex-j)*m_extremum/(float)m_xSize;
 }
 
 float ShaderPolar::calculateXcoord(int i, int j)

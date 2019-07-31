@@ -6,7 +6,7 @@
 class ShaderSurfacePolar : public ShaderPolar
 {
 public:
-	ShaderSurfacePolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection);
+	ShaderSurfacePolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection, int extremum);
 	~ShaderSurfacePolar();
 
 protected:

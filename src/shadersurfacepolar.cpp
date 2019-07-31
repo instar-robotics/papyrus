@@ -1,7 +1,8 @@
 ﻿#include "shadersurfacepolar.h"
 
-ShaderSurfacePolar::ShaderSurfacePolar(int xSize,int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection):
-    ShaderPolar(xSize, ySize, centerIndex, dir, matrixReadDirection)
+ShaderSurfacePolar::ShaderSurfacePolar(int xSize,int ySize, int centerIndex, RotationDir dir,
+                                       MatrixReadDirection matrixReadDirection, int extremum):
+    ShaderPolar(xSize, ySize, centerIndex, dir, matrixReadDirection, extremum)
 {
 	initNormalsMatrixes();
 }
@@ -21,7 +22,10 @@ ShaderSurfacePolar::~ShaderSurfacePolar()
 void ShaderSurfacePolar::initVectors()
 {
 	m_vertexes.reserve(m_xSize * m_ySize);
-	m_indexes.reserve((m_xSize) * (m_ySize-1) * 6);
+	if(m_extremum == degToRad(360))
+		m_indexes.reserve((m_xSize) * (m_ySize-1) * 6);
+	else
+		m_indexes.reserve((m_xSize-1) * (m_ySize-1) * 6);
 	m_colors.reserve(m_xSize * m_ySize);
 	m_normals.reserve(m_xSize * m_ySize);
 }
@@ -66,15 +70,19 @@ void ShaderSurfacePolar::fillVectors()
 			m_indexes.push_back(current + m_xSize);
 			m_indexes.push_back(current + m_xSize + 1);
 		}
-		current = i * m_xSize + m_xSize-1;
-		//Link the last column with the first one
-		m_indexes.push_back(current);
-		m_indexes.push_back(current + m_xSize);
-		m_indexes.push_back(i * m_xSize);
+		//Link the last column with the first one if the polar view is 360 degres view
+		if(m_extremum == degToRad(360))
+		{
+			current = i * m_xSize + m_xSize-1;
 
-		m_indexes.push_back(i * m_xSize);
-		m_indexes.push_back(current + m_xSize);
-		m_indexes.push_back(i * m_xSize + m_xSize);
+			m_indexes.push_back(current);
+			m_indexes.push_back(current + m_xSize);
+			m_indexes.push_back(i * m_xSize);
+
+			m_indexes.push_back(i * m_xSize);
+			m_indexes.push_back(current + m_xSize);
+			m_indexes.push_back(i * m_xSize + m_xSize);
+		}
 	}
 }
 

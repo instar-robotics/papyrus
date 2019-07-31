@@ -6,7 +6,7 @@
 class ShaderPolar : public ShaderWidget
 {
 public:
-	ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection);
+	ShaderPolar(int xSize,int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection, int extremum);
 	~ShaderPolar();
 	QVector<QVariant> getParameters() override;
 
@@ -29,6 +29,7 @@ protected:
 	float m_radiusMin;
 	float m_radiusMax;
 	MatrixReadDirection m_matrixReadDirection;
+	float m_extremum; //Max and abs(min) angle value
 };
 
 #endif // SHADERPOLAR_H

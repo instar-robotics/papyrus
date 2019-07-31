@@ -6,7 +6,7 @@
 class ShaderBarPolar : public ShaderPolar
 {
 public:
-	ShaderBarPolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection);
+	ShaderBarPolar(int xSize, int ySize, int centerIndex, RotationDir dir, MatrixReadDirection matrixReadDirection, int extremum);
 	~ShaderBarPolar();
 
 protected:

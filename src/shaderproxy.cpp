@@ -15,6 +15,14 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 	m_moveBar->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_moveBar->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
+	// Display the box's title or its type on the move bar
+	QString title;
+	if(box->title().size()>0)
+		title = box->title();
+	else
+		title = box->name();
+	m_moveBar->setTitle(title);
+
 	connect(m_widget, SIGNAL(repaint()), this, SLOT(updateProxy()));
 }
 
@@ -292,14 +300,4 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		}
 		painter->drawLines(lines);
 	}
-
-	QFont font = painter->font();
-	font.setPixelSize(m_titleFontSize);
-	painter->setFont(font);
-
-	//Display the box's name
-	QString title = m_box->title();
-	QRectF rect(m_widget->width()-m_titleFontSize*title.length()-m_margin, m_margin, m_titleFontSize*title.length(), m_titleFontSize*2);
-	painter->drawText(rect, title, QTextOption(Qt::AlignRight));
-
 }

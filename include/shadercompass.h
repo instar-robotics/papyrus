@@ -35,7 +35,7 @@ private:
 	QVector3D m_bStartingCoord;
 	QVector3D m_cStartingCoord;
 	QVector3D *m_triangleNormals; //normals used for light gesture
-	float m_edge = 0.5;
+	float m_edge = 0.25;
 	float m_triangleRadius;
 
 };

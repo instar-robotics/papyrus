@@ -141,8 +141,10 @@ void ShaderProxy::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 void ShaderProxy::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	m_lastPos = QPoint(event->pos().x(), event->pos().y());
-	m_widget->mousePressed(m_lastPos);
-
+	if((event->buttons() & Qt::LeftButton) && (event->modifiers() & Qt::ShiftModifier))
+		m_widget->mousePressed(m_lastPos, LEFT_SHIFT_BUTTON);
+	else
+		m_widget->mousePressed(m_lastPos, OTHER);
 	//Set variables used for resizing
 	m_clickPos = QPoint(event->pos().x(), event->pos().y());
 	m_oldWidth = m_widget->width();

@@ -40,6 +40,23 @@ void Camera::updatePosition()
 	m_position.setZ(-cos(degToRad(m_yRot)) * m_distance + m_zTran);
 }
 
+void Camera::initDistance(float distance)
+{
+	m_distance = distance;
+	m_defaultDistance = distance;
+}
+
+void Camera::reinitializeCamera()
+{
+	m_xTran = m_defaultXTran;
+	m_yTran = m_defaultYTran;
+	m_zTran = m_defaultZTran;
+	m_xRot = m_defaultXRot;
+	m_yRot = m_defaultYRot;
+	m_zRot = m_defaultYRot;
+	m_distance = m_defaultDistance;
+}
+
 void Camera::setDistance(float distance)
 {
 	m_distance = distance;

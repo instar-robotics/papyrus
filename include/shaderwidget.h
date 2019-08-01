@@ -50,7 +50,7 @@ public:
 
 	// Events
 	void wheelTurned(int delta);
-	void mousePressed(QPoint pos);
+	void mousePressed(QPoint pos, MouseControl mouseControl);
 	void mouseMoved(QPoint pos, MouseControl mouseControl);
 
 	int minWidth() const;

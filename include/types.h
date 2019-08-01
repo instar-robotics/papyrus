@@ -148,8 +148,10 @@ enum ScriptStatus {
 // Define the different control that can be used with the mouse
 enum MouseControl{
     LEFT_BUTTON,
-    RIGHT_BUTTON,
-	RIGHT_SHIFT_BUTTON
+	LEFT_SHIFT_BUTTON,
+	RIGHT_BUTTON,
+	RIGHT_SHIFT_BUTTON,
+	OTHER
 };
 
 // Visualization types

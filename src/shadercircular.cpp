@@ -8,7 +8,7 @@ ShaderCircular::ShaderCircular(int size, int centerIndex, RotationDir dir, int e
 {
 	initMatrix();
 	m_coefSize = 4.0;
-	m_camera.setDistance(35.0f);
+	m_camera.initDistance(35.0f);
 	m_scaleCircular = new ShaderScaleCircular(m_radius, m_coefSize, m_nbMeasuresY);
 	m_scaleCylinder = new ShaderScaleCylinder(m_radius, m_coefSize, m_nbMeasuresY);
 	m_shaderArrow = new ShaderArrow(3.0);

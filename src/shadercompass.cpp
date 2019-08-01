@@ -6,7 +6,7 @@ ShaderCompass::ShaderCompass()
 	initNormalsMatrix();
 	calculateDirectionAngles();
 	rotateBasePosition();
-	m_camera.setDistance(7.0);
+	m_camera.initDistance(7.0);
 	m_scaleAllPlanes = new ShaderScaleAllPlanes(m_gap, m_nbMeasuresXZ, m_nbMeasuresY);
 	m_compassScale = true;
 }

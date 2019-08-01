@@ -1,10 +1,10 @@
-#include "shadermatrix.h"
+﻿#include "shadermatrix.h"
 
 ShaderMatrix::ShaderMatrix(int xSize, int ySize): m_xSize(xSize), m_ySize(ySize)
 {
 	initMatrix();
 	m_coefSize = (m_xSize+m_ySize)/40.0;
-	m_camera.setDistance(m_coefSize*10);
+	m_camera.initDistance(m_coefSize*10);
 	m_scalePlanes = new ShaderScalePlanes(m_xSize, m_ySize, m_coefSize, m_gap, m_nbMeasuresXZ, m_nbMeasuresY);
 	m_matrixScale = true;
 }

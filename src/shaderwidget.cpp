@@ -289,9 +289,11 @@ void ShaderWidget::updateScale(float coef)
 	m_range *= coef;
 }
 
-void ShaderWidget::mousePressed(QPoint pos)
+void ShaderWidget::mousePressed(QPoint pos, MouseControl mouseControl)
 {
 	m_camera.m_lastPos = pos;
+	if(mouseControl == LEFT_SHIFT_BUTTON)
+		m_camera.reinitializeCamera();
 }
 
 void ShaderWidget::mouseMoved(QPoint pos, MouseControl mouseControl)

@@ -1,4 +1,4 @@
-#ifndef CAMERA_H
+﻿#ifndef CAMERA_H
 #define CAMERA_H
 
 #include <QPoint>
@@ -14,6 +14,9 @@ public:
 	void rotateView(int x, int y, int z);
 	void translateView(float x, float y, float z);
 	void updatePosition();
+	void setDistance(float distance);
+	void initDistance(float distance);
+	void reinitializeCamera();
 
 	float m_distance = 40.0f;
 
@@ -26,10 +29,17 @@ public:
 	float m_yTran = 0;
 	float m_zTran = 0;
 
+	float m_defaultDistance = 40.0f;
+	float m_defaultXRot = 45.0f;
+	float m_defaultYRot = 0;
+	float m_defaultZRot = 0;
+	float m_defaultXTran = 0;
+	float m_defaultYTran = 0;
+	float m_defaultZTran = 0;
+
 	QVector4D m_position;
 
 	QPoint m_lastPos;
-	void setDistance(float distance);
 };
 
 #endif // CAMERA_H

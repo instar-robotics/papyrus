@@ -1563,6 +1563,12 @@ void PapyrusWindow::onVariableWindowClosed(int code)
 		return;
 	}
 
+	// Make sure we also have a scene
+	if (m_activeScript->scene() == nullptr) {
+		displayStatusMessage(tr("Cannot save variables: script has no scene!"), MSG_ERROR);
+		return;
+	}
+
 	// Now we can update the variables
 	m_activeScript->variables().clear();
 
@@ -1587,6 +1593,78 @@ void PapyrusWindow::onVariableWindowClosed(int code)
 	}
 
 	m_activeScript->setVariables(newVariables);
+
+	// Now recompute everything (links, topic names, etc.) with the new variables
+	int totalNbFailed = 0;
+
+	// NOTE: this is dirty, but we have to first separate all boxes and all links, because we need
+	// to update boxes before (to update their dimensions) and then, *after* we take care of the
+	// links, so that we can check if links have become invalid or not.
+	QList<DiagramBox *> boxes;
+	QList<Link *> links;
+
+	foreach(QGraphicsItem *item, m_activeScript->scene()->items()) {
+		DiagramBox *box = dynamic_cast<DiagramBox *>(item);
+		if (box != nullptr) {
+			boxes << box;
+			continue;
+		}
+
+		Link *link = dynamic_cast<Link *>(item);
+		if (link != nullptr)
+			links << link;
+	}
+
+	// First update all boxes
+	foreach(DiagramBox *box, boxes) {
+		// Subsitute variables in the topic name
+		int nbFailed = 0;
+		QString computedTopic = substituteVariables(newVariables, box->topicVariable(), &nbFailed);
+
+		totalNbFailed += nbFailed;
+
+		if (nbFailed == 0) {
+			box->setTopic(computedTopic);
+		}
+
+		// Compute variable in matrix box which use variable
+		if (box->outputType() == MATRIX && !box->useValue()) {
+			bool rowsOk = false;
+			bool colsOk = false;
+
+			int computedRows = computeVariableValue(newVariables, box->rowsVariable(), &rowsOk);
+			int computedCols = computeVariableValue(newVariables, box->colsVariable(), &colsOk);
+
+			totalNbFailed += rowsOk ? 0 : 1;
+			totalNbFailed += colsOk ? 0 : 1;
+
+			if (rowsOk)
+				box->setRows(computedRows);
+			if (colsOk)
+				box->setCols(computedCols);
+		}
+	}
+
+	// Then update all links
+	foreach (Link *link, links) {
+		if (!link->isStringLink() && !link->useValue()) {
+			bool valueOk = false;
+			qreal computedWeight = computeVariableValue(newVariables, link->value(), &valueOk);
+
+			totalNbFailed += valueOk ? 0 : 1;
+
+			if (valueOk) {
+				link->setWeight(computedWeight);
+				link->updateLines();
+			}
+		}
+
+		bool isInvalid = link->checkIfInvalid();
+		link->setIsInvalid(isInvalid);
+
+		if (isInvalid)
+			m_activeScript->setIsInvalid(true);
+	}
 
 	displayStatusMessage(tr("Variables saved!"));
 }

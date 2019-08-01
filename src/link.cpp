@@ -579,6 +579,8 @@ void Link::hoverEnterEvent(QGraphicsSceneHoverEvent *evt)
 	setCursor(QCursor(Qt::PointingHandCursor));
 	setOpacity(0.3);
 
+	qDebug() << "is invalid:" << checkIfInvalid();
+
 	QGraphicsObject::hoverEnterEvent(evt);
 }
 

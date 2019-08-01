@@ -30,6 +30,7 @@ private:
 
 private slots:
 	void onAddVariableClicked();
+	void onCellChanged(int row, int col);
 };
 
 #endif // VARIABLEWINDOW_H

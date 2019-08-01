@@ -1,5 +1,6 @@
 #include "variablewindow.h"
 #include "ui_variablewindow.h"
+#include "helpers.h"
 
 #include <QScreen>
 #include <QDebug>
@@ -28,6 +29,7 @@ VariableWindow::VariableWindow(QWidget *parent) :
 	m_ui->pushButton->setIcon(QIcon(":/icons/icons/add.svg"));
 
 	connect(m_ui->pushButton, SIGNAL(clicked(bool)), this, SLOT(onAddVariableClicked()));
+	connect(m_ui->tableWidget, SIGNAL(cellChanged(int,int)), this, SLOT(onCellChanged(int,int)));
 }
 
 VariableWindow::~VariableWindow()
@@ -90,4 +92,29 @@ void VariableWindow::onAddVariableClicked()
 		return;
 
 	m_ui->tableWidget->setRowCount(nbRows + 1);
+}
+
+/**
+ * @brief VariableWindow::onCellChanged is used to make sure the user only use valid characters for
+ * variable names
+ * @param row
+ * @param col
+ */
+void VariableWindow::onCellChanged(int row, int col)
+{
+	QTableWidgetItem *item = m_ui->tableWidget->item(row, col);
+
+	if (item == nullptr)
+		return;
+
+	// Only check first column (variable name)
+	if (col != 0)
+		return;
+
+	// This might be a bit violet, but replace the variable content with its sanitized version
+	QString sanitizedName = sanitizeVariableName(item->text());
+
+	// Only update if this is different (to prevent cursor jump)
+	if (sanitizedName != item->text())
+		item->setText(sanitizedName);
 }

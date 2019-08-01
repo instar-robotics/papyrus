@@ -683,6 +683,7 @@ QString sanitizeVariableName(QString str)
 {
 	QString correct = str.replace('-', '_');
 	correct = correct.replace(' ', '_');
+	correct = correct.replace(QRegularExpression("\\W"),"");
 	correct = correct.toLower();
 
 	return correct;

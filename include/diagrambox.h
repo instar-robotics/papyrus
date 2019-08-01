@@ -171,6 +171,9 @@ public:
 	QString colsVariable() const;
 	void setColsVariable(const QString &colsVariable);
 
+	QString topicVariable() const;
+	void setTopicVariable(const QString &topicVariable);
+
 protected:
 
 	QString m_name;    // Name of the function
@@ -213,6 +216,7 @@ private:
 	bool m_saveActivity;
 	bool m_publish;           // whether to publish this function's output on ROS
 	QString m_topic;          // name of the topic in which to publish the output
+	QString m_topicVariable;  // value of the topic field with variable not parsed down
 
 	QString m_iconFilepath;         // Filepath of the icon used (needed to create the svg)
 

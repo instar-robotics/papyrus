@@ -47,7 +47,8 @@ UpdateBoxCommand::UpdateBoxCommand(PropertiesPanel *panel, DiagramBox *box, QUnd
 	m_oldColsVariable = m_box->colsVariable();
 	m_oldActivity = m_box->saveActivity();
 	m_oldPublish = m_box->publish();
-	m_oldTopic = m_box->topic();
+	m_oldTopic = m_box->topicVariable();
+	m_oldTopicComputed = m_box->topic();
 	m_oldUseValue = m_box->useValue();
 
 	// Save new parameter values
@@ -59,6 +60,7 @@ UpdateBoxCommand::UpdateBoxCommand(PropertiesPanel *panel, DiagramBox *box, QUnd
 	m_newActivity = m_panel->getBoxSaveActivity();
 	m_newPublish = m_panel->getBoxPublish();
 	m_newTopic = m_panel->getBoxTopic();
+	m_newTopicComputed = m_panel->getBoxTopicComputed();
 	m_newUseValue = m_panel->getBoxUseValue();
 }
 
@@ -72,7 +74,8 @@ void UpdateBoxCommand::undo()
 	m_box->setColsVariable(m_oldColsVariable);
 	m_box->setSaveActivity(m_oldActivity);
 	m_box->setPublish(m_oldPublish);
-	m_box->setTopic(m_oldTopic);
+	m_box->setTopic(m_oldTopicComputed);
+	m_box->setTopicVariable(m_oldTopic);
 	m_box->setUseValue(m_oldUseValue);
 
 	m_box->update();
@@ -145,7 +148,7 @@ void UpdateBoxCommand::redo()
 	// Set the box's publish and topic name (if it's valid)
 	m_box->setPublish(m_newPublish);
 
-	QString topic = m_newTopic;
+	QString topic = m_newTopicComputed;
 	if (topic.isEmpty()) {
 		Script *s = m_box->getScript();
 
@@ -160,6 +163,8 @@ void UpdateBoxCommand::redo()
 		m_panel->setTopicNameColor(Qt::black); // restore normal, black color
 	} else
 		m_panel->setTopicNameColor(Qt::red); // mark invalid topic name in red (and don't update it)
+
+	m_box->setTopicVariable(m_newTopic);
 
 	m_box->update();
 

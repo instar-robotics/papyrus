@@ -292,6 +292,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	std::vector<InputSlot *> inputSlots;
 	QUuid uuid;
 	QString topic;
+	QString topicVariable;
 	QString iconFilePath = ":icons/icons/missing-icon.svg";
 	bool publish;
 	bool createVisualizer = false;
@@ -314,7 +315,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		else if (reader.name() == "save")
 			readFunctionSave(&save);
 		else if (reader.name() == "publish")
-			readPublishTopic(topic, &publish);
+			readPublishTopic(topic, topicVariable, &publish);
 		else if (reader.name() == "inputs")
 			readInputSlots(&inputSlots, allBoxes, incompleteLinks);
 		else if (reader.name() == "output")
@@ -417,6 +418,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		b->setPublish(publish);
 		if (!topic.isEmpty())
 			b->setTopic(topic);
+		b->setTopicVariable(topicVariable);
 		b->setIsCommented(isCommented);
 	}
 
@@ -535,7 +537,7 @@ void XmlScriptReader::readFunctionSave(bool *save)
 	}
 }
 
-void XmlScriptReader::readPublishTopic(QString &topic, bool *publish)
+void XmlScriptReader::readPublishTopic(QString &topic, QString &topicVariable, bool *publish)
 {
 	Q_ASSERT(reader.isStartElement() && reader.name() == "publish");
 
@@ -543,8 +545,18 @@ void XmlScriptReader::readPublishTopic(QString &topic, bool *publish)
 	// it advances the parsing cursor and then you've lost the ability to read attributes
 	if (reader.attributes().hasAttribute("topic")) {
 		QString topicName = reader.attributes().value("topic").toString();
+
 		if (!topicName.isEmpty())
 			topic = topicName;
+	}
+
+	// Read the <topic_variable> attribute if it exists
+	if (reader.attributes().hasAttribute("topic_variable")) {
+		QString topicName = reader.attributes().value("topic_variable").toString();
+
+		if (!topicName.isEmpty()) {
+			topicVariable = topicName;
+		}
 	}
 
 	QString shouldPublish = reader.readElementText().toLower();
@@ -713,6 +725,16 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 		reader.raiseError(QObject::tr("Missing secondary attribute for a link."));
 	}
 
+	if (attributes.hasAttribute("variable")) {
+		QString v = attributes.value("variable").toString().toLower();
+		if (v == "true")
+			link->setUseValue(false);
+		else if (v == "false")
+			link->setUseValue(true);
+		else
+			reader.raiseError(QObject::tr("Wrong attribute value for 'variable', allowed are 'true' or 'false"));
+	}
+
 	// Indicate that we parsed a <value_variable> and thus should not parse a <value>
 	bool readValueVariable = false;
 
@@ -720,11 +742,13 @@ void XmlScriptReader::readLink(InputSlot *inputSlot, std::map<QUuid, DiagramBox 
 		if (reader.name() == "weight") {
 			bool ok = false;
 			double weight = reader.readElementText().toDouble(&ok);
-			if (ok) {
+
+			if (ok)
 				link->setWeight(weight);
-			} else {
+			else
 				reader.raiseError(QObject::tr("Invalid weight for a type."));
-			}
+		} else if (reader.name() == "weight_variable") {
+			link->setValue(reader.readElementText());
 		} else if (reader.name() == "value") {
 			QString value = reader.readElementText();
 

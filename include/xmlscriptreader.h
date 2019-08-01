@@ -64,7 +64,7 @@ private:
 	void readFunctionName(QString &name);
 	void readFunctionTitle(QString &title);
 	void readFunctionSave(bool *save);
-	void readPublishTopic(QString &topic, bool *publish);
+	void readPublishTopic(QString &topic, QString &topicVariable, bool *publish);
 	void readInputSlots(std::vector<InputSlot *> *inputSlots,
 	                    std::map<QUuid, DiagramBox *> *allBoxes,
 	                    std::set<std::pair<QUuid, Link *>> *incompleteLinks);

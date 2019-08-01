@@ -349,7 +349,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		m_publish.setChecked(box->publish());
 
 		// Get the topic name and enable / disable it based on the publish flag
-		m_topic.setText(box->topic());
+		m_topic.setText(box->topicVariable()); // Note: we fill in the unparsed topic name
 		m_topic.setEnabled(box->publish());
 	}
 
@@ -770,6 +770,11 @@ void PropertiesPanel::onLinkRadioValueToggled(bool isSelected)
  */
 void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
+	if (box->getScript() == nullptr) {
+		emit displayStatusMessage(tr("Cannot update box properties: no script!"), MSG_ERROR);
+		return;
+	}
+
 	// If the rows/cols input selection is set to "variable", then we first compute the expressions
 	// and if they compute ok, we update the numeric rows/cols value with the newly-computed values
 	// and then we create the @UpdateBoxCommand.
@@ -777,11 +782,6 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 	if (m_radioBoxVariable.isChecked()) {
 		bool rowsOk = false;
 		bool colsOk = false;
-
-		if (box->getScript() == nullptr) {
-			emit displayStatusMessage(tr("Cannot update box properties: no script!"), MSG_ERROR);
-			return;
-		}
 
 		int computedRows = computeVariableValue(box->getScript()->variables(), m_rowsVarInput.text(), &rowsOk);
 		int computedCols = computeVariableValue(box->getScript()->variables(), m_colsVarInput.text(), &colsOk);
@@ -814,6 +814,15 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 		// Otherwise, update values and proceed
 		m_rowsInput.setValue(computedRows);
 		m_colsInput.setValue(computedCols);
+	}
+
+	// Handle variable substitution in the topic field
+	int nbFailed = 0;
+	m_topicComputed = substituteVariables(box->getScript()->variables(), m_topic.text(), &nbFailed);
+
+	if (nbFailed > 0) {
+		emit displayStatusMessage(tr("Cannot update properties: %1 variables missing!").arg(nbFailed), MSG_WARNING);
+		return;
 	}
 
 	UpdateBoxCommand *updateCommand = new UpdateBoxCommand(this, box);
@@ -1025,6 +1034,11 @@ bool PropertiesPanel::getBoxPublish()
 QString PropertiesPanel::getBoxTopic()
 {
 	return m_topic.text();
+}
+
+QString PropertiesPanel::getBoxTopicComputed()
+{
+	return m_topicComputed;
 }
 
 bool PropertiesPanel::getBoxUseValue()

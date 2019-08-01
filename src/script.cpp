@@ -356,7 +356,9 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			stream.writeTextElement("save", item->saveActivity() ? "true" : "false");
 
 			stream.writeStartElement("publish");
-			stream.writeAttribute("topic", item->topic());
+			QString computedTopic = substituteVariables(m_variables, item->topic());
+			stream.writeAttribute("topic", computedTopic);
+			stream.writeAttribute("topic_variable", item->topicVariable());
 			stream.writeCharacters(item->publish() ? "true" : "false");
 			stream.writeEndElement(); // publish
 
@@ -389,6 +391,7 @@ void Script::save(const QString &basePath, bool isAutoSave)
 						                stream.writeAttribute("constant", "true");
 					stream.writeAttribute("uuid", link->uuid().toString());
 					stream.writeAttribute("secondary", isSecondary ? "true" : "false");
+					stream.writeAttribute("variable", link->useValue() ? "false" : "true");
 
 					// Write the weight or value based on the link being a string link or not
 					// Store the computed value in <value> and the variable in <value_variable>
@@ -397,8 +400,13 @@ void Script::save(const QString &basePath, bool isAutoSave)
 						QString computedValue = substituteVariables(m_variables, link->value());
 						stream.writeTextElement("value", computedValue);
 						stream.writeTextElement("value_variable", link->value());
-					} else
+					} else {
 						stream.writeTextElement("weight", QString::number(link->weight()));
+
+						if (!link->useValue())
+							stream.writeTextElement("weight_variable", link->value());
+					}
+
 					// Be careful to use the box's uuid and not the slot's
 					stream.writeTextElement("from", link->from()->box()->uuid().toString());
 
@@ -1035,6 +1043,41 @@ bool Script::loadWeights(const QString &filePath)
 	}
 
 	return m_rosSession->callServiceWeight("load", filePath);
+}
+
+/**
+ * @brief Script::computeAllLinkWeights is used to make a pass on all links which are set to use
+ * variables instead if numeric weights. It computes the value and set the weights.
+ * It is used when a script has just been loaded and parsed
+ */
+void Script::computeAllLinkWeights()
+{
+	if (m_scene == nullptr) {
+		emit displayStatusMessage(tr("Failed to compute link weights: not scene!"), MSG_ERROR);
+		return;
+	}
+
+	int nbFailed = 0;
+
+	foreach (QGraphicsItem *item, m_scene->items()) {
+		Link *link = dynamic_cast<Link *>(item);
+
+		if (link != nullptr && !link->isStringLink() && !link->useValue()) {
+
+			bool ok = false;
+			double weight = computeVariableValue(m_variables, link->value(), &ok);
+
+			if (ok) {
+				link->setWeight(weight);
+				link->updateLines();
+			} else
+				nbFailed += 1;
+		}
+	}
+
+	if (nbFailed > 0)
+		emit displayStatusMessage(tr("%1 link weights could not be computed!").arg(nbFailed),
+	                              MSG_WARNING);
 }
 
 ROSSession *Script::rosSession() const

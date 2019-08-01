@@ -64,6 +64,7 @@ public:
 	void setupROSSession();
 	bool saveWeights(const QString &filePath = "");
 	bool loadWeights(const QString &filePath = "");
+	void computeAllLinkWeights();
 
 	QString name() const;
 	void setName(const QString &name);

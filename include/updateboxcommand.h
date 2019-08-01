@@ -52,6 +52,7 @@ private:
 	bool m_oldActivity;
 	bool m_oldPublish;
 	QString m_oldTopic;
+	QString m_oldTopicComputed;
 	bool m_oldUseValue;
 
 	// New parameters (ones the box will have after updating its parameters)
@@ -63,6 +64,7 @@ private:
 	bool m_newActivity;
 	bool m_newPublish;
 	QString m_newTopic;
+	QString m_newTopicComputed;
 	bool m_newUseValue;
 };
 

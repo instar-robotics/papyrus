@@ -75,6 +75,7 @@ public:
 	bool getBoxSaveActivity();
 	bool getBoxPublish();
 	QString getBoxTopic();
+	QString getBoxTopicComputed();
 	bool getBoxUseValue();
 	QString getBoxRowsVariable();
 	QString getBoxColsVariable();
@@ -136,6 +137,7 @@ private:
 	QCheckBox m_saveActivity;        // To enable saving the activity of the box
 	QCheckBox m_publish;             // To enable publish the output of the function
 	PropLineEdit m_topic;            // To input the topic name for publishing
+	QString m_topicComputed;         // Variable-substituted topic name, automatically computed (not inputed!)
 	QPushButton m_displayVisu;       // Display the box's data vizualisation
 	QRadioButton m_radioBoxValue;    // Radio button to select value for box's size
 	QRadioButton m_radioBoxVariable; // Radio button to select variable for box's size

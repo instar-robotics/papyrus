@@ -353,6 +353,16 @@ void DiagramBox::setColsVariable(const QString &colsVariable)
 	m_colsVariable = colsVariable;
 }
 
+QString DiagramBox::topicVariable() const
+{
+	return m_topicVariable;
+}
+
+void DiagramBox::setTopicVariable(const QString &topicVariable)
+{
+	m_topicVariable = topicVariable;
+}
+
 ActivityVisualizer *DiagramBox::activityVisualizer() const
 {
 	return m_activityVisualizer;

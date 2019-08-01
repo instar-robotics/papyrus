@@ -399,7 +399,10 @@ QString sanitizeTopicName(const QString &name)
 }
 
 bool isTopicNameValid(const QString &name) {
-	static QString pattern("^[A-Za-z0-9_//]+$");
+//	static QString pattern("^[A-Za-z0-9_//]+$");
+//	static QString pattern("^([A-Za-z0-9_//]+(\${[A-Za-z_]+})*)+$");
+	static QString pattern("^([A-Za-z0-9_//]+(\\${[A-Za-z_]+})*)+$");
+
 	static QRegularExpression regexp(pattern);
 
 	QRegularExpressionMatch match = regexp.match(name);

@@ -1825,6 +1825,10 @@ void PapyrusWindow::openScript(QString path)
 		newScript->setIsLiveCommentEnabled(m_ui->actionEnable_Live_Comment->isChecked());
 	}
 
+	// Now make a pass to compute all variable-defined weights once
+	if (newScript != nullptr)
+		newScript->computeAllLinkWeights();
+
 	m_lastDir = fi.absoluteDir().canonicalPath();
 }
 

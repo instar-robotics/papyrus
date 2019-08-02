@@ -1,4 +1,4 @@
-#include "activityvisualizerthermal.h"
+﻿#include "activityvisualizerthermal.h"
 
 #include <QDebug>
 
@@ -72,6 +72,7 @@ void ActivityVisualizerThermal::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 //	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 	updatePixmap();
 
+	updateLinkToBox(evt);
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
 

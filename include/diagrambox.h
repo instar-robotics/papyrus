@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -28,6 +28,7 @@
 #include "inputslot.h"
 #include "rossession.h"
 #include "inhibinput.h"
+#include "linkvisutobox.h"
 
 #include <set>
 
@@ -72,6 +73,7 @@ public:
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	Script *getScript();
@@ -179,6 +181,8 @@ public:
 
 	void fillVisuParameters(QMap<QString, QVariant> parameters);
 
+	void setLinkVisuToBox(LinkVisuToBox *linkVisuToBox);
+
 protected:
 
 	QString m_name;    // Name of the function
@@ -236,6 +240,7 @@ private:
 	ShaderProxy *m_displayedProxy;
 	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
 	VisuType m_visuType;
+	LinkVisuToBox *m_linkVisuToBox;
 
 private slots:
 	void deleteOpenGLDisplay();

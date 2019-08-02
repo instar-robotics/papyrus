@@ -1,4 +1,4 @@
-#include "activityvisualizer.h"
+﻿#include "activityvisualizer.h"
 
 #include <QDebug>
 #include <QCursor>
@@ -22,7 +22,8 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
       m_range(1.0),
       m_minWidth(100),
       m_minHeight(100),
-      m_activityFetcher(nullptr)
+      m_activityFetcher(nullptr),
+      m_linkToBox(nullptr)
 {
 	m_box->setActivityVisualizer(this);
 	m_box->setIsActivityVisuEnabled(true);
@@ -65,6 +66,11 @@ ActivityVisualizer::~ActivityVisualizer()
 	if (m_box != nullptr) {
 		m_box->setActivityVisualizer(nullptr);
 		m_box->setIsActivityVisuEnabled(false);
+	}
+
+	if(m_linkToBox != nullptr)
+	{
+		delete m_linkToBox;
 	}
 }
 
@@ -137,6 +143,7 @@ void ActivityVisualizer::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt)
  */
 void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
+	qDebug() << "1";
 	// Define some minimum dimensions so we can't make charts too small
 	qreal newWidth, newHeight;
 
@@ -161,9 +168,9 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		default:
 			;
 	}
-
 	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 
+	updateLinkToBox(evt);
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
 
@@ -221,6 +228,22 @@ void ActivityVisualizer::setHeight(int height)
 {
 	m_height = height;
 }
+
+void ActivityVisualizer::setLinkToBox(LinkVisuToBox *linkToBox)
+{
+	m_linkToBox = linkToBox;
+}
+
+void ActivityVisualizer::updateLinkToBox(QGraphicsSceneMouseEvent *event)
+{
+	// When the visu is moved, the link to its diagram box is moved too
+	if (event->buttons() & Qt::LeftButton)
+	{
+		if(m_linkToBox != nullptr)
+			m_linkToBox->centerVisuMoved(scenePos().x()+width()/2.0, scenePos().y()+height()/2.0);
+	}
+}
+
 
 void ActivityVisualizer::onBoxDestroyed()
 {

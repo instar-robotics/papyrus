@@ -3,7 +3,8 @@
 ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box):
     m_widget(widget),
     m_moveBar(moveBar),
-    m_box(box)
+    m_box(box),
+    m_linkToBox(nullptr)
 {
 	setWidget(m_widget);
 	m_moveBar->setRect(0,0,m_widget->width(),m_moveBarHeight);
@@ -14,6 +15,7 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 
 	m_moveBar->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_moveBar->setFlag(QGraphicsItem::ItemIsSelectable, true);
+	setFlag(ItemSendsGeometryChanges, ItemIsMovable);
 
 	// Display the box's title or its type on the move bar
 	QString title;
@@ -22,6 +24,9 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 	else
 		title = box->name();
 	m_moveBar->setTitle(title);
+
+	m_moveBar->setProxyWidth(m_widget->width());
+	m_moveBar->setProxyHeight(m_widget->height());
 
 	connect(m_widget, SIGNAL(repaint()), this, SLOT(updateProxy()));
 }
@@ -40,7 +45,10 @@ ShaderProxy::~ShaderProxy()
 	}
 
 	setParentItem(nullptr);
-	delete m_moveBar;
+	if(m_moveBar != nullptr)
+		delete m_moveBar;
+	if(m_linkToBox != nullptr)
+		delete m_linkToBox;
 }
 
 void ShaderProxy::updateProxy()
@@ -64,6 +72,16 @@ void ShaderProxy::showDisplay()
 	show();
 }
 
+LinkVisuToBox *ShaderProxy::linkToBox() const
+{
+	return m_linkToBox;
+}
+
+void ShaderProxy::setLinkToBox(LinkVisuToBox *linkToBox)
+{
+	m_linkToBox = linkToBox;
+}
+
 ShaderWidget *ShaderProxy::widget() const
 {
 	return m_widget;
@@ -71,23 +89,29 @@ ShaderWidget *ShaderProxy::widget() const
 
 void ShaderProxy::positionWidget(qreal x, qreal y)
 {
-	m_moveBar->setRect(x, y-m_moveBarHeight, m_widget->width(), m_moveBarHeight);
-	setPos(x, y);
+	m_moveBar->setPos(x, y);
+	setPos(0, m_moveBarHeight);
 }
 
 void ShaderProxy::resizeWidget(int width, int height)
 {
 	resize(width, height);
-	m_moveBar->setRect(pos().x(), pos().y()-m_moveBarHeight, width, m_moveBarHeight);
+	m_moveBar->setRect(0, 0, width, m_moveBarHeight);
 
 	//Resize the widget if it is too small
 	if(width<m_widget->minWidth())
 	{
 		m_widget->resize(m_widget->minWidth(), m_widget->height());
-		m_moveBar->setRect(pos().x(), pos().y()-m_moveBarHeight, m_widget->minWidth(),m_moveBarHeight);
+		m_moveBar->setRect(0, 0, m_widget->minWidth(),m_moveBarHeight);
 	}
 	if(height<m_widget->minHeight())
 		m_widget->resize(m_widget->width(), m_widget->minHeight());
+
+	m_moveBar->setProxyWidth(m_widget->width());
+	m_moveBar->setProxyHeight(m_widget->height());
+
+	if(m_linkToBox != nullptr)
+		m_linkToBox->centerVisuMoved(m_moveBar->scenePos().x()+width/2.0, m_moveBar->scenePos().y()+m_moveBarHeight+height/2.0);
 }
 
 qreal ShaderProxy::moveBarHeight() const

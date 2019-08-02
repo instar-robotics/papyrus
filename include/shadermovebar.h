@@ -5,6 +5,9 @@
 #include <QPainter>
 #include <QBrush>
 #include <QFont>
+#include <QPointF>
+#include "linkvisutobox.h"
+#include <QGraphicsSceneMouseEvent>
 
 class ShaderProxy;
 
@@ -21,10 +24,25 @@ public:
 
 	void setTitle(const QString &title);
 
+	void mouseMoveEvent(QGraphicsSceneMouseEvent * event) override;
+
+	void setLinkVisuToBox(LinkVisuToBox *linkVisuToBox);
+
+	float proxyWidth() const;
+
+	float proxyHeight() const;
+
+	void setProxyHeight(float proxyHeight);
+
+	void setProxyWidth(float proxyWidth);
+
 private:
 	ShaderProxy *m_proxy;
 	QString m_title;
 	int m_fontSize = 12;
+	LinkVisuToBox *m_linkVisuToBox;
+	float m_proxyWidth;
+	float m_proxyHeight;
 };
 
 #endif // SHADERMOVEBAR_H

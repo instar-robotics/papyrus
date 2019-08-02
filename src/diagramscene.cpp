@@ -1657,6 +1657,14 @@ void DiagramScene::display2DVisu(VisuType type)
 				m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 			}
 
+			//draw a link between the box and its visu
+			LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(vis->x()+vis->width()/2,
+			                                                 vis->y()+vis->height()/2,
+			                                                 selectedBox->x()+selectedBox->bWidth()/2,
+			                                                 selectedBox->y()+selectedBox->bHeight()/2);
+			addItem(linkVisuToBox);
+			vis->setLinkToBox(linkVisuToBox);
+
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);
 			ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
 
@@ -1755,8 +1763,19 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 					                              selectedBox);
 					m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 				}
+
 				proxy->setActivityFetcher(fetcher);
 				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+
+				//draw a link between the box and its visu
+				LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(shaderMoveBar->x()+proxy->widget()->width()/2,
+				                                        shaderMoveBar->y()+proxy->widget()->height()/2,
+				                                        selectedBox->x()+selectedBox->bWidth()/2,
+				                                        selectedBox->y()+selectedBox->bHeight()/2);
+				addItem(linkVisuToBox);
+				proxy->setLinkToBox(linkVisuToBox);
+				shaderMoveBar->setLinkVisuToBox(linkVisuToBox);
+				selectedBox->setLinkVisuToBox(linkVisuToBox);
 			}
 			else
 				qWarning() << "Ouput type not supported for 3D visualization";

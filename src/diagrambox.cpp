@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -75,7 +75,8 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_activityVisualizer(nullptr),
                                                 m_displayedProxy(nullptr),
                                                 m_isCommented(false),
-                                                m_visuType(THERMAL_2D)
+                                                m_visuType(THERMAL_2D),
+                                                m_linkVisuToBox(nullptr)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -256,6 +257,12 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 		// Set the script to which this item's scene is associated as modified
 		theScene->script()->setStatusModified(true);
 
+		// Update the link between the visu and the box if there is a displayed visu
+		if((m_displayedProxy != nullptr || isActivityVisuEnabled()) && m_linkVisuToBox != nullptr)
+		{
+			m_linkVisuToBox->centerDiagramBoxMoved(newPos.x()+bWidth()/2, newPos.y()+bHeight()/2);
+		}
+
 		return newPos;
 	}
 
@@ -363,6 +370,11 @@ QMap<QString, QVariant> DiagramBox::visuParameters() const
 void DiagramBox::fillVisuParameters(QMap<QString, QVariant> parameters)
 {
 	copyVisuParameters(parameters, &m_visuParameters);
+}
+
+void DiagramBox::setLinkVisuToBox(LinkVisuToBox *linkVisuToBox)
+{
+	m_linkVisuToBox = linkVisuToBox;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const
@@ -812,6 +824,15 @@ void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	}
 
 	QGraphicsItem::mouseReleaseEvent(event);
+}
+
+void DiagramBox::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
+{
+	QGraphicsObject::mouseMoveEvent(evt);
+	QPoint pos(evt->pos().x(), evt->pos().y());
+	if (evt->buttons() & Qt::LeftButton)
+	{
+	}
 }
 
 /**

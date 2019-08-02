@@ -2,8 +2,9 @@
 
 #include <QDebug>
 
-ShaderMoveBar::ShaderMoveBar()
+ShaderMoveBar::ShaderMoveBar():m_linkVisuToBox(nullptr)
 {
+	setFlag(ItemSendsGeometryChanges, ItemIsMovable);
 }
 
 ShaderMoveBar::~ShaderMoveBar()
@@ -44,3 +45,39 @@ void ShaderMoveBar::setTitle(const QString &title)
 	m_title = title;
 }
 
+void ShaderMoveBar::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+	if (event->buttons() & Qt::LeftButton)
+	{
+		if(m_linkVisuToBox != nullptr)
+		{
+			m_linkVisuToBox->centerVisuMoved(scenePos().x()+m_proxyWidth/2, scenePos().y()+m_proxyHeight/2);
+		}
+	}
+	QGraphicsItem::mouseMoveEvent(event);
+}
+
+void ShaderMoveBar::setLinkVisuToBox(LinkVisuToBox *linkVisuToBox)
+{
+	m_linkVisuToBox = linkVisuToBox;
+}
+
+float ShaderMoveBar::proxyWidth() const
+{
+	return m_proxyWidth;
+}
+
+float ShaderMoveBar::proxyHeight() const
+{
+	return m_proxyHeight;
+}
+
+void ShaderMoveBar::setProxyHeight(float proxyHeight)
+{
+	m_proxyHeight = proxyHeight;
+}
+
+void ShaderMoveBar::setProxyWidth(float proxyWidth)
+{
+	m_proxyWidth = proxyWidth;
+}

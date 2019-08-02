@@ -1,4 +1,4 @@
-#ifndef ACTIVITYVISUALIZER_H
+﻿#ifndef ACTIVITYVISUALIZER_H
 #define ACTIVITYVISUALIZER_H
 
 #include "diagrambox.h"
@@ -45,6 +45,10 @@ public:
 	int height() const;
 	void setHeight(int height);
 
+	void setLinkToBox(LinkVisuToBox *linkToBox);
+
+	void updateLinkToBox(QGraphicsSceneMouseEvent *event);
+
 protected:
 	DiagramBox *m_box;
 
@@ -66,6 +70,7 @@ protected:
 	qreal m_minHeight;
 
 	ActivityFetcher *m_activityFetcher;
+	LinkVisuToBox *m_linkToBox;
 
 private slots:
 	void onBoxDestroyed();

@@ -1,4 +1,4 @@
-#ifndef SHADERPROXY_H
+﻿#ifndef SHADERPROXY_H
 #define SHADERPROXY_H
 
 #include <QGraphicsRectItem>
@@ -11,6 +11,8 @@
 #include "diagrambox.h"
 #include <QPainter>
 #include <QBrush>
+#include <QGraphicsRectItem>
+#include "linkvisutobox.h"
 
 class ShaderProxy : public QGraphicsProxyWidget
 {
@@ -35,6 +37,10 @@ public:
 
 	void positionWidget(qreal x, qreal y);
 	void resizeWidget(int width, int height);
+
+	void setLinkToBox(LinkVisuToBox *linkToBox);
+
+	LinkVisuToBox *linkToBox() const;
 
 signals:
 	void proxyDestroyed();
@@ -72,6 +78,8 @@ private:
 	int m_fontSize = 6;
 	int m_titleFontSize = 10;
 	float m_max = 1.0;
+
+	LinkVisuToBox *m_linkToBox;
 };
 
 #endif // SHADERPROXY_H

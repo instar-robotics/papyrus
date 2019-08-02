@@ -111,7 +111,8 @@ HEADERS += include/category.h \
     include/shadercompass.h \
     include/shaderscaleallplanes.h \
     include/visudialog.h \
-    include/polarvisudialog.h
+    include/polarvisudialog.h \
+    include/linkvisutobox.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -209,7 +210,8 @@ SOURCES += src/category.cpp \
     src/shadercompass.cpp \
     src/shaderscaleallplanes.cpp \
     src/visudialog.cpp \
-    src/polarvisudialog.cpp
+    src/polarvisudialog.cpp \
+    src/linkvisutobox.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

@@ -470,6 +470,15 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 					m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
 				}
 
+
+				//draw a link between the box and its visu
+				LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(vis->x()+vis->width()/2,
+				                                                 vis->y()+vis->height()/2,
+				                                                 b->x()+b->bWidth()/2,
+				                                                 b->y()+b->bHeight()/2);
+				b->scene()->addItem(linkVisuToBox);
+				vis->setLinkToBox(linkVisuToBox);
+
 				// This is dirty, but this is used to trigger the correct onSizeChanged() event (the
 				// child's one, not the mother class) to repaint correctly the axes, the function name,
 				// etc. This must be refactored to be cleaner!
@@ -518,6 +527,16 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			proxy->setActivityFetcher(fetcher);
 			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
 			proxy->setVisible(visuVisible);
+
+			//draw a link between the box and its visu
+			LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(shaderMoveBar->x()+proxy->widget()->width()/2,
+			                                        shaderMoveBar->y()+proxy->widget()->height()/2,
+			                                        b->x()+b->bWidth()/2,
+			                                        b->y()+b->bHeight()/2);
+			b->scene()->addItem(linkVisuToBox);
+			proxy->setLinkToBox(linkVisuToBox);
+			shaderMoveBar->setLinkVisuToBox(linkVisuToBox);
+			b->setLinkVisuToBox(linkVisuToBox);
 		}
 		else
 			qWarning() << "Unknown visualization type";

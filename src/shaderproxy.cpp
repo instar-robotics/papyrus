@@ -281,12 +281,12 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 				lines.push_back(QLine(QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin), QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin-m_measureSize)));
 			}
 			//Values
-			int value = 0;
+			float value = 0.0;
 
 			if(m_widget->matrixScale())
 				gap = columns/(m_widget->nbMeasuresXZ()-1);
 			else
-				gap = 2*m_max/(m_widget->nbMeasuresXZ()-1);
+				gap = 2.0*m_max/(m_widget->nbMeasuresXZ()-1);
 
 			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
 			{
@@ -295,6 +295,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 				else
 					value = gap*i - m_max;
 				QString str = QString::fromStdString(std::to_string(value));
+				str.resize(3);
 				painter->drawText(i*m_measureGap+m_marginTop - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
 			}
 			painter->drawText(m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "X");
@@ -319,6 +320,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 				else
 					value = gap*i - m_max;
 				QString str = QString::fromStdString(std::to_string(value));
+				str.resize(3);
 				painter->drawText(m_widget->nbMeasuresXZ()*m_measureGap+m_margin+m_marginTop+i*m_measureGap-(m_fontSize+1)/2, widgetSize.height()-m_margin-m_measureSize-m_marginFont, str);
 			}
 			painter->drawText(m_widget->nbMeasuresXZ() * m_measureGap + 2*m_margin - (m_fontSize+1)/2, widgetSize.height()-m_margin-m_marginFont, "Y");

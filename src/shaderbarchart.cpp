@@ -1,4 +1,4 @@
-#include "shaderbarchart.h"
+﻿#include "shaderbarchart.h"
 
 ShaderBarChart::ShaderBarChart(int xSize, int ySize):ShaderMatrix(xSize, ySize)
 {
@@ -59,7 +59,12 @@ void ShaderBarChart::fillVectors()
 
 			// Colors
 			QColor color = calculateColor(m_matrix[i][j], 1.0);
-			for(int k = 0; k < 8; k++)
+			for(int k = 0; k < 4; k++)
+			{
+				QVector3D rgb(color.redF()/5.0, color.greenF()/5.0, color.blueF()/5.0);
+				m_colors.push_back(rgb);
+			}
+			for(int k = 0; k < 4; k++)
 			{
 				QVector3D rgb(color.redF(), color.greenF(), color.blueF());
 				m_colors.push_back(rgb);

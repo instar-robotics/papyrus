@@ -1664,6 +1664,7 @@ void DiagramScene::display2DVisu(VisuType type)
 				vis->setWidth(oldProxy->widget()->width());
 				vis->setHeight(oldProxy->widget()->height());
 				delete oldProxy;
+				vis->updatePixmap();
 			}
 			else if(oldVis != nullptr)
 			{
@@ -1671,6 +1672,7 @@ void DiagramScene::display2DVisu(VisuType type)
 				vis->setWidth(oldVis->width());
 				vis->setHeight(oldVis->height());
 				delete oldVis;
+				vis->updatePixmap();
 			}
 			selectedBox->setIsActivityVisuEnabled(true);
 			selectedBox->setActivityVisualizer(vis);

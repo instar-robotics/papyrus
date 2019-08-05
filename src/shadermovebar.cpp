@@ -45,16 +45,16 @@ void ShaderMoveBar::setTitle(const QString &title)
 	m_title = title;
 }
 
-void ShaderMoveBar::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+QVariant ShaderMoveBar::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
-	if (event->buttons() & Qt::LeftButton)
-	{
+	if ((change == QGraphicsItem::ItemPositionChange || change == QGraphicsItem::ItemScenePositionHasChanged) && scene()) {
+		// Get coordinate of the target new position
+		QPointF newPos = value.toPointF();
 		if(m_linkVisuToBox != nullptr)
-		{
-			m_linkVisuToBox->centerVisuMoved(scenePos().x()+m_proxyWidth/2, scenePos().y()+m_proxyHeight/2);
-		}
+			m_linkVisuToBox->centerVisuMoved(newPos.x()+m_proxyWidth/2, newPos.y()+m_proxyHeight/2);
+		return newPos;
 	}
-	QGraphicsItem::mouseMoveEvent(event);
+	return QGraphicsItem::itemChange(change, value);
 }
 
 void ShaderMoveBar::setLinkVisuToBox(LinkVisuToBox *linkVisuToBox)

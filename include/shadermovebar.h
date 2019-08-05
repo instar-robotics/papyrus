@@ -24,8 +24,6 @@ public:
 
 	void setTitle(const QString &title);
 
-	void mouseMoveEvent(QGraphicsSceneMouseEvent * event) override;
-
 	void setLinkVisuToBox(LinkVisuToBox *linkVisuToBox);
 
 	float proxyWidth() const;
@@ -35,6 +33,8 @@ public:
 	void setProxyHeight(float proxyHeight);
 
 	void setProxyWidth(float proxyWidth);
+
+	QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value);
 
 private:
 	ShaderProxy *m_proxy;

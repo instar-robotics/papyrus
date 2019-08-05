@@ -143,8 +143,6 @@ void ActivityVisualizerBars::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 	}
 
 	updatePixmap();
-
-	updateLinkToBox(evt);
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
 

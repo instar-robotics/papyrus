@@ -27,6 +27,7 @@ public:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
+	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	void updatePixmap();
 
@@ -47,7 +48,7 @@ public:
 
 	void setLinkToBox(LinkVisuToBox *linkToBox);
 
-	void updateLinkToBox(QGraphicsSceneMouseEvent *event);
+	void updateLinkToBox(QPointF newPos);
 
 protected:
 	DiagramBox *m_box;

@@ -38,6 +38,7 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
 
 	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
+	setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
 	// Add the visualizer to the box's scene
 	if (m_box->scene() == nullptr)
@@ -170,8 +171,18 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 	}
 	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
 
-	updateLinkToBox(evt);
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
+}
+
+QVariant ActivityVisualizer::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+	if ((change == QGraphicsItem::ItemPositionChange || change == QGraphicsItem::ItemScenePositionHasChanged) && scene()) {
+		// Get coordinate of the target new position
+		QPointF newPos = value.toPointF();
+		updateLinkToBox(newPos);
+		return newPos;
+	}
+	return QGraphicsItem::itemChange(change, value);
 }
 
 void ActivityVisualizer::updatePixmap()
@@ -234,14 +245,11 @@ void ActivityVisualizer::setLinkToBox(LinkVisuToBox *linkToBox)
 	m_linkToBox = linkToBox;
 }
 
-void ActivityVisualizer::updateLinkToBox(QGraphicsSceneMouseEvent *event)
+void ActivityVisualizer::updateLinkToBox(QPointF newPos)
 {
 	// When the visu is moved, the link to its diagram box is moved too
-	if (event->buttons() & Qt::LeftButton)
-	{
-		if(m_linkToBox != nullptr)
-			m_linkToBox->centerVisuMoved(scenePos().x()+width()/2.0, scenePos().y()+height()/2.0);
-	}
+	if(m_linkToBox != nullptr)
+		m_linkToBox->centerVisuMoved(newPos.x()+width()/2.0, newPos.y()+height()/2.0);
 }
 
 

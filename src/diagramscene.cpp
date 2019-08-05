@@ -284,6 +284,26 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 				addItem(m_line);
 				updateSceneRect();
 			}
+
+			//If the ctrl key isn't pressed, items are selectable only one by one
+			if(!(evt->modifiers() & Qt::ControlModifier) && selectedItems().size() <= 1)
+			{
+				clearSelection();
+				QGraphicsSvgItem *image = dynamic_cast<QGraphicsSvgItem *>(maybeItem);
+				//Verify if the selected item is an image in a box or another item
+				if(image != nullptr)
+				{
+					if(maybeItem->parentItem())
+					{
+						QGraphicsItem *parentItem = maybeItem->parentItem();
+						parentItem->setSelected(true);
+					}
+					else
+						maybeItem->parentItem();
+				}
+				else
+					maybeItem->setSelected(true);
+			}
 		}
 	} else if (evt->button() & Qt::RightButton) {
 		m_rightBtnDown = true;
@@ -297,8 +317,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 			addItem(m_rect);
 		}
 	}
-
 	QGraphicsScene::mousePressEvent(evt);
+
 }
 
 /**
@@ -310,6 +330,15 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
 	QPointF mousePos = evt->scenePos();
+
+	if (evt->button() & Qt::LeftButton) {
+		QGraphicsItem *maybeItem = itemAt(mousePos, QTransform());
+		if(!(evt->modifiers() & Qt::ControlModifier) && maybeItem)
+		{
+			qDebug() << "debug";
+			selectedItems().push_back(maybeItem);
+		}
+	}
 
 	// Select all Slots that are visible on the scene (in the view's viewport)
 	QList<QGraphicsView *> vs = views();

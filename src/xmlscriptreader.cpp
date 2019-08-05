@@ -506,7 +506,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
 			ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, b);
 			shaderMoveBar->setProxy(proxy);
-			proxy->positionWidget(visuPos.x(), visuPos.y());
+			proxy->positionWidget(visuPos.x(), visuPos.y()-proxy->moveBarHeight());
 			proxy->resizeWidget(visuSize.width(), visuSize.height());
 			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
 			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));

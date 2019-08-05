@@ -1735,20 +1735,20 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 				if(selectedBox->getDisplayedProxy() != nullptr)
 				{
 					ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
-					proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y());
+					proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y()-proxy->moveBarHeight());
 					proxy->resizeWidget(oldProxy->widget()->width(), oldProxy->widget()->height());
 					delete oldProxy;
 				}
 				else if(selectedBox->isActivityVisuEnabled())
 				{
 					ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
-					proxy->positionWidget(oldVis->x(), oldVis->y());
+					proxy->positionWidget(oldVis->x(), oldVis->y()-proxy->moveBarHeight());
 					proxy->resizeWidget(oldVis->width(), oldVis->height());
 					delete oldVis;
 					selectedBox->setIsActivityVisuEnabled(false);
 				}
 				else
-					proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() - 10);
+					proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() -proxy->moveBarHeight() - 10);
 
 				selectedBox->setDisplayedProxy(proxy);
 				shaderMoveBar->setProxy(proxy);

@@ -1360,8 +1360,9 @@ void DiagramScene::onOkBtnClicked(bool)
 		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
 			if(selectedBox->displayedProxy() != nullptr)
 			{
+				ThreadShader *thread = selectedBox->displayedProxy()->moveBar()->thread();
 				delete selectedBox->displayedProxy();
-				selectedBox->displayedProxy()->moveBar()->thread()->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
+				thread->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
 			}
 			if(selectedBox->activityVisualizer() != nullptr)
 				delete selectedBox->activityVisualizer();

@@ -269,17 +269,7 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 	return QGraphicsItem::itemChange(change, value);
 }
 
-int DiagramBox::getCols() const
-{
-	return m_cols;
-}
-
-int DiagramBox::getRows() const
-{
-	return m_rows;
-}
-
-ShaderProxy *DiagramBox::getDisplayedProxy() const
+ShaderProxy *DiagramBox::displayedProxy() const
 {
 	return m_displayedProxy;
 }
@@ -352,7 +342,7 @@ void DiagramBox::setIsCommented(bool isCommented)
 	}
 }
 
-VisuType DiagramBox::getVisuType() const
+VisuType DiagramBox::visuType() const
 {
 	return m_visuType;
 }

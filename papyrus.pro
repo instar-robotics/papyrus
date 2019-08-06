@@ -108,11 +108,16 @@ HEADERS += include/category.h \
     include/shaderscalepolar.h \
     include/visufunctions.h \
     include/shaderscale.h \
+<<<<<<< HEAD
     include/shadercompass.h \
     include/shaderscaleallplanes.h \
     include/visudialog.h \
     include/polarvisudialog.h \
     include/linkvisutobox.h
+=======
+    include/threadshader.h \
+    include/threaddelayer.h
+>>>>>>> 44-8-3D_Optimization
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -207,11 +212,16 @@ SOURCES += src/category.cpp \
     src/shaderscalepolar.cpp \
     src/visufunctions.cpp \
     src/shaderscale.cpp \
+<<<<<<< HEAD
     src/shadercompass.cpp \
     src/shaderscaleallplanes.cpp \
     src/visudialog.cpp \
     src/polarvisudialog.cpp \
     src/linkvisutobox.cpp
+=======
+    src/threadshader.cpp \
+    src/threaddelayer.cpp
+>>>>>>> 44-8-3D_Optimization
 
 RESOURCES += icons.qrc \
     shaders.qrc

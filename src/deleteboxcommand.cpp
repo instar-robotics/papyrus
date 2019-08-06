@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -53,10 +53,10 @@ void DeleteBoxCommand::undo()
 	// Put its visualizer back in the scene if it has one
 	if (m_box->activityVisualizer() != nullptr)
 		m_scene->addItem(m_box->activityVisualizer());
-	if (m_box->getDisplayedProxy() != nullptr)
+	if (m_box->displayedProxy() != nullptr)
 	{
-		m_scene->addItem(m_box->getDisplayedProxy()->moveBar());
-		m_scene->addItem(m_box->getDisplayedProxy());
+		m_scene->addItem(m_box->displayedProxy()->moveBar());
+		m_scene->addItem(m_box->displayedProxy());
 	}
 }
 
@@ -70,9 +70,9 @@ void DeleteBoxCommand::redo()
 	// Remove its visualizer from the scene if it has one
 	if (m_box->activityVisualizer() != nullptr)
 		m_scene->removeItem(m_box->activityVisualizer());
-	if (m_box->getDisplayedProxy() != nullptr)
+	if (m_box->displayedProxy() != nullptr)
 	{
-		m_scene->removeItem(m_box->getDisplayedProxy()->moveBar());
-		m_scene->removeItem(m_box->getDisplayedProxy());
+		m_scene->removeItem(m_box->displayedProxy()->moveBar());
+		m_scene->removeItem(m_box->displayedProxy());
 	}
 }

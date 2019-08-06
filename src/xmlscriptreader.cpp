@@ -502,17 +502,16 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 		}
 		else if(is3DVisuType(visuType))
 		{
-			ShaderWidget *widget = createShaderWidget(visuType, b->getRows(), b->getCols(), parameters);
-			ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-			ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, b);
-			shaderMoveBar->setProxy(proxy);
-			proxy->positionWidget(visuPos.x(), visuPos.y()-proxy->moveBarHeight());
-			proxy->resizeWidget(visuSize.width(), visuSize.height());
-			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
-			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
 
-			b->scene()->addItem(shaderMoveBar);
-			b->setDisplayedProxy(proxy);
+			// Insert the 3D widget
+			ThreadShader *thread = new ThreadShader(b, visuType, parameters);
+			thread->proxy()->positionWidget(visuPos.x(), visuPos.y());
+			thread->proxy()->resizeWidget(visuSize.width(), visuSize.height());
+			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
+			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
+
+			b->scene()->addItem(thread->shaderMoveBar());
+			b->setDisplayedProxy(thread->proxy());
 
 			// Create the activity fetcher with the topic name
 			ActivityFetcher *fetcher = nullptr;
@@ -524,18 +523,18 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				                              b);
 				m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
 			}
-			proxy->setActivityFetcher(fetcher);
-			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
-			proxy->setVisible(visuVisible);
+      thread->proxy()->setActivityFetcher(fetcher);
+      QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
+      thread->proxy()->setVisible(visuVisible);
 
 			//draw a link between the box and its visu
-			LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(shaderMoveBar->x()+proxy->widget()->width()/2,
-			                                        shaderMoveBar->y()+proxy->widget()->height()/2,
+			LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(thread->shaderMoveBar()->x()+thread->proxy()->widget()->width()/2,
+			                                        thread->shaderMoveBar()->y()+thread->proxy()->widget()->height()/2,
 			                                        b->x()+b->bWidth()/2,
 			                                        b->y()+b->bHeight()/2);
 			b->scene()->addItem(linkVisuToBox);
-			proxy->setLinkToBox(linkVisuToBox);
-			shaderMoveBar->setLinkVisuToBox(linkVisuToBox);
+			thread->proxy()->setLinkToBox(linkVisuToBox);
+			thread->shaderMoveBar()->setLinkVisuToBox(linkVisuToBox);
 			b->setLinkVisuToBox(linkVisuToBox);
 		}
 		else
@@ -968,4 +967,3 @@ void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox
 			reader.skipCurrentElement();
 	}
 }
-

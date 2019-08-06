@@ -10,6 +10,7 @@
 #include <QGraphicsSceneMouseEvent>
 
 class ShaderProxy;
+class ThreadShader;
 
 class ShaderMoveBar : public QGraphicsRectItem
 {
@@ -36,8 +37,13 @@ public:
 
 	QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value);
 
+	ThreadShader *thread() const;
+
+	void setThread(ThreadShader *thread);
+
 private:
 	ShaderProxy *m_proxy;
+	ThreadShader *m_thread;
 	QString m_title;
 	int m_fontSize = 12;
 	LinkVisuToBox *m_linkVisuToBox;

@@ -286,7 +286,7 @@ void PropertiesPanel::addVisuChoices()
 	m_choseVisuType.insertItem(i++,visuTypeToString(COMPASS_3D));
 }
 
-VisuType PropertiesPanel::getVisuType()
+VisuType PropertiesPanel::visuType()
 {
 	return stringToVisuType(m_choseVisuType.currentText());
 }
@@ -330,7 +330,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 	m_boxName.setText(box->name());
 	m_boxTitle.setText(box->title());
 	m_boxTitle.setPlaceholderText(box->name());
-	emit changeCurrentVisuType(visuTypeToString(box->getVisuType()));
+	emit changeCurrentVisuType(visuTypeToString(box->visuType()));
 
 	if (!isConstantBox) {
 		// Check the "save activity" box according to the box's flag

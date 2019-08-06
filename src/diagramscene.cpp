@@ -876,8 +876,10 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				delete vis;  // we don't provide CTRL + Z for deleting visualizer for now
 			else if (moveBar != nullptr)
 			{
+				ThreadShader *thread = moveBar->thread();
 				ShaderProxy *proxy = moveBar->proxy();
-				delete proxy;  // we don't provide CTRL + Z for deleting visualizer for now
+				delete proxy;
+				thread->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
 			}
 			else
 				qWarning() << "Unknown item to delete.";
@@ -1036,10 +1038,10 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		}
 	}
 
-	if(box->getDisplayedProxy() != nullptr)
+	if(box->displayedProxy() != nullptr)
 	{
-		removeItem(box->getDisplayedProxy()->moveBar());
-		removeItem(box->getDisplayedProxy());
+		removeItem(box->displayedProxy()->moveBar());
+		removeItem(box->displayedProxy());
 	}
 
 	m_undoStack.push(command);
@@ -1556,7 +1558,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		return;
 	}
 	selectedBox->fillVisuParameters(parameters);
-	if(selectedBox->getDisplayedProxy() != nullptr)
+	if(selectedBox->displayedProxy() != nullptr)
 	{
 		display3DVisu(type, parameters);
 	}
@@ -1621,7 +1623,7 @@ void DiagramScene::display2DVisu(VisuType type)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->isActivityVisuEnabled() && selectedBox->getVisuType() == type)
+			if(selectedBox->isActivityVisuEnabled() && selectedBox->visuType() == type)
 			{
 				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
@@ -1629,7 +1631,7 @@ void DiagramScene::display2DVisu(VisuType type)
 			selectedBox->setVisuType(type);
 
 			//Save old visualization in case there is already one that will be replaced
-			ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
+			ShaderProxy *oldProxy = selectedBox->displayedProxy();
 			ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
 
 			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
@@ -1745,7 +1747,7 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->getDisplayedProxy() != nullptr && selectedBox->getVisuType() == type && parameters.size() == 0)
+			if(selectedBox->displayedProxy() != nullptr && selectedBox->visuType() == type && parameters.size() == 0)
 			{
 				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
@@ -1765,34 +1767,26 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 
 				if(selectedBox->getDisplayedProxy() != nullptr)
 				{
-					ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
-					proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y()-proxy->moveBarHeight());
-					proxy->resizeWidget(oldProxy->widget()->width(), oldProxy->widget()->height());
-					delete oldProxy;
-				}
-				else if(selectedBox->isActivityVisuEnabled())
-				{
-					ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
-					proxy->positionWidget(oldVis->x(), oldVis->y()-proxy->moveBarHeight());
-					proxy->resizeWidget(oldVis->width(), oldVis->height());
-					delete oldVis;
-					selectedBox->setIsActivityVisuEnabled(false);
-				}
-				else
-					proxy->positionWidget(selectedBox->scenePos().x(), selectedBox->scenePos().y() - proxy->widget()->height() -proxy->moveBarHeight() - 10);
+					selectedBox->setVisuType(type);
+					selectedBox->fillVisuParameters(parameters);
+					// Insert the 3D widget
+					ThreadShader *thread = new ThreadShader(selectedBox, type, parameters);
+					connect(this, SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
+					connect(this, SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
+					addItem(thread->shaderMoveBar());
 
-				selectedBox->setDisplayedProxy(proxy);
-				shaderMoveBar->setProxy(proxy);
-
-				// Create the activity fetcher with the topic name
-				ActivityFetcher *fetcher = nullptr;
-				if (selectedBox->publish()) {
-					fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
-				} else {
-					fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
-					                                                            selectedBox->uuid().toString())),
-					                              selectedBox);
-					m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
+					// Create the activity fetcher with the topic name
+					ActivityFetcher *fetcher = nullptr;
+					if (selectedBox->publish()) {
+						fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
+					} else {
+						fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
+						                                                            selectedBox->uuid().toString())),
+						                              selectedBox);
+						m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
+					}
+					thread->proxy()->setActivityFetcher(fetcher);
+					connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
 				}
 
 				proxy->setActivityFetcher(fetcher);
@@ -1809,7 +1803,7 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 				selectedBox->setLinkVisuToBox(linkVisuToBox);
 			}
 			else
-				qWarning() << "Ouput type not supported for 3D visualization";
+				qWarning() << "Output type not supported for 3D visualization";
 		}
 	}
 }

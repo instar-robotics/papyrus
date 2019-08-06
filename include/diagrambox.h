@@ -164,16 +164,12 @@ public:
 	void setInhibInput(InhibInput *inhibInput);
 
 	void setDisplayedProxy(ShaderProxy *displayedProxy);
-	ShaderProxy *getDisplayedProxy() const;
-
-	int getRows() const;
-
-	int getCols() const;
+	ShaderProxy *displayedProxy() const;
 
 	bool isCommented() const;
 
 	void setIsCommented(bool isCommented);
-	VisuType getVisuType() const;
+	VisuType visuType() const;
 
 	void setVisuType(const VisuType &visuType);
 

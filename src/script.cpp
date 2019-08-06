@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -451,7 +451,7 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			stream.writeEndElement(); // parameters
 		}
 
-		stream.writeTextElement("visuType", visuTypeToString(item->getVisuType()));
+		stream.writeTextElement("visuType", visuTypeToString(item->visuType()));
 
 		// Save position of the activity visualizer if it was displayed
 		if (!constant && item->activityVisualizer() != nullptr){
@@ -472,9 +472,9 @@ void Script::save(const QString &basePath, bool isAutoSave)
 
 			stream.writeEndElement(); // visualizer
 		}
-		else if(!constant && item->getDisplayedProxy() != nullptr)
+		else if(!constant && item->displayedProxy() != nullptr)
 		{
-			ShaderProxy *proxy = item->getDisplayedProxy();
+			ShaderProxy *proxy = item->displayedProxy();
 			stream.writeStartElement("visualizer");
 
 			stream.writeTextElement("visible", proxy->isVisible() ? "true" : "false");

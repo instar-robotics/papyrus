@@ -35,6 +35,7 @@
 #include "polarvisudialog.h"
 #include "circularvisudialog.h"
 #include "linkvisutobox.h"
+#include "threadshader.h"
 
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>

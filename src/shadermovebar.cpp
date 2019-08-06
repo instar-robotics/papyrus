@@ -81,3 +81,12 @@ void ShaderMoveBar::setProxyWidth(float proxyWidth)
 {
 	m_proxyWidth = proxyWidth;
 }
+ThreadShader *ShaderMoveBar::thread() const
+{
+	return m_thread;
+}
+
+void ShaderMoveBar::setThread(ThreadShader *thread)
+{
+	m_thread = thread;
+}

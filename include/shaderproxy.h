@@ -12,6 +12,7 @@
 #include <QPainter>
 #include <QBrush>
 #include <QGraphicsRectItem>
+#include <QMutex>
 #include "linkvisutobox.h"
 
 class ShaderProxy : public QGraphicsProxyWidget
@@ -19,7 +20,8 @@ class ShaderProxy : public QGraphicsProxyWidget
 	Q_OBJECT
 
 public:
-	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox *box);
+	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box);
+	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox *box, QMutex *mutex);
 	~ShaderProxy();
 
 	ShaderMoveBar *moveBar() const;
@@ -80,6 +82,7 @@ private:
 	float m_max = 1.0;
 
 	LinkVisuToBox *m_linkToBox;
+	QMutex *m_mutex;
 };
 
 #endif // SHADERPROXY_H

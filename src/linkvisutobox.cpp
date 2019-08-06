@@ -25,7 +25,6 @@ void LinkVisuToBox::centerDiagramBoxMoved(float x, float y)
 }
 void LinkVisuToBox::centerVisuMoved(float x, float y)
 {
-	qDebug() << m_xVisu << m_yVisu << x << y;
 	m_xVisu = x;
 	m_yVisu = y;
 

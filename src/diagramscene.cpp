@@ -334,10 +334,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 	if (evt->button() & Qt::LeftButton) {
 		QGraphicsItem *maybeItem = itemAt(mousePos, QTransform());
 		if(!(evt->modifiers() & Qt::ControlModifier) && maybeItem)
-		{
-			qDebug() << "debug";
 			selectedItems().push_back(maybeItem);
-		}
 	}
 
 	// Select all Slots that are visible on the scene (in the view's viewport)
@@ -1361,8 +1358,11 @@ void DiagramScene::onOkBtnClicked(bool)
 		Zone *selectedZone;
 
 		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
-			if(selectedBox->getDisplayedProxy() != nullptr)
-				delete selectedBox->getDisplayedProxy();
+			if(selectedBox->displayedProxy() != nullptr)
+			{
+				delete selectedBox->displayedProxy();
+				selectedBox->displayedProxy()->moveBar()->thread()->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
+			}
 			if(selectedBox->activityVisualizer() != nullptr)
 				delete selectedBox->activityVisualizer();
 			propPanel->updateBoxProperties(selectedBox);
@@ -1662,10 +1662,12 @@ void DiagramScene::display2DVisu(VisuType type)
 
 			if(oldProxy != nullptr)
 			{
+				ThreadShader *oldThread = oldProxy->moveBar()->thread();
 				vis->setPos(oldProxy->scenePos().x(), oldProxy->scenePos().y());
 				vis->setWidth(oldProxy->widget()->width());
 				vis->setHeight(oldProxy->widget()->height());
 				delete oldProxy;
+				oldThread->setRunning(false);
 				vis->updatePixmap();
 			}
 			else if(oldVis != nullptr)
@@ -1755,52 +1757,28 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 
 			if (selectedBox->outputType() == MATRIX) {
 				selectedBox->setVisuType(type);
-				// Insert the 3D widget
-				ShaderWidget *widget = createShaderWidget(type, selectedBox->getRows(), selectedBox->getCols(), parameters);
-				ShaderMoveBar *shaderMoveBar = new ShaderMoveBar();
-				ShaderProxy *proxy = new ShaderProxy(widget, shaderMoveBar, selectedBox);
 				selectedBox->fillVisuParameters(parameters);
-				connect(this, SIGNAL(hideShaderWidgets()), proxy, SLOT(hideDisplay()));
-				connect(this, SIGNAL(showShaderWidgets()), proxy, SLOT(showDisplay()));
+				// Insert the 3D widget
+				ThreadShader *thread = new ThreadShader(selectedBox, type, parameters);
+				connect(this, SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
+				connect(this, SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
 
-				addItem(shaderMoveBar);
-
-				if(selectedBox->getDisplayedProxy() != nullptr)
-				{
-					selectedBox->setVisuType(type);
-					selectedBox->fillVisuParameters(parameters);
-					// Insert the 3D widget
-					ThreadShader *thread = new ThreadShader(selectedBox, type, parameters);
-					connect(this, SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
-					connect(this, SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
-					addItem(thread->shaderMoveBar());
-
-					// Create the activity fetcher with the topic name
-					ActivityFetcher *fetcher = nullptr;
-					if (selectedBox->publish()) {
-						fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
-					} else {
-						fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
-						                                                            selectedBox->uuid().toString())),
-						                              selectedBox);
-						m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
-					}
-					thread->proxy()->setActivityFetcher(fetcher);
-					connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
+				// Create the activity fetcher with the topic name
+				ActivityFetcher *fetcher = nullptr;
+				if (selectedBox->publish()) {
+					fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
+				} else {
+					fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
+					                                                            selectedBox->uuid().toString())),
+					                              selectedBox);
+					m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 				}
+				thread->proxy()->setActivityFetcher(fetcher);
 
-				proxy->setActivityFetcher(fetcher);
-				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), proxy, SLOT(updateValues(QVector<qreal>*)));
+				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
 
-				//draw a link between the box and its visu
-				LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(shaderMoveBar->x()+proxy->widget()->width()/2,
-				                                        shaderMoveBar->y()+proxy->widget()->height()/2,
-				                                        selectedBox->x()+selectedBox->bWidth()/2,
-				                                        selectedBox->y()+selectedBox->bHeight()/2);
-				addItem(linkVisuToBox);
-				proxy->setLinkToBox(linkVisuToBox);
-				shaderMoveBar->setLinkVisuToBox(linkVisuToBox);
-				selectedBox->setLinkVisuToBox(linkVisuToBox);
+				addItem(thread->shaderMoveBar());
+				addItem(thread->proxy()->linkToBox());
 			}
 			else
 				qWarning() << "Output type not supported for 3D visualization";

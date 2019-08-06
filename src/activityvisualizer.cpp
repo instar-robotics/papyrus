@@ -144,7 +144,6 @@ void ActivityVisualizer::mouseReleaseEvent(QGraphicsSceneMouseEvent *evt)
  */
 void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
-	qDebug() << "1";
 	// Define some minimum dimensions so we can't make charts too small
 	qreal newWidth, newHeight;
 
@@ -170,6 +169,7 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 			;
 	}
 	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+	updateLinkToBox(scenePos());
 
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }

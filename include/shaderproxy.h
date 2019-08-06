@@ -20,7 +20,6 @@ class ShaderProxy : public QGraphicsProxyWidget
 	Q_OBJECT
 
 public:
-	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box);
 	ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox *box, QMutex *mutex);
 	~ShaderProxy();
 

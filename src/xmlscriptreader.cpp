@@ -510,7 +510,6 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
 			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
 
-			b->scene()->addItem(thread->shaderMoveBar());
 			b->setDisplayedProxy(thread->proxy());
 
 			// Create the activity fetcher with the topic name
@@ -523,19 +522,12 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				                              b);
 				m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
 			}
-      thread->proxy()->setActivityFetcher(fetcher);
-      QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
-      thread->proxy()->setVisible(visuVisible);
+			thread->proxy()->setActivityFetcher(fetcher);
+			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
+			thread->proxy()->setVisible(visuVisible);
 
-			//draw a link between the box and its visu
-			LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(thread->shaderMoveBar()->x()+thread->proxy()->widget()->width()/2,
-			                                        thread->shaderMoveBar()->y()+thread->proxy()->widget()->height()/2,
-			                                        b->x()+b->bWidth()/2,
-			                                        b->y()+b->bHeight()/2);
-			b->scene()->addItem(linkVisuToBox);
-			thread->proxy()->setLinkToBox(linkVisuToBox);
-			thread->shaderMoveBar()->setLinkVisuToBox(linkVisuToBox);
-			b->setLinkVisuToBox(linkVisuToBox);
+			b->scene()->addItem(thread->shaderMoveBar());
+			b->scene()->addItem(thread->proxy()->linkToBox());
 		}
 		else
 			qWarning() << "Unknown visualization type";

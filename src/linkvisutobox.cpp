@@ -25,9 +25,9 @@ void LinkVisuToBox::centerDiagramBoxMoved(float x, float y)
 }
 void LinkVisuToBox::centerVisuMoved(float x, float y)
 {
+	qDebug() << m_xVisu << m_yVisu << x << y;
 	m_xVisu = x;
 	m_yVisu = y;
 
 	setLine(QLineF(m_xVisu, m_yVisu, m_xDiagramBox, m_yDiagramBox));
-	//qDebug() << "diagrambox:" << m_xDiagramBox << m_yDiagramBox << "visu:" << m_xVisu << m_yVisu;
 }

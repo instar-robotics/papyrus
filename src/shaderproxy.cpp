@@ -4,6 +4,7 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
     m_widget(widget),
     m_moveBar(moveBar),
     m_box(box),
+    m_linkToBox(nullptr),
     m_mutex(mutex)
 {
 	setWidget(m_widget);
@@ -11,25 +12,7 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 	m_moveBar->setPen(QPen(Qt::black));
 	m_moveBar->setBrush(QBrush(Qt::black));
 	setParentItem(m_moveBar);
-	positionWidget(0, 0);
 
-	m_moveBar->setFlag(QGraphicsItem::ItemIsMovable, true);
-	m_moveBar->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-	connect(m_widget, SIGNAL(repaint()), this, SLOT(updateProxy()));
-}
-
-ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box):
-    m_widget(widget),
-    m_moveBar(moveBar),
-    m_box(box),
-    m_linkToBox(nullptr)
-{
-	setWidget(m_widget);
-	m_moveBar->setRect(0,0,m_widget->width(),m_moveBarHeight);
-	m_moveBar->setPen(QPen(Qt::black));
-	m_moveBar->setBrush(QBrush(Qt::black));
-	setParentItem(m_moveBar);
 	positionWidget(0, 0);
 
 	m_moveBar->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -47,8 +30,12 @@ ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBo
 	m_moveBar->setProxyWidth(m_widget->width());
 	m_moveBar->setProxyHeight(m_widget->height());
 
+	m_moveBar->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_moveBar->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
 	connect(m_widget, SIGNAL(repaint()), this, SLOT(updateProxy()));
 }
+
 
 ShaderProxy::~ShaderProxy()
 {
@@ -115,17 +102,28 @@ void ShaderProxy::positionWidget(qreal x, qreal y)
 
 void ShaderProxy::resizeWidget(int width, int height)
 {
-	resize(width, height);
-	m_moveBar->setRect(0, 0, width, m_moveBarHeight);
 
 	//Resize the widget if it is too small
-	if(width<m_widget->minWidth())
+	if(width<m_widget->minWidth() && height<m_widget->minHeight())
 	{
-		m_widget->resize(m_widget->minWidth(), m_widget->height());
+		m_widget->resize(m_widget->minWidth(), m_widget->minHeight());
 		m_moveBar->setRect(0, 0, m_widget->minWidth(),m_moveBarHeight);
 	}
-	if(height<m_widget->minHeight())
-		m_widget->resize(m_widget->width(), m_widget->minHeight());
+	else if(width<m_widget->minWidth())
+	{
+		m_widget->resize(m_widget->minWidth(), height);
+		m_moveBar->setRect(0, 0, m_widget->minWidth(),m_moveBarHeight);
+	}
+	else if(height<m_widget->minHeight())
+	{
+		m_widget->resize(width, m_widget->minHeight());
+		m_moveBar->setRect(0, 0, width, m_moveBarHeight);
+	}
+	else
+	{
+		m_widget->resize(width, height);
+		m_moveBar->setRect(0, 0, width, m_moveBarHeight);
+	}
 
 	m_moveBar->setProxyWidth(m_widget->width());
 	m_moveBar->setProxyHeight(m_widget->height());

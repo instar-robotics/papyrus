@@ -108,7 +108,9 @@ HEADERS += include/category.h \
     include/shaderscalepolar.h \
     include/visufunctions.h \
     include/shaderscale.h \
-<<<<<<< HEAD
+<<<<<<< HEAD \
+    include/threadshader.h \
+    include/linkvisutobox.h
     include/shadercompass.h \
     include/shaderscaleallplanes.h \
     include/visudialog.h \
@@ -212,7 +214,9 @@ SOURCES += src/category.cpp \
     src/shaderscalepolar.cpp \
     src/visufunctions.cpp \
     src/shaderscale.cpp \
-<<<<<<< HEAD
+<<<<<<< HEAD \
+    src/threadshader.cpp \
+    src/linkvisutobox.cpp
     src/shadercompass.cpp \
     src/shaderscaleallplanes.cpp \
     src/visudialog.cpp \

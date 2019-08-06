@@ -1009,10 +1009,10 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		}
 	}
 
-	if(box->getDisplayedProxy() != nullptr)
+	if(box->displayedProxy() != nullptr)
 	{
-		removeItem(box->getDisplayedProxy()->moveBar());
-		removeItem(box->getDisplayedProxy());
+		removeItem(box->displayedProxy()->moveBar());
+		removeItem(box->displayedProxy());
 	}
 
 	m_undoStack.push(command);
@@ -1499,7 +1499,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		return;
 	}
 	selectedBox->fillVisuParameters(parameters);
-	if(selectedBox->getDisplayedProxy() != nullptr)
+	if(selectedBox->displayedProxy() != nullptr)
 	{
 		display3DVisu(type, parameters);
 	}
@@ -1565,7 +1565,7 @@ void DiagramScene::display2DVisu(VisuType type)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->isActivityVisuEnabled() && selectedBox->getVisuType() == type)
+			if(selectedBox->isActivityVisuEnabled() && selectedBox->visuType() == type)
 			{
 				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
@@ -1573,7 +1573,7 @@ void DiagramScene::display2DVisu(VisuType type)
 			selectedBox->setVisuType(type);
 
 			//Save old visualization in case there is already one that will be replaced
-			ShaderProxy *oldProxy = selectedBox->getDisplayedProxy();
+			ShaderProxy *oldProxy = selectedBox->displayedProxy();
 			ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
 
 			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
@@ -1679,7 +1679,7 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if(selectedBox->getDisplayedProxy() != nullptr && selectedBox->getVisuType() == type && parameters.size() == 0)
+			if(selectedBox->displayedProxy() != nullptr && selectedBox->visuType() == type && parameters.size() == 0)
 			{
 				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
@@ -1714,7 +1714,7 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 				}
 			}
 			else
-				qWarning() << "Ouput type not supported for 3D visualization";
+				qWarning() << "Output type not supported for 3D visualization";
 		}
 	}
 }

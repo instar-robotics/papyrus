@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -104,7 +104,7 @@ public:
 
 	void addVisuChoices();
 
-	VisuType getVisuType();
+	VisuType visuType();
 
 
 

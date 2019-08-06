@@ -2,13 +2,13 @@
 
 ThreadShader::ThreadShader(DiagramBox* box, VisuType type, QMap<QString, QVariant> parameters)
 {
-	m_widget = createShaderWidget(type, box->getRows(), box->getCols(), parameters);
+	m_widget = createShaderWidget(type, box->rows(), box->cols(), parameters);
 	m_shaderMoveBar = new ShaderMoveBar();
 	m_proxy = new ShaderProxy(m_widget, m_shaderMoveBar, box, &m_mutex);
 
-	if(box->getDisplayedProxy() != nullptr)
+	if(box->displayedProxy() != nullptr)
 	{
-		ShaderProxy *oldProxy = box->getDisplayedProxy();
+		ShaderProxy *oldProxy = box->displayedProxy();
 		m_proxy->positionWidget(oldProxy->scenePos().x(), oldProxy->scenePos().y());
 		m_proxy->resizeWidget(oldProxy->widget()->width(), oldProxy->widget()->height());
 		delete oldProxy;

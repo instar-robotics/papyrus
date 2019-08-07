@@ -15,6 +15,12 @@
 #include <QMutex>
 #include "linkvisutobox.h"
 
+/**
+ * @brief The ShaderProxy class is QGraphicsProxyWidget that provides the display of a 3d OpenGL scene on
+ * a QGraphicsScene object. This way, ShaderProxy display a ShaderWidget object. It also transmit received
+ * data and events to the ShaderWidget.
+ */
+
 class ShaderProxy : public QGraphicsProxyWidget
 {
 	Q_OBJECT
@@ -47,8 +53,8 @@ signals:
 	void proxyDestroyed();
 
 public slots:
-	void updateProxy();
-	void updateValues(QVector<qreal>* values);
+	void updateProxy(); //Update visu display
+	void updateValues(QVector<qreal>* values);  //When new data are received from the activity fetcher, send them to the shader widget
 	void hideDisplay();
 	void showDisplay();
 

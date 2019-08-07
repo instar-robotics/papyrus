@@ -9,6 +9,11 @@
 
 #include "shaderscale.h"
 
+/**
+ * @brief The ShaderScalePlanes class is the scale class used by ShaderMatrix. It inherits from ShaderScale
+ * to benefits of the Y axe's rescaling gesture.
+ */
+
 class ShaderScalePlanes: public ShaderScale
 {
 

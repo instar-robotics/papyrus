@@ -3,6 +3,11 @@
 
 #include "shaderpolar.h"
 
+/**
+ * @brief The ShaderBarPolar class follows matrix's data layout of ShaderPolar. One value of the matrix
+ * correspond to 8 vertexes forming a bar in the 3d OpenGL space. All of those bars then form a bar chart.
+ */
+
 class ShaderBarPolar : public ShaderPolar
 {
 public:

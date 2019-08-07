@@ -7,6 +7,12 @@
 #include <QOpenGLBuffer>
 #include <QObject>
 
+/**
+ * @brief The ShaderAdds class is the parent class used by every class that display objects on the 3d OpenGL scene
+ * in addition to the 3d visu. Those objects are then used by ShaderWidget using the vectors and functions
+ * provided by ShaderAdds.
+ */
+
 class ShaderAdds
 {
 
@@ -21,7 +27,7 @@ public:
 protected:
 	virtual void initVectors() = 0;
 	virtual void fillVectors() = 0;
-	void clearVectors();
+	void clearVectors(); //at each frame, clear the 4 data vector before loading new data
 
 	//vectors
 	QVector<GLuint> m_indexes; //save the index of vertexes to use in the drawing order

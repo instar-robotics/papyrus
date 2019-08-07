@@ -11,6 +11,11 @@
 #include "mathtransfo.h"
 #include "shaderscale.h"
 
+/**
+ * @brief The ShaderScaleCircular class is the scale class used by ShaderCircular. It inherits from ShaderScale
+ * to benefits of the Y axe's rescaling gesture.
+ */
+
 class ShaderScaleCircular: public ShaderScale
 {
 

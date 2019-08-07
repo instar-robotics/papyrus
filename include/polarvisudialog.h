@@ -3,6 +3,10 @@
 
 #include "visudialog.h"
 
+/**
+ * @brief The PolarVisuDialog class is the QDialog used to provide parameters menu for every polar visu.
+ */
+
 class PolarVisuDialog : public VisuDialog
 {
 public:

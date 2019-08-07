@@ -3,6 +3,12 @@
 
 #include "shadercircular.h"
 
+/**
+ * @brief The ShaderCrown class follows matrix's data layout of ShaderCircular. One value of the matrix
+ * correspond to a vertex in the 3d OpenGL space. Those vertexes are then linked together, creating triangles
+ * that will form a surface all together. This surface is circularly disposed, forming a crown.
+ */
+
 class ShaderCrown : public ShaderCircular
 {
 public:

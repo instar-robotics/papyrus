@@ -11,6 +11,11 @@
 #include "mathtransfo.h"
 #include "shaderscale.h"
 
+/**
+ * @brief The ShaderScaleCylinder class is the scale class used by ShaderPolar to display its Y axe's scale.
+ * It inherits from ShaderScale  to benefits of the Y axe's rescaling gesture.
+ */
+
 class ShaderScaleCylinder: public ShaderScale
 {
 

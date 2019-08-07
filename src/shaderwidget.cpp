@@ -18,6 +18,8 @@ ShaderWidget::~ShaderWidget()
 	delete m_scaleCircular;
 	delete m_scaleCylinder;
 	delete m_shaderArrow;
+	delete m_scalePolar;
+	delete m_scaleAllPlanes;
 }
 
 //Function run only on the opengl widget's creation

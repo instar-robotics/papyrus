@@ -3,6 +3,10 @@
 
 #include "visudialog.h"
 
+/**
+ * @brief The CircularVisuDialog class is the QDialog used to provide parameters menu for every circular visu.
+ */
+
 class CircularVisuDialog : public VisuDialog
 {
 public:

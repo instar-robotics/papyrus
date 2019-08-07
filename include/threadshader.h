@@ -17,6 +17,12 @@
 
 class DiagramScene;
 
+/**
+ * @brief The ThreadShader class inherits from QThread class. It limits the CPU use of OpenGL 3d visu
+ * by unlocking a mutex each time a certain amount of time has passed. Every time the mutex is unlocked,
+ * the ShaderProxy object is then allowed to load a new frame.
+ */
+
 class ThreadShader: public QThread
 {
 
@@ -43,6 +49,6 @@ private :
 	ShaderMoveBar *m_shaderMoveBar;
 	ShaderProxy *m_proxy;
 
-	bool m_running = true;
+	bool m_running = true; //While this boolean is set as true, the thread is running. When it is set as false, it finishes its process.
 };
 #endif // THREADSHADER_H

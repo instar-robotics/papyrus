@@ -11,6 +11,11 @@
 #include <QPushButton>
 #include "types.h"
 
+/**
+ * @brief The VisuDialog class is the parent class of every QDialog used to provide parameters menu for visu.
+ * It contains the settings for every possible visu parameters that are then used by inherited classes.
+ */
+
 class VisuDialog : public QDialog
 {
 	Q_OBJECT

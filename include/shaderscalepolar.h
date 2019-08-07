@@ -11,6 +11,10 @@
 #include "mathtransfo.h"
 #include "shaderscale.h"
 
+/**
+ * @brief The ShaderScalePolar class is the scale class used by ShaderPolar to display angles' scale.
+ */
+
 class ShaderScalePolar: public ShaderScale
 {
 
@@ -19,8 +23,8 @@ public:
 	~ShaderScalePolar();
 
 protected:
-	void initVectors();
-	void fillVectors();
+	virtual void initVectors() override;
+	virtual void fillVectors() override;
 
 private:
 

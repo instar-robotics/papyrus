@@ -53,7 +53,7 @@ void ShaderConeChart::fillVectors()
 			QColor color = calculateColor(m_matrix[i][j], 1.0);
 			for(int k = 0; k < 4; k++)
 			{
-				QVector3D rgb(color.redF()/5.0, color.greenF()/5.0, color.blueF()/5.0);
+				QVector3D rgb(color.redF()/2.0, color.greenF()/2.0, color.blueF()/2.0);
 				m_colors.push_back(rgb);
 			}
 			QVector3D rgb(color.redF(), color.greenF(), color.blueF());

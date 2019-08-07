@@ -3,6 +3,12 @@
 
 #include "shaderpolar.h"
 
+/**
+ * @brief The ShaderSurfacePolar class follows matrix's data layout of ShaderPolar. One value of the matrix
+ * correspond to one vertex in the 3d OpenGL space. Those vertexes are then linked together, creating triangles
+ * that will form a surface all together
+ */
+
 class ShaderSurfacePolar : public ShaderPolar
 {
 public:
@@ -13,8 +19,8 @@ protected:
 	virtual void initVectors() override;
 	virtual void fillVectors() override;
 	QVector3D vertexNormal(int i, int j);
-	void initNormalsMatrixes();
-	void updateNormals();
+	void initNormalsMatrixes();//allocate memory to m_upTriangleNormals and m_downTriangleNormals and initialize them as zero matrixes
+	void updateNormals(); //at each frame, calculate every vertexes' normal
 
 private:
 	QVector3D**m_upTriangleNormals;

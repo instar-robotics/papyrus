@@ -3,6 +3,11 @@
 
 #include "shaderwidget.h"
 
+/**
+ * @brief The ShaderMatrix class display matrix's data by transposing coordinates in the matrix to cartesian
+ * coordinates in the 3d OpenGL scene and using each value as the height of a vertex in the 3d scene.
+ */
+
 class ShaderMatrix : public ShaderWidget
 {
 public:
@@ -10,11 +15,11 @@ public:
 	~ShaderMatrix();
 
 protected:
-	void initMatrix();
+	void initMatrix(); //allocate memory to m_matrix and initialize it as a zero matrix
 	float calculateXcoord(int i);
 	float calculateZcoord(int j);
 	float calculateHeight(float value);
-	virtual void updateValues(QVector<qreal>* values);
+	virtual void updateValues(QVector<qreal>* values); //get matrix's data from activityfetcher
 
 
 protected:

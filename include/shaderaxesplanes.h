@@ -1,4 +1,4 @@
-#ifndef SHADERAXESPLANES_H
+﻿#ifndef SHADERAXESPLANES_H
 #define SHADERAXESPLANES_H
 
 #include <QDebug>
@@ -6,6 +6,11 @@
 #include <QVector3D>
 #include <QOpenGLBuffer>
 #include <QObject>
+
+/**
+ * @brief The ShaderAxesPlanes class display the contour of XY, YZ and XZ planes in the 3d OpenGL scene,
+ * all intersecting at the 3d base's origin. It is deprecated but can be usefull for tests.
+ */
 
 class ShaderAxesPlanes
 {

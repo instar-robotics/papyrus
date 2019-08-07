@@ -12,6 +12,12 @@
 class ShaderProxy;
 class ThreadShader;
 
+/**
+ * @brief The ShaderMoveBar class display a black rectangle as a bar linked to a ShaderProxy to move it
+ * on a QGraphicsScene. It is set as parent of the ShaderProxy so the two can be moved together. The black
+ * rectangle also contains the name of the box that is displayed by the ShaderProxy.
+ */
+
 class ShaderMoveBar : public QGraphicsRectItem
 {
 public:

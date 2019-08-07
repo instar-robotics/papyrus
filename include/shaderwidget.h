@@ -37,6 +37,12 @@
 
 enum class Attribute { Vertex, Normal, Color };
 
+/**
+ * @brief The ShaderWidget class is the main class of 3d OpenGL visu. Every 3d visu classes inherits from it.
+ * It provides every variables and functions needed to use OpenGL and the GPU. It also provides the
+ * gesture of events received from ShaderProxy.
+ */
+
 class ShaderWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 	Q_OBJECT
@@ -84,21 +90,20 @@ signals:
 
 protected:
 	//OpenGL
-	void initGPUbuffers();
-	void destroyGPUbuffers();
-	void initShaders();
-	virtual void addShaders();
-	virtual void initVectors() = 0;
-	virtual void fillVectors() = 0;
-	void clearVectors();
-	void updateScene();
+	void initGPUbuffers(); //at each frame, define which data vector is used by which GPU buffer
+	void initShaders(); //initialize every GPU inputs that aren't buffers (light,
+	virtual void addShaders(); //load the used shaders and their inputs
+	virtual void initVectors() = 0; //initialize the size of the 4 data vector send to the GPU
+	virtual void fillVectors() = 0;	//at each frame, fill the 4 data vector with new data
+	void clearVectors(); //at each frame, clear the 4 data vector before loading new data
+	void updateScene(); //at each frame, calculate and send current scene data to the GPU (vertexes' normals and camera position)
 
-	QColor calculateColor(float const& value, const float &max_value);
+	QColor calculateColor(float const& value, const float &max_value); //Calculate the color of a vertex using a purple-blue-black-yellow-red scale
 
 private:
 	void paintGL() override;
 	void resizeGL(int width, int height) override;
-	void displayScale();
+	void displayScale(); //Add the 3d scale in the scene depending on the visu type
 
 protected:
 
@@ -119,8 +124,6 @@ protected:
 
 	// Scale planes
 	ShaderScalePlanes *m_scalePlanes = nullptr;
-	int m_nbMeasuresXZ = 11;
-	int m_nbMeasuresY = 5;
 
 	// Scale circular
 	ShaderScaleCircular *m_scaleCircular = nullptr;
@@ -146,6 +149,8 @@ protected:
 	float m_range = 1.0f; //Coefficient used to modify height of data depending of scale modifications
 	float m_coefSize = 4.0f; //Coefficient used to set height of data to a visible size without modifying scale
 	float m_moveCameraCoef = 1.0;
+	int m_nbMeasuresXZ = 11;
+	int m_nbMeasuresY = 5;
 
 	// widget size
 	int m_startWidth = 300;

@@ -1,7 +1,12 @@
-#ifndef SHADERSCALE_H
+﻿#ifndef SHADERSCALE_H
 #define SHADERSCALE_H
 
 #include "shaderadds.h"
+
+/**
+ * @brief The ShaderScale class is the parent class used by every class that display a scale for 3d visu in
+ * the 3d OpenGL scene. It inherits from ShaderAdds and add the gesture of the Y axe's scale and its rescaling.
+ */
 
 class ShaderScale: public ShaderAdds
 {

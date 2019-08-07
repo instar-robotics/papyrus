@@ -3,6 +3,11 @@
 
 #include "shaderscale.h"
 
+/**
+ * @brief The ShaderScaleAllPlanes class is the scale class used by ShaderCompass. It inherits from ShaderScale
+ * to benefits of the Y axe's rescaling gesture.
+ */
+
 class ShaderScaleAllPlanes: public ShaderScale
 {
 

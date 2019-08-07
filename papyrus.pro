@@ -71,7 +71,6 @@ HEADERS += include/category.h \
            include/activityvisualizerthermal.h \
            include/inhibinput.h \
           include/mathtransfo.h \
-	  include/mathtransfo.h \
           include/deletelinkcommand.h \
           include/deleteboxcommand.h \
           include/deletezonecommand.h \
@@ -83,7 +82,7 @@ HEADERS += include/category.h \
           include/shaderproxy.h \
           include/shadersurfacealpha.h \
           include/linkelement.h \
-	  include/finddialog.h \
+          include/finddialog.h \
     include/shadermovebar.h \
     include/shaderbarchart.h \
     include/shaderwireframe.h \
@@ -108,18 +107,7 @@ HEADERS += include/category.h \
     include/shaderscalepolar.h \
     include/visufunctions.h \
     include/shaderscale.h \
-<<<<<<< HEAD \
-    include/threadshader.h \
-    include/linkvisutobox.h
-    include/shadercompass.h \
-    include/shaderscaleallplanes.h \
-    include/visudialog.h \
-    include/polarvisudialog.h \
-    include/linkvisutobox.h
-=======
-    include/threadshader.h \
-    include/threaddelayer.h
->>>>>>> 44-8-3D_Optimization
+    include/threadshader.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -175,19 +163,18 @@ SOURCES += src/category.cpp \
            src/activityvisualizerbars.cpp \
            src/activityvisualizerthermal.cpp \
            src/inhibinput.cpp \
-    	   src/camera.cpp \
-    	   src/light.cpp \
-	   src/shaderwidget.cpp \
-    	   src/shadermatrix.cpp \
-    	   src/shadersurface.cpp \
-	   src/mathtransfo.cpp \
+           src/camera.cpp \
+           src/light.cpp \
+           src/shaderwidget.cpp \
+           src/shadermatrix.cpp \
+           src/shadersurface.cpp \
+           src/mathtransfo.cpp \
            src/deletelinkcommand.cpp \
            src/deleteboxcommand.cpp \
            src/deletezonecommand.cpp \
         src/shaderproxy.cpp \
         src/linkelement.cpp \
         src/finddialog.cpp \
-    shadermovebar.cpp \
     src/shadermovebar.cpp \
     src/shaderbarchart.cpp \
     src/shaderconechart.cpp \
@@ -214,18 +201,7 @@ SOURCES += src/category.cpp \
     src/shaderscalepolar.cpp \
     src/visufunctions.cpp \
     src/shaderscale.cpp \
-<<<<<<< HEAD \
-    src/threadshader.cpp \
-    src/linkvisutobox.cpp
-    src/shadercompass.cpp \
-    src/shaderscaleallplanes.cpp \
-    src/visudialog.cpp \
-    src/polarvisudialog.cpp \
-    src/linkvisutobox.cpp
-=======
-    src/threadshader.cpp \
-    src/threaddelayer.cpp
->>>>>>> 44-8-3D_Optimization
+    src/threadshader.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

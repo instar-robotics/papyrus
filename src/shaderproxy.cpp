@@ -252,15 +252,14 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 	//Set pen to write text and draw lines
 	painter->setPen(QPen(brush, 1));
 
-	ShaderMatrix *m_matrix = dynamic_cast<ShaderMatrix*>(m_widget);
-	ShaderCircular *m_circular = dynamic_cast<ShaderCircular*>(m_widget);
-	ShaderPolar *m_polar = dynamic_cast<ShaderPolar*>(m_widget);
-	ShaderCompass *m_compass = dynamic_cast<ShaderCompass*>(m_widget);
+	ShaderMatrix *matrix = dynamic_cast<ShaderMatrix*>(m_widget);
+	ShaderCircular *circular = dynamic_cast<ShaderCircular*>(m_widget);
+	ShaderPolar *polar = dynamic_cast<ShaderPolar*>(m_widget);
+	ShaderCompass *compass = dynamic_cast<ShaderCompass*>(m_widget);
 
-	if((m_matrix != nullptr || m_circular != nullptr || m_polar != nullptr || m_compass != nullptr)
+	if((matrix != nullptr || circular != nullptr || polar != nullptr || compass != nullptr)
 	        && m_widget->width() >= m_widget->startWidth())
 	{
-
 		QFont font = painter->font();
 		font.setPixelSize(m_fontSize);
 		painter->setFont(font);
@@ -269,12 +268,15 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		QVector<QLine> lines;
 		float rows = 0.0;
 		float columns = 0.0;
-		if(m_matrix != nullptr)
+		if(matrix != nullptr)
 		{
-			rows = m_matrix->scalePlanes()->rows();
-			columns = m_matrix->scalePlanes()->columns();
+			if(matrix->scalePlanes() != nullptr)
+			{
+				rows = matrix->scalePlanes()->rows();
+				columns = matrix->scalePlanes()->columns();
+			}
 		}
-		float gap = 0.0;
+		qreal gap = 0.0;
 		/*Y axe*/
 		//Lines
 		lines.push_back(QLine(QPoint(m_margin,m_marginTop), QPoint(m_margin, m_marginTop + (m_widget->nbMeasuresY()-1)*m_measureGap)));
@@ -294,7 +296,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		painter->drawText(m_margin * 2 - (m_fontSize+1)/2, m_marginTop + (m_widget->nbMeasuresY()-1)*m_measureGap + m_margin + (m_fontSize+1)/2, "Z");
 		// The Y and Z axes for 3d displayed are inversed in the matricial space
 
-		if(m_matrix != nullptr || m_compass != nullptr)
+		if(matrix != nullptr || compass != nullptr)
 		{
 			/*X axe*/
 			//Lines
@@ -306,14 +308,14 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 			//Values
 			float value = 0.0;
 
-			if(m_matrix != nullptr)
+			if(matrix != nullptr)
 				gap = columns/(m_widget->nbMeasuresXZ()-1);
 			else
 				gap = 2.0*m_max/(m_widget->nbMeasuresXZ()-1);
 
 			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
 			{
-				if(m_compass != nullptr)
+				if(compass != nullptr)
 					value = gap*i;
 				else
 					value = gap*i - m_max;
@@ -331,14 +333,14 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 				lines.push_back(QLine(QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + i*m_measureGap,widgetSize.height()-m_margin), QPoint(m_widget->nbMeasuresXZ() * m_measureGap + m_margin + m_marginTop + (i*m_measureGap),widgetSize.height()-m_margin-m_measureSize)));
 			}
 			//Values
-			if(m_matrix != nullptr)
+			if(matrix != nullptr)
 				gap = rows/(m_widget->nbMeasuresXZ()-1);
 			else
 				gap = 2*m_max/(m_widget->nbMeasuresXZ()-1);
 
 			for(int i = 0; i<m_widget->nbMeasuresXZ(); i++)
 			{
-				if(m_matrix != nullptr)
+				if(matrix != nullptr)
 					value = gap*i;
 				else
 					value = gap*i - m_max;

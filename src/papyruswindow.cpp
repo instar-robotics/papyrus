@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -2379,7 +2379,8 @@ void PapyrusWindow::on_actionHide_outputs_triggered()
 			if(proxy->isVisible())
 			{
 				proxy->setVisible(false);
-				proxy->moveBar()->setVisible(false);
+				if(proxy->moveBar() != nullptr)
+					proxy->moveBar()->setVisible(false);
 				count += 1;
 			}
 		}

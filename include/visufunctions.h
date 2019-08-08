@@ -31,8 +31,6 @@ ShaderWidget* createShaderWidget(VisuType type, int rows, int cols, QMap<QString
 
 RotationDir intToRotationDir(int rotDir);
 
-void copyVisuParameters(QMap<QString, QVariant> origin, QMap<QString, QVariant> *destination);
-
 bool doesVisuFit(VisuType type, int rows, int cols); //Test if rows and cols dimensions fit with the visu type
 
 #endif // VISUFUNCTIONS_H

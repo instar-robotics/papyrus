@@ -199,6 +199,7 @@ DiagramBox::~DiagramBox()
 {
 	emit boxDestroyed();
 	delete m_displayedProxy;
+	m_displayedProxy = nullptr;
 }
 
 QRectF DiagramBox::boundingRect() const
@@ -359,12 +360,17 @@ QMap<QString, QVariant> DiagramBox::visuParameters() const
 
 void DiagramBox::fillVisuParameters(QMap<QString, QVariant> parameters)
 {
-	copyVisuParameters(parameters, &m_visuParameters);
+	m_visuParameters = parameters;
 }
 
 void DiagramBox::setLinkVisuToBox(LinkVisuToBox *linkVisuToBox)
 {
 	m_linkVisuToBox = linkVisuToBox;
+}
+
+void DiagramBox::setVisuParameters(const QMap<QString, QVariant> &visuParameters)
+{
+	m_visuParameters = visuParameters;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const
@@ -820,9 +826,6 @@ void DiagramBox::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
 	QGraphicsObject::mouseMoveEvent(evt);
 	QPoint pos(evt->pos().x(), evt->pos().y());
-	if (evt->buttons() & Qt::LeftButton)
-	{
-	}
 }
 
 /**
@@ -1006,7 +1009,3 @@ QString DiagramBox::scriptName()
 	return script->name();
 }
 
-void DiagramBox::deleteOpenGLDisplay()
-{
-	m_displayedProxy = nullptr;
-}

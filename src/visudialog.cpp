@@ -2,7 +2,7 @@
 
 VisuDialog::VisuDialog()
 {
-	setWindowTitle("Data needed");
+	setWindowTitle("Visualization parameters");
 	m_layout = new QVBoxLayout();
 	setLayout(m_layout);
 }

@@ -293,13 +293,11 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 				//Verify if the selected item is an image in a box or another item
 				if(image != nullptr)
 				{
-					if(maybeItem->parentItem())
+					if(maybeItem->parentItem() != nullptr)
 					{
 						QGraphicsItem *parentItem = maybeItem->parentItem();
 						parentItem->setSelected(true);
 					}
-					else
-						maybeItem->parentItem();
 				}
 				else
 					maybeItem->setSelected(true);
@@ -1583,7 +1581,7 @@ void DiagramScene::onDisplayVisuClicked(VisuType type)
 	QMap<QString, QVariant> parameters;
 	if(selectedBox == nullptr)
 		return;
-	copyVisuParameters(selectedBox->visuParameters(), &parameters);
+	selectedBox->setVisuParameters(parameters);
 	if(!doesVisuFit(type, selectedBox->rows(), selectedBox->cols()))
 	{
 		emit displayStatusMessage("Visualization type doesn't fit with matrix dimensions");

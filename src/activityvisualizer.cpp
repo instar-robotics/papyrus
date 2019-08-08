@@ -72,6 +72,7 @@ ActivityVisualizer::~ActivityVisualizer()
 	if(m_linkToBox != nullptr)
 	{
 		delete m_linkToBox;
+		m_linkToBox = nullptr;
 	}
 }
 

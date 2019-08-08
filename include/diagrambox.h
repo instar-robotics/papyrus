@@ -179,6 +179,8 @@ public:
 
 	void setLinkVisuToBox(LinkVisuToBox *linkVisuToBox);
 
+	void setVisuParameters(const QMap<QString, QVariant> &visuParameters);
+
 protected:
 
 	QString m_name;    // Name of the function
@@ -237,9 +239,6 @@ private:
 	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
 	VisuType m_visuType;
 	LinkVisuToBox *m_linkVisuToBox;
-
-private slots:
-	void deleteOpenGLDisplay();
 
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)

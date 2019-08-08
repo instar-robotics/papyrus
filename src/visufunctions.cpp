@@ -208,13 +208,3 @@ RotationDir intToRotationDir(int rotDir)
 	else
 		return COUNTERCLOCKWISE;
 }
-
-void copyVisuParameters(QMap<QString, QVariant> origin, QMap<QString, QVariant> *destination)
-{
-	destination->clear();
-	QList<QString> keys = origin.keys();
-	for(int i = 0; i<origin.size(); i++)
-	{
-		destination->insert(keys.at(i), origin.value(keys.at(i)));
-	}
-}

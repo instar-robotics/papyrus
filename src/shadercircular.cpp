@@ -12,12 +12,14 @@ ShaderCircular::ShaderCircular(int size, int centerIndex, RotationDir dir, int e
 	m_scaleCircular = new ShaderScaleCircular(m_radius, m_coefSize, m_nbMeasuresY);
 	m_scaleCylinder = new ShaderScaleCylinder(m_radius, m_coefSize, m_nbMeasuresY);
 	m_shaderArrow = new ShaderArrow(3.0);
-	m_circScale = true;
 }
 
 ShaderCircular::~ShaderCircular()
 {
 	delete [] m_matrix;
+	delete m_scaleCircular;
+	delete m_scaleCylinder;
+	delete m_shaderArrow;
 }
 
 QVector<QVariant> ShaderCircular::getParameters()
@@ -69,5 +71,23 @@ void ShaderCircular::updateValues(QVector<qreal> *values)
 		for(int i = 0; i < m_size; i++)
 			m_matrix[i] = values->at(i);
 	}
+}
+
+void ShaderCircular::displayScale()
+{
+	m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
+
+	m_scaleCylinder->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_LINES, m_scaleCylinder->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
+
+	m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
 }
 

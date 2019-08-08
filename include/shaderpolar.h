@@ -22,7 +22,8 @@ protected:
 	float calculateXcoord(int i, int j);
 	float calculateZcoord(int i, int j);
 	float calculateHeight(float value);
-	virtual void updateValues(QVector<qreal>* values); //get matrix's data from activityfetcher
+	virtual void updateValues(QVector<qreal>* values) override; //get matrix's data from activityfetcher
+	virtual void displayScale() override; //Add the 3d scale in the scene
 
 
 protected:
@@ -36,6 +37,11 @@ protected:
 	float m_radiusMax; //value of the maximum radius on the polar visu display
 	MatrixReadDirection m_matrixReadDirection;
 	float m_extremum; //Max and abs(min) angle value
+
+	// Scale
+	ShaderScalePolar *m_scalePolar;
+	ShaderScaleCylinder *m_scaleCylinder;
+	ShaderArrow *m_shaderArrow;
 };
 
 #endif // SHADERPOLAR_H

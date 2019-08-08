@@ -13,6 +13,8 @@
 #include <QBrush>
 #include <QGraphicsRectItem>
 #include <QMutex>
+#include <shadermatrix.h>
+#include "visufunctions.h"
 #include "linkvisutobox.h"
 
 /**

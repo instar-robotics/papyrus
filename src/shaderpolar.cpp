@@ -25,7 +25,6 @@ ShaderPolar::ShaderPolar(int xSize, int ySize, int centerIndex, RotationDir dir,
 	m_scalePolar = new ShaderScalePolar(m_radiusMin, m_radiusMax, m_coefSize);
 	m_scaleCylinder = new ShaderScaleCylinder(m_radiusMax+0.05, m_coefSize, m_nbMeasuresY);
 	m_shaderArrow = new ShaderArrow(m_radiusMin/1.5);
-	m_polarScale = true;
 }
 
 ShaderPolar::~ShaderPolar()
@@ -35,6 +34,9 @@ ShaderPolar::~ShaderPolar()
 		delete [] m_matrix[i];
 	}
 	delete [] m_matrix;
+	delete m_scalePolar;
+	delete m_scaleCylinder;
+	delete m_shaderArrow;
 }
 
 QVector<QVariant> ShaderPolar::getParameters()
@@ -104,5 +106,23 @@ void ShaderPolar::updateValues(QVector<qreal> *values)
 				}
 			}
 	}
+}
+
+void ShaderPolar::displayScale()
+{
+	m_scalePolar->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_LINES, m_scalePolar->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
+
+	m_scaleCylinder->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_LINES, m_scaleCylinder->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
+
+	m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
 }
 

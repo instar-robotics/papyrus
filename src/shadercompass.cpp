@@ -8,12 +8,12 @@ ShaderCompass::ShaderCompass()
 	rotateBasePosition();
 	m_camera.initDistance(7.0);
 	m_scaleAllPlanes = new ShaderScaleAllPlanes(m_gap, m_nbMeasuresXZ, m_nbMeasuresY);
-	m_compassScale = true;
 }
 
 ShaderCompass::~ShaderCompass()
 {
 	delete m_triangleNormals;
+	delete m_scaleAllPlanes;
 }
 
 //Allocate the memory used by each vectors
@@ -168,6 +168,14 @@ void ShaderCompass::calculateRescaledDirectionPoint()
 	m_rescaledDirectionPoint.setX(m_directionPoint.x()*m_range);
 	m_rescaledDirectionPoint.setY(m_directionPoint.y()*m_range);
 	m_rescaledDirectionPoint.setZ(m_directionPoint.z()*m_range);
+}
+
+void ShaderCompass::displayScale()
+{
+	m_scaleAllPlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_LINES, m_scaleAllPlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
 }
 
 

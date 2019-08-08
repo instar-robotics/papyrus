@@ -14,12 +14,6 @@ ShaderWidget::ShaderWidget()
 
 ShaderWidget::~ShaderWidget()
 {
-	delete m_scalePlanes;
-	delete m_scaleCircular;
-	delete m_scaleCylinder;
-	delete m_shaderArrow;
-	delete m_scalePolar;
-	delete m_scaleAllPlanes;
 }
 
 //Function run only on the opengl widget's creation
@@ -190,66 +184,9 @@ void ShaderWidget::resizeGL(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void ShaderWidget::displayScale()
-{
-	if(m_matrixScale)
-	{
-		m_scalePlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scalePlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
-	if(m_circScale)
-	{
-		m_scaleCircular->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scaleCircular->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-
-		m_scaleCylinder->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scaleCylinder->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-
-		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
-	if(m_polarScale)
-	{
-		m_scalePolar->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scalePolar->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-
-		m_scaleCylinder->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scaleCylinder->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-
-		m_shaderArrow->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_TRIANGLES, m_shaderArrow->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
-	if(m_compassScale)
-	{
-		m_scaleAllPlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
-		m_indexbuffer.bind();
-		glDrawElements(GL_LINES, m_scaleAllPlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
-		m_indexbuffer.release();
-	}
-}
-
 float ShaderWidget::gap() const
 {
 	return m_gap;
-}
-
-bool ShaderWidget::compassScale() const
-{
-	return m_compassScale;
 }
 
 float ShaderWidget::range() const
@@ -257,35 +194,12 @@ float ShaderWidget::range() const
 	return m_range;
 }
 
-bool ShaderWidget::polarScale() const
-{
-	return m_polarScale;
-}
 
 QVector<QVariant> ShaderWidget::getParameters()
 {
 	return QVector<QVariant>();
 }
 
-bool ShaderWidget::circScale() const
-{
-	return m_circScale;
-}
-
-bool ShaderWidget::matrixScale() const
-{
-	return m_matrixScale;
-}
-
-ShaderScaleCylinder *ShaderWidget::scaleCylinder() const
-{
-	return m_scaleCylinder;
-}
-
-ShaderScaleCircular *ShaderWidget::scaleCircular() const
-{
-	return m_scaleCircular;
-}
 void ShaderWidget::updateScale(float coef)
 {
 	m_range *= coef;
@@ -389,11 +303,6 @@ QColor ShaderWidget::calculateColor(float const& value, float const& max_value)
 int ShaderWidget::startWidth() const
 {
 	return m_startWidth;
-}
-
-ShaderScalePlanes *ShaderWidget::scalePlanes() const
-{
-	return m_scalePlanes;
 }
 
 int ShaderWidget::nbMeasuresY() const

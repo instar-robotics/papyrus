@@ -6,7 +6,6 @@ ShaderMatrix::ShaderMatrix(int xSize, int ySize): m_xSize(xSize), m_ySize(ySize)
 	m_coefSize = (m_xSize+m_ySize)/40.0;
 	m_camera.initDistance(m_coefSize*10);
 	m_scalePlanes = new ShaderScalePlanes(m_xSize, m_ySize, m_coefSize, m_gap, m_nbMeasuresXZ, m_nbMeasuresY);
-	m_matrixScale = true;
 }
 
 ShaderMatrix::~ShaderMatrix()
@@ -16,6 +15,7 @@ ShaderMatrix::~ShaderMatrix()
 		delete [] m_matrix[i];
 	}
 	delete [] m_matrix;
+	delete m_scalePlanes;
 }
 
 float ShaderMatrix::calculateXcoord(int i)
@@ -58,5 +58,18 @@ void ShaderMatrix::updateValues(QVector<qreal> *values)
 			}
 		}
 	}
+}
+
+void ShaderMatrix::displayScale()
+{
+	m_scalePlanes->initGPUbuffers(&m_indexbuffer, &m_vertexbuffer, &m_normalbuffer, &m_colorbuffer);
+	m_indexbuffer.bind();
+	glDrawElements(GL_LINES, m_scalePlanes->indexes().size(), GL_UNSIGNED_INT, NULL);
+	m_indexbuffer.release();
+}
+
+ShaderScalePlanes *ShaderMatrix::scalePlanes() const
+{
+	return m_scalePlanes;
 }
 

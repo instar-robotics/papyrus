@@ -63,25 +63,12 @@ public:
 	int minHeight() const;
 	int nbMeasuresXZ() const;
 	int nbMeasuresY() const;
-	ShaderScalePlanes *scalePlanes() const;
 	int startWidth() const;
 	void updateScale(float coef);
-
-	ShaderScaleCircular *scaleCircular() const;
-
-	ShaderScaleCylinder *scaleCylinder() const;
-
-	bool matrixScale() const;
-
-	bool circScale() const;
-
-	bool polarScale() const;
 
 	virtual QVector<QVariant> getParameters();
 
 	float range() const;
-
-	bool compassScale() const;
 
 	float gap() const;
 
@@ -97,13 +84,12 @@ protected:
 	virtual void fillVectors() = 0;	//at each frame, fill the 4 data vector with new data
 	void clearVectors(); //at each frame, clear the 4 data vector before loading new data
 	void updateScene(); //at each frame, calculate and send current scene data to the GPU (vertexes' normals and camera position)
-
+	virtual void displayScale() = 0; //Add the 3d scale in the scene depending on the visu type
 	QColor calculateColor(float const& value, const float &max_value); //Calculate the color of a vertex using a purple-blue-black-yellow-red scale
 
 private:
 	void paintGL() override;
 	void resizeGL(int width, int height) override;
-	void displayScale(); //Add the 3d scale in the scene depending on the visu type
 
 protected:
 
@@ -121,26 +107,6 @@ protected:
 
 	// Shader program
 	QOpenGLShaderProgram m_program;
-
-	// Scale planes
-	ShaderScalePlanes *m_scalePlanes = nullptr;
-
-	// Scale circular
-	ShaderScaleCircular *m_scaleCircular = nullptr;
-	ShaderScaleCylinder *m_scaleCylinder = nullptr;
-	ShaderArrow *m_shaderArrow = nullptr;
-
-	// Scale polar
-	ShaderScalePolar *m_scalePolar = nullptr;
-
-	// Scale all planes (for compass)
-	ShaderScaleAllPlanes *m_scaleAllPlanes = nullptr;
-
-	// Scales activated or not
-	bool m_matrixScale = false;
-	bool m_circScale = false;
-	bool m_polarScale = false;
-	bool m_compassScale = false;
 
 	// 3D scene
 	float m_gap = 0.2f; //Distance between 2 values in the 3d space

@@ -23,9 +23,10 @@ protected:
 	void calculateStartingPositions(); //initialize the compass's arrow with a starting position. The direction point is then positionned at the origin
 	void calculateDirectionAngles(); //Calculate the angle in a polar base of the direction point defined in a cartesian base
 	void rotateBasePosition(); //Rotate the triangular base depending on the position of the direction point
-	virtual void updateValues(QVector<qreal>* values); //get matrix's data from activityfetcher
+	virtual void updateValues(QVector<qreal>* values) override; //get matrix's data from activityfetcher
 	void initNormalsMatrix(); //allocate memory to m_triangleNormals and initialize it as a zero matrix
 	void calculateRescaledDirectionPoint(); //Move the direction point in the 3d scene depending on the level of zoom
+	virtual void displayScale() override; //Add the 3d scale in the scene
 
 private:
 	QVector3D m_directionPoint;
@@ -46,6 +47,9 @@ private:
 	QVector3D *m_triangleNormals; //normals used for light gesture
 	float m_edge = 0.25; //edge length of the equilateral triangle base
 	float m_triangleRadius; //radius of the circumscribed circle of the equilateral triangle base
+
+	//Scale
+	ShaderScaleAllPlanes *m_scaleAllPlanes;
 
 };
 

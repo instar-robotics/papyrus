@@ -21,7 +21,8 @@ protected:
 	float calculateXcoord(int i);
 	float calculateZcoord(int i);
 	float calculateHeight(float value);
-	virtual void updateValues(QVector<qreal>* values); //get matrix's data from activityfetcher
+	virtual void updateValues(QVector<qreal>* values) override; //get matrix's data from activityfetcher
+	virtual void displayScale() override; //Add the 3d scale in the scene
 
 
 protected:
@@ -31,6 +32,11 @@ protected:
 	RotationDir m_dir;
 	float m_radius = 8;
 	float m_extremum; //Max and abs(min) angle value
+
+	// Scale
+	ShaderScaleCircular *m_scaleCircular;
+	ShaderScaleCylinder *m_scaleCylinder;
+	ShaderArrow *m_shaderArrow;
 };
 
 #endif // SHADERCIRCULAR_H

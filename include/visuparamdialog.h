@@ -1,5 +1,5 @@
-﻿#ifndef VISUDIALOG_H
-#define VISUDIALOG_H
+﻿#ifndef VISUPARAMDIALOG_H
+#define VISUPARAMDIALOG_H
 
 #include <QDebug>
 #include <QDialog>
@@ -12,15 +12,15 @@
 #include "types.h"
 
 /**
- * @brief The VisuDialog class is the parent class of every QDialog used to provide parameters menu for visu.
+ * @brief The VisuParamDialog class is the parent class of every QDialog used to provide parameters menu for visu.
  * It contains the settings for every possible visu parameters that are then used by inherited classes.
  */
 
-class VisuDialog : public QDialog
+class VisuParamDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	VisuDialog();
+	VisuParamDialog();
 	int getZeroIndex();
 	RotationDir getRotationDirection();
 	MatrixReadDirection getMatrixReadDirection();
@@ -63,4 +63,4 @@ protected:
 	QSpinBox *m_extremum;
 };
 
-#endif // VISUDIALOG_H
+#endif // VISUPARAMDIALOG_H

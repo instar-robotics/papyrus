@@ -1033,8 +1033,12 @@ void DiagramScene::deleteItem(DiagramBox *box)
 	}
 
 	if(box->displayedProxy() != nullptr)
-		removeItem(box->displayedProxy()->moveBar());
-
+	{
+		if(box->displayedProxy()->moveBar() != nullptr)
+			removeItem(box->displayedProxy()->moveBar());
+		else
+			removeItem(box->displayedProxy());
+	}
 	m_undoStack.push(command);
 
 	emit displayStatusMessage(tr("Function deleted (CTRL + Z to undo)."));
@@ -1354,9 +1358,15 @@ void DiagramScene::onOkBtnClicked(bool)
 		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
 			if(selectedBox->displayedProxy() != nullptr)
 			{
-				ThreadShader *thread = selectedBox->displayedProxy()->moveBar()->thread();
-				delete selectedBox->displayedProxy();
-				thread->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
+				if(selectedBox->displayedProxy()->moveBar() != nullptr)
+				{
+					ThreadShader *thread  = nullptr;
+					if(selectedBox->displayedProxy()->moveBar()->thread() != nullptr)
+						thread = selectedBox->displayedProxy()->moveBar()->thread();
+					delete selectedBox->displayedProxy();
+					if(thread != nullptr)
+						thread->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
+			    }
 			}
 			if(selectedBox->activityVisualizer() != nullptr)
 				delete selectedBox->activityVisualizer();
@@ -1411,7 +1421,7 @@ void DiagramScene::onOkBtnClicked(bool)
 			}
 		} else if((selectedLink = dynamic_cast<Link *>(item))) {
 			propPanel->updateLinkProperties(selectedLink);
-		} else if ((selectedZone = dynamic_cast<Zone *>(item))) {
+	    } else if ((selectedZone = dynamic_cast<Zone *>(item))) {
 			propPanel->updateZoneProperties(selectedZone);
 		} else {
 			propPanel->updateScriptProperties(m_script);
@@ -1486,7 +1496,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			MatrixReadDirection matrixReadDirection = MatrixReadDirection(selectedBox->visuParameters().value("MatrixReadDirection", LINE_PER_LINE).toInt());
 			int extremum = selectedBox->visuParameters().value("Extremum", 360).toInt();
 
-			PolarVisuDialog dialog(cols-1, indexZero, rotationDir, matrixReadDirection, extremum);
+			PolarVisuParamDialog dialog(cols-1, indexZero, rotationDir, matrixReadDirection, extremum);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				if(dialog.getZeroIndex() > -1)
@@ -1517,7 +1527,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 				maxIndex = cols-1;
 			else
 				maxIndex = rows-1;
-			CircularVisuDialog dialog(maxIndex, indexZero, rotationDir, extremum);
+			CircularVisuParamDialog dialog(maxIndex, indexZero, rotationDir, extremum);
 			if(dialog.exec() == QDialog::Accepted)
 			{
 				if(dialog.getZeroIndex() > -1)
@@ -1641,6 +1651,7 @@ void DiagramScene::display2DVisu(VisuType type)
 
 				default:
 					qWarning() << "Ouput type not supported for visualization";
+					emit displayStatusMessage(tr("Ouput type not supported for visualization"), MSG_WARNING);
 				return;
 				break;
 			}
@@ -1649,17 +1660,15 @@ void DiagramScene::display2DVisu(VisuType type)
 			{
 				ThreadShader *oldThread = nullptr;
 				if(oldProxy->moveBar() != nullptr)
-					oldThread = oldProxy->moveBar()->thread();
+				{
+					if(oldProxy->moveBar()->thread() != nullptr)
+						oldThread = oldProxy->moveBar()->thread();
+				}
 				vis->setPos(oldProxy->scenePos().x(), oldProxy->scenePos().y());
 				if(oldProxy->widget() != nullptr)
 				{
 					vis->setWidth(oldProxy->widget()->width());
 					vis->setHeight(oldProxy->widget()->height());
-				}
-				else
-				{
-					vis->setWidth(oldProxy->widget()->startWidth());
-					vis->setHeight(oldProxy->widget()->startHeight());
 				}
 				delete oldProxy;
 				oldThread->setRunning(false);

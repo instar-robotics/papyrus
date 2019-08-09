@@ -1,6 +1,6 @@
-﻿#include "polarvisudialog.h"
+﻿#include "polarvisuparamdialog.h"
 
-PolarVisuDialog::PolarVisuDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir,
+PolarVisuParamDialog::PolarVisuParamDialog(int maxIndex, int defaultZeroIndex, RotationDir defaultRotationDir,
                                  MatrixReadDirection defaultReadDir, int defaultExtremum)
 {
 	choseMatrixReadDirection(defaultReadDir);

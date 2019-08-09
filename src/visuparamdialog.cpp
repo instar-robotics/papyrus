@@ -1,6 +1,6 @@
-﻿#include "visudialog.h"
+﻿#include "visuparamdialog.h"
 
-VisuDialog::VisuDialog():
+VisuParamDialog::VisuParamDialog():
     m_closeButton(nullptr),
     m_matrixReadDirLabel(nullptr),
     m_matrixReadRadioBoxLayout(nullptr),
@@ -22,14 +22,14 @@ VisuDialog::VisuDialog():
 	setLayout(m_layout);
 }
 
-int VisuDialog::getZeroIndex()
+int VisuParamDialog::getZeroIndex()
 {
 	if(m_zeroIndex != nullptr)
 		return m_zeroIndex->value();
 	else
 		return -1;
 }
-RotationDir VisuDialog::getRotationDirection()
+RotationDir VisuParamDialog::getRotationDirection()
 {
 	if(m_clockwise == nullptr)
 		return INVALID_ROTATION_DIR;
@@ -38,7 +38,7 @@ RotationDir VisuDialog::getRotationDirection()
 	else
 		return COUNTERCLOCKWISE;
 }
-MatrixReadDirection VisuDialog::getMatrixReadDirection()
+MatrixReadDirection VisuParamDialog::getMatrixReadDirection()
 {
 	if(m_linePerLine == nullptr)
 		return INVALID_MATRIX_READ_DIR;
@@ -47,7 +47,7 @@ MatrixReadDirection VisuDialog::getMatrixReadDirection()
 	else
 		return COLUMN_PER_COLUMN;
 }
-int VisuDialog::getExtremum()
+int VisuParamDialog::getExtremum()
 {
 	if(m_extremum != nullptr)
 		return m_extremum->value();
@@ -56,7 +56,7 @@ int VisuDialog::getExtremum()
 }
 
 //Chose the rotation direction
-void VisuDialog::choseRotationDirection(RotationDir defaultRotationDir)
+void VisuParamDialog::choseRotationDirection(RotationDir defaultRotationDir)
 {
 	m_rotationDirLabel = new QLabel("Rotation direction:");
 	m_rotationRadioBox = new QGroupBox(this);
@@ -77,7 +77,7 @@ void VisuDialog::choseRotationDirection(RotationDir defaultRotationDir)
 }
 
 //Chose the index of 0 angle
-void VisuDialog::choseIndexOfZeroAngle(int maxIndex, int defaultZeroIndex)
+void VisuParamDialog::choseIndexOfZeroAngle(int maxIndex, int defaultZeroIndex)
 {
 	m_indexLabel = new QLabel("Index of the 0 angle:");
 	m_zeroIndex = new QSpinBox(this);
@@ -89,7 +89,7 @@ void VisuDialog::choseIndexOfZeroAngle(int maxIndex, int defaultZeroIndex)
 	m_layout->addWidget(m_zeroIndex);
 }
 
-void VisuDialog::choseMatrixReadDirection(MatrixReadDirection defaultReadDir)
+void VisuParamDialog::choseMatrixReadDirection(MatrixReadDirection defaultReadDir)
 {
 	m_matrixReadDirLabel = new QLabel("Matrix read direction:");
 	m_matrixReadRadioBox = new QGroupBox(this);
@@ -109,7 +109,7 @@ void VisuDialog::choseMatrixReadDirection(MatrixReadDirection defaultReadDir)
 	m_layout->addWidget(m_matrixReadRadioBox);
 }
 
-void VisuDialog::choseDomainOfDefinition(int defaultExtremum, int minimum, int maximum)
+void VisuParamDialog::choseDomainOfDefinition(int defaultExtremum, int minimum, int maximum)
 {
 	m_domainLabel = new QLabel("Extremum of the domain of definition:");
 	m_extremum = new QSpinBox(this);
@@ -122,7 +122,7 @@ void VisuDialog::choseDomainOfDefinition(int defaultExtremum, int minimum, int m
 	m_layout->addWidget(m_extremum);
 }
 
-void VisuDialog::addCloseButton()
+void VisuParamDialog::addCloseButton()
 {
 	//Close dialog button
 	m_closeButton = new QPushButton("Ok");
@@ -131,7 +131,7 @@ void VisuDialog::addCloseButton()
 	m_layout->addWidget(m_closeButton);
 }
 
-void VisuDialog::closeDialog()
+void VisuParamDialog::closeDialog()
 {
 	close();
 }

@@ -1,5 +1,5 @@
-﻿#ifndef VISUFUNCTIONS_H
-#define VISUFUNCTIONS_H
+﻿#ifndef VISUPARAMFUNCTIONS_H
+#define VISUPARAMFUNCTIONS_H
 
 #include "shaderbarchart.h"
 #include "shaderconechart.h"
@@ -10,7 +10,7 @@
 #include "shaderbarpolar.h"
 #include "shaderwireframepolar.h"
 #include "shadersurfacepolar.h"
-#include "circularvisudialog.h"
+#include "circularvisuparamdialog.h"
 #include "shadercompass.h"
 
 VisuType stringToVisuType(const QString &str);
@@ -33,4 +33,4 @@ RotationDir intToRotationDir(int rotDir);
 
 bool doesVisuFit(VisuType type, int rows, int cols); //Test if rows and cols dimensions fit with the visu type
 
-#endif // VISUFUNCTIONS_H
+#endif // VISUPARAMFUNCTIONS_H

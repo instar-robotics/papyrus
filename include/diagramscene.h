@@ -32,8 +32,8 @@
 #include "shaderproxy.h"
 #include "shadermovebar.h"
 #include "visufunctions.h"
-#include "polarvisudialog.h"
-#include "circularvisudialog.h"
+#include "polarvisuparamdialog.h"
+#include "circularvisuparamdialog.h"
 #include "linkvisutobox.h"
 #include "threadshader.h"
 

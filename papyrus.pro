@@ -103,17 +103,17 @@ HEADERS += include/category.h \
     include/shaderbarpolar.h \
     include/shaderwireframepolar.h \
     include/shadersurfacepolar.h \
-    include/circularvisudialog.h \
     include/shaderscalepolar.h \
-    include/visufunctions.h \
     include/shaderscale.h \
     include/threadshader.h \
     include/shadercompass.h \
-    include/polarvisudialog.h \
-    include/visudialog.h \
     include/shaderscaleallplanes.h \
     include/shaderconechart.h \
-    include/linkvisutobox.h
+    include/linkvisutobox.h \
+    include/visufunctions.h \
+    include/visuparamdialog.h \
+    include/circularvisuparamdialog.h \
+    include/polarvisuparamdialog.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -203,17 +203,17 @@ SOURCES += src/category.cpp \
     src/shaderbarpolar.cpp \
     src/shaderwireframepolar.cpp \
     src/shadersurfacepolar.cpp \
-    src/circularvisudialog.cpp \
     src/shaderscalepolar.cpp \
-    src/visufunctions.cpp \
     src/shaderscale.cpp \
     src/threadshader.cpp \
     src/shadercompass.cpp \
-    src/polarvisudialog.cpp \
-    src/visudialog.cpp \
     src/shaderscaleallplanes.cpp \
     src/shaderconechart.cpp \
-    src/linkvisutobox.cpp
+    src/linkvisutobox.cpp \
+    src/visufunctions.cpp \
+    src/visuparamdialog.cpp \
+    src/circularvisuparamdialog.cpp \
+    src/polarvisuparamdialog.cpp
 
 RESOURCES += icons.qrc \
     shaders.qrc

@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -27,10 +27,21 @@
 #include "inputslot.h"
 #include "diagrambox.h"
 #include "zone.h"
+#include "shaderbarchart.h"
+#include "shadersurface.h"
+#include "shaderproxy.h"
+#include "shadermovebar.h"
+#include "visufunctions.h"
+#include "polarvisuparamdialog.h"
+#include "circularvisuparamdialog.h"
+#include "linkvisutobox.h"
+#include "threadshader.h"
 
+#include <QGraphicsRectItem>
 #include <QGraphicsScene>
 #include <QUuid>
 #include <QUndoStack>
+#include <QVariant>
 
 // Forward declaration because of recursive include
 class Script;
@@ -86,7 +97,8 @@ public:
 	void setRect(QGraphicsRectItem *rect);
 
 	QUndoStack &undoStack();
-
+	void hide3DVisualizations();
+	void show3DVisualizations();
 	QGraphicsItemGroup *copyGroup() const;
 	void setCopyGroup(QGraphicsItemGroup *copyGroup);
 
@@ -94,7 +106,11 @@ public slots:
 	void toggleDisplayGrid(bool shouldDraw);
 	void onOkBtnClicked(bool);
 	void onCancelBtnClicked(bool);
-	void onDisplayVisuClicked(bool);
+	void onDisplayVisuClicked(VisuType type);
+	void display2DVisu(VisuType type);
+	void display3DVisu(VisuType type, QMap<QString, QVariant> parameters);
+	void onChangeParametersClicked(VisuType type);
+	DiagramBox *getSelectedBox();
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
@@ -130,6 +146,8 @@ private slots:
 
 signals:
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
+	void hideShaderWidgets();
+	void showShaderWidgets();
 
 };
 

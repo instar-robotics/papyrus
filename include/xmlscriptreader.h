@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -78,6 +78,8 @@ private:
 	void readZone();
 	void readVisualizer(bool &createVisualizer, bool &visuVisible, QPointF &visuPos, QSizeF &visuSize);
 	void readCommented(bool &isCommented);
+	void readVisuType(VisuType &visuType);
+	void readParameters(QMap<QString, QVariant> &parameters);
 };
 
 #endif // XMLSCRIPTREADER_H

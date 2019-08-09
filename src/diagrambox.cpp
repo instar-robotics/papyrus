@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -73,7 +73,10 @@ DiagramBox::DiagramBox(const QString &name,
                                                 m_isInvalid(false),
                                                 m_swapCandidate(false),
                                                 m_activityVisualizer(nullptr),
-                                                m_isCommented(false)
+                                                m_displayedProxy(nullptr),
+                                                m_isCommented(false),
+                                                m_visuType(THERMAL_2D),
+                                                m_linkVisuToBox(nullptr)
 {
 	// Generate a UUID if there was not one while created
 	if (m_uuid.isNull())
@@ -195,6 +198,8 @@ DiagramBox::DiagramBox(const DiagramBox &copy)
 DiagramBox::~DiagramBox()
 {
 	emit boxDestroyed();
+	delete m_displayedProxy;
+	m_displayedProxy = nullptr;
 }
 
 QRectF DiagramBox::boundingRect() const
@@ -253,10 +258,26 @@ QVariant DiagramBox::itemChange(QGraphicsItem::GraphicsItemChange change, const 
 		// Set the script to which this item's scene is associated as modified
 		theScene->script()->setStatusModified(true);
 
+		// Update the link between the visu and the box if there is a displayed visu
+		if((m_displayedProxy != nullptr || isActivityVisuEnabled()) && m_linkVisuToBox != nullptr)
+		{
+			m_linkVisuToBox->centerDiagramBoxMoved(newPos.x()+bWidth()/2, newPos.y()+bHeight()/2);
+		}
+
 		return newPos;
 	}
 
 	return QGraphicsItem::itemChange(change, value);
+}
+
+ShaderProxy *DiagramBox::displayedProxy() const
+{
+	return m_displayedProxy;
+}
+
+void DiagramBox::setDisplayedProxy(ShaderProxy *displayedProxy)
+{
+	m_displayedProxy = displayedProxy;
 }
 
 InhibInput *DiagramBox::inhibInput() const
@@ -320,6 +341,31 @@ void DiagramBox::setIsCommented(bool isCommented)
 			link->update();
 		}
 	}
+}
+
+VisuType DiagramBox::visuType() const
+{
+	return m_visuType;
+}
+
+void DiagramBox::setVisuType(const VisuType &visuType)
+{
+	m_visuType = visuType;
+}
+
+QMap<QString, QVariant> DiagramBox::visuParameters() const
+{
+	return m_visuParameters;
+}
+
+void DiagramBox::setLinkVisuToBox(LinkVisuToBox *linkVisuToBox)
+{
+	m_linkVisuToBox = linkVisuToBox;
+}
+
+void DiagramBox::setVisuParameters(const QMap<QString, QVariant> &visuParameters)
+{
+	m_visuParameters = visuParameters;
 }
 
 ActivityVisualizer *DiagramBox::activityVisualizer() const
@@ -727,6 +773,9 @@ void DiagramBox::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 {
 	Q_UNUSED(evt);
 
+//	if (evt->buttons() & Qt::RightButton)
+//		emit rightClicked(this);
+
 	m_oldPos = scenePos();
 
 	// Deactivate the ability of the Zone to move while moving a box
@@ -948,3 +997,4 @@ QString DiagramBox::scriptName()
 
 	return script->name();
 }
+

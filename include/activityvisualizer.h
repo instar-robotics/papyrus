@@ -1,4 +1,4 @@
-#ifndef ACTIVITYVISUALIZER_H
+﻿#ifndef ACTIVITYVISUALIZER_H
 #define ACTIVITYVISUALIZER_H
 
 #include "diagrambox.h"
@@ -8,6 +8,7 @@
 #include <QImage>
 #include <QGraphicsSceneHoverEvent>
 #include <QPainter>
+#include <QKeyEvent>
 
 /**
  * @brief The ActivityVisualizer class is a QImage (inside a QGraphicsPixmapItem) placed on the
@@ -26,6 +27,7 @@ public:
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
+	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	void updatePixmap();
 
@@ -43,6 +45,10 @@ public:
 
 	int height() const;
 	void setHeight(int height);
+
+	void setLinkToBox(LinkVisuToBox *linkToBox);
+
+	void updateLinkToBox(QPointF newPos);
 
 protected:
 	DiagramBox *m_box;
@@ -65,6 +71,7 @@ protected:
 	qreal m_minHeight;
 
 	ActivityFetcher *m_activityFetcher;
+	LinkVisuToBox *m_linkToBox;
 
 private slots:
 	void onBoxDestroyed();

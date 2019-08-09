@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -145,4 +145,43 @@ enum ScriptStatus {
 	SCRIPT_PAUSED
 };
 
+// Define the different control that can be used with the mouse
+enum MouseControl{
+    LEFT_BUTTON,
+	LEFT_SHIFT_BUTTON,
+	RIGHT_BUTTON,
+	RIGHT_SHIFT_BUTTON,
+	OTHER
+};
+
+// Visualization types
+enum VisuType{
+	THERMAL_2D,
+	SURFACE_3D,
+	BAR_CHART_3D,
+	CONE_CHART_3D,
+	WIREFRAME_3D,
+	CROWN_3D,
+	BAR_CIRCLE_3D,
+	SURFACE_POLAR_3D,
+	BAR_POLAR_3D,
+	WIREFRAME_POLAR_3D,
+	COMPASS_3D,
+	UNKNOWN_VISU_TYPE,
+	NO_VISU_TYPE
+};
+
+// Rotation direction for circular visualizations
+enum RotationDir{
+	INVALID_ROTATION_DIR,
+	CLOCKWISE,
+	COUNTERCLOCKWISE
+};
+
+// How to read the matrix : line per line or column per column
+enum MatrixReadDirection{
+	INVALID_MATRIX_READ_DIR,
+	LINE_PER_LINE,
+	COLUMN_PER_COLUMN
+};
 #endif // TYPES_H

@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -41,6 +41,7 @@
 #include "deletelinkcommand.h"
 #include "deleteboxcommand.h"
 #include "deletezonecommand.h"
+#include "shadermovebar.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
@@ -80,10 +81,10 @@ DiagramScene::DiagramScene(QObject *parent) : QGraphicsScene(parent),
 
 	connect(propPanel->okBtn(), SIGNAL(clicked(bool)), this, SLOT(onOkBtnClicked(bool)));
 	connect(propPanel->cancelBtn(), SIGNAL(clicked(bool)), this, SLOT(onCancelBtnClicked(bool)));
-	connect(propPanel->displayVisu(), SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
+	connect(propPanel, SIGNAL(displayVisu(VisuType)), this, SLOT(onDisplayVisuClicked(VisuType)));
+	connect(propPanel, SIGNAL(changeParameters(VisuType)), this, SLOT(onChangeParametersClicked(VisuType)));
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 }
-
 /**
  * @brief DiagramScene::~DiagramScene cleans up
  * Reminder: it has ownership of the @Script
@@ -191,6 +192,7 @@ bool DiagramScene::checkForInvalidity()
  * Default to a minimum size of the container widget's size (this is to prevent weird behavior
  * when trying to add items in a small scene: the items won't be placed under the mouse)
  */
+
 void DiagramScene::updateSceneRect()
 {
 	if (m_mainWindow) {
@@ -282,6 +284,23 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 				addItem(m_line);
 				updateSceneRect();
 			}
+
+			//If the ctrl key isn't pressed, items are selectable only one by one
+			if(!(evt->modifiers() & Qt::ControlModifier) && selectedItems().size() <= 1)
+			{
+				clearSelection();
+				QGraphicsSvgItem *image = dynamic_cast<QGraphicsSvgItem *>(maybeItem);
+				//Verify if the selected item is an image in a box or another item
+				if(image != nullptr)
+				{
+					if(maybeItem->parentItem() != nullptr)
+						maybeItem->parentItem()->setSelected(true);
+					else
+						maybeItem->setSelected(true);
+				}
+				else
+					maybeItem->setSelected(true);
+			}
 		}
 	} else if (evt->button() & Qt::RightButton) {
 		m_rightBtnDown = true;
@@ -295,8 +314,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 			addItem(m_rect);
 		}
 	}
-
 	QGraphicsScene::mousePressEvent(evt);
+
 }
 
 /**
@@ -308,6 +327,12 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 {
 	QPointF mousePos = evt->scenePos();
+
+	if (evt->button() & Qt::LeftButton) {
+		QGraphicsItem *maybeItem = itemAt(mousePos, QTransform());
+		if(!(evt->modifiers() & Qt::ControlModifier) && maybeItem)
+			selectedItems().push_back(maybeItem);
+	}
 
 	// Select all Slots that are visible on the scene (in the view's viewport)
 	QList<QGraphicsView *> vs = views();
@@ -833,6 +858,7 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 			DiagramBox *box = dynamic_cast<DiagramBox *>(items.at(0));
 			Zone *zone = dynamic_cast<Zone *>(items.at(0));
 			ActivityVisualizer *vis = dynamic_cast<ActivityVisualizer *>(items.at(0));
+			ShaderMoveBar *moveBar = dynamic_cast<ShaderMoveBar *>(items.at(0));
 
 			if (link != nullptr)
 				deleteItem(link);
@@ -842,6 +868,13 @@ void DiagramScene::keyPressEvent(QKeyEvent *evt)
 				deleteItem(zone);
 			else if (vis != nullptr)
 				delete vis;  // we don't provide CTRL + Z for deleting visualizer for now
+			else if (moveBar != nullptr)
+			{
+				ThreadShader *thread = moveBar->thread();
+				ShaderProxy *proxy = moveBar->proxy();
+				delete proxy;
+				thread->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
+			}
 			else
 				qWarning() << "Unknown item to delete.";
 
@@ -999,6 +1032,13 @@ void DiagramScene::deleteItem(DiagramBox *box)
 		}
 	}
 
+	if(box->displayedProxy() != nullptr)
+	{
+		if(box->displayedProxy()->moveBar() != nullptr)
+			removeItem(box->displayedProxy()->moveBar());
+		else
+			removeItem(box->displayedProxy());
+	}
 	m_undoStack.push(command);
 
 	emit displayStatusMessage(tr("Function deleted (CTRL + Z to undo)."));
@@ -1150,6 +1190,16 @@ QUndoStack& DiagramScene::undoStack()
 	return m_undoStack;
 }
 
+void DiagramScene::hide3DVisualizations()
+{
+	emit hideShaderWidgets();
+}
+
+void DiagramScene::show3DVisualizations()
+{
+	emit showShaderWidgets();
+}
+
 QGraphicsRectItem *DiagramScene::rect() const
 {
 	return m_rect;
@@ -1205,10 +1255,13 @@ void DiagramScene::onSelectionChanged()
 		// Display a box's, link's or comment zone properties only if there is only one selected
 		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
 			propPanel->displayBoxProperties(selectedBox);
+			propPanel->updateVisuTypeChoices(selectedBox->rows(), selectedBox->cols());
 		} else if ((link = dynamic_cast<Link *>(item))) {
 			propPanel->displayLinkProperties(link);
 		} else if ((zone = dynamic_cast<Zone *>(item))) {
 			propPanel->displayZoneProperties(zone);
+		} else {
+			propPanel->displayScriptProperties(m_script);
 		}
 
 	} else if (sItems.count() == 0) {
@@ -1303,7 +1356,22 @@ void DiagramScene::onOkBtnClicked(bool)
 		Zone *selectedZone;
 
 		if ((selectedBox = dynamic_cast<DiagramBox *>(item))) {
+			if(selectedBox->displayedProxy() != nullptr)
+			{
+				if(selectedBox->displayedProxy()->moveBar() != nullptr)
+				{
+					ThreadShader *thread  = nullptr;
+					if(selectedBox->displayedProxy()->moveBar()->thread() != nullptr)
+						thread = selectedBox->displayedProxy()->moveBar()->thread();
+					delete selectedBox->displayedProxy();
+					if(thread != nullptr)
+						thread->setRunning(false);  // we don't provide CTRL + Z for deleting visualizer for now
+			    }
+			}
+			if(selectedBox->activityVisualizer() != nullptr)
+				delete selectedBox->activityVisualizer();
 			propPanel->updateBoxProperties(selectedBox);
+			propPanel->updateVisuTypeChoices(selectedBox->rows(), selectedBox->cols());
 
 			// Now check all SCALAR_MATRIX links for invalidity and if there was one found, trigger
 			// a recheck for the entire script
@@ -1353,9 +1421,10 @@ void DiagramScene::onOkBtnClicked(bool)
 			}
 		} else if((selectedLink = dynamic_cast<Link *>(item))) {
 			propPanel->updateLinkProperties(selectedLink);
-		} else if ((selectedZone = dynamic_cast<Zone *>(item))) {
+	    } else if ((selectedZone = dynamic_cast<Zone *>(item))) {
 			propPanel->updateZoneProperties(selectedZone);
 		} else {
+			propPanel->updateScriptProperties(m_script);
 			informUserAndCrash(tr("Unsupported element for updating properties, only function "
 			                      "boxes, links and zones are supported at the moment."));
 		}
@@ -1407,9 +1476,127 @@ void DiagramScene::onCancelBtnClicked(bool)
 		}
 	}
 }
-
-void DiagramScene::onDisplayVisuClicked(bool)
+void DiagramScene::onChangeParametersClicked(VisuType type)
 {
+	DiagramBox *selectedBox = getSelectedBox();
+	if (selectedBox == nullptr)
+	{
+		emit displayStatusMessage("No selected box");
+		return;
+	}
+	QMap<QString, QVariant> parameters;
+	int cols = selectedBox->cols();
+	int rows = selectedBox->rows();
+	if(is3DVisuType(type))
+	{
+		if(is3DPolarVisuType(type)) //Ask for parameters specific to 3d polar visu
+		{
+			RotationDir rotationDir = RotationDir(selectedBox->visuParameters().value("RotationDir", CLOCKWISE).toInt());
+			int indexZero = selectedBox->visuParameters().value("IndexZero", cols/2).toInt();
+			MatrixReadDirection matrixReadDirection = MatrixReadDirection(selectedBox->visuParameters().value("MatrixReadDirection", LINE_PER_LINE).toInt());
+			int extremum = selectedBox->visuParameters().value("Extremum", 360).toInt();
+
+			PolarVisuParamDialog dialog(cols-1, indexZero, rotationDir, matrixReadDirection, extremum);
+			if(dialog.exec() == QDialog::Accepted)
+			{
+				if(dialog.getZeroIndex() > -1)
+					indexZero = dialog.getZeroIndex();
+				if(dialog.getRotationDirection() != INVALID_ROTATION_DIR)
+					rotationDir = dialog.getRotationDirection();
+				if(dialog.getExtremum() > -1)
+					extremum = dialog.getExtremum();
+				if(dialog.getMatrixReadDirection() != INVALID_MATRIX_READ_DIR)
+					matrixReadDirection = dialog.getMatrixReadDirection();
+			}
+			parameters.insert("RotationDir", QVariant(rotationDir));
+			parameters.insert("IndexZero", QVariant(indexZero));
+			parameters.insert("MatrixReadDirection", QVariant(matrixReadDirection));
+			parameters.insert("Extremum", QVariant(extremum));
+		}
+		else if(is3DCircularVisuType(type)) //Ask for parameters specific to 3d circular visu
+		{
+			int indexZero;
+			if(rows==1)
+				indexZero = selectedBox->visuParameters().value("IndexZero", cols/2).toInt();
+			else
+				indexZero = selectedBox->visuParameters().value("IndexZero", rows/2).toInt();
+			RotationDir rotationDir = RotationDir(selectedBox->visuParameters().value("RotationDir", CLOCKWISE).toInt());
+			int extremum = selectedBox->visuParameters().value("Extremum", 360).toInt();
+			int maxIndex;
+			if(cols>1)
+				maxIndex = cols-1;
+			else
+				maxIndex = rows-1;
+			CircularVisuParamDialog dialog(maxIndex, indexZero, rotationDir, extremum);
+			if(dialog.exec() == QDialog::Accepted)
+			{
+				if(dialog.getZeroIndex() > -1)
+					indexZero = dialog.getZeroIndex();
+				if(dialog.getRotationDirection() != INVALID_ROTATION_DIR)
+					rotationDir = dialog.getRotationDirection();
+				if(dialog.getExtremum() > -1)
+					extremum = dialog.getExtremum();
+			}
+			parameters.insert("RotationDir", QVariant(rotationDir));
+			parameters.insert("IndexZero", QVariant(indexZero));
+			parameters.insert("Extremum", QVariant(extremum));
+		}
+		else
+		{
+			emit displayStatusMessage("No adjustable parameters for this visualization");
+			return;
+		}
+	}
+	else
+	{
+		emit displayStatusMessage("No adjustable parameters for this visualization");
+		return;
+	}
+	selectedBox->setVisuParameters(parameters);
+	if(selectedBox->displayedProxy() != nullptr)
+	{
+		display3DVisu(type, parameters);
+	}
+}
+
+DiagramBox *DiagramScene::getSelectedBox()
+{
+	QList<QGraphicsItem *> sItems = selectedItems();
+	if (sItems.count() != 1)
+	{
+		return nullptr;
+	}
+	QGraphicsItem *item = sItems.at(0);
+	DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
+	return selectedBox;
+}
+
+void DiagramScene::onDisplayVisuClicked(VisuType type)
+{
+	DiagramBox *selectedBox = getSelectedBox();
+	QMap<QString, QVariant> parameters;
+	if(selectedBox == nullptr)
+		return;
+	selectedBox->setVisuParameters(parameters);
+	if(!doesVisuFit(type, selectedBox->rows(), selectedBox->cols()))
+	{
+		emit displayStatusMessage("Visualization type doesn't fit with matrix dimensions");
+		return;
+	}
+	if(is2DVisuType(type))
+		display2DVisu(type);
+	else if(is3DVisuType(type))
+		display3DVisu(type, parameters);
+	else
+	{
+		emit displayStatusMessage("No existing visualization corresponding to this type");
+		return;
+	}
+}
+
+void DiagramScene::display2DVisu(VisuType type)
+{
+	Q_UNUSED(type);
 	// React to event only if we are the active script
 	if (m_script == nullptr)
 		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
@@ -1431,12 +1618,16 @@ void DiagramScene::onDisplayVisuClicked(bool)
 		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
 		if (selectedBox != nullptr) {
 			// First check that we don't already have enabled data visualization for this box
-			if (selectedBox->isActivityVisuEnabled()) {
-				emit displayStatusMessage("Visualization is already enabled for this box");
+			if(selectedBox->isActivityVisuEnabled() && selectedBox->visuType() == type)
+			{
+				emit displayStatusMessage("This visualization is already enabled for this box");
 				return;
 			}
+			selectedBox->setVisuType(type);
 
-//			selectedBox->setIsActivityVisuEnabled(true);
+			//Save old visualization in case there is already one that will be replaced
+			ShaderProxy *oldProxy = selectedBox->displayedProxy();
+			ActivityVisualizer *oldVis = selectedBox->activityVisualizer();
 
 			// WARNING: this is code duplication from xmlscriptreader.cpp, we should factor common code!
 			ActivityVisualizer *vis = nullptr;
@@ -1460,9 +1651,39 @@ void DiagramScene::onDisplayVisuClicked(bool)
 
 				default:
 					qWarning() << "Ouput type not supported for visualization";
+					emit displayStatusMessage(tr("Ouput type not supported for visualization"), MSG_WARNING);
 				return;
 				break;
 			}
+
+			if(oldProxy != nullptr)
+			{
+				ThreadShader *oldThread = nullptr;
+				if(oldProxy->moveBar() != nullptr)
+				{
+					if(oldProxy->moveBar()->thread() != nullptr)
+						oldThread = oldProxy->moveBar()->thread();
+				}
+				vis->setPos(oldProxy->scenePos().x(), oldProxy->scenePos().y());
+				if(oldProxy->widget() != nullptr)
+				{
+					vis->setWidth(oldProxy->widget()->width());
+					vis->setHeight(oldProxy->widget()->height());
+				}
+				delete oldProxy;
+				oldThread->setRunning(false);
+				vis->updatePixmap();
+			}
+			else if(oldVis != nullptr)
+			{
+				vis->setPos(oldVis->scenePos().x(), oldVis->scenePos().y());
+				vis->setWidth(oldVis->width());
+				vis->setHeight(oldVis->height());
+				delete oldVis;
+				vis->updatePixmap();
+			}
+			selectedBox->setIsActivityVisuEnabled(true);
+			selectedBox->setActivityVisualizer(vis);
 
 			// Create the activity fetcher with the topic name
 			ActivityFetcher *fetcher = nullptr;
@@ -1475,8 +1696,17 @@ void DiagramScene::onDisplayVisuClicked(bool)
 				m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
 			}
 
+			//draw a link between the box and its visu
+			LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(vis->x()+vis->width()/2,
+			                                                 vis->y()+vis->height()/2,
+			                                                 selectedBox->x()+selectedBox->bWidth()/2,
+			                                                 selectedBox->y()+selectedBox->bHeight()/2);
+			addItem(linkVisuToBox);
+			vis->setLinkToBox(linkVisuToBox);
+
 			ActivityVisualizerBars *visBar = dynamic_cast<ActivityVisualizerBars *>(vis);
 			ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
+
 			if (visBar != nullptr) {
 				visBar->setActivityFetcher(fetcher);
 				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBar, SLOT(updateBars(QVector<qreal>*)));
@@ -1493,7 +1723,69 @@ void DiagramScene::onDisplayVisuClicked(bool)
 			DiagramChart *dChart = new DiagramChart(selectedBox);
 			dChart->setPos(selectedBox->pos().x(), selectedBox->pos().y() - 200);
 			addItem(dChart);
-			//*/
+			*/
+		}
+	}
+}
+
+void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> parameters)
+{
+	// React to event only if we are the active script
+	if (m_script == nullptr)
+		informUserAndCrash(tr("DiagramScene doesn't have an associated script."));
+
+	if (!m_script->isActiveScript())
+		return;
+
+	QList<QGraphicsItem *> sItems = selectedItems();
+
+	PropertiesPanel *propPanel = m_mainWindow->propertiesPanel();
+	if (propPanel == nullptr)
+		informUserAndCrash(tr("Impossible to fetch the properties panel!"));
+
+	if (sItems.count() == 0) {
+		propPanel->setScriptTimeValue(m_script->timeValue());
+		propPanel->setScriptTimeUnit(m_script->timeUnit());
+	}
+	else if (sItems.count() == 1)
+	{
+		QGraphicsItem *item = sItems.at(0);
+		DiagramBox *selectedBox  = dynamic_cast<DiagramBox *>(item);
+		if (selectedBox != nullptr) {
+			// First check that we don't already have enabled data visualization for this box
+			if(selectedBox->displayedProxy() != nullptr && selectedBox->visuType() == type && parameters.size() == 0)
+			{
+				emit displayStatusMessage("This visualization is already enabled for this box");
+				return;
+			}
+
+			if (selectedBox->outputType() == MATRIX) {
+				selectedBox->setVisuType(type);
+				selectedBox->setVisuParameters(parameters);
+				// Insert the 3D widget
+				ThreadShader *thread = new ThreadShader(selectedBox, type, parameters);
+				connect(this, SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
+				connect(this, SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
+
+				// Create the activity fetcher with the topic name
+				ActivityFetcher *fetcher = nullptr;
+				if (selectedBox->publish()) {
+					fetcher = new ActivityFetcher(selectedBox->topic(), selectedBox);
+				} else {
+					fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(selectedBox->scriptName(),
+					                                                            selectedBox->uuid().toString())),
+					                              selectedBox);
+					m_script->rosSession()->addToHotList(QSet<QUuid>() << selectedBox->uuid());
+				}
+				thread->proxy()->setActivityFetcher(fetcher);
+
+				connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
+
+				addItem(thread->shaderMoveBar());
+				addItem(thread->proxy()->linkToBox());
+			}
+			else
+				qWarning() << "Output type not supported for 3D visualization";
 		}
 	}
 }

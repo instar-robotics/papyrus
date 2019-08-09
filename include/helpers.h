@@ -25,7 +25,6 @@
 #include "types.h"
 #include "papyruswindow.h"
 #include "slot.h"
-#include "constants.h"
 
 #include <ros/ros.h>
 
@@ -91,7 +90,5 @@ qreal qrealAbsMax(const qreal a, qreal b);
 MatrixShape stringToMatrixShape(const QString &str);
 
 QString matrixShapeToString(const MatrixShape shape);
-
-bool realAreEquals(qreal a, qreal b, qreal epsilon = EPSILON);
 
 #endif // HELPERS_H

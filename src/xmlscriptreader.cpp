@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -287,6 +287,8 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	bool visuVisible;
 	QPointF visuPos;
 	QSizeF visuSize;
+	VisuType visuType = NO_VISU_TYPE;
+	QMap<QString, QVariant> parameters;
 	bool isCommented = false; // defaults to non commented
 
 	readUUID(&uuid);
@@ -310,6 +312,10 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			readOutputSlot(outputSlot, &rows, &cols);
 		else if (reader.name() == "position")
 			readPosition(&pos);
+		else if (reader.name() == "parameters")
+			readParameters(parameters);
+		else if (reader.name() == "visuType")
+			readVisuType(visuType);
 		else if (reader.name() == "visualizer")
 			readVisualizer(createVisualizer, visuVisible, visuPos, visuSize);
 		else if (reader.name() == "libname")
@@ -343,7 +349,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			if (f->name() == name) {
 				functionFound = true;
 
-				// Extract DiagrambBox's information
+				// Extract DiagramBox's information
 				iconFilePath = f->iconFilepath();
 				description = f->description();
 				libname = f->libName();
@@ -408,45 +414,103 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			b->setTopic(topic);
 		b->setIsCommented(isCommented);
 	}
-
+	if(visuType == NO_VISU_TYPE)
+		visuType = UNKNOWN_VISU_TYPE;
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);
 	b->setMatrixShape(matrixShape);
+	b->setVisuType(visuType);
+	b->setVisuParameters(parameters);
 	m_script->scene()->addBox(b, pos);
 
 	// Check whether we should create the visualizer, and if yes, check which one
 	// WARNING: this is code duplication from diagramscene.cpp, we should factor out this code!
 	if (createVisualizer && reader.name() != "constant") {
-		ActivityVisualizer *vis = nullptr;
-		switch (b->outputType()) {
-			case SCALAR:
-				vis = new ActivityVisualizerBars(b);
-			break;
-
-			case MATRIX:
-				// (1,1) matrix is treated as a scalar
-				if (b->rows() == 1 && b->cols() == 1)
+		if(is2DVisuType(visuType))
+		{
+			ActivityVisualizer *vis = nullptr;
+			switch (b->outputType()) {
+				case SCALAR:
 					vis = new ActivityVisualizerBars(b);
-				// (1,N) and (N,1) are vectors: they are displayed as several scalars
-				else if (b->rows() == 1 || b->cols() == 1)
-					vis = new ActivityVisualizerBars(b);
-				else
-					vis = new ActivityVisualizerThermal(b);
-			break;
+				break;
 
-			default:
-				qDebug() << "Ouput type not supported for visualization";
-			return;
-			break;
+				case MATRIX:
+					// (1,1) matrix is treated as a scalar
+					if (b->rows() == 1 && b->cols() == 1)
+						vis = new ActivityVisualizerBars(b);
+					// (1,N) and (N,1) are vectors: they are displayed as several scalars
+					else if (b->rows() == 1 || b->cols() == 1)
+						vis = new ActivityVisualizerBars(b);
+					else
+						vis = new ActivityVisualizerThermal(b);
+				break;
+
+				default:
+					qDebug() << "Ouput type not supported for visualization";
+				return;
+				break;
+			}
+
+			if (vis != nullptr) {
+				vis->setPos(visuPos);
+				vis->setWidth(visuSize.width());
+				vis->setHeight(visuSize.height());
+				vis->setVisible(visuVisible);
+				vis->updatePixmap();
+
+				// Create the activity fetcher with the topic name
+				ActivityFetcher *fetcher = nullptr;
+				if (b->publish()) {
+					fetcher = new ActivityFetcher(b->topic(), b);
+				} else {
+					fetcher = new ActivityFetcher(ensureSlashPrefix(mkTopicName(b->scriptName(),
+					                                                            b->uuid().toString())),
+					                              b);
+					m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
+				}
+
+
+				//draw a link between the box and its visu
+				LinkVisuToBox *linkVisuToBox = new LinkVisuToBox(vis->x()+vis->width()/2,
+				                                                 vis->y()+vis->height()/2,
+				                                                 b->x()+b->bWidth()/2,
+				                                                 b->y()+b->bHeight()/2);
+				b->scene()->addItem(linkVisuToBox);
+				vis->setLinkToBox(linkVisuToBox);
+
+				// This is dirty, but this is used to trigger the correct onSizeChanged() event (the
+				// child's one, not the mother class) to repaint correctly the axes, the function name,
+				// etc. This must be refactored to be cleaner!
+				ActivityVisualizerBars *visBars = dynamic_cast<ActivityVisualizerBars *>(vis);
+				if (visBars != nullptr) {
+					visBars->onSizeChanged();
+					visBars->setActivityFetcher(fetcher);
+					QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBars, SLOT(updateBars(QVector<qreal>*)));
+				} else {
+					ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
+					if (visTh != nullptr) {
+						visTh->onSizeChanged();
+						visTh->setActivityFetcher(fetcher);
+						QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visTh, SLOT(updateThermal(QVector<qreal>*)));
+					}
+					else
+						qWarning() << "Only Bars and Thermal visualizers are supported for now!";
+				}
+
+			}
 		}
+		else if(is3DVisuType(visuType))
+		{
 
-		if (vis != nullptr) {
-			vis->setPos(visuPos);
-			vis->setWidth(visuSize.width());
-			vis->setHeight(visuSize.height());
-			vis->setVisible(visuVisible);
-			vis->updatePixmap();
+			// Insert the 3D widget
+			ThreadShader *thread = new ThreadShader(b, visuType, parameters);
+			thread->proxy()->positionWidget(visuPos.x(), visuPos.y());
+			thread->proxy()->resizeWidget(visuSize.width(), visuSize.height());
+			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));
+			QObject::connect(dynamic_cast<DiagramScene *>(b->scene()), SIGNAL(showShaderWidgets()), thread->proxy(), SLOT(showDisplay()));
+
+			b->setDisplayedProxy(thread->proxy());
 
 			// Create the activity fetcher with the topic name
 			ActivityFetcher *fetcher = nullptr;
@@ -458,27 +522,15 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 				                              b);
 				m_script->rosSession()->addToHotList(QSet<QUuid>() << b->uuid());
 			}
+			thread->proxy()->setActivityFetcher(fetcher);
+			QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), thread->proxy(), SLOT(updateValues(QVector<qreal>*)));
+			thread->proxy()->setVisible(visuVisible);
 
-			// This is dirty, but this is used to trigger the correct onSizeChanged() event (the
-			// child's one, not the mother class) to repaint correctly the axes, the function name,
-			// etc. This must be refactored to be cleaner!
-			ActivityVisualizerBars *visBars = dynamic_cast<ActivityVisualizerBars *>(vis);
-			if (visBars != nullptr) {
-				visBars->onSizeChanged();
-				visBars->setActivityFetcher(fetcher);
-				QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visBars, SLOT(updateBars(QVector<qreal>*)));
-			} else {
-				ActivityVisualizerThermal *visTh = dynamic_cast<ActivityVisualizerThermal *>(vis);
-				if (visTh != nullptr) {
-					visTh->onSizeChanged();
-					visTh->setActivityFetcher(fetcher);
-					QObject::connect(fetcher, SIGNAL(newMatrix(QVector<qreal>*)), visTh, SLOT(updateThermal(QVector<qreal>*)));
-				}
-				else
-					qWarning() << "Only Bars and Thermal visualizers are supported for now!";
-			}
-
+			b->scene()->addItem(thread->shaderMoveBar());
+			b->scene()->addItem(thread->proxy()->linkToBox());
 		}
+		else
+			qWarning() << "Unknown visualization type";
 	}
 
 	// TODO: check all links for invalidity and set script's invalidity
@@ -882,6 +934,19 @@ void XmlScriptReader::readCommented(bool &isCommented)
 	}
 }
 
+void XmlScriptReader::readVisuType(VisuType &visuType)
+{
+	visuType = stringToVisuType(reader.readElementText());
+}
+
+void XmlScriptReader::readParameters(QMap<QString, QVariant> &parameters)
+{
+	while (reader.readNextStartElement())
+	{
+		parameters.insert(reader.name().toString(), QVariant(reader.readElementText()));
+	}
+}
+
 void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox *> *allBoxes,
                                 std::set<std::pair<QUuid, Link *>> *incompleteLinks)
 {
@@ -894,4 +959,3 @@ void XmlScriptReader::readLinks(InputSlot *inputSlot, std::map<QUuid, DiagramBox
 			reader.skipCurrentElement();
 	}
 }
-

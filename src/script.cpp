@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -202,10 +202,18 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			emit displayStatusMessage(QObject::tr("No file for ") + m_name +
 			                          tr(", please select one..."), MSG_INFO);
 
+			// Hide visible 3D visualizations to prevent any conflict with the QFileDialog
+			if (m_scene != NULL)
+				m_scene->hide3DVisualizations();
+
 			QString savePath = QFileDialog::getSaveFileName(NULL,
 			                             QObject::tr("Save as..."),
 			                             basePath + "/" + mkFilenameFromScript(m_name.replace(' ', '_')),
 			                             QObject::tr("XML files (*.xml);; Crypted XML files (*.xml.crypted)"));
+
+			// Now the QDialogFile has been quit, set visible every 3D visualizations that just have been hide
+			if (m_scene != NULL)
+				m_scene->show3DVisualizations();
 
 			// Abort if it's empty
 			if (savePath.isEmpty()) {
@@ -434,10 +442,22 @@ void Script::save(const QString &basePath, bool isAutoSave)
 		stream.writeTextElement("y", QString::number(pos.y()));
 		stream.writeEndElement(); // position
 
+		if(item->visuParameters().size() > 0)
+		{
+			stream.writeStartElement("parameters");
+			QList<QString> keys = item->visuParameters().keys();
+			for(int i = 0; i<keys.size(); i++)
+				stream.writeTextElement(keys.at(i), item->visuParameters().value(keys.at(i)).toString());
+			stream.writeEndElement(); // parameters
+		}
+
+		stream.writeTextElement("visuType", visuTypeToString(item->visuType()));
+
 		// Save position of the activity visualizer if it was displayed
-		if (!constant && item->activityVisualizer() != nullptr) {
+		if (!constant && item->activityVisualizer() != nullptr){
 			ActivityVisualizer *vis = item->activityVisualizer();
 			stream.writeStartElement("visualizer");
+
 			stream.writeTextElement("visible", vis->isVisible() ? "true" : "false");
 
 			stream.writeStartElement("position");
@@ -448,7 +468,26 @@ void Script::save(const QString &basePath, bool isAutoSave)
 			stream.writeStartElement("size");
 			stream.writeTextElement("width", QString::number(vis->width()));
 			stream.writeTextElement("height", QString::number(vis->height()));
+			stream.writeEndElement(); // size
+
+			stream.writeEndElement(); // visualizer
+		}
+		else if(!constant && item->displayedProxy() != nullptr)
+		{
+			ShaderProxy *proxy = item->displayedProxy();
+			stream.writeStartElement("visualizer");
+
+			stream.writeTextElement("visible", proxy->isVisible() ? "true" : "false");
+
+			stream.writeStartElement("position");
+			stream.writeTextElement("x", QString::number(proxy->scenePos().x()));
+			stream.writeTextElement("y", QString::number(proxy->scenePos().y()));
 			stream.writeEndElement(); // position
+
+			stream.writeStartElement("size");
+			stream.writeTextElement("width", QString::number(proxy->widget()->width()));
+			stream.writeTextElement("height", QString::number(proxy->widget()->height()));
+			stream.writeEndElement(); // size
 
 			stream.writeEndElement(); // visualizer
 		}

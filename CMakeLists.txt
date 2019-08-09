@@ -228,8 +228,11 @@ find_package(Qt5Widgets REQUIRED)
 # Add Qt5's svg module
 find_package(Qt5Svg REQUIRED)
 
-# Add Qt5's charts module
-# find_package(Qt5Charts REQUIRED)
+# Add Qt5's OpenGL module
+find_package(Qt5OpenGL REQUIRED)
+
+# Add OpenGL package
+find_package(OpenGL REQUIRED)
 
 # Fetch all sources
 file(GLOB SOURCES "src/*.cpp")
@@ -241,9 +244,9 @@ file(GLOB HEADERS "include/*.h")
 file(GLOB RESOURCES "*.qrc")
 
 add_executable(papyrus ${SOURCES} ${HEADERS} ${RESOURCES})
-# target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts cryptopp)
-# target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::Charts ${LIBRARIES})
-target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg ${LIBRARIES})
+# target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg cryptopp)
+# target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg ${LIBRARIES})
+target_link_libraries(papyrus  ${catkin_LIBRARIES} Qt5::Widgets Qt5::Svg Qt5::OpenGL ${OPENGL_LIBRARIES} ${LIBRARIES})
 
 target_include_directories(papyrus PRIVATE include)
 

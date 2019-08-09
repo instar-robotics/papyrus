@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -100,6 +100,12 @@ public:
 
 	QPushButton *cancelBtn();
 
+	void addVisuChoices();
+
+	VisuType visuType();
+
+	void updateVisuTypeChoices(int rows, int cols);
+
 private:
 	DiagramScene *m_activeScene; // The currently visible scene
 
@@ -115,7 +121,7 @@ private:
 	QPushButton m_weightsLoadBtn; // Button used to load script's weigth from default location
 
 	// Box
-	QFormLayout *m_boxLayout;    // Layout for the box properties (access needed to hide rows)
+	QGridLayout *m_boxLayout;    // Layout for the box properties (access needed to hide rows)
 	QFrame m_boxFrame;           // Container for box's properties
 	QLabel m_boxName;            // Display the name of the box
 	PropLineEdit m_boxTitle;     // Allow to see or change the box's custom name
@@ -126,7 +132,15 @@ private:
 	QCheckBox m_saveActivity;    // To enable saving the activity of the box
 	QCheckBox m_publish;         // To enable publish the output of the function
 	PropLineEdit m_topic;        // To input the topic name for publishing
-	QPushButton m_displayVisu;  // Display the box's data vizualisation
+	QPushButton m_displayVisu;   // Display the box's data vizualisation in 2d
+	QComboBox m_choseVisuType; //combo box to chose the 3d vizualisation to display
+	QPushButton m_changeParameters; //Display the visu parameter window
+	QLabel m_boxTitleLabel;
+	QLabel m_boxOutputTypeLabel;
+	QLabel m_boxMatrixShapeLabel;
+	QLabel m_rowsInputLabel;
+	QLabel m_colsInputLabel;
+	QLabel m_topicLabel;
 
 	// Link
 	QFormLayout *m_linkLayout;    // Layout for the link properties (access needed to hide rows)
@@ -159,16 +173,21 @@ public slots:
 	void displayZoneProperties(Zone *zone);
 	void convertTimeValues(int idx);
 	void toggleTopic(bool isChecked);
+	void onChangeParametersClicked(bool);
 
 private slots:
 	void onTopicChanged(const QString &topic);
 	void onConnectivityChanged(int idx);
 	void onWeightsSaveClicked(bool);
 	void onWeightsLoadClicked(bool);
+	void onDisplayVisuClicked(bool);
 signals:
 	void enterPressed();
 	void escapePressed();
 	void displayStatusMessage(const QString &text, MessageUrgency urgency = MSG_INFO);
+	void displayVisu(VisuType type);
+	void changeCurrentVisuType(QString);
+	void changeParameters(VisuType type);
 };
 
 #endif // PROPERTIESPANEL_H

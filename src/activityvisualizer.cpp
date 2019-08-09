@@ -1,4 +1,4 @@
-#include "activityvisualizer.h"
+﻿#include "activityvisualizer.h"
 
 #include <QDebug>
 #include <QCursor>
@@ -22,7 +22,8 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
       m_range(1.0),
       m_minWidth(100),
       m_minHeight(100),
-      m_activityFetcher(nullptr)
+      m_activityFetcher(nullptr),
+      m_linkToBox(nullptr)
 {
 	m_box->setActivityVisualizer(this);
 	m_box->setIsActivityVisuEnabled(true);
@@ -37,6 +38,7 @@ ActivityVisualizer::ActivityVisualizer(DiagramBox *box)
 
 	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
+	setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 
 	// Add the visualizer to the box's scene
 	if (m_box->scene() == nullptr)
@@ -65,6 +67,12 @@ ActivityVisualizer::~ActivityVisualizer()
 	if (m_box != nullptr) {
 		m_box->setActivityVisualizer(nullptr);
 		m_box->setIsActivityVisuEnabled(false);
+	}
+
+	if(m_linkToBox != nullptr)
+	{
+		delete m_linkToBox;
+		m_linkToBox = nullptr;
 	}
 }
 
@@ -161,10 +169,21 @@ void ActivityVisualizer::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 		default:
 			;
 	}
-
 	setPixmap(QPixmap::fromImage(m_image).scaled(m_width, m_height));
+	updateLinkToBox(scenePos());
 
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
+}
+
+QVariant ActivityVisualizer::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+	if ((change == QGraphicsItem::ItemPositionChange || change == QGraphicsItem::ItemScenePositionHasChanged) && scene()) {
+		// Get coordinate of the target new position
+		QPointF newPos = value.toPointF();
+		updateLinkToBox(newPos);
+		return newPos;
+	}
+	return QGraphicsItem::itemChange(change, value);
 }
 
 void ActivityVisualizer::updatePixmap()
@@ -221,6 +240,19 @@ void ActivityVisualizer::setHeight(int height)
 {
 	m_height = height;
 }
+
+void ActivityVisualizer::setLinkToBox(LinkVisuToBox *linkToBox)
+{
+	m_linkToBox = linkToBox;
+}
+
+void ActivityVisualizer::updateLinkToBox(QPointF newPos)
+{
+	// When the visu is moved, the link to its diagram box is moved too
+	if(m_linkToBox != nullptr)
+		m_linkToBox->centerVisuMoved(newPos.x()+width()/2.0, newPos.y()+height()/2.0);
+}
+
 
 void ActivityVisualizer::onBoxDestroyed()
 {

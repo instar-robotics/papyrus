@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -57,6 +57,7 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
                                                     m_publish(tr("Publish output"), this),
                                                     m_topic(this),
                                                     m_displayVisu(tr("Visualize Activity"), this),
+                                                    m_choseVisuType(this),
                                                     m_linkLayout(nullptr),
                                                     m_linkFrame(this),
                                                     m_linkType(this),
@@ -126,35 +127,57 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	connect(&m_weightsLoadBtn, SIGNAL(clicked(bool)), this, SLOT(onWeightsLoadClicked(bool)));
 
 	// Parameterize the fields
-	m_boxLayout = new QFormLayout;
+	m_boxLayout = new QGridLayout;
 	m_boxLayout->setContentsMargins(0, 0, 0, 0); // Reduce inner margins due to lack of space
 	m_boxName.setAlignment(Qt::AlignCenter);
 	QFont f(m_boxName.font());
 	f.setBold(true);
 	m_boxName.setFont(f);
-	m_boxTitle.setSizeHint(QSize(170, 35));
-	m_topic.setSizeHint(QSize(170, 35));
+	m_boxTitle.setSizeHint(QSize(130, 35));
+	m_topic.setSizeHint(QSize(130, 35));
 	m_rowsInput.setRange(1, MAX_ROWS);
 	m_colsInput.setRange(1, MAX_COLS);
 	m_rowsInput.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_colsInput.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	m_changeParameters.setText(tr("Change parameters"));
 //	m_displayVisu.setText(tr("Visualize Activity"));
 	connect(&m_publish, SIGNAL(toggled(bool)), this, SLOT(toggleTopic(bool)));
 	connect(&m_topic, SIGNAL(textChanged(QString)), this, SLOT(onTopicChanged(QString)));
+	connect(&m_displayVisu, SIGNAL(clicked(bool)), this, SLOT(onDisplayVisuClicked(bool)));
+	connect(&m_changeParameters, SIGNAL(clicked(bool)), this, SLOT(onChangeParametersClicked(bool)));
+
+	// Fill the labels
+	m_boxTitleLabel.setText(tr("Title:"));
+	m_boxOutputTypeLabel.setText(tr("Type:"));
+	m_boxMatrixShapeLabel.setText(tr("Shape:"));
+	m_rowsInputLabel.setText(tr("Rows:"));
+	m_colsInputLabel.setText(tr("Cols:"));
+	m_topicLabel.setText(tr("Topic:"));
 
 	// Add the fields to the layout
-	m_boxLayout->addRow(&m_boxName);
-	m_boxLayout->addRow(tr("Title:"), &m_boxTitle);
-	m_boxLayout->addRow(tr("Type:"), &m_boxOutputType);
-	m_boxLayout->addRow(tr("Shape:"), &m_boxMatrixShape);
-	m_boxLayout->addRow(tr("Rows:"), &m_rowsInput);
-	m_boxLayout->addRow(tr("Cols:"), &m_colsInput);
-	m_boxLayout->addRow(&m_saveActivity);
-	m_boxLayout->addRow(&m_publish);
-	m_boxLayout->addRow(tr("Topic:"), &m_topic);
-	m_boxLayout->addRow(&m_displayVisu);
+	int i = 0;
+	m_boxLayout->addWidget(&m_boxName,i,0,1,2);
+	m_boxLayout->addWidget(&m_boxTitleLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_boxTitle,i,1,1,1);
+	m_boxLayout->addWidget(&m_boxOutputTypeLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_boxOutputType,i,1,1,1);
+	m_boxLayout->addWidget(&m_boxMatrixShapeLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_boxMatrixShape,i,1,1,1);
+	m_boxLayout->addWidget(&m_rowsInputLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_rowsInput,i,1,1,1);
+	m_boxLayout->addWidget(&m_colsInputLabel,++i,0,1,1);
+	m_boxLayout->addWidget(&m_colsInput,i,1,1,1);
+	m_boxLayout->addWidget(&m_saveActivity,++i,0,1,1);
+	m_boxLayout->addWidget(&m_publish,i,1,1,1);
+	m_boxLayout->addWidget(&m_topicLabel,++i,0,1,2);
+	m_boxLayout->addWidget(&m_topic,++i,0,1,2);
+	m_boxLayout->addWidget(&m_displayVisu,++i,0,1,2);
+	m_boxLayout->addWidget(&m_choseVisuType,++i,0,1,1);
+	m_boxLayout->addWidget(&m_changeParameters,i,1,1,1);
 
 	m_boxFrame.setLayout(m_boxLayout);
+	addVisuChoices();
+	connect(this, SIGNAL(changeCurrentVisuType(QString)), &m_choseVisuType, SLOT(setCurrentText(QString)));
 
 	// Create layout for the Link
 	m_linkLayout = new QFormLayout;
@@ -203,6 +226,10 @@ PropertiesPanel::PropertiesPanel(QWidget *parent) : QGroupBox(parent),
 	// By default, hide the frames and the buttons
 	hideAllFrames(true);
 }
+void PropertiesPanel::onDisplayVisuClicked(bool)
+{
+	emit displayVisu(stringToVisuType(m_choseVisuType.currentText()));
+}
 
 /**
  * @brief PropertiesPanel::hideAllFrames hides all frame from the properties panel, making it empty
@@ -235,6 +262,56 @@ QPushButton *PropertiesPanel::cancelBtn()
 	return &m_cancelBtn;
 }
 
+void PropertiesPanel::addVisuChoices()
+{
+	int i = 0;
+	m_choseVisuType.insertItem(i++,visuTypeToString(THERMAL_2D));
+	m_choseVisuType.insertSeparator(i++);
+
+	m_choseVisuType.insertItem(i++,visuTypeToString(SURFACE_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_CHART_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(CONE_CHART_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(WIREFRAME_3D));
+	m_choseVisuType.insertSeparator(i++);
+
+	m_choseVisuType.insertItem(i++,visuTypeToString(CROWN_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_CIRCLE_3D));
+	m_choseVisuType.insertSeparator(i++);
+
+	m_choseVisuType.insertItem(i++,visuTypeToString(SURFACE_POLAR_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(BAR_POLAR_3D));
+	m_choseVisuType.insertItem(i++,visuTypeToString(WIREFRAME_POLAR_3D));
+	m_choseVisuType.insertSeparator(i++);
+
+	m_choseVisuType.insertItem(i++,visuTypeToString(COMPASS_3D));
+}
+
+VisuType PropertiesPanel::visuType()
+{
+	return stringToVisuType(m_choseVisuType.currentText());
+}
+
+void PropertiesPanel::updateVisuTypeChoices(int rows, int cols)
+{
+	QModelIndex index;
+	QVariant var;
+	for(int i = 0; i < m_choseVisuType.count(); i++)
+	{
+		VisuType type = stringToVisuType(m_choseVisuType.itemText(i));
+		if(type != UNKNOWN_VISU_TYPE)
+		{
+			index = m_choseVisuType.model()->index(i,0);
+			if(doesVisuFit(type, rows, cols))
+				var = QVariant(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+			else
+				var = QVariant(Qt::NoItemFlags);
+			m_choseVisuType.model()->setData(index, var, Qt::UserRole-1);
+		}
+	}
+}
+
+
+
 /**
  * @brief PropertiesPanel::displayBoxProperties updates the contents of the PropertiesPanel to
  * display the properties of the selected box
@@ -253,6 +330,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 	m_boxName.setText(box->name());
 	m_boxTitle.setText(box->title());
 	m_boxTitle.setPlaceholderText(box->name());
+	emit changeCurrentVisuType(visuTypeToString(box->visuType()));
 
 	if (!isConstantBox) {
 		// Check the "save activity" box according to the box's flag
@@ -276,13 +354,13 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Re-insert input for row and columns since it's a matrix
 		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
+		if ((dimLabel = &m_colsInputLabel))
 			dimLabel->show();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
 		m_rowsInput.show();
 
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
+		if ((dimLabel = &m_rowsInputLabel))
 			dimLabel->show();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
@@ -308,7 +386,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		// Show the shape of the box (since it's matrix)
 		m_boxMatrixShape.setText(matrixShapeToString(box->matrixShape()));
 		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
+		if ((shapeLabel = &m_boxMatrixShapeLabel))
 			shapeLabel->show();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
@@ -319,13 +397,13 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide input for rows and columns since it's a scalar
 		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
+		if ((dimLabel = &m_colsInputLabel))
 			dimLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
 		m_colsInput.hide();
 
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
+		if ((dimLabel = &m_rowsInputLabel))
 			m_rowsInput.hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
@@ -333,7 +411,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide the shape field
 		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
+		if ((shapeLabel = &m_boxMatrixShapeLabel))
 			shapeLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
@@ -343,13 +421,13 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide input for rows and columns since it's not a matrix
 		QWidget *dimLabel = NULL;
-		if ((dimLabel = m_boxLayout->labelForField(&m_colsInput)))
+		if ((dimLabel = &m_colsInputLabel))
 			dimLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'columns'"));
 		m_colsInput.hide();
 
-		if ((dimLabel = m_boxLayout->labelForField(&m_rowsInput)))
+		if ((dimLabel = &m_rowsInputLabel))
 			m_rowsInput.hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'rows'"));
@@ -357,7 +435,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 
 		// Hide the shape field
 		QWidget *shapeLabel = NULL;
-		if ((shapeLabel = m_boxLayout->labelForField(&m_boxMatrixShape)))
+		if ((shapeLabel = &m_boxMatrixShapeLabel))
 			shapeLabel->hide();
 		else
 			informUserAndCrash(tr("Failed to fetch label for field 'shape'"));
@@ -367,7 +445,7 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 	}
 
 	// Hide fields for constant box
-	QWidget *topicLabel = m_boxLayout->labelForField(&m_topic);
+	QWidget *topicLabel = &m_topicLabel;
 	if (topicLabel == nullptr)
 		informUserAndCrash(tr("Failed to fetch label for topic name."));
 
@@ -377,12 +455,16 @@ void PropertiesPanel::displayBoxProperties(DiagramBox *box)
 		topicLabel->hide();
 		m_topic.hide();
 		m_displayVisu.hide();
+		m_choseVisuType.hide();
+		m_changeParameters.hide();
 	} else {
 		m_saveActivity.show();
 		m_publish.show();
 		topicLabel->show();
 		m_topic.show();
 		m_displayVisu.show();
+		m_choseVisuType.show();
+		m_changeParameters.show();
 	}
 
 	// Show the box frame and the buttons
@@ -538,6 +620,9 @@ void PropertiesPanel::displayZoneProperties(Zone *zone)
 	// Hide all other frames
 	hideAllFrames();
 
+	// Set the zone's scene to the zone color button
+	m_zoneColor.setCurrentScene(dynamic_cast<DiagramScene *>(zone->scene()));
+
 	// Populate fields
 	m_zoneTitle.setText(zone->title());
 	m_zoneColor.setColor(zone->color());
@@ -568,6 +653,11 @@ void PropertiesPanel::convertTimeValues(int idx)
 void PropertiesPanel::toggleTopic(bool isChecked)
 {
 	m_topic.setEnabled(isChecked);
+}
+
+void PropertiesPanel::onChangeParametersClicked(bool)
+{
+	emit changeParameters(stringToVisuType(m_choseVisuType.currentText()));
 }
 
 /**
@@ -670,7 +760,7 @@ void PropertiesPanel::onWeightsLoadClicked(bool)
 void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 {
 	UpdateBoxCommand *updateCommand = new UpdateBoxCommand(this, box);
-
+	box->setVisuType(stringToVisuType(m_choseVisuType.currentText()));
 	DiagramScene *dScene = dynamic_cast<DiagramScene *>(box->scene());
 	if (dScene == nullptr) {
 		qWarning() << "Cannot update box's properties: no scene!";
@@ -681,7 +771,6 @@ void PropertiesPanel::updateBoxProperties(DiagramBox *box)
 //		qWarning() << "Cannot update box's properties: no undo stack!";
 //		return;
 //	}
-
 	dScene->undoStack().push(updateCommand);
 }
 

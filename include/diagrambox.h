@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -28,6 +28,7 @@
 #include "inputslot.h"
 #include "rossession.h"
 #include "inhibinput.h"
+#include "linkvisutobox.h"
 
 #include <set>
 
@@ -35,10 +36,12 @@
 #include <QIcon>
 #include <QUuid>
 #include <QGraphicsSvgItem>
-#include <QGraphicsProxyWidget>
+#include <QGraphicsSceneMouseEvent>
 
 class Script;
 class ActivityVisualizer;
+class OpenGLProxy;
+class ShaderProxy;
 
 /**
  * @brief The DiagramBox class is the main class that represents a "box" or "neural function".
@@ -159,8 +162,21 @@ public:
 	InhibInput *inhibInput() const;
 	void setInhibInput(InhibInput *inhibInput);
 
+	void setDisplayedProxy(ShaderProxy *displayedProxy);
+	ShaderProxy *displayedProxy() const;
+
 	bool isCommented() const;
+
 	void setIsCommented(bool isCommented);
+	VisuType visuType() const;
+
+	void setVisuType(const VisuType &visuType);
+
+	QMap<QString, QVariant> visuParameters() const;
+
+	void setLinkVisuToBox(LinkVisuToBox *linkVisuToBox);
+
+	void setVisuParameters(const QMap<QString, QVariant> &visuParameters);
 
 protected:
 
@@ -175,6 +191,8 @@ protected:
 
 	QGraphicsSvgItem m_sizeIcon;     // Contains the svg that hints the box's size
 	QGraphicsSvgItem *m_functionIcon; // Contains the SVG icon of the function
+
+	QMap<QString, QVariant> m_visuParameters; //Contains every parameters used by the visu
 
 private:
 	QUuid m_uuid;          // Unique ID of the function's box (to identify links for instance)
@@ -214,10 +232,10 @@ private:
 	QPointF m_oldPos; // Start position when moved (to enable undo)
 
 	ActivityVisualizer *m_activityVisualizer;
-
+	ShaderProxy *m_displayedProxy;
 	bool m_isCommented;  // Whether this Box is commented or not (for the execution)
-
-private slots:
+	VisuType m_visuType;
+	LinkVisuToBox *m_linkVisuToBox;
 
 signals:
 	void boxSelected(DiagramBox *); // Fired when the box is clicked on (used to signal PropertiesPanel)

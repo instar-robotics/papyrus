@@ -70,15 +70,50 @@ HEADERS += include/category.h \
            include/activityvisualizerbars.h \
            include/activityvisualizerthermal.h \
            include/inhibinput.h \
-           include/deletelinkcommand.h \
-           include/deleteboxcommand.h \
-           include/deletezonecommand.h \
-           include/linkelement.h \
-           include/finddialog.h \
-           include/scopewindow.h \
-           include/scopemessage.h \
-           include/scopeitem.h \
-           include/rttokenmessage.h
+          include/mathtransfo.h \
+          include/deletelinkcommand.h \
+          include/deleteboxcommand.h \
+          include/deletezonecommand.h \
+          include/camera.h \
+          include/light.h \
+          include/shaderwidget.h \
+          include/shadermatrix.h \
+          include/shadersurface.h \
+          include/shaderproxy.h \
+          include/shadersurfacealpha.h \
+          include/linkelement.h \
+          include/finddialog.h \
+    include/shadermovebar.h \
+    include/shaderbarchart.h \
+    include/shaderwireframe.h \
+    include/shaderscaleplanes.h \
+    include/shaderaxesplanes.h \
+    include/scopewindow.h \
+    include/scopemessage.h \
+    include/scopeitem.h \
+    include/shadercircular.h \
+    include/shadercrown.h \
+    include/shaderscalecircular.h \
+    include/shaderarrow.h \
+    include/shaderadds.h \
+    include/rttokenmessage.h \
+    include/shaderscalecylinder.h \
+    include/shaderbarcircle.h \
+    include/shaderpolar.h \
+    include/shaderbarpolar.h \
+    include/shaderwireframepolar.h \
+    include/shadersurfacepolar.h \
+    include/shaderscalepolar.h \
+    include/shaderscale.h \
+    include/threadshader.h \
+    include/shadercompass.h \
+    include/shaderscaleallplanes.h \
+    include/shaderconechart.h \
+    include/linkvisutobox.h \
+    include/visufunctions.h \
+    include/visuparamdialog.h \
+    include/circularvisuparamdialog.h \
+    include/polarvisuparamdialog.h
 
 FORMS += src/connectivitywindow.ui src/papyruswindow.ui \
     src/nodeschooser.ui \
@@ -134,14 +169,53 @@ SOURCES += src/category.cpp \
            src/activityvisualizerbars.cpp \
            src/activityvisualizerthermal.cpp \
            src/inhibinput.cpp \
+           src/camera.cpp \
+           src/light.cpp \
+           src/shaderwidget.cpp \
+           src/shadermatrix.cpp \
+           src/shadersurface.cpp \
+           src/mathtransfo.cpp \
            src/deletelinkcommand.cpp \
            src/deleteboxcommand.cpp \
            src/deletezonecommand.cpp \
-           src/linkelement.cpp \
-           src/finddialog.cpp \
-           src/scopewindow.cpp \
-           src/scopemessage.cpp \
-           src/scopeitem.cpp \
-           src/rttokenmessage.cpp
+        src/shaderproxy.cpp \
+        src/linkelement.cpp \
+        src/finddialog.cpp \
+    src/shadermovebar.cpp \
+    src/shaderbarchart.cpp \
+    src/shaderconechart.cpp \
+    src/shaderwireframe.cpp \
+    src/shaderscaleplanes.cpp \
+    src/shaderaxesplanes.cpp \
+    src/scopewindow.cpp \
+    src/scopemessage.cpp \
+    src/scopeitem.cpp \
+    src/shadercircular.cpp \
+    src/shadercrown.cpp \
+    src/shaderscalecircular.cpp \
+    src/shaderarrow.cpp \
+    src/shaderadds.cpp \
+    src/rttokenmessage.cpp \
+    src/shadercircular.cpp \
+    src/shaderscalecylinder.cpp \
+    src/shaderbarcircle.cpp \
+    src/shaderpolar.cpp \
+    src/shaderbarpolar.cpp \
+    src/shaderwireframepolar.cpp \
+    src/shadersurfacepolar.cpp \
+    src/shaderscalepolar.cpp \
+    src/shaderscale.cpp \
+    src/threadshader.cpp \
+    src/shadercompass.cpp \
+    src/shaderscaleallplanes.cpp \
+    src/shaderconechart.cpp \
+    src/linkvisutobox.cpp \
+    src/visufunctions.cpp \
+    src/visuparamdialog.cpp \
+    src/circularvisuparamdialog.cpp \
+    src/polarvisuparamdialog.cpp
 
-RESOURCES += icons.qrc
+RESOURCES += icons.qrc \
+    shaders.qrc
+
+DISTFILES +=

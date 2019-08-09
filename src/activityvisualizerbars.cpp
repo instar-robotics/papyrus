@@ -1,4 +1,4 @@
-#include "activityvisualizerbars.h"
+﻿#include "activityvisualizerbars.h"
 #include "helpers.h"
 
 #include <QDebug>
@@ -143,7 +143,7 @@ void ActivityVisualizerBars::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
 	}
 
 	updatePixmap();
-
+	updateLinkToBox(scenePos());
 	QGraphicsPixmapItem::mouseMoveEvent(evt);
 }
 

@@ -175,8 +175,6 @@ public:
 
 	QMap<QString, QVariant> visuParameters() const;
 
-	void fillVisuParameters(QMap<QString, QVariant> parameters);
-
 	void setLinkVisuToBox(LinkVisuToBox *linkVisuToBox);
 
 	void setVisuParameters(const QMap<QString, QVariant> &visuParameters);

@@ -1502,10 +1502,14 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			PolarVisuDialog dialog(cols-1, indexZero, rotationDir, matrixReadDirection, extremum);
 			if(dialog.exec() == QDialog::Accepted)
 			{
-				indexZero = dialog.getZeroIndex();
-				rotationDir = dialog.getRotationDirection();
-				matrixReadDirection = dialog.getMatrixReadDirection();
-				extremum = dialog.getExtremum();
+				if(dialog.getZeroIndex() > -1)
+					indexZero = dialog.getZeroIndex();
+				if(dialog.getRotationDirection() != INVALID_ROTATION_DIR)
+					rotationDir = dialog.getRotationDirection();
+				if(dialog.getExtremum() > -1)
+					extremum = dialog.getExtremum();
+				if(dialog.getMatrixReadDirection() != INVALID_MATRIX_READ_DIR)
+					matrixReadDirection = dialog.getMatrixReadDirection();
 			}
 			parameters.insert("RotationDir", QVariant(rotationDir));
 			parameters.insert("IndexZero", QVariant(indexZero));
@@ -1537,9 +1541,12 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 			CircularVisuDialog dialog(maxIndex, indexZero, rotationDir, extremum);
 			if(dialog.exec() == QDialog::Accepted)
 			{
-				indexZero = dialog.getZeroIndex();
-				rotationDir = dialog.getRotationDirection();
-				extremum = dialog.getExtremum();
+				if(dialog.getZeroIndex() > -1)
+					indexZero = dialog.getZeroIndex();
+				if(dialog.getRotationDirection() != INVALID_ROTATION_DIR)
+					rotationDir = dialog.getRotationDirection();
+				if(dialog.getExtremum() > -1)
+					extremum = dialog.getExtremum();
 			}
 			parameters.insert("RotationDir", QVariant(rotationDir));
 			parameters.insert("IndexZero", QVariant(indexZero));
@@ -1556,7 +1563,7 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		emit displayStatusMessage("No adjustable parameters for this visualization");
 		return;
 	}
-	selectedBox->fillVisuParameters(parameters);
+	selectedBox->setVisuParameters(parameters);
 	if(selectedBox->displayedProxy() != nullptr)
 	{
 		display3DVisu(type, parameters);
@@ -1756,7 +1763,7 @@ void DiagramScene::display3DVisu(VisuType type, QMap<QString, QVariant> paramete
 
 			if (selectedBox->outputType() == MATRIX) {
 				selectedBox->setVisuType(type);
-				selectedBox->fillVisuParameters(parameters);
+				selectedBox->setVisuParameters(parameters);
 				// Insert the 3D widget
 				ThreadShader *thread = new ThreadShader(selectedBox, type, parameters);
 				connect(this, SIGNAL(hideShaderWidgets()), thread->proxy(), SLOT(hideDisplay()));

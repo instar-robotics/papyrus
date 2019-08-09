@@ -287,7 +287,7 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 	bool visuVisible;
 	QPointF visuPos;
 	QSizeF visuSize;
-	VisuType visuType = NONE;
+	VisuType visuType = NO_VISU_TYPE;
 	QMap<QString, QVariant> parameters;
 	bool isCommented = false; // defaults to non commented
 
@@ -414,14 +414,14 @@ void XmlScriptReader::readFunction(std::map<QUuid, DiagramBox *> *allBoxes,
 			b->setTopic(topic);
 		b->setIsCommented(isCommented);
 	}
-	if(visuType == NONE)
-		visuType = UNKNOWN;
+	if(visuType == NO_VISU_TYPE)
+		visuType = UNKNOWN_VISU_TYPE;
 	b->setIconFilepath(iconFilePath);
 	b->setRows(rows);
 	b->setCols(cols);
 	b->setMatrixShape(matrixShape);
 	b->setVisuType(visuType);
-	b->fillVisuParameters(parameters);
+	b->setVisuParameters(parameters);
 	m_script->scene()->addBox(b, pos);
 
 	// Check whether we should create the visualizer, and if yes, check which one

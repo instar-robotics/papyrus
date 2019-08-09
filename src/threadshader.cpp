@@ -55,6 +55,11 @@ void ThreadShader::run()
 		msleep(m_delay);
 		m_mutex.unlock();
 	}
+
+	m_widget = nullptr;
+	m_shaderMoveBar = nullptr;
+	m_proxy = nullptr;
+
 	quit();
 }
 

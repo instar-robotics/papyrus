@@ -25,7 +25,7 @@ VisuType stringToVisuType(const QString &str)
 		return SURFACE_POLAR_3D;
 	if(visuType == "COMPASS 3D")
 		return COMPASS_3D;
-	return UNKNOWN;
+	return UNKNOWN_VISU_TYPE;
 }
 
 QString visuTypeToString(const VisuType &visuType)

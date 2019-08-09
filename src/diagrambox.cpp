@@ -358,11 +358,6 @@ QMap<QString, QVariant> DiagramBox::visuParameters() const
 	return m_visuParameters;
 }
 
-void DiagramBox::fillVisuParameters(QMap<QString, QVariant> parameters)
-{
-	m_visuParameters = parameters;
-}
-
 void DiagramBox::setLinkVisuToBox(LinkVisuToBox *linkVisuToBox)
 {
 	m_linkVisuToBox = linkVisuToBox;

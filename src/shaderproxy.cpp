@@ -3,6 +3,7 @@
 ShaderProxy::ShaderProxy(ShaderWidget *widget, ShaderMoveBar *moveBar, DiagramBox * box, QMutex *mutex):
     m_widget(widget),
     m_moveBar(moveBar),
+    m_activityFetcher(nullptr),
     m_box(box),
     m_linkToBox(nullptr),
     m_mutex(mutex)
@@ -55,6 +56,13 @@ ShaderProxy::~ShaderProxy()
 		delete m_moveBar;
 	if(m_linkToBox != nullptr)
 		delete m_linkToBox;
+
+	m_widget = nullptr;
+	m_moveBar = nullptr;
+	m_activityFetcher = nullptr;
+	m_box = nullptr;
+	m_linkToBox = nullptr;
+	m_mutex = nullptr;
 }
 
 void ShaderProxy::updateProxy()

@@ -167,18 +167,20 @@ enum VisuType{
 	BAR_POLAR_3D,
 	WIREFRAME_POLAR_3D,
 	COMPASS_3D,
-	UNKNOWN,
-	NONE
+	UNKNOWN_VISU_TYPE,
+	NO_VISU_TYPE
 };
 
 // Rotation direction for circular visualizations
 enum RotationDir{
+	INVALID_ROTATION_DIR,
 	CLOCKWISE,
 	COUNTERCLOCKWISE
 };
 
 // How to read the matrix : line per line or column per column
 enum MatrixReadDirection{
+	INVALID_MATRIX_READ_DIR,
 	LINE_PER_LINE,
 	COLUMN_PER_COLUMN
 };

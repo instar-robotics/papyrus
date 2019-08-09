@@ -298,7 +298,7 @@ void PropertiesPanel::updateVisuTypeChoices(int rows, int cols)
 	for(int i = 0; i < m_choseVisuType.count(); i++)
 	{
 		VisuType type = stringToVisuType(m_choseVisuType.itemText(i));
-		if(type != UNKNOWN)
+		if(type != UNKNOWN_VISU_TYPE)
 		{
 			index = m_choseVisuType.model()->index(i,0);
 			if(doesVisuFit(type, rows, cols))

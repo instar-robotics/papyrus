@@ -2,7 +2,10 @@
 
 #include <QDebug>
 
-ShaderMoveBar::ShaderMoveBar():m_linkVisuToBox(nullptr)
+ShaderMoveBar::ShaderMoveBar():
+    m_proxy(nullptr),
+    m_thread(nullptr),
+    m_linkVisuToBox(nullptr)
 {
 	setFlag(ItemSendsGeometryChanges, ItemIsMovable);
 }
@@ -10,6 +13,8 @@ ShaderMoveBar::ShaderMoveBar():m_linkVisuToBox(nullptr)
 ShaderMoveBar::~ShaderMoveBar()
 {
 	m_proxy = nullptr;
+	m_thread = nullptr;
+	m_linkVisuToBox = nullptr;
 }
 
 ShaderProxy* ShaderMoveBar::proxy() const

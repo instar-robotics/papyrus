@@ -1,6 +1,21 @@
 ﻿#include "visudialog.h"
 
-VisuDialog::VisuDialog()
+VisuDialog::VisuDialog():
+    m_closeButton(nullptr),
+    m_matrixReadDirLabel(nullptr),
+    m_matrixReadRadioBoxLayout(nullptr),
+    m_matrixReadRadioBox(nullptr),
+    m_linePerLine(nullptr),
+    m_columnPerColumn(nullptr),
+    m_rotationDirLabel(nullptr),
+    m_rotationRadioBoxLayout(nullptr),
+    m_rotationRadioBox(nullptr),
+    m_clockwise(nullptr),
+    m_counterclockwise(nullptr),
+    m_indexLabel(nullptr),
+    m_zeroIndex(nullptr),
+    m_domainLabel(nullptr),
+    m_extremum(nullptr)
 {
 	setWindowTitle("Visualization parameters");
 	m_layout = new QVBoxLayout();
@@ -9,10 +24,15 @@ VisuDialog::VisuDialog()
 
 int VisuDialog::getZeroIndex()
 {
-	return m_zeroIndex->value();
+	if(m_zeroIndex != nullptr)
+		return m_zeroIndex->value();
+	else
+		return -1;
 }
 RotationDir VisuDialog::getRotationDirection()
 {
+	if(m_clockwise == nullptr)
+		return INVALID_ROTATION_DIR;
 	if(m_clockwise->isChecked())
 		return CLOCKWISE;
 	else
@@ -20,6 +40,8 @@ RotationDir VisuDialog::getRotationDirection()
 }
 MatrixReadDirection VisuDialog::getMatrixReadDirection()
 {
+	if(m_linePerLine == nullptr)
+		return INVALID_MATRIX_READ_DIR;
 	if(m_linePerLine->isChecked())
 		return LINE_PER_LINE;
 	else
@@ -27,7 +49,10 @@ MatrixReadDirection VisuDialog::getMatrixReadDirection()
 }
 int VisuDialog::getExtremum()
 {
-	return m_extremum->value();
+	if(m_extremum != nullptr)
+		return m_extremum->value();
+	else
+		return -1;
 }
 
 //Chose the rotation direction
@@ -66,7 +91,7 @@ void VisuDialog::choseIndexOfZeroAngle(int maxIndex, int defaultZeroIndex)
 
 void VisuDialog::choseMatrixReadDirection(MatrixReadDirection defaultReadDir)
 {
-	m_matrixReadDirLabel = new QLabel("Rotation direction:");
+	m_matrixReadDirLabel = new QLabel("Matrix read direction:");
 	m_matrixReadRadioBox = new QGroupBox(this);
 	m_matrixReadRadioBoxLayout = new QVBoxLayout();
 	m_linePerLine = new QRadioButton("Line per line");

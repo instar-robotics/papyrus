@@ -1671,6 +1671,7 @@ void DiagramScene::display2DVisu(VisuType type)
 					vis->setHeight(oldProxy->widget()->height());
 				}
 				delete oldProxy;
+				oldProxy = nullptr;
 				oldThread->setRunning(false);
 				vis->updatePixmap();
 			}

@@ -87,12 +87,12 @@ void ShaderScalePolar::fillVectors()
 	{
 		if(i%3 != 0)//Do not rewrite on X and Z axes
 		{
-			vertex.setX(m_maxRadius*cos(i*PI/6));
-			vertex.setZ(m_maxRadius*sin(i*PI/6));
+			vertex.setX(m_maxRadius*cos(i*M_PI/6));
+			vertex.setZ(m_maxRadius*sin(i*M_PI/6));
 			m_vertexes.push_back(vertex);
 
-			vertex.setX(m_minRadius*cos(i*PI/6));
-			vertex.setZ(m_minRadius*sin(i*PI/6));
+			vertex.setX(m_minRadius*cos(i*M_PI/6));
+			vertex.setZ(m_minRadius*sin(i*M_PI/6));
 			m_vertexes.push_back(vertex);
 		}
 	}

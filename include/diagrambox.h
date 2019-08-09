@@ -73,7 +73,6 @@ public:
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void mousePressEvent(QGraphicsSceneMouseEvent *evt);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *evt);
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 	Script *getScript();

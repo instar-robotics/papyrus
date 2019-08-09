@@ -294,10 +294,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *evt)
 				if(image != nullptr)
 				{
 					if(maybeItem->parentItem() != nullptr)
-					{
-						QGraphicsItem *parentItem = maybeItem->parentItem();
-						parentItem->setSelected(true);
-					}
+						maybeItem->parentItem()->setSelected(true);
+					else
+						maybeItem->setSelected(true);
 				}
 				else
 					maybeItem->setSelected(true);
@@ -1034,10 +1033,7 @@ void DiagramScene::deleteItem(DiagramBox *box)
 	}
 
 	if(box->displayedProxy() != nullptr)
-	{
 		removeItem(box->displayedProxy()->moveBar());
-		removeItem(box->displayedProxy());
-	}
 
 	m_undoStack.push(command);
 
@@ -1419,8 +1415,8 @@ void DiagramScene::onOkBtnClicked(bool)
 			propPanel->updateZoneProperties(selectedZone);
 		} else {
 			propPanel->updateScriptProperties(m_script);
-//			informUserAndCrash(tr("Unsupported element for updating properties, only function "
-//			                      "boxes, links and zones are supported at the moment."));
+			informUserAndCrash(tr("Unsupported element for updating properties, only function "
+			                      "boxes, links and zones are supported at the moment."));
 		}
 	}
 
@@ -1485,19 +1481,10 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 	{
 		if(is3DPolarVisuType(type)) //Ask for parameters specific to 3d polar visu
 		{
-			int indexZero = cols/2;
-			RotationDir rotationDir = CLOCKWISE;
-			MatrixReadDirection matrixReadDirection = LINE_PER_LINE;
-			int extremum = 360;
-
-			if(selectedBox->visuParameters().contains("RotationDir"))
-				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
-			if(selectedBox->visuParameters().contains("IndexZero"))
-				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
-			if(selectedBox->visuParameters().contains("MatrixReadDirection"))
-				matrixReadDirection = MatrixReadDirection(selectedBox->visuParameters().take("MatrixReadDirection").toInt());
-			if(selectedBox->visuParameters().contains("Extremum"))
-				extremum = selectedBox->visuParameters().take("Extremum").toInt();
+			RotationDir rotationDir = RotationDir(selectedBox->visuParameters().value("RotationDir", CLOCKWISE).toInt());
+			int indexZero = selectedBox->visuParameters().value("IndexZero", cols/2).toInt();
+			MatrixReadDirection matrixReadDirection = MatrixReadDirection(selectedBox->visuParameters().value("MatrixReadDirection", LINE_PER_LINE).toInt());
+			int extremum = selectedBox->visuParameters().value("Extremum", 360).toInt();
 
 			PolarVisuDialog dialog(cols-1, indexZero, rotationDir, matrixReadDirection, extremum);
 			if(dialog.exec() == QDialog::Accepted)
@@ -1520,19 +1507,11 @@ void DiagramScene::onChangeParametersClicked(VisuType type)
 		{
 			int indexZero;
 			if(rows==1)
-				indexZero = cols/2;
+				indexZero = selectedBox->visuParameters().value("IndexZero", cols/2).toInt();
 			else
-				indexZero = rows/2;
-			RotationDir rotationDir = CLOCKWISE;
-			int extremum = 360;
-
-			if(selectedBox->visuParameters().contains("RotationDir"))
-				rotationDir = RotationDir(selectedBox->visuParameters().take("RotationDir").toInt());
-			if(selectedBox->visuParameters().contains("IndexZero"))
-				indexZero = selectedBox->visuParameters().take("IndexZero").toInt();
-			if(selectedBox->visuParameters().contains("Extremum"))
-				extremum = selectedBox->visuParameters().take("Extremum").toInt();
-
+				indexZero = selectedBox->visuParameters().value("IndexZero", rows/2).toInt();
+			RotationDir rotationDir = RotationDir(selectedBox->visuParameters().value("RotationDir", CLOCKWISE).toInt());
+			int extremum = selectedBox->visuParameters().value("Extremum", 360).toInt();
 			int maxIndex;
 			if(cols>1)
 				maxIndex = cols-1;
@@ -1668,10 +1647,20 @@ void DiagramScene::display2DVisu(VisuType type)
 
 			if(oldProxy != nullptr)
 			{
-				ThreadShader *oldThread = oldProxy->moveBar()->thread();
+				ThreadShader *oldThread = nullptr;
+				if(oldProxy->moveBar() != nullptr)
+					oldThread = oldProxy->moveBar()->thread();
 				vis->setPos(oldProxy->scenePos().x(), oldProxy->scenePos().y());
-				vis->setWidth(oldProxy->widget()->width());
-				vis->setHeight(oldProxy->widget()->height());
+				if(oldProxy->widget() != nullptr)
+				{
+					vis->setWidth(oldProxy->widget()->width());
+					vis->setHeight(oldProxy->widget()->height());
+				}
+				else
+				{
+					vis->setWidth(oldProxy->widget()->startWidth());
+					vis->setHeight(oldProxy->widget()->startHeight());
+				}
 				delete oldProxy;
 				oldThread->setRunning(false);
 				vis->updatePixmap();

@@ -6,7 +6,6 @@
 #include <math.h>
 
 const float MAP_SIZE = 5.0f;
-const double PI = 3.141592653589793238463;
 
 float radToDeg(float x);
 float degToRad(float x);

@@ -817,12 +817,6 @@ void DiagramBox::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsItem::mouseReleaseEvent(event);
 }
 
-void DiagramBox::mouseMoveEvent(QGraphicsSceneMouseEvent *evt)
-{
-	QGraphicsObject::mouseMoveEvent(evt);
-	QPoint pos(evt->pos().x(), evt->pos().y());
-}
-
 /**
  * @brief DiagramBox::getScript returns a pointer to the @Script object, if this box has been added
  * to a scene and this scene has a script. Returns NULL otherwise.

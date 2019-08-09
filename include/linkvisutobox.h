@@ -7,20 +7,25 @@
 #include <QColor>
 #include <QDebug>
 
+/**
+ * @brief The LinkVisuToBox class draw a gray line to visualize the link between a visualization and its
+ * diagram box.
+ */
+
 class LinkVisuToBox : public QGraphicsLineItem
 {
 public:
-	LinkVisuToBox(float xVisu, float yVisu, float xDiagramBox, float yDiagramBox);
+	LinkVisuToBox(qreal xVisu, qreal yVisu, qreal xDiagramBox, qreal yDiagramBox);
 	~LinkVisuToBox();
 
-	void centerDiagramBoxMoved(float x, float y);
-	void centerVisuMoved(float x, float y);
+	void centerDiagramBoxMoved(qreal x, qreal y);
+	void centerVisuMoved(qreal x, qreal y);
 
 private:
-	float m_xDiagramBox;
-	float m_yDiagramBox;
-	float m_xVisu;
-	float m_yVisu;
+	qreal m_xDiagramBox;
+	qreal m_yDiagramBox;
+	qreal m_xVisu;
+	qreal m_yVisu;
 	QBrush m_brush;
 	QPen m_pen;
 	int m_fontSize = 1;

@@ -1,4 +1,4 @@
-#include "shaderscalecylinder.h"
+﻿#include "shaderscalecylinder.h"
 
 ShaderScaleCylinder::ShaderScaleCylinder(float radius, float range, int nbMeasuresY):
     ShaderScale(range, nbMeasuresY),
@@ -36,8 +36,8 @@ void ShaderScaleCylinder::fillVectors()
 		//Secondary measures
 		for(int i = 0; i<24; i++)
 		{
-			vertex.setX(m_radius*cos(i*PI/12));
-			vertex.setZ(m_radius*sin(i*PI/12));
+			vertex.setX(m_radius*cos(i*M_PI/12));
+			vertex.setZ(m_radius*sin(i*M_PI/12));
 			m_vertexes.push_back(vertex);
 		}
 

@@ -20,7 +20,7 @@ void ShaderBarCircle::initVectors()
 
 void ShaderBarCircle::fillVectors()
 {
-	m_edgeSize = m_radius*(PI/2)/(m_size/2);
+	m_edgeSize = m_radius*(M_PI/2)/(m_size/2);
 	if(m_edgeSize > 0.5)m_edgeSize = 0.5;
 	QVector3D vertex;
 	float x;

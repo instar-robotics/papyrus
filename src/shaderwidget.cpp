@@ -184,6 +184,11 @@ void ShaderWidget::resizeGL(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+int ShaderWidget::startHeight() const
+{
+	return m_startHeight;
+}
+
 float ShaderWidget::gap() const
 {
 	return m_gap;

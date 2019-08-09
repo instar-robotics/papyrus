@@ -274,8 +274,8 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 		//Scale measures for each axe
 		QVector<QLine> lines;
-		float rows = 0.0;
-		float columns = 0.0;
+		qreal rows = 0.0;
+		qreal columns = 0.0;
 		if(matrix != nullptr)
 		{
 			if(matrix->scalePlanes() != nullptr)
@@ -296,7 +296,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 		gap = 2*m_max/(m_widget->nbMeasuresY()-1);
 		for(int i = 0; i<m_widget->nbMeasuresY(); i++)
 		{
-			float value = m_max - gap*i;
+			qreal value = m_max - gap*i;
 			QString str = QString::fromStdString(std::to_string(value));
 			str.resize(4);
 			painter->drawText(m_margin + m_measureSize + m_marginFont, m_marginTop + i*m_measureGap + m_fontSize/2, str);
@@ -314,7 +314,7 @@ void ShaderProxy::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 				lines.push_back(QLine(QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin), QPoint(i*m_measureGap+m_marginTop,widgetSize.height()-m_margin-m_measureSize)));
 			}
 			//Values
-			float value = 0.0;
+			qreal value = 0.0;
 
 			if(matrix != nullptr)
 				gap = columns/(m_widget->nbMeasuresXZ()-1);

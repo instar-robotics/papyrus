@@ -1,6 +1,6 @@
 ﻿#include "linkvisutobox.h"
 
-LinkVisuToBox::LinkVisuToBox(float xVisu, float yVisu, float xDiagramBox, float yDiagramBox):
+LinkVisuToBox::LinkVisuToBox(qreal xVisu, qreal yVisu, qreal xDiagramBox, qreal yDiagramBox):
     QGraphicsLineItem(xVisu, yVisu, xDiagramBox, yDiagramBox)
 {
 	m_xVisu = xVisu;
@@ -16,14 +16,14 @@ LinkVisuToBox::~LinkVisuToBox()
 {
 }
 
-void LinkVisuToBox::centerDiagramBoxMoved(float x, float y)
+void LinkVisuToBox::centerDiagramBoxMoved(qreal x, qreal y)
 {
 	m_xDiagramBox = x;
 	m_yDiagramBox = y;
 
 	setLine(QLineF(m_xVisu, m_yVisu, m_xDiagramBox, m_yDiagramBox));
 }
-void LinkVisuToBox::centerVisuMoved(float x, float y)
+void LinkVisuToBox::centerVisuMoved(qreal x, qreal y)
 {
 	m_xVisu = x;
 	m_yVisu = y;

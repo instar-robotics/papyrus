@@ -67,22 +67,22 @@ void ShaderMoveBar::setLinkVisuToBox(LinkVisuToBox *linkVisuToBox)
 	m_linkVisuToBox = linkVisuToBox;
 }
 
-float ShaderMoveBar::proxyWidth() const
+qreal ShaderMoveBar::proxyWidth() const
 {
 	return m_proxyWidth;
 }
 
-float ShaderMoveBar::proxyHeight() const
+qreal ShaderMoveBar::proxyHeight() const
 {
 	return m_proxyHeight;
 }
 
-void ShaderMoveBar::setProxyHeight(float proxyHeight)
+void ShaderMoveBar::setProxyHeight(qreal proxyHeight)
 {
 	m_proxyHeight = proxyHeight;
 }
 
-void ShaderMoveBar::setProxyWidth(float proxyWidth)
+void ShaderMoveBar::setProxyWidth(qreal proxyWidth)
 {
 	m_proxyWidth = proxyWidth;
 }

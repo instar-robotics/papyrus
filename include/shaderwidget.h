@@ -72,6 +72,8 @@ public:
 
 	float gap() const;
 
+	int startHeight() const;
+
 signals:
 	void repaint();
 

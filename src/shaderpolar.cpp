@@ -16,11 +16,11 @@ ShaderPolar::ShaderPolar(int xSize, int ySize, int centerIndex, RotationDir dir,
 		m_xSize = ySize;
 		m_ySize = xSize;
 	}
-	m_radiusMin = m_xSize/100.0*(PI/2.0);
+	m_radiusMin = m_xSize/100.0*(M_PI/2.0);
 
 	initMatrix();
 	m_coefSize = (m_xSize+m_ySize)/40.0;
-	m_camera.initDistance((m_xSize+2*m_ySize)/(3*PI/1.75));
+	m_camera.initDistance((m_xSize+2*m_ySize)/(3*M_PI/1.75));
 	m_radiusMax = m_radiusMin + m_radiusGap*m_ySize + 0.2;
 	m_scalePolar = new ShaderScalePolar(m_radiusMin, m_radiusMax, m_coefSize);
 	m_scaleCylinder = new ShaderScaleCylinder(m_radiusMax+0.05, m_coefSize, m_nbMeasuresY);
@@ -59,13 +59,13 @@ float ShaderPolar::calculateAngle(int j)
 
 float ShaderPolar::calculateXcoord(int i, int j)
 {
-	return (m_radiusMin + m_radiusGap*i)*cos(calculateAngle(j)+PI/2); // radius * cos(angle)
+	return (m_radiusMin + m_radiusGap*i)*cos(calculateAngle(j)+M_PI/2); // radius * cos(angle)
 }
 
 float ShaderPolar::calculateZcoord(int i, int j)
 {
 	//Z is reversed compared to the sinus, so we multiplie by -1
-	return -(m_radiusMin + m_radiusGap*i)*sin(calculateAngle(j)+PI/2); // -radius * sin(angle)
+	return -(m_radiusMin + m_radiusGap*i)*sin(calculateAngle(j)+M_PI/2); // -radius * sin(angle)
 }
 
 

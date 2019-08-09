@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) INSTAR Robotics
 
   Author: Nicolas SCHOEMAEKER
@@ -54,7 +54,7 @@ void SetColorButton::setCurrentScene(DiagramScene *currentScene)
 void SetColorButton::changeColor()
 {
 	//If opengl widgets are visible in the current scene, hide them while the user chose the color
-	if (m_currentScene != NULL)
+	if (m_currentScene != nullptr)
 		m_currentScene->hide3DVisualizations();
 
 	QColor newColor = QColorDialog::getColor(m_color,
@@ -65,6 +65,6 @@ void SetColorButton::changeColor()
 		setColor(newColor);
 
 	// Once the choice color window has been quit, set visible every widgets that have been hide just before
-	if(m_currentScene != NULL)
+	if(m_currentScene != nullptr)
 		m_currentScene->show3DVisualizations();
 }

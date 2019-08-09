@@ -41,12 +41,12 @@ float ShaderCircular::calculateAngle(int i)
 
 float ShaderCircular::calculateXcoord(int i)
 {
-	return m_radius*cos(calculateAngle(i)+PI/2);
+	return m_radius*cos(calculateAngle(i)+M_PI/2);
 }
 
 float ShaderCircular::calculateZcoord(int i)
 {
-	return -m_radius*sin(calculateAngle(i)+PI/2);
+	return -m_radius*sin(calculateAngle(i)+M_PI/2);
 }
 
 

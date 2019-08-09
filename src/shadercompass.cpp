@@ -117,20 +117,20 @@ void ShaderCompass::calculateDirectionAngles()
 			m_directionAngles.setY(acos(m_directionPoint.x()/m_directionRadius));
 
 			//Switch angle calculation for asin(z) instead of acos(x) when asin is more precise
-			if(m_directionAngles.y() <= PI/4)
+			if(m_directionAngles.y() <= M_PI/4)
 				m_directionAngles.setY(-asin(m_directionPoint.z()/m_directionRadius));
-			else if(m_directionAngles.y() >= 3*PI/4)
-				m_directionAngles.setY(PI+asin(m_directionPoint.z()/m_directionRadius));
+			else if(m_directionAngles.y() >= 3*M_PI/4)
+				m_directionAngles.setY(M_PI+asin(m_directionPoint.z()/m_directionRadius));
 		}
 		else
 		{
 			m_directionAngles.setY(-acos(m_directionPoint.x()/m_directionRadius));
 
 			//Switch angle calculation for asin(z) instead of acos(x) when asin is more precise
-			if(m_directionAngles.y() >= -PI/4)
+			if(m_directionAngles.y() >= -M_PI/4)
 				m_directionAngles.setY(-asin(m_directionPoint.z()/m_directionRadius));
-			else if(m_directionAngles.y() <= -3*PI/4)
-				m_directionAngles.setY(PI+asin(m_directionPoint.z()/m_directionRadius));
+			else if(m_directionAngles.y() <= -3*M_PI/4)
+				m_directionAngles.setY(M_PI+asin(m_directionPoint.z()/m_directionRadius));
 		}
 
 		if(m_directionPoint.x() >= 0.0)

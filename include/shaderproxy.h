@@ -86,7 +86,7 @@ private:
 	int m_measureGap = 13; //Distance between two branches in a scale
 	int m_fontSize = 6;
 	int m_titleFontSize = 10;
-	float m_max = 1.0;
+	qreal m_max = 1.0;
 
 	LinkVisuToBox *m_linkToBox;
 	QMutex *m_mutex;

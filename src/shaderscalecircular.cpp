@@ -1,4 +1,4 @@
-#include "shaderscalecircular.h"
+﻿#include "shaderscalecircular.h"
 
 ShaderScaleCircular::ShaderScaleCircular(float radius, float range, int nbMeasuresY):
     ShaderScale(range, nbMeasuresY),
@@ -87,12 +87,12 @@ void ShaderScaleCircular::fillVectors()
 	{
 		if(i%3 != 0)//Do not rewrite on X and Z axes
 		{
-			vertex.setX(m_radius*cos(i*PI/6));
-			vertex.setZ(m_radius*sin(i*PI/6));
+			vertex.setX(m_radius*cos(i*M_PI/6));
+			vertex.setZ(m_radius*sin(i*M_PI/6));
 			m_vertexes.push_back(vertex);
 
-			vertex.setX(m_secRadius*cos(i*PI/6));
-			vertex.setZ(m_secRadius*sin(i*PI/6));
+			vertex.setX(m_secRadius*cos(i*M_PI/6));
+			vertex.setZ(m_secRadius*sin(i*M_PI/6));
 			m_vertexes.push_back(vertex);
 		}
 	}
@@ -102,12 +102,12 @@ void ShaderScaleCircular::fillVectors()
 	{
 		if(i%2 != 0)//Do not rewrite on already written measures
 		{
-			vertex.setX(m_radius*cos(i*PI/12));
-			vertex.setZ(m_radius*sin(i*PI/12));
+			vertex.setX(m_radius*cos(i*M_PI/12));
+			vertex.setZ(m_radius*sin(i*M_PI/12));
 			m_vertexes.push_back(vertex);
 
-			vertex.setX(m_thirdRadius*cos(i*PI/12));
-			vertex.setZ(m_thirdRadius*sin(i*PI/12));
+			vertex.setX(m_thirdRadius*cos(i*M_PI/12));
+			vertex.setZ(m_thirdRadius*sin(i*M_PI/12));
 			m_vertexes.push_back(vertex);
 		}
 	}

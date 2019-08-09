@@ -42,8 +42,6 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QTextEdit>
-#include <QComboBox>
-#include <QMenu>
 
 /**
  * @brief The PropertiesPanel class is used to display (and modify) the properties of selected

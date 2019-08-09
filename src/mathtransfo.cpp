@@ -2,17 +2,17 @@
 
 float radToDeg(float x)
 {
-	return x*180/PI;
+	return x*180/M_PI;
 }
 
 float degToRad(float x)
 {
-	return x/180*PI;
+	return x/180*M_PI;
 }
 
 float normalizeDeg(float x)
 {
-	return x/359;
+	return x/360;
 }
 
 QVector3D vecRotationX(QVector3D vector, float angle)
